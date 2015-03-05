@@ -1,0 +1,2 @@
+# magicnet
+commonly socket library
