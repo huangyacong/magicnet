@@ -77,13 +77,11 @@ void SeCrypt(const unsigned char *input, unsigned char *output, int length, cons
 	arc4_crypt(&ctx, length, input, output);
 }
 
-// º”√‹
 void SeEnCrypt(const unsigned char *input, unsigned char *output, int length, const unsigned char *key, int keylen)
 {
 	SeCrypt(input, output, length, key, keylen);
 }
 
-// Ω‚√‹
 void SeDeCrypt(const unsigned char *input, unsigned char *output, int length, const unsigned char *key, int keylen)
 {
 	SeCrypt(input, output, length, key, keylen);
