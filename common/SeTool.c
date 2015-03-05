@@ -35,7 +35,7 @@ bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
 			return true;
 		}
 
-		// 非英文处理
+		// not ascii
 		if((unsigned char)pcDstChar[iDstIndex] >= 0x80)
 		{
 			iDstIndex += 2;

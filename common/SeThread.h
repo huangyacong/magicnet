@@ -12,7 +12,7 @@
 #include <sched.h>
 #include <time.h>
 
-// 编译的时候，请加上 -lrt
+// compile the code with -lrt and -lpthread
 
 #define	THREADHANDLE        pthread_t
 #define SLEEP(m)            usleep((m * 1000))
