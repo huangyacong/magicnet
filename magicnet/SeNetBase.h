@@ -47,7 +47,10 @@
 #elif (defined(_WIN32) || defined(WIN32))
 	
 	#include <winsock2.h>
-	#pragma comment(lib, "ws2_32.lib")
+
+	#ifdef _MSC_VER
+		#pragma comment(lib, "ws2_32.lib")
+	#endif
 
 	#define SOCK_LEN                int
 
