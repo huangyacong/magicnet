@@ -26,7 +26,7 @@
 
 #define	THREADHANDLE        uintptr_t
 #define SLEEP(m)            Sleep(m)
-#define THREAD(id,fun,args) ((long)_beginthread((void(*)(void*))fun, 0, args))
+#define THREAD(id,fun,args) (id = _beginthread((void(*)(void*))fun, 0, args))
 
 #endif
 
