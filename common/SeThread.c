@@ -23,6 +23,24 @@ unsigned long long SeGetTickCount()
 	return ulTime;
 }
 
+bool SeDiffTickCount(unsigned long long ullPrev, unsigned long long ullLast, unsigned int uiStep)
+{
+	if((unsigned long long)(ullPrev + (unsigned long long)uiStep) <= ullPrev) {
+		return true;
+	}
+
+	if(ullLast >= (unsigned long long)(ullPrev + (unsigned long long)uiStep)) {
+		return true;
+	}
+	
+	// flow 
+	if((unsigned long long)(10*ullLast) <= ullPrev) {
+		return true;
+	}
+
+	return false;
+}
+
 bool SeSchedSetaffinity(int iCpu)
 {
 #if defined(__linux)
