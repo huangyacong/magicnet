@@ -32,6 +32,10 @@ bool SeDiffTickCount(unsigned long long ullPrev, unsigned long long ullLast, uns
 	if(ullLast >= (unsigned long long)(ullPrev + (unsigned long long)uiStep)) {
 		return true;
 	}
+
+	if(ullLast >= ullPrev) {
+		return false;
+	}
 	
 	// flow 
 	if((unsigned long long)(10*ullLast) <= ullPrev) {
