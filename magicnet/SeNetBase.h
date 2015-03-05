@@ -1,6 +1,15 @@
 #ifndef __SE_NETBASE_H__
 #define __SE_NETBASE_H__
 
+/**********************************************************************
+ *
+ * 
+ * 
+ * NOTE: base net for win or linux
+ * 
+ *
+ **********************************************************************/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
