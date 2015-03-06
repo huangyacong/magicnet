@@ -70,3 +70,13 @@ unsigned int SeStr2Hash(const char *pcStr,int iLen)
 
 	return uiResult;
 }
+
+void * SeMallocMem(size_t size)
+{
+	return memalign(16, size);
+}
+
+void SeFreeMem(void* pvPtr)
+{
+	free(pvPtr);
+}
