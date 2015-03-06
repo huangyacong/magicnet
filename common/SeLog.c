@@ -32,7 +32,7 @@ void SeFinLog(struct SELOG *pkLog)
 
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...)
 {
-	if(!pkLog->pFile)
+	if(!pkLog->pFile || !SeHasLogLV(pkLog, iLogLv))
 	{
 		return;
 	}
