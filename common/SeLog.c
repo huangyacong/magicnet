@@ -108,8 +108,15 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...)
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	
-	fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
-	fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
+	if(SeHasLogLV(pkLog, LT_WRITE))
+	{
+		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
+		fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
+	}
+	else
+	{
+		printf("%s%s", acHeadr, pkLog->actext);
+	}
 }
 
 bool SeHasLogLV(struct SELOG *pkLog, int iLogLv)
