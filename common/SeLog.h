@@ -29,7 +29,7 @@ void SeInitLog(struct SELOG *pkLog, char *pkFileName);
 
 void SeFinLog(struct SELOG *pkLog);
 
-void SeLogWrite(struct SELOG *pkLog, int iLogLv, const char *text);
+void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...);
 
 bool SeHasLogLV(struct SELOG *pkLog, int iLogLv);
 

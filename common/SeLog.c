@@ -1,5 +1,6 @@
 #include "SeLog.h"
 #include "SeTool.h"
+#include <stdarg.h>
 
 FILE * newFile(const char *pkFileName, int year, int mon, int day)
 {
@@ -29,7 +30,7 @@ void SeFinLog(struct SELOG *pkLog)
 	}
 }
 
-void SeLogWrite(struct SELOG *pkLog, int iLogLv, const char *text)
+void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...)
 {
 	if(!pkLog->pFile)
 	{
@@ -58,47 +59,56 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, const char *text)
 		return;
 	}
 
+	va_list argptr;
+
+	va_start(argptr, argv);
+	vsprintf(pkLog->actext, argv, argptr);
+	va_end(argptr);
+	
+	char acHeadr[128] = {0};
+
 	if(iLogLv == LT_ERROR)
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG ERROR] %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG ERROR] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_WARNING)
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG WARNING] %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG WARNING] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_INFO)
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG INFO] %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG INFO] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_DEBUG)
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG DEBUG] %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG DEBUG] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_CRITICAL)
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG CRITICAL] %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG CRITICAL] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_SOCKET)
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG SOCKET] %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG SOCKET] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_NOTSET)
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG NOTSET] %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG NOTSET] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d %s\n", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	
+	fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
 	fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
 }
 
