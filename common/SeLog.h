@@ -18,23 +18,23 @@
 
 struct SELOG
 {
-	int		iFlag;
-	FILE*	pFile;
-	struct tm ttDate;
-	char	acfname[128];
-	char	actext[4096];
+	int			iFlag;
+	struct tm	ttDate;
+	char		acfname[128];
+	char		actext[4096];
+	FILE*		pFile;
 };
 
 void SeInitLog(struct SELOG *pkLog, char *pkFileName);
 
 void SeFinLog(struct SELOG *pkLog);
 
+void SeLogWrite(struct SELOG *pkLog, int iLogLv, const char *text);
+
 bool SeHasLogLV(struct SELOG *pkLog, int iLogLv);
 
 void SeAddLogLV(struct SELOG *pkLog, int iLogLv);
 
 void SeClearLogLV(struct SELOG *pkLog, int iLogLv);
-
-void SeLogWrite(struct SELOG *pkLog, int iLogLv, const char *text);
 
 #endif
