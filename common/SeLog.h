@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define LT_SPLIT	(1<<0)   // log split
 #define LT_ERROR	(1<<1)   // error
@@ -18,11 +19,13 @@
 struct SELOG
 {
 	int		iFlag;
-	int		iDate;
 	FILE*	pFile;
+	struct tm ttDate;
+	char	acfname[128];
+	char	actext[4096];
 };
 
-void SeInitLog(struct SELOG *pkLog);
+void SeInitLog(struct SELOG *pkLog, char *pkFileName);
 
 void SeFinLog(struct SELOG *pkLog);
 
@@ -31,5 +34,7 @@ bool SeHasLogLV(struct SELOG *pkLog, int iLogLv);
 void SeAddLogLV(struct SELOG *pkLog, int iLogLv);
 
 void SeClearLogLV(struct SELOG *pkLog, int iLogLv);
+
+void SeLogWrite(struct SELOG *pkLog, int iLogLv, const char *text);
 
 #endif
