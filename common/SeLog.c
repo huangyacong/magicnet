@@ -73,43 +73,43 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, const char *text)
 
 	if(SeHasLogLV(pkLog, LT_ERROR))
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG ERROR] %s", tt_now.tm_year + 1900, 
+		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG ERROR] %s\n", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
 	}
 	
 	if(SeHasLogLV(pkLog, LT_WARNING))
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG WARNING] %s", tt_now.tm_year + 1900, 
+		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG WARNING] %s\n", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
 	}
 
 	if(SeHasLogLV(pkLog, LT_INFO))
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG INFO] %s", tt_now.tm_year + 1900, 
+		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG INFO] %s\n", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
 	}
 
 	if(SeHasLogLV(pkLog, LT_DEBUG))
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG DEBUG] %s", tt_now.tm_year + 1900, 
+		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG DEBUG] %s\n", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
 	}
 
 	if(SeHasLogLV(pkLog, LT_CRITICAL))
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG CRITICAL] %s", tt_now.tm_year + 1900, 
+		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG CRITICAL] %s\n", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
 	}
 
 	if(SeHasLogLV(pkLog, LT_SOCKET))
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG SOCKET] %s", tt_now.tm_year + 1900, 
+		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG SOCKET] %s\n", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
 	}
 
 	if(SeHasLogLV(pkLog, LT_NOTSET))
 	{
-		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG NOTSET] %s", tt_now.tm_year + 1900, 
+		sprintf(pkLog->actext, "%04d-%02d-%02d %02d:%02d:%02d [LOG NOTSET] %s\n", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec, text);
 	}
 	
