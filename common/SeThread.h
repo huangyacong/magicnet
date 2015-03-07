@@ -5,6 +5,7 @@
 
 #ifdef __linux
 
+#define _XOPEN_SOURCE
 #define _GNU_SOURCE
 #include <pthread.h>
 #include <unistd.h>
