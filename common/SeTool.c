@@ -1,5 +1,31 @@
 #include "SeTool.h"
 
+time_t string_to_time_t(const char* pcTimeChar)
+{
+	if(strlen(pcTimeChar) != 19) {
+		return time(NULL);
+	}
+
+	// -
+	if((char)pcTimeChar[4] != 45 || (char)pcTimeChar[7] != 45) {
+		return time(NULL);
+	}
+	// space
+	if((char)pcTimeChar[10] != 32) {
+		return time(NULL);
+	}
+	// :
+	if((char)pcTimeChar[13] != 58 || (char)pcTimeChar[16] != 58) {
+		return time(NULL);
+	}
+
+	struct tm tb;
+	if(strptime(pcTimeChar, "%Y-%m-%d %H:%M:%S", &tb) == 0) {
+		return time(NULL);
+	}
+	return mktime(&tb);
+}
+
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
 {
 	int iLen = 0;
