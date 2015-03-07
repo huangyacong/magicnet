@@ -1,7 +1,10 @@
 #ifndef __SE_TOOL_H__
 #define __SE_TOOL_H__
 
+#ifdef __linux
 #define _XOPEN_SOURCE
+#endif
+
 #include "SeBool.h"
 #include <string.h>
 #include <assert.h>
