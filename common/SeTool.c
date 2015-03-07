@@ -1,5 +1,10 @@
 #include "SeTool.h"
 
+time_t newtime_t()
+{
+	return time(NULL);
+}
+
 time_t string_to_time_t(const char* pcTimeChar)
 {
 	if(strlen(pcTimeChar) != 19) {
@@ -24,6 +29,21 @@ time_t string_to_time_t(const char* pcTimeChar)
 		return time(NULL);
 	}
 	return mktime(&tb);
+}
+
+long long difftime_t(time_t timeEnd, time_t timeBegin)
+{
+	return (long long)difftime(timeEnd, timeBegin);
+}
+
+time_t addtime_t(time_t srcTime, unsigned int sec)
+{
+	return srcTime + sec;
+}
+
+void formattime_t(time_t srcTime, char *pOut, int len)
+{
+	strftime(pOut, len, "%Y-%m-%d %H:%M:%S", localtime(&srcTime));
 }
 
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
