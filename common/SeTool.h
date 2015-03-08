@@ -28,7 +28,7 @@ time_t string_to_time_t(const char* pcTimeChar);
 long long difftime_t(time_t timeEnd, time_t timeBegin);
 
 // add sec
-time_t addtime_t(time_t srcTime, unsigned int sec);
+time_t addtime_t(time_t srcTime, int sec);
 
 // format to '9999-02-31 23:00:59', len >=20
 void formattime_t(time_t srcTime, char *pOut, int len);

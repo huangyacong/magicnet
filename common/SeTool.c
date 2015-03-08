@@ -86,7 +86,7 @@ long long difftime_t(time_t timeEnd, time_t timeBegin)
 	return (long long)difftime(timeEnd, timeBegin);
 }
 
-time_t addtime_t(time_t srcTime, unsigned int sec)
+time_t addtime_t(time_t srcTime, int sec)
 {
 	if(sec >= 3600*24*366 || sec <= 3600*24*366*(-1)) {
 		assert(0 != 0);
