@@ -110,6 +110,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...)
 	{
 		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
 		fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
+		fflush(pkLog->pFile);
 	}
 	else
 	{
