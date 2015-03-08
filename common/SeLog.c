@@ -32,14 +32,20 @@ void SeFinLog(struct SELOG *pkLog)
 
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...)
 {
+	va_list argptr;
+	struct tm tt_now;
+	char acHeadr[128] = {0};
+	time_t my_time = time(NULL);
+	memcpy(&tt_now, localtime(&my_time), sizeof(tt_now));
+
+	va_start(argptr, argv);
+	vsprintf(pkLog->actext, argv, argptr);
+	va_end(argptr);
+
 	if(!pkLog->pFile || !SeHasLogLV(pkLog, iLogLv))
 	{
 		return;
 	}
-
-	struct tm tt_now;
-	time_t my_time = time(NULL);
-	memcpy(&tt_now, localtime(&my_time), sizeof(tt_now));
 	
 	if(SeHasLogLV(pkLog, LT_SPLIT))
 	{
@@ -58,14 +64,6 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...)
 	{
 		return;
 	}
-
-	va_list argptr;
-
-	va_start(argptr, argv);
-	vsprintf(pkLog->actext, argv, argptr);
-	va_end(argptr);
-	
-	char acHeadr[128] = {0};
 
 	if(iLogLv == LT_ERROR)
 	{

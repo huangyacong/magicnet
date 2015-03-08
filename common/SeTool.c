@@ -7,6 +7,9 @@ time_t newtime_t()
 
 time_t string_to_time_t(const char* pcTimeChar)
 {
+	struct tm tb;
+	memset(&tb, 0, sizeof(tb));
+
 	if(strlen(pcTimeChar) != 19) {
 		return time(NULL);
 	}
@@ -24,8 +27,6 @@ time_t string_to_time_t(const char* pcTimeChar)
 		return time(NULL);
 	}
 
-	struct tm tb;
-	memset(&tb, 0, sizeof(tb));
 	if(strptime(pcTimeChar, "%Y-%m-%d %H:%M:%S", &tb) == 0) {
 		return time(NULL);
 	}
