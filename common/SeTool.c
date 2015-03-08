@@ -61,7 +61,7 @@ time_t string_to_time_t(const char* pcTimeChar)
 	if(iDay < 1 || iDay > 31) {
 		return time(NULL);
 	}
-	if(iHour < 0 || iDay > 23) {
+	if(iHour < 0 || iHour > 23) {
 		return time(NULL);
 	}
 	if(iMin < 0 || iMin > 59) {
