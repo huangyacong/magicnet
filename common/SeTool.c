@@ -8,28 +8,76 @@ time_t newtime_t()
 time_t string_to_time_t(const char* pcTimeChar)
 {
 	struct tm tb;
+	unsigned int uiLen = 0, uiBegin = 0;
+	int iYear = 0, iMon = 0, iDay = 0, iHour = 0, iMin = 0, iSec = 0;
+	
 	memset(&tb, 0, sizeof(tb));
+	uiLen = strlen(pcTimeChar);
 
-	if(strlen(pcTimeChar) != 19) {
+	if(uiLen != 19) {
 		return time(NULL);
+	}
+	
+	for(uiBegin = 0; uiBegin < uiLen; uiBegin++) {
+		// -
+		if(uiBegin == 4 || uiBegin == 7) {
+			if((char)pcTimeChar[uiBegin] != 45) {
+				return time(NULL);
+			}
+		}
+		// space
+		else if(uiBegin == 10) {
+			if((char)pcTimeChar[uiBegin] != 32) {
+				return time(NULL);
+			}
+		}
+		// :
+		else if(uiBegin == 13 || uiBegin == 16) {
+			if((char)pcTimeChar[uiBegin] != 58) {
+				return time(NULL);
+			}
+		}
+		// number(0-9)
+		else {
+			if((char)pcTimeChar[uiBegin] < 48 || (char)pcTimeChar[uiBegin] > 57) {
+				return time(NULL);
+			}
+		}
 	}
 
-	// -
-	if((char)pcTimeChar[4] != 45 || (char)pcTimeChar[7] != 45) {
+	iYear = atoi(pcTimeChar);
+	iMon = atoi(pcTimeChar + 5);
+	iDay = atoi(pcTimeChar + 8);
+	iHour = atoi(pcTimeChar + 11);
+	iMin = atoi(pcTimeChar + 14);
+	iSec = atoi(pcTimeChar + 17);
+	
+	if(iYear < 1900 || iYear > 9999) {
 		return time(NULL);
 	}
-	// space
-	if((char)pcTimeChar[10] != 32) {
+	if(iMon < 1 || iMon > 12) {
 		return time(NULL);
 	}
-	// :
-	if((char)pcTimeChar[13] != 58 || (char)pcTimeChar[16] != 58) {
+	if(iDay < 1 || iDay > 31) {
 		return time(NULL);
 	}
-
-	if(strptime(pcTimeChar, "%Y-%m-%d %H:%M:%S", &tb) == 0) {
+	if(iHour < 0 || iDay > 23) {
 		return time(NULL);
 	}
+	if(iMin < 0 || iMin > 59) {
+		return time(NULL);
+	}
+	if(iSec < 0 || iSec > 60) {
+		return time(NULL);
+	}
+	
+	tb.tm_year = iYear - 1900;
+	tb.tm_mon = iMon - 1;
+	tb.tm_mday = iDay;
+	tb.tm_hour = iHour;
+	tb.tm_min = iMin;
+	tb.tm_sec = iSec;
+	
 	return mktime(&tb);
 }
 
