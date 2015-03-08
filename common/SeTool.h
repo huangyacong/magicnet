@@ -14,7 +14,8 @@
 #include <stdio.h>
 #include <time.h>
 
-// mysql: datetime->'1000-01-01 00:00:00'to'9999-12-31 23:59:59'; TIMESTAMP->1970to2037
+// mysql: datetime->'1971-01-01 00:00:00'to'9999-12-31 23:59:59'; TIMESTAMP->1970to2037
+// valid time in '1971-01-01 00:00:00'->'9999-12-31 23:59:59'
 
 // now time
 time_t newtime_t();
