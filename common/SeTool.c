@@ -121,7 +121,11 @@ unsigned int SeStr2Hash(const char *pcStr,int iLen)
 
 void * SeMallocMem(size_t size)
 {
+#ifdef __linux
 	return memalign(16, size);
+#elif (defined(_WIN32) || defined(WIN32))
+	return malloc(size);
+#endif
 }
 
 void SeFreeMem(void* pvPtr)
