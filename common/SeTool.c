@@ -52,7 +52,7 @@ time_t string_to_time_t(const char* pcTimeChar)
 	iMin = atoi(pcTimeChar + 14);
 	iSec = atoi(pcTimeChar + 17);
 	
-	if(iYear < 1900 || iYear > 9999) {
+	if(iYear < 1971 || iYear > 9999) {
 		return time(NULL);
 	}
 	if(iMon < 1 || iMon > 12) {
