@@ -16,7 +16,7 @@ void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPor
 	SeStrNcpy(pkMysql->acUser, 256, pcUser);
 	SeStrNcpy(pkMysql->acPasswd, 256, pcPasswd);
 	SeStrNcpy(pkMysql->acDBName, 256, pcDBName);
-	memset(&pkMysql->kMysql, 0, sizeof(pkMysql->kMysql));
+	//memset(&pkMysql->kMysql, 0, sizeof(pkMysql->kMysql));
 }
 
 void SeMysqlFin(struct SEMYSQL *pkMysql)
@@ -70,10 +70,10 @@ unsigned long SeMysqlEscape(struct SEMYSQL *pkMysql, char *pcDst, const char *pc
 
 long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen)
 {
-	long lAffectedRows;
+	my_ulonglong lAffectedRows;
 	if(mysql_real_query(&pkMysql->kMysql, pcQuerySql, ulLen) == 0) {
-		lAffectedRows = (long)mysql_affected_rows(&pkMysql->kMysql);
-		return lAffectedRows;
+		lAffectedRows = mysql_affected_rows(&pkMysql->kMysql);
+		return lAffectedRows == (my_ulonglong)-1 ? 0 : (long)lAffectedRows;
 	}
 	return -1;
 }
@@ -104,7 +104,6 @@ void SeMysqlResultFin(struct SEMYSQLRESULT *pkMysqlResult)
 
 bool SeMysqlResultNextRecord(struct SEMYSQLRESULT *pkMysqlResult)
 {
-	assert(pkMysqlResult->pkRes);
 	pkMysqlResult->kRow = mysql_fetch_row(pkMysqlResult->pkRes);
 	return pkMysqlResult->kRow ? true : false;
 }
