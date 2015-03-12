@@ -1,15 +1,11 @@
 #ifndef __SE_LOG_H__
 #define __SE_LOG_H__
 
-#ifdef __linux
-#define _XOPEN_SOURCE
-#endif
-
 #include "SeBool.h"
+#include "SeTime.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <time.h>
 
 #define LT_SPLIT	(1<<0)   // log split
 #define LT_ERROR	(1<<1)   // error

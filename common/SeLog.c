@@ -11,7 +11,7 @@ FILE * newFile(const char *pkFileName, int year, int mon, int day)
 
 void SeInitLog(struct SELOG *pkLog, char *pkFileName)
 {
-	time_t my_time = time(NULL);
+	time_t my_time = SeTimeTime();
 
 	pkLog->iFlag = 0;
 	memcpy(&pkLog->ttDate, localtime(&my_time), sizeof(pkLog->ttDate));
@@ -35,7 +35,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, char *argv, ...)
 	va_list argptr;
 	struct tm tt_now;
 	char acHeadr[128] = {0};
-	time_t my_time = time(NULL);
+	time_t my_time = SeTimeTime();
 	memcpy(&tt_now, localtime(&my_time), sizeof(tt_now));
 
 	va_start(argptr, argv);
