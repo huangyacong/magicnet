@@ -2,6 +2,13 @@
 #define __SE_TIME_H__
 
 #include "SeBool.h"
+#include <string.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <time.h>
 
 #ifdef __linux
 

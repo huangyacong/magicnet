@@ -1,10 +1,6 @@
 #ifndef __SE_TOOL_H__
 #define __SE_TOOL_H__
 
-#ifdef __linux
-#define _XOPEN_SOURCE
-#endif
-
 #include "SeBool.h"
 #include <string.h>
 #include <assert.h>
@@ -12,7 +8,6 @@
 #include <malloc.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <time.h>
 
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar);
 
