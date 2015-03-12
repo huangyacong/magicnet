@@ -1,9 +1,19 @@
 #include "SeThread.h"
 
-long SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs)
+THREADHANDLE SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs)
 {
 	THREADHANDLE id = 0;
-	return THREAD(id,pkFun,pkFunArgs);
+#ifdef __linux
+	int iRet = 0;
+	iRet = pthread_create((pthread_t*)&id, 0, (void*(*)(void*))pkFun, pkFunArgs);
+	if(iRet == 0) {
+		return id;
+	}
+	return -1;
+#elif (defined(_WIN32) || defined(WIN32))
+	id = _beginthread((void(*)(void*))pkFun, 0, pkFunArgs)
+	return id;
+#endif
 }
 
 bool SeSchedSetaffinity(int iCpu)
