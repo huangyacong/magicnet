@@ -13,12 +13,7 @@
 #ifdef __linux
 
 #define _XOPEN_SOURCE
-#define _GNU_SOURCE
-#include <pthread.h>
 #include <unistd.h>
-#include <sys/time.h>
-#include <sched.h>
-#include <time.h>
 
 #elif (defined(_WIN32) || defined(WIN32))
 
