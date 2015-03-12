@@ -4,12 +4,8 @@ THREADHANDLE SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs)
 {
 	THREADHANDLE id = 0;
 #ifdef __linux
-	int iRet = 0;
-	iRet = pthread_create((pthread_t*)&id, 0, (void*(*)(void*))pkFun, pkFunArgs);
-	if(iRet == 0) {
-		return id;
-	}
-	return -1;
+	pthread_create((pthread_t*)&id, 0, (void*(*)(void*))pkFun, pkFunArgs);
+	return id;
 #elif (defined(_WIN32) || defined(WIN32))
 	id = _beginthread((void(*)(void*))pkFun, 0, pkFunArgs)
 	return id;
