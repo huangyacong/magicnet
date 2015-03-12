@@ -115,6 +115,14 @@ const char* SeMysqlResultGetFieldName(struct SEMYSQLRESULT *pkMysqlResult, unsig
 	return pkField[iIndex].name;
 }
 
+bool SeMysqlResultIsFieldValueNumType(struct SEMYSQLRESULT *pkMysqlResult, unsigned int iIndex)
+{
+	assert(pkMysqlResult->pkRes);
+	assert(iIndex < SeMysqlResultGetFieldCount(pkMysqlResult));
+	MYSQL_FIELD* pkField = mysql_fetch_fields(pkMysqlResult->pkRes);
+	return IS_NUM(pkField[iIndex].type) ? true : false;
+}
+
 unsigned long SeMysqlResultGetFieldLen(struct SEMYSQLRESULT *pkMysqlResult, unsigned int iIndex)
 {
 	assert(pkMysqlResult->pkRes);
