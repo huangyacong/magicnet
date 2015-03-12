@@ -6,17 +6,20 @@ CC = gcc
 #Directories
 #*********************************************************************
 ROOT = ./
+SRC_MYSQL = mysql
 SRC_COMMON = common
 SRC_MAGIC = magicnet
+APP_SRCDIR_MYSQL := $(ROOT)/$(SRC_MYSQL)
 APP_SRCDIR_COMMON := $(ROOT)/$(SRC_COMMON)
 APP_SRCDIR_MAGICNET := $(ROOT)/$(SRC_MAGIC)
+SRCDIR += $(APP_SRCDIR_MYSQL)
 SRCDIR += $(APP_SRCDIR_COMMON)
 SRCDIR += $(APP_SRCDIR_MAGICNET)
 VPATH = $(SRCDIR)
 #*********************************************************************
 #Compiler options
 #*********************************************************************
-CC_OPT = -c -fpic -lrt -Wall -g -I$(SRC_MAGIC) -I$(SRC_COMMON)
+CC_OPT = -c -fpic -lrt -Wall -g -I$(SRC_MAGIC) -I$(SRC_COMMON) -I$(SRC_MYSQL)
 #*********************************************************************
 #DEBUG OR RELASE
 #*********************************************************************
