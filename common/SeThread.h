@@ -34,10 +34,9 @@
 typedef void (*SETHREADPROC)(void *);
 
 long SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs);
-void SeSleep(unsigned long ulMillisecond);
-unsigned long long SeGetTickCount();
-bool SeDiffTickCount(unsigned long long ullPrev, unsigned long long ullLast, unsigned int uiStep);
+
 bool SeSchedSetaffinity(int iCpu);
+
 long SeGetCpuNum();
 
 #endif
