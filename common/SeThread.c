@@ -7,7 +7,7 @@ THREADHANDLE SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs)
 	pthread_create((pthread_t*)&id, 0, (void*(*)(void*))pkFun, pkFunArgs);
 	return id;
 #elif (defined(_WIN32) || defined(WIN32))
-	id = _beginthread((void(*)(void*))pkFun, 0, pkFunArgs)
+	id = _beginthread((void(*)(void*))pkFun, 0, pkFunArgs);
 	return id;
 #endif
 }
