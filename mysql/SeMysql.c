@@ -68,9 +68,19 @@ unsigned long SeMysqlEscape(struct SEMYSQL *pkMysql, char *pcDst, const char *pc
 	return mysql_real_escape_string(&pkMysql->kMysql, pcDst, pcSrc, ulSrcLen);
 }
 
-bool SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen)
+long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen)
 {
-	return mysql_real_query(&pkMysql->kMysql, pcQuerySql, ulLen) == 0;
+	long lAffectedRows;
+	if(mysql_real_query(&pkMysql->kMysql, pcQuerySql, ulLen) == 0) {
+		lAffectedRows = (long)mysql_affected_rows(&pkMysql->kMysql);
+		return lAffectedRows;
+	}
+	return -1;
+}
+
+bool SeMysqlNextResult(struct SEMYSQL *pkMysql)
+{
+	return mysql_next_result(&pkMysql->kMysql) == 0;
 }
 
 bool SeMysqlStoreResult(struct SEMYSQL *pkMysql, struct SEMYSQLRESULT *pkMysqlResult)

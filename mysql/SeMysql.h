@@ -60,7 +60,9 @@ bool SeMysqlRollback(struct SEMYSQL *pkMysql);
 
 unsigned long SeMysqlEscape(struct SEMYSQL *pkMysql, char *pcDst, const char *pcSrc, unsigned long ulSrcLen);
 
-bool SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen);
+long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen);
+
+bool SeMysqlNextResult(struct SEMYSQL *pkMysql);
 
 bool SeMysqlStoreResult(struct SEMYSQL *pkMysql, struct SEMYSQLRESULT *pkMysqlResult);
 
