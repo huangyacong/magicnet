@@ -17,8 +17,6 @@ void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPor
 	SeStrNcpy(pkMysql->acPasswd, 256, pcPasswd);
 	SeStrNcpy(pkMysql->acDBName, 256, pcDBName);
 	memset(&pkMysql->kMysql, 0, sizeof(pkMysql->kMysql));
-
-	TryConnect(pkMysql);
 }
 
 void SeMysqlFin(struct SEMYSQL *pkMysql)
