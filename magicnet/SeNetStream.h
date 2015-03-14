@@ -26,7 +26,6 @@ struct SENETSTREAMNODE
 struct SENETSTREAM
 {
 	int					iListCount;
-	long long			llStreamSize;
 	struct SELIST		kList;
 };
 

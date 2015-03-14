@@ -3,7 +3,6 @@
 void SeNetSreamInit(struct SENETSTREAM *pkNetStream)
 {
 	pkNetStream->iListCount = 0;
-	pkNetStream->llStreamSize = 0;
 	SeListInit(&pkNetStream->kList);
 }
 
@@ -20,11 +19,13 @@ void SeNetSreamNodeInit(struct SENETSTREAMNODE *pkNetStreamNode)
 void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode)
 {
 	SeListHeadAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
+	pkNetStream->iListCount++;
 }
 
 void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode)
 {
 	SeListTailAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
+	pkNetStream->iListCount++;
 }
 
 struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
@@ -35,6 +36,7 @@ struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
 	pkNode = SeListHeadPop(&pkNetStream->kList);
 	if(!pkNode) return 0;
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
+	pkNetStream->iListCount--;
 	return pkNetStreamNode;
 }
 
@@ -46,5 +48,6 @@ struct SENETSTREAMNODE *SeNetSreamTailPop(struct SENETSTREAM *pkNetStream)
 	pkNode = SeListTailPop(&pkNetStream->kList);
 	if(!pkNode) return 0;
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
+	pkNetStream->iListCount--;
 	return pkNetStreamNode;
 }
