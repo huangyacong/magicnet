@@ -33,6 +33,8 @@ void SeNetSreamInit(struct SENETSTREAM *pkNetStream);
 
 void SeNetSreamNodeInit(struct SENETSTREAMNODE *pkNetStreamNode);
 
+int SeNetSreamCount(struct SENETSTREAM *pkNetStream);
+
 void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode);
 
 void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode);

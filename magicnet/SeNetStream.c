@@ -16,6 +16,11 @@ void SeNetSreamNodeInit(struct SENETSTREAMNODE *pkNetStreamNode)
 #endif
 }
 
+int SeNetSreamCount(struct SENETSTREAM *pkNetStream)
+{
+	return pkNetStream->iListCount;
+}
+
 void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode)
 {
 	SeListHeadAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
