@@ -58,6 +58,7 @@ bool SeMysqlCommit(struct SEMYSQL *pkMysql);
 bool SeMysqlRollback(struct SEMYSQL *pkMysql);
 
 
+// pcDst len must at least (ulSrcLen*2 + 1) and return value = copy len not include '\0'
 unsigned long SeMysqlEscape(struct SEMYSQL *pkMysql, char *pcDst, const char *pcSrc, unsigned long ulSrcLen);
 
 long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen);
