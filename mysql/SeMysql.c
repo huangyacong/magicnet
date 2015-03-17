@@ -68,6 +68,71 @@ unsigned long SeMysqlEscape(struct SEMYSQL *pkMysql, char *pcDst, const char *pc
 	return mysql_real_escape_string(&pkMysql->kMysql, pcDst, pcSrc, ulSrcLen);
 }
 
+unsigned long SeMysqlMyEscape(char *pcDst, const char *pcSrc, unsigned long ulSrcLen)
+{
+	unsigned long ulPos;
+	unsigned long ulIndex;
+
+	for(ulIndex = 0, ulPos = 0; ulIndex < ulSrcLen; ulIndex++)
+	{
+		if((char)pcSrc[ulIndex] == '\0')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = '0';
+			ulPos++;
+		}
+		else if((char)pcSrc[ulIndex] == '\'')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = '\'';
+			ulPos++;
+		}
+		else if((char)pcSrc[ulIndex] == '"')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = '\"';
+			ulPos++;
+		}
+		else if((char)pcSrc[ulIndex] == '\n')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = 'n';
+			ulPos++;
+		}
+		else if((char)pcSrc[ulIndex] == '\r')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = 'r';
+			ulPos++;
+		}
+		else if((char)pcSrc[ulIndex] == '\\')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = '\\';
+			ulPos++;
+		}
+		else if((char)pcSrc[ulIndex] == 26)
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = 'Z';
+			ulPos++;
+		}
+		else
+		{
+			pcDst[ulPos] = pcSrc[ulIndex];
+			ulPos++;
+		}
+	}
+	return ulPos;
+}
+
 long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen)
 {
 	my_ulonglong lAffectedRows;
