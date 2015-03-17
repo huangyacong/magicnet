@@ -1,4 +1,5 @@
 #include "SeNetBase.h"
+#include "SeTool.h"
 
 HSOCKET SeGetHSocket(unsigned short usCounter,unsigned short usIndex,SOCKET kSocket)
 {
@@ -211,7 +212,7 @@ void SeErrStr(int iErrno, char *pcMsg, unsigned long ulSize)
 
 	LPVOID lpMessageBuf;
 	unsigned long ulLen = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, iErrno, MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT), (LPTSTR) &lpMessageBuf, 0, NULL);
-	strncpy(pcMsg, (char*)lpMessageBuf,(ulLen >= ulSize ? ulSize : ulLen));
+	SeStrNcpy(pcMsg, (int)ulSize, (char*)lpMessageBuf);
 	LocalFree(lpMessageBuf);
 
 	#endif
