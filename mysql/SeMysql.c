@@ -93,7 +93,7 @@ unsigned long SeMysqlMyEscape(char *pcDst, const char *pcSrc, unsigned long ulSr
 		{
 			pcDst[ulPos] = '\\';
 			ulPos++;
-			pcDst[ulPos] = '\"';
+			pcDst[ulPos] = '"';
 			ulPos++;
 		}
 		else if((char)pcSrc[ulIndex] == '\n')
