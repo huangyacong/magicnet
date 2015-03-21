@@ -8,6 +8,10 @@
 
 #define MAX_SOCKET_LEN 65535
 
+typedef void (*SENETTCPONCONNECT)(SOCKET /*帧听着SOCKET*/, HSOCKET/*连接过来的HSOCKET*/);
+typedef void (*SENETTCPDISCONNECT)(SOCKET /*帧听着SOCKET*/, HSOCKET/*断线的HSOCKET*/);
+typedef void (*SENETTCPRECV)(SOCKET /*帧听着SOCKET*/, HSOCKET/*收到数据的HSOCKET*/, const char*, int);
+
 struct SENETTCP
 {
 	HANDLE					kHandle;
@@ -19,14 +23,14 @@ struct SENETTCP
 	struct SENETCSOCKET		kConnectCSocketList;
 	struct SENETCSOCKET		kDisConnectCSocketList;
 	struct SECSOCKETNODE	kClientSocket[MAX_SOCKET_LEN];
+
+	SENETTCPONCONNECT		pkOnConnectFunc;
+	SENETTCPDISCONNECT		pkOnDisconnectFunc;
+	SENETTCPRECV			pkOnRecvDataFunc;
 };
 
-typedef void (*SENETTCPONCONNECT)(SOCKET /*帧听着SOCKET*/, HSOCKET/*连接过来的HSOCKET*/);
-typedef void (*SENETTCPDISCONNECT)(SOCKET /*帧听着SOCKET*/, HSOCKET/*断线的HSOCKET*/);
-typedef void (*SENETTCPRECV)(SOCKET /*帧听着SOCKET*/, HSOCKET/*收到数据的HSOCKET*/, const char*, int);
-
 // don't use it,SeNetTcpInit will run it.
-void SeNetTcpCreate(struct SENETTCP *pkNetTcp);
+void SeNetTcpCreate(struct SENETTCP *pkNetTcp, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc);
 
 void SeNetTcpInit(struct SENETTCP *pkNetTcp);
 
@@ -39,8 +43,5 @@ HSOCKET SeNetTcpCreateClientSocket(struct SENETTCP *pkNetTcp, const char *pcIP, 
 bool SeNetTcpSend(struct SENETTCP *pkNetTcp, HSOCKET kHSocket, const char* pkData, int iSize);
 
 void SeNetTcpDisconnect(struct SENETTCP *pkNetTcp, HSOCKET kHSocket);
-
-void SeNetTcpProcess(struct SENETTCP *pkNetTcp, \
-	SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc);
 
 #endif
