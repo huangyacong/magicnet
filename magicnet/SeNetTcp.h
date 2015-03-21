@@ -4,36 +4,29 @@
 #include "SeList.h"
 #include "SeNetBase.h"
 #include "SeNetStream.h"
+#include "SeNetSocket.h"
 
-unsigned int usMaxSocketLen = 65535;
-
-struct SECSOCKET
-{
-	HSOCKET				kHSocket;
-	SOCKET				kOwnerListenSocket;
-	unsigned short		usIndex;
-	struct SENODE		kNode;
-	struct SENETSTREAM	kSendNetStream;
-	struct SENETSTREAM	kRecvNetStream;
-};
-
-struct SESVRSOCKETNODE
-{
-	SOCKET				kListenSocket;
-	struct SENODE		kNode;
-};
+#define MAX_SOCKET_LEN 65535
 
 struct SENETTCP
 {
-	HANDLE				kHandle;
-	struct SENETSTREAM	kMemCache;
-	struct SELIST		kSvrSocketList;
-	struct SECSOCKET	kClientSocket[usMaxSocketLen + 1];
+	HANDLE					kHandle;
+	struct SENETSTREAM		kMemCache;
+	struct SENETSSOCKET		kSvrSocketList;
+
+	struct SENETCSOCKET		kFreeCSocketList;
+	struct SENETCSOCKET		kActiveCSocketList;
+	struct SENETCSOCKET		kConnectCSocketList;
+	struct SENETCSOCKET		kDisConnectCSocketList;
+	struct SECSOCKETNODE	kClientSocket[MAX_SOCKET_LEN];
 };
 
 typedef void (*SENETTCPONCONNECT)(SOCKET /*帧听着SOCKET*/, HSOCKET/*连接过来的HSOCKET*/);
 typedef void (*SENETTCPDISCONNECT)(SOCKET /*帧听着SOCKET*/, HSOCKET/*断线的HSOCKET*/);
 typedef void (*SENETTCPRECV)(SOCKET /*帧听着SOCKET*/, HSOCKET/*收到数据的HSOCKET*/, const char*, int);
+
+// don't use it,SeNetTcpInit will run it.
+void SeNetTcpCreate(struct SENETTCP *pkNetTcp);
 
 void SeNetTcpInit(struct SENETTCP *pkNetTcp);
 
