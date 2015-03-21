@@ -30,9 +30,9 @@ struct SENETTCP
 };
 
 // don't use it,SeNetTcpInit will run it.
-void SeNetTcpCreate(struct SENETTCP *pkNetTcp, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc);
+void SeNetTcpCreate(struct SENETTCP *pkNetTcp);
 
-void SeNetTcpInit(struct SENETTCP *pkNetTcp);
+void SeNetTcpInit(struct SENETTCP *pkNetTcp, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc);
 
 void SeNetTcpFin(struct SENETTCP *pkNetTcp);
 
