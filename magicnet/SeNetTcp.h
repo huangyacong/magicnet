@@ -12,6 +12,7 @@ struct SECSOCKET
 	HSOCKET				kHSocket;
 	SOCKET				kOwnerListenSocket;
 	unsigned short		usIndex;
+	struct SENODE		kNode;
 	struct SENETSTREAM	kSendNetStream;
 	struct SENETSTREAM	kRecvNetStream;
 };
