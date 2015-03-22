@@ -19,7 +19,7 @@ VPATH = $(SRCDIR)
 #*********************************************************************
 #Compiler options
 #*********************************************************************
-CC_OPT = -c -fpic -lrt -Wall -g -I$(SRC_MAGIC) -I$(SRC_COMMON) -I$(SRC_MYSQL)
+CC_OPT = -c -fpic -lrt -Wall -g -L/usr/lib/mysql -I/usr/include/mysql -lmysqlclient -I$(SRC_MAGIC) -I$(SRC_COMMON) -I$(SRC_MYSQL)
 #*********************************************************************
 #DEBUG OR RELASE
 #*********************************************************************
