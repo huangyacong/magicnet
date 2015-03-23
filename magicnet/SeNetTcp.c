@@ -5,6 +5,7 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 	int iBegin;
 
 	pkNetTcp->kHandle = SE_INVALID_HANDLE;
+	pkNetTcp->kListenHandle = SE_INVALID_HANDLE;
 	SeNetSreamInit(&pkNetTcp->kMemCCache);
 	SeNetSSocketInit(&pkNetTcp->kSvrSocketList);
 	
@@ -85,7 +86,9 @@ void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 	}
 
 	SeCloseHandle(pkNetTcp->kHandle);
+	SeCloseHandle(pkNetTcp->kListenHandle);
 	pkNetTcp->kHandle = SE_INVALID_HANDLE;
+	pkNetTcp->kListenHandle = SE_INVALID_HANDLE;
 
 	pkNetTcp->pkOnConnectFunc = 0;
 	pkNetTcp->pkOnDisconnectFunc = 0;
@@ -99,7 +102,7 @@ SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned shor
 	struct sockaddr kServerAddr;
 	struct SESSOCKETNODE *pkNetSSocketNode;
 
-	if(pkNetTcp->kHandle == SE_INVALID_HANDLE) {
+	if(pkNetTcp->kHandle == SE_INVALID_HANDLE || pkNetTcp->kListenHandle == SE_INVALID_HANDLE) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Handle feaild\n");
 		return SE_INVALID_SOCKET;
 	}

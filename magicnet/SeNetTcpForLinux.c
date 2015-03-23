@@ -9,6 +9,7 @@ void SeNetTcpInit(struct SENETTCP *pkNetTcp, char *pcLogName, SENETTCPONCONNECT 
 	pkNetTcp->pkOnDisconnectFunc = pkOnDisconnectFunc;
 	pkNetTcp->pkOnRecvDataFunc = pkOnRecvDataFunc;
 	pkNetTcp->kHandle = epoll_create(MAX_SOCKET_LEN);
+	pkNetTcp->kListenHandle = epoll_create(1);
 }
 
 void SeNetTcpFin(struct SENETTCP *pkNetTcp)
@@ -24,7 +25,7 @@ SOCKET SeNetTcpCreateSvrSocket(struct SENETTCP *pkNetTcp, const char *pcIP, unsi
 	kSocket = SeNetTcpAddSvr(pkNetTcp, pcIP, usPort, iMemSize, iProtoFormat);
 
 	kEvent.events = EPOLLIN | EPOLLET;
-	if(epoll_ctl(pkNetTcp->kHandle, EPOLL_CTL_ADD, kSocket, &kEvent) != 0) {
+	if(epoll_ctl(pkNetTcp->kListenHandle, EPOLL_CTL_ADD, kSocket, &kEvent) != 0) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init bind handle feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return SE_INVALID_SOCKET;
 	}

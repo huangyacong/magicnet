@@ -9,6 +9,7 @@ void SeNetTcpInit(struct SENETTCP *pkNetTcp, char *pcLogName, SENETTCPONCONNECT 
 	pkNetTcp->pkOnDisconnectFunc = pkOnDisconnectFunc;
 	pkNetTcp->pkOnRecvDataFunc = pkOnRecvDataFunc;
 	pkNetTcp->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+	pkNetTcp->kListenHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 }
 
 void SeNetTcpFin(struct SENETTCP *pkNetTcp)

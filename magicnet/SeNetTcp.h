@@ -18,6 +18,7 @@ typedef void (*SENETTCPRECV)(SOCKET /*帧听着SOCKET*/, HSOCKET/*收到数据的HSOCKET
 struct SENETTCP
 {
 	HANDLE					kHandle;
+	HANDLE					kListenHandle;
 	struct SELOG			kLog;
 	struct SENETSTREAM		kMemCCache;
 	struct SENETSSOCKET		kSvrSocketList;
