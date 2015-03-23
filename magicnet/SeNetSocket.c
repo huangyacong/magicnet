@@ -3,7 +3,7 @@
 void SeNetCSocketNodeInit(struct SECSOCKETNODE *pkNetCSocketNode)
 {
 	pkNetCSocketNode->kHSocket = 0;
-	pkNetCSocketNode->kBelongToListenSocket = SE_INVALID_SOCKET;
+	pkNetCSocketNode->pkBelongToSvr = 0;
 	pkNetCSocketNode->iStatus = CSOCKET_STATUS_INIT;
 	pkNetCSocketNode->iEvent = 0;
 	pkNetCSocketNode->iProtoFormat = 0;
@@ -29,7 +29,7 @@ void SeNetCSocketNodeFin(struct SECSOCKETNODE *pkNetCSocketNode, struct SENETSTR
 	}
 
 	pkNetCSocketNode->kHSocket = 0;
-	pkNetCSocketNode->kBelongToListenSocket = SE_INVALID_SOCKET;
+	pkNetCSocketNode->pkBelongToSvr = 0;
 	pkNetCSocketNode->iStatus = CSOCKET_STATUS_INIT;
 	pkNetCSocketNode->iEvent = 0;
 	pkNetCSocketNode->iProtoFormat = 0;

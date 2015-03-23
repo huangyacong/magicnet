@@ -10,19 +10,30 @@
 #define CSOCKET_STATUS_DISCONNECT 2
 #define CSOCKET_STATUS_ACTIVECONNECT 3
 
-struct SECSOCKETNODE
+struct SESSOCKETNODE
 {
-	HSOCKET				kHSocket;
-	SOCKET				kBelongToListenSocket;
-	int					iStatus;
-	int					iEvent;
+	SOCKET				kListenSocket;
 	int					iProtoFormat;
-	int					iFlag;
-	struct SENETSTREAM	kSendNetStream;
-	struct SENETSTREAM	kRecvNetStream;
+	long long			llMemSize;
+	struct SENETSTREAM	kMemSCache;
 	struct SENODE		kNode;
 };
 
+struct SECSOCKETNODE
+{
+	HSOCKET					kHSocket;
+	struct SESSOCKETNODE*	pkBelongToSvr;
+	int						iStatus;
+	int						iEvent;
+	int						iProtoFormat;
+	int						iFlag;
+	struct SENETSTREAM		kSendNetStream;
+	struct SENETSTREAM		kRecvNetStream;
+	struct SENODE			kNode;
+};
+
+
+//--------------------------------------------------------------------------------------------------
 struct SENETCSOCKET
 {
 	long long			llListCount;
@@ -44,15 +55,7 @@ void SeNetCSocketTailAdd(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE
 struct SECSOCKETNODE *SeNetCSocketRemove(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE *pkNetCSocketNode);
 
 
-struct SESSOCKETNODE
-{
-	SOCKET				kListenSocket;
-	int					iProtoFormat;
-	long long			llMemSize;
-	struct SENETSTREAM	kMemSCache;
-	struct SENODE		kNode;
-};
-
+//--------------------------------------------------------------------------------------------------
 struct SENETSSOCKET
 {
 	long long			llListCount;
