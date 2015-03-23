@@ -20,10 +20,10 @@
 struct SELOG
 {
 	int			iFlag;
+	FILE*		pFile;
 	struct tm	ttDate;
 	char		acfname[128];
 	char		actext[4096];
-	FILE*		pFile;
 };
 
 void SeInitLog(struct SELOG *pkLog, char *pkFileName);
