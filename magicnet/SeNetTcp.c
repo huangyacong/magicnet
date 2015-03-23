@@ -1,5 +1,4 @@
 #include "SeNetTcp.h"
-#include "SeTool.h"
 
 void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 {

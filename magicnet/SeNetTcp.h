@@ -2,6 +2,7 @@
 #define __SE_NETTCP_H__
 
 #include "SeLog.h"
+#include "SeTool.h"
 #include "SeList.h"
 #include "SeNetBase.h"
 #include "SeNetStream.h"
