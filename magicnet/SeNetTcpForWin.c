@@ -11,4 +11,9 @@ void SeNetTcpInit(struct SENETTCP *pkNetTcp, SENETTCPONCONNECT pkOnConnectFunc, 
 	pkNetTcp->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 }
 
+void SeNetTcpFin(struct SENETTCP *pkNetTcp)
+{
+	SeNetTcpFree(pkNetTcp);
+}
+
 #endif

@@ -11,4 +11,9 @@ void SeNetTcpInit(struct SENETTCP *pkNetTcp, SENETTCPONCONNECT pkOnConnectFunc, 
 	pkNetTcp->kHandle = epoll_create(MAX_SOCKET_LEN);
 }
 
+void SeNetTcpFin(struct SENETTCP *pkNetTcp)
+{
+	SeNetTcpFree(pkNetTcp);
+}
+
 #endif
