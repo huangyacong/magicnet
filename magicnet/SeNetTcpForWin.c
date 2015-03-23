@@ -2,9 +2,9 @@
 
 #if (defined(_WIN32) || defined(WIN32))
 
-void SeNetTcpInit(struct SENETTCP *pkNetTcp, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc)
+void SeNetTcpInit(struct SENETTCP *pkNetTcp, char *pcLogName, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc)
 {
-	SeNetTcpCreate(pkNetTcp);
+	SeNetTcpCreate(pkNetTcp, pcLogName);
 	pkNetTcp->pkOnConnectFunc = pkOnConnectFunc;
 	pkNetTcp->pkOnDisconnectFunc = pkOnDisconnectFunc;
 	pkNetTcp->pkOnRecvDataFunc = pkOnRecvDataFunc;

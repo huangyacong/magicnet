@@ -1,6 +1,7 @@
 #ifndef __SE_NETTCP_H__
 #define __SE_NETTCP_H__
 
+#include "SeLog.h"
 #include "SeList.h"
 #include "SeNetBase.h"
 #include "SeNetStream.h"
@@ -15,6 +16,7 @@ typedef void (*SENETTCPRECV)(SOCKET /*帧听着SOCKET*/, HSOCKET/*收到数据的HSOCKET
 struct SENETTCP
 {
 	HANDLE					kHandle;
+	struct SELOG			kLog;
 	struct SENETSTREAM		kMemCache;
 	struct SENETSSOCKET		kSvrSocketList;
 
@@ -29,13 +31,13 @@ struct SENETTCP
 	SENETTCPRECV			pkOnRecvDataFunc;
 };
 
-// don't use it,SeNetTcpInit will run it.
-void SeNetTcpCreate(struct SENETTCP *pkNetTcp);
+void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName);
 
-// don't use it,SeNetTcpFin will run it.
 void SeNetTcpFree(struct SENETTCP *pkNetTcp);
 
-void SeNetTcpInit(struct SENETTCP *pkNetTcp, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc);
+
+// 下面的函数是user接口
+void SeNetTcpInit(struct SENETTCP *pkNetTcp, char *pcLogName, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc);
 
 void SeNetTcpFin(struct SENETTCP *pkNetTcp);
 

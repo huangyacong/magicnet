@@ -1,7 +1,7 @@
 #include "SeNetTcp.h"
 #include "SeTool.h"
 
-void SeNetTcpCreate(struct SENETTCP *pkNetTcp)
+void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 {
 	int iBegin;
 
@@ -23,6 +23,8 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp)
 	pkNetTcp->pkOnConnectFunc = 0;
 	pkNetTcp->pkOnDisconnectFunc = 0;
 	pkNetTcp->pkOnRecvDataFunc = 0;
+
+	SeInitLog(&pkNetTcp->kLog, pcLogName);
 }
 
 void SeNetTcpFree(struct SENETTCP *pkNetTcp)
@@ -30,6 +32,8 @@ void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 	struct SESSOCKETNODE *pkNetSSocketNode;
 	struct SECSOCKETNODE *pkNetCSocketNode;
 	struct SENETSTREAMNODE *pkNetStreamNode;
+
+	SeFinLog(&pkNetTcp->kLog);
 	
 	pkNetStreamNode = SeNetSreamHeadPop(&pkNetTcp->kMemCache);
 	while(pkNetStreamNode) {
