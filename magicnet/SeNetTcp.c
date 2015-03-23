@@ -27,71 +27,48 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 
 void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 {
+	struct SENETSTREAM kMemCache;
 	struct SESSOCKETNODE *pkNetSSocketNode;
 	struct SECSOCKETNODE *pkNetCSocketNode;
 	struct SENETSTREAMNODE *pkNetStreamNode;
-
+	
+	SeNetSreamInit(&kMemCache);
 	SeFinLog(&pkNetTcp->kLog);
-
-	pkNetSSocketNode = SeNetSSocketPop(&pkNetTcp->kSvrSocketList);
-	while(pkNetSSocketNode) {
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSSocketNode->kMemSCache);
-		while(pkNetStreamNode) {
-			SeFreeMem((void*)pkNetStreamNode);
-			pkNetStreamNode = SeNetSreamHeadPop(&pkNetSSocketNode->kMemSCache);
-		}
-		SeShutDown(pkNetSSocketNode->kListenSocket);
-		SeCloseSocket(pkNetSSocketNode->kListenSocket);
-		SeFreeMem((void*)pkNetSSocketNode);
-		pkNetSSocketNode = SeNetSSocketPop(&pkNetTcp->kSvrSocketList);
-	}
 
 	pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kActiveCSocketList);
 	while(pkNetCSocketNode) {
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
-		while(pkNetStreamNode) {
-			SeFreeMem((void*)pkNetStreamNode);
-			pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
-		}
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
-		while(pkNetStreamNode) {
-			SeFreeMem((void*)pkNetStreamNode);
-			pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
-		}
 		SeCloseSocket(SeGetSocketByHScoket(pkNetCSocketNode->kHSocket));
+		SeNetCSocketNodeFin(pkNetCSocketNode, &kMemCache);
 		pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kActiveCSocketList);
 	}
 
 	pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kConnectCSocketList);
 	while(pkNetCSocketNode) {
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
-		while(pkNetStreamNode) {
-			SeFreeMem((void*)pkNetStreamNode);
-			pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
-		}
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
-		while(pkNetStreamNode) {
-			SeFreeMem((void*)pkNetStreamNode);
-			pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
-		}
 		SeCloseSocket(SeGetSocketByHScoket(pkNetCSocketNode->kHSocket));
+		SeNetCSocketNodeFin(pkNetCSocketNode, &kMemCache);
 		pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kConnectCSocketList);
 	}
 
 	pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kDisConnectCSocketList);
 	while(pkNetCSocketNode) {
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
-		while(pkNetStreamNode) {
-			SeFreeMem((void*)pkNetStreamNode);
-			pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
-		}
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
-		while(pkNetStreamNode) {
-			SeFreeMem((void*)pkNetStreamNode);
-			pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
-		}
 		SeCloseSocket(SeGetSocketByHScoket(pkNetCSocketNode->kHSocket));
+		SeNetCSocketNodeFin(pkNetCSocketNode, &kMemCache);
 		pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kDisConnectCSocketList);
+	}
+
+	pkNetSSocketNode = SeNetSSocketPop(&pkNetTcp->kSvrSocketList);
+	while(pkNetSSocketNode) {
+		SeShutDown(pkNetSSocketNode->kListenSocket);
+		SeCloseSocket(pkNetSSocketNode->kListenSocket);
+		SeNetSSocketNodeFin(pkNetSSocketNode, &kMemCache);
+		SeFreeMem((void*)pkNetSSocketNode);
+		pkNetSSocketNode = SeNetSSocketPop(&pkNetTcp->kSvrSocketList);
+	}
+
+	pkNetStreamNode = SeNetSreamHeadPop(&kMemCache);
+	while(pkNetStreamNode) {
+		SeFreeMem((void*)pkNetStreamNode);
+		pkNetStreamNode = SeNetSreamHeadPop(&kMemCache);
 	}
 
 	SeCloseHandle(pkNetTcp->kHandle);
