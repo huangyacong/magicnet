@@ -95,7 +95,7 @@ void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 	pkNetTcp->pkOnRecvDataFunc = 0;
 }
 
-SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat)
+struct SESSOCKETNODE* SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat)
 {
 	SOCKET kSocket;
 	struct linger so_linger;
@@ -104,13 +104,13 @@ SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned shor
 
 	if(pkNetTcp->kHandle == SE_INVALID_HANDLE || pkNetTcp->kListenHandle == SE_INVALID_HANDLE) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Handle feaild\n");
-		return SE_INVALID_SOCKET;
+		return 0;
 	}
 	
 	kSocket = SeSocket(SOCK_STREAM);
 	if(kSocket == SE_INVALID_SOCKET) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
-		return SE_INVALID_SOCKET;
+		return 0;
 	}
 	
 	SeSetSockAddr(&kServerAddr, pcIP, usPort);
@@ -118,24 +118,24 @@ SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned shor
 
 	if(SeBind(kSocket, &kServerAddr) != 0) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Bind socket feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
-		return SE_INVALID_SOCKET;
+		return 0;
 	}
 
 	if(SeListen(kSocket, 1000) != 0) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
-		return SE_INVALID_SOCKET;
+		return 0;
 	}
 
 	if(SeSetNoBlock(kSocket, true) != 0) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set no black feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
-		return SE_INVALID_SOCKET;
+		return 0;
 	}
 
 	so_linger.l_onoff = true;
 	so_linger.l_linger = 0;
 	if(SeSetSockOpt(kSocket,SOL_SOCKET,SO_LINGER,(char*)&so_linger,sizeof(so_linger)) != 0) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set SO_LINGER feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
-		return SE_INVALID_SOCKET;
+		return 0;
 	}
 
 	pkNetSSocketNode = (struct SESSOCKETNODE*)SeMallocMem(sizeof(struct SESSOCKETNODE));
@@ -145,5 +145,5 @@ SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned shor
 	pkNetSSocketNode->llMemSize = iMemSize;
 	SeNetSSocketAdd(&pkNetTcp->kSvrSocketList, pkNetSSocketNode);
 
-	return kSocket;
+	return pkNetSSocketNode;
 }

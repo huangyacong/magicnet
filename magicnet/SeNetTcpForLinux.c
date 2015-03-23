@@ -19,18 +19,19 @@ void SeNetTcpFin(struct SENETTCP *pkNetTcp)
 
 SOCKET SeNetTcpCreateSvrSocket(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat)
 {
-	SOCKET kSocket;
+	struct SESSOCKETNODE *pkNetSSocketNode;
 	struct epoll_event kEvent;
 
-	kSocket = SeNetTcpAddSvr(pkNetTcp, pcIP, usPort, iMemSize, iProtoFormat);
+	pkNetSSocketNode = SeNetTcpAddSvr(pkNetTcp, pcIP, usPort, iMemSize, iProtoFormat);
 
 	kEvent.events = EPOLLIN | EPOLLET;
-	if(epoll_ctl(pkNetTcp->kListenHandle, EPOLL_CTL_ADD, kSocket, &kEvent) != 0) {
+	kEvent.data.ptr = (void*)pkNetSSocketNode;
+	if(epoll_ctl(pkNetTcp->kListenHandle, EPOLL_CTL_ADD, pkNetSSocketNode->kListenSocket, &kEvent) != 0) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init bind handle feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return SE_INVALID_SOCKET;
 	}
 
-	return kSocket;
+	return pkNetSSocketNode->kListenSocket;
 }
 
 #endif
