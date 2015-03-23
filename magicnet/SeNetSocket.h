@@ -12,30 +12,26 @@
 #define CSOCKET_STATUS_DISCONNECT 4
 #define CSOCKET_STATUS_ACTIVECONNECT 5
 
-struct SESSOCKETNODE
+union SOCKET_EVENT
 {
-	SOCKET				kListenSocket;
-	int					iProtoFormat;
-	long long			llMemSize;
-	struct SENETSTREAM	kMemSCache;
-	struct SENODE		kNode;
+	int						iEvent;
+	void					*ptr;
 };
 
 struct SECSOCKETNODE
 {
 	HSOCKET					kHSocket;
-	struct SESSOCKETNODE*	pkBelongToSvr;
+	SOCKET					kSvrSocket;
 	int						iStatus;
-	int						iEvent;
 	int						iProtoFormat;
 	int						iFlag;
+	long long				llMemSize;
+	union SOCKET_EVENT		ukEvent;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
 	struct SENODE			kNode;
 };
 
-
-//--------------------------------------------------------------------------------------------------
 struct SENETCSOCKET
 {
 	long long			llListCount;
@@ -55,23 +51,5 @@ void SeNetCSocketHeadAdd(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE
 void SeNetCSocketTailAdd(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE *pkNetCSocketNode);
 
 struct SECSOCKETNODE *SeNetCSocketRemove(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE *pkNetCSocketNode);
-
-
-//--------------------------------------------------------------------------------------------------
-struct SENETSSOCKET
-{
-	long long			llListCount;
-	struct SELIST		kList;
-};
-
-void SeNetSSocketNodeInit(struct SESSOCKETNODE *pkNetSSocketNode);
-
-void SeNetSSocketNodeFin(struct SESSOCKETNODE *pkNetSSocketNode, struct SENETSTREAM	*pkMemCache);
-
-void SeNetSSocketInit(struct SENETSSOCKET *pkNetSSocket);
-
-void SeNetSSocketAdd(struct SENETSSOCKET *pkNetSSocket, struct SESSOCKETNODE *pkNetSSocketNode);
-
-struct SESSOCKETNODE *SeNetSSocketPop(struct SENETSSOCKET *pkNetSSocket);
 
 #endif

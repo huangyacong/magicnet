@@ -3,11 +3,11 @@
 void SeNetCSocketNodeInit(struct SECSOCKETNODE *pkNetCSocketNode)
 {
 	pkNetCSocketNode->kHSocket = 0;
-	pkNetCSocketNode->pkBelongToSvr = 0;
+	pkNetCSocketNode->kSvrSocket = SE_INVALID_SOCKET;
 	pkNetCSocketNode->iStatus = CSOCKET_STATUS_INIT;
-	pkNetCSocketNode->iEvent = 0;
 	pkNetCSocketNode->iProtoFormat = 0;
-	pkNetCSocketNode->iFlag = 0;
+	pkNetCSocketNode->llMemSize = 0;
+	pkNetCSocketNode->ukEvent.ptr = 0;
 	SeNetSreamInit(&pkNetCSocketNode->kSendNetStream);
 	SeNetSreamInit(&pkNetCSocketNode->kRecvNetStream);
 	SeListInitNode(&pkNetCSocketNode->kNode);
@@ -29,10 +29,11 @@ void SeNetCSocketNodeFin(struct SECSOCKETNODE *pkNetCSocketNode, struct SENETSTR
 	}
 
 	pkNetCSocketNode->kHSocket = 0;
-	pkNetCSocketNode->pkBelongToSvr = 0;
+	pkNetCSocketNode->kSvrSocket = SE_INVALID_SOCKET;
 	pkNetCSocketNode->iStatus = CSOCKET_STATUS_INIT;
-	pkNetCSocketNode->iEvent = 0;
 	pkNetCSocketNode->iProtoFormat = 0;
+	pkNetCSocketNode->llMemSize = 0;
+	pkNetCSocketNode->ukEvent.ptr = 0;
 }
 
 void SeNetCSocketInit(struct SENETCSOCKET *pkNetCSocket)
@@ -76,53 +77,3 @@ struct SECSOCKETNODE *SeNetCSocketRemove(struct SENETCSOCKET *pkNetCSocket, stru
 	pkNetCSocket->llListCount--;
 	return pkNetCScoketNode;
 }
-
-
-void SeNetSSocketNodeInit(struct SESSOCKETNODE *pkNetSSocketNode)
-{
-	pkNetSSocketNode->kListenSocket = SE_INVALID_SOCKET;
-	pkNetSSocketNode->iProtoFormat = 0;
-	pkNetSSocketNode->llMemSize = 0;
-	SeNetSreamInit(&pkNetSSocketNode->kMemSCache);
-	SeListInitNode(&pkNetSSocketNode->kNode);
-}
-
-void SeNetSSocketNodeFin(struct SESSOCKETNODE *pkNetSSocketNode, struct SENETSTREAM	*pkMemCache)
-{
-	struct SENETSTREAMNODE *pkNetStreamNode;
-
-	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSSocketNode->kMemSCache);
-	while(pkNetStreamNode) {
-		SeNetSreamTailAdd(pkMemCache, pkNetStreamNode);
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSSocketNode->kMemSCache);
-	}
-
-	pkNetSSocketNode->kListenSocket = SE_INVALID_SOCKET;
-	pkNetSSocketNode->iProtoFormat = 0;
-	pkNetSSocketNode->llMemSize = 0;
-}
-
-void SeNetSSocketInit(struct SENETSSOCKET *pkNetSSocket)
-{
-	pkNetSSocket->llListCount = 0;
-	SeListInit(&pkNetSSocket->kList);
-}
-
-void SeNetSSocketAdd(struct SENETSSOCKET *pkNetSSocket, struct SESSOCKETNODE *pkNetSSocketNode)
-{
-	SeListHeadAdd(&pkNetSSocket->kList, &pkNetSSocketNode->kNode);
-	pkNetSSocket->llListCount++;
-}
-
-struct SESSOCKETNODE *SeNetSSocketPop(struct SENETSSOCKET *pkNetSSocket)
-{
-	struct SENODE *pkNode = 0;
-	struct SESSOCKETNODE *pkNetSScoketNode = 0;
-	
-	pkNode = SeListHeadPop(&pkNetSSocket->kList);
-	if(!pkNode) return 0;
-	pkNetSScoketNode = SE_CONTAINING_RECORD(pkNode, struct SESSOCKETNODE, kNode);
-	pkNetSSocket->llListCount--;
-	return pkNetSScoketNode;
-}
-
