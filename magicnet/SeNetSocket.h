@@ -32,6 +32,8 @@ void SeNetCSocketNodeInit(struct SECSOCKETNODE *pkNetCSocketNode);
 
 void SeNetCSocketInit(struct SENETCSOCKET *pkNetCSocket);
 
+struct SECSOCKETNODE *SeNetCSocketPop(struct SENETCSOCKET *pkNetCSocket);
+
 void SeNetCSocketHeadAdd(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE *pkNetCSocketNode);
 
 void SeNetCSocketTailAdd(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE *pkNetCSocketNode);

@@ -18,6 +18,18 @@ void SeNetCSocketInit(struct SENETCSOCKET *pkNetCSocket)
 	SeListInit(&pkNetCSocket->kList);
 }
 
+struct SECSOCKETNODE *SeNetCSocketPop(struct SENETCSOCKET *pkNetCSocket)
+{
+	struct SENODE *pkNode = 0;
+	struct SECSOCKETNODE *pkNetCScoketNode = 0;
+	
+	pkNode = SeListHeadPop(&pkNetCSocket->kList);
+	if(!pkNode) return 0;
+	pkNetCScoketNode = SE_CONTAINING_RECORD(pkNode, struct SECSOCKETNODE, kNode);
+	pkNetCSocket->llListCount--;
+	return pkNetCScoketNode;
+}
+
 void SeNetCSocketHeadAdd(struct SENETCSOCKET *pkNetCSocket, struct SECSOCKETNODE *pkNetCSocketNode)
 {
 	SeListHeadAdd(&pkNetCSocket->kList, &pkNetCSocketNode->kNode);
