@@ -15,6 +15,7 @@ struct SECSOCKETNODE
 	HSOCKET				kHSocket;
 	SOCKET				kBelongToListenSocket;
 	int					iStatus;
+	int					iEvent;
 	int					iFlag;
 	struct SENETSTREAM	kSendNetStream;
 	struct SENETSTREAM	kRecvNetStream;
@@ -23,7 +24,7 @@ struct SECSOCKETNODE
 
 struct SENETCSOCKET
 {
-	int					iListCount;
+	long long			llListCount;
 	struct SELIST		kList;
 };
 
@@ -41,12 +42,13 @@ struct SECSOCKETNODE *SeNetCSocketRemove(struct SENETCSOCKET *pkNetCSocket, stru
 struct SESSOCKETNODE
 {
 	SOCKET				kListenSocket;
+	int					iFlag;
 	struct SENODE		kNode;
 };
 
 struct SENETSSOCKET
 {
-	int					iListCount;
+	long long			llListCount;
 	struct SELIST		kList;
 };
 
