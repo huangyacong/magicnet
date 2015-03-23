@@ -16,7 +16,7 @@ struct SECSOCKETNODE
 	SOCKET				kBelongToListenSocket;
 	int					iStatus;
 	int					iEvent;
-	int					iFlag;
+	int					iProtoFormat;
 	struct SENETSTREAM	kSendNetStream;
 	struct SENETSTREAM	kRecvNetStream;
 	struct SENODE		kNode;
@@ -44,7 +44,7 @@ struct SECSOCKETNODE *SeNetCSocketRemove(struct SENETCSOCKET *pkNetCSocket, stru
 struct SESSOCKETNODE
 {
 	SOCKET				kListenSocket;
-	int					iFlag;
+	int					iProtoFormat;
 	struct SENODE		kNode;
 };
 
