@@ -4,28 +4,19 @@
 #include "SeList.h"
 #include "SeNetBase.h"
 
-#define NETSTREAM_SIZE 1024
-
-#if defined(__linux)
-
-	struct WSABUF 
-	{
-		unsigned long	len;
-		char			*buf;
-	};
-
-#endif
-
 struct SENETSTREAMNODE
 {
 	struct SENODE		kNode;
-	struct WSABUF		kStream;
-	char				acStream[NETSTREAM_SIZE];
+	int					iFlag;
+	int					iMaxLen;
+	int					iReadPos;
+	int					iWritePos;
+	char				*pkBuf;
 };
 
 struct SENETSTREAM
 {
-	int					iListCount;
+	long long			llListCount;
 	struct SELIST		kList;
 };
 
