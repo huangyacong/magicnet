@@ -37,6 +37,8 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName);
 
 void SeNetTcpFree(struct SENETTCP *pkNetTcp);
 
+SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat);
+
 
 // 下面的函数是user接口
 void SeNetTcpInit(struct SENETTCP *pkNetTcp, char *pcLogName, SENETTCPONCONNECT pkOnConnectFunc, SENETTCPDISCONNECT pkOnDisconnectFunc, SENETTCPRECV pkOnRecvDataFunc);

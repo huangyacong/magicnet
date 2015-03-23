@@ -16,4 +16,11 @@ void SeNetTcpFin(struct SENETTCP *pkNetTcp)
 	SeNetTcpFree(pkNetTcp);
 }
 
+SOCKET SeNetTcpCreateSvrSocket(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat)
+{
+	SOCKET kSocket;
+	kSocket = SeNetTcpAddSvr(pkNetTcp, pcIP, usPort, iMemSize, iProtoFormat);
+	return kSocket;
+}
+
 #endif

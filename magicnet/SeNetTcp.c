@@ -91,3 +91,56 @@ void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 	pkNetTcp->pkOnDisconnectFunc = 0;
 	pkNetTcp->pkOnRecvDataFunc = 0;
 }
+
+SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat)
+{
+	SOCKET kSocket;
+	struct linger so_linger;
+	struct sockaddr kServerAddr;
+	struct SESSOCKETNODE *pkNetSSocketNode;
+
+	if(pkNetTcp->kHandle == SE_INVALID_HANDLE) {
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Handle feaild");
+		return SE_INVALID_SOCKET;
+	}
+	
+	kSocket = SeSocket(SOCK_STREAM);
+	if(kSocket == SE_INVALID_SOCKET) {
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		return SE_INVALID_SOCKET;
+	}
+	
+	SeSetSockAddr(&kServerAddr, pcIP, usPort);
+	SeSetReuseAddr(kSocket);
+
+	if(SeBind(kSocket, &kServerAddr) != 0) {
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Bind socket feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		return SE_INVALID_SOCKET;
+	}
+
+	if(SeListen(kSocket, 1000) != 0) {
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		return SE_INVALID_SOCKET;
+	}
+
+	if(SeSetNoBlock(kSocket, true) != 0) {
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set no black feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		return SE_INVALID_SOCKET;
+	}
+
+	so_linger.l_onoff = true;
+	so_linger.l_linger = 0;
+	if(SeSetSockOpt(kSocket,SOL_SOCKET,SO_LINGER,(char*)&so_linger,sizeof(so_linger)) != 0) {
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set SO_LINGER feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		return SE_INVALID_SOCKET;
+	}
+
+	pkNetSSocketNode = (struct SESSOCKETNODE*)SeMallocMem(sizeof(struct SESSOCKETNODE));
+	SeNetSSocketNodeInit(pkNetSSocketNode);
+	pkNetSSocketNode->kListenSocket = kSocket;
+	pkNetSSocketNode->iProtoFormat = iProtoFormat;
+	pkNetSSocketNode->llMemSize = iMemSize;
+	SeNetSSocketAdd(&pkNetTcp->kSvrSocketList, pkNetSSocketNode);
+
+	return kSocket;
+}
