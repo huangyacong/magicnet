@@ -18,7 +18,6 @@ struct SENETTCP
 {
 	HANDLE					kHandle;
 	struct SELOG			kLog;
-	struct SENETSTREAM		kMemCache;
 	struct SENETSSOCKET		kSvrSocketList;
 
 	struct SENETCSOCKET		kFreeCSocketList;
@@ -42,7 +41,7 @@ void SeNetTcpInit(struct SENETTCP *pkNetTcp, char *pcLogName, SENETTCPONCONNECT 
 
 void SeNetTcpFin(struct SENETTCP *pkNetTcp);
 
-SOCKET SeNetTcpCreateSvrSocket(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iProtoFormat);
+SOCKET SeNetTcpCreateSvrSocket(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat);
 
 HSOCKET SeNetTcpCreateClientSocket(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iProtoFormat);
 

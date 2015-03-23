@@ -17,6 +17,7 @@ struct SECSOCKETNODE
 	int					iStatus;
 	int					iEvent;
 	int					iProtoFormat;
+	int					iFlag;
 	struct SENETSTREAM	kSendNetStream;
 	struct SENETSTREAM	kRecvNetStream;
 	struct SENODE		kNode;
@@ -45,6 +46,8 @@ struct SESSOCKETNODE
 {
 	SOCKET				kListenSocket;
 	int					iProtoFormat;
+	long long			llMemSize;
+	struct SENETSTREAM	kMemSCache;
 	struct SENODE		kNode;
 };
 

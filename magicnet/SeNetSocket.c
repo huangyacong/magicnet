@@ -7,6 +7,7 @@ void SeNetCSocketNodeInit(struct SECSOCKETNODE *pkNetCSocketNode)
 	pkNetCSocketNode->iStatus = CSOCKET_STATUS_INIT;
 	pkNetCSocketNode->iEvent = 0;
 	pkNetCSocketNode->iProtoFormat = 0;
+	pkNetCSocketNode->iFlag = 0;
 	SeNetSreamInit(&pkNetCSocketNode->kSendNetStream);
 	SeNetSreamInit(&pkNetCSocketNode->kRecvNetStream);
 	SeListInitNode(&pkNetCSocketNode->kNode);
@@ -59,6 +60,8 @@ void SeNetSSocketNodeInit(struct SESSOCKETNODE *pkNetSSocketNode)
 {
 	pkNetSSocketNode->kListenSocket = SE_INVALID_SOCKET;
 	pkNetSSocketNode->iProtoFormat = 0;
+	pkNetSSocketNode->llMemSize = 0;
+	SeNetSreamInit(&pkNetSSocketNode->kMemSCache);
 	SeListInitNode(&pkNetSSocketNode->kNode);
 }
 
