@@ -15,7 +15,7 @@
 #define LT_CRITICAL (1<<5)   // CRITICAL
 #define LT_SOCKET	(1<<6)   // socket
 #define LT_NOTSET	(1<<7)   // NOTSET
-#define LT_WRITE	(1<<8)   // write or print log to screen
+#define LT_PRINT	(1<<8)   // print log to screen
 
 struct SELOG
 {

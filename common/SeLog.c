@@ -106,15 +106,13 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	
-	if(SeHasLogLV(pkLog, LT_WRITE))
-	{
-		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
-		fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
-		if(bFlushToDisk) {
-			fflush(pkLog->pFile);
-		}
+	fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
+	fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
+	if(bFlushToDisk) {
+		fflush(pkLog->pFile);
 	}
-	else
+	
+	if(SeHasLogLV(pkLog, LT_PRINT))
 	{
 		printf("%s%s", acHeadr, pkLog->actext);
 	}
