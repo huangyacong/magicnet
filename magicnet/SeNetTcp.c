@@ -34,6 +34,12 @@ void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 	
 	SeNetSreamInit(&kMemCache);
 	SeFinLog(&pkNetTcp->kLog);
+	
+	pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kFreeCSocketList);
+	while(pkNetCSocketNode) {
+		SeNetCSocketNodeFin(pkNetCSocketNode, &kMemCache);
+		pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kFreeCSocketList);
+	}
 
 	pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kActiveCSocketList);
 	while(pkNetCSocketNode) {
