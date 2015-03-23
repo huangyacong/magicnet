@@ -8,6 +8,7 @@
 #include "SeNetStream.h"
 #include "SeNetSocket.h"
 
+#define C_LEN 1024*4
 #define MAX_SOCKET_LEN 65535
 
 typedef void (*SENETTCPONCONNECT)(SOCKET /*帧听着SOCKET*/, HSOCKET/*连接过来的HSOCKET*/);
@@ -18,6 +19,7 @@ struct SENETTCP
 {
 	HANDLE					kHandle;
 	struct SELOG			kLog;
+	struct SENETSTREAM		kMemCCache;
 	struct SENETSSOCKET		kSvrSocketList;
 
 	struct SENETCSOCKET		kFreeCSocketList;

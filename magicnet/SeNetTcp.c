@@ -5,6 +5,7 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 	int iBegin;
 
 	pkNetTcp->kHandle = SE_INVALID_HANDLE;
+	SeNetSreamInit(&pkNetTcp->kMemCCache);
 	SeNetSSocketInit(&pkNetTcp->kSvrSocketList);
 	
 	SeNetCSocketInit(&pkNetTcp->kFreeCSocketList);
@@ -75,6 +76,12 @@ void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 	while(pkNetStreamNode) {
 		SeFreeMem((void*)pkNetStreamNode);
 		pkNetStreamNode = SeNetSreamHeadPop(&kMemCache);
+	}
+
+	pkNetStreamNode = SeNetSreamHeadPop(&pkNetTcp->kMemCCache);
+	while(pkNetStreamNode) {
+		SeFreeMem((void*)pkNetStreamNode);
+		pkNetStreamNode = SeNetSreamHeadPop(&pkNetTcp->kMemCCache);
 	}
 
 	SeCloseHandle(pkNetTcp->kHandle);
