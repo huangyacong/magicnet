@@ -2,7 +2,7 @@
 
 void SeNetCSocketNodeInit(struct SECSOCKETNODE *pkNetCSocketNode)
 {
-	pkNetCSocketNode->kHSocket = SE_INVALID_SOCKET;
+	pkNetCSocketNode->kHSocket = 0;
 	pkNetCSocketNode->kBelongToListenSocket = SE_INVALID_SOCKET;
 	pkNetCSocketNode->iStatus = CSOCKET_STATUS_INIT;
 	pkNetCSocketNode->iEvent = 0;
@@ -11,6 +11,28 @@ void SeNetCSocketNodeInit(struct SECSOCKETNODE *pkNetCSocketNode)
 	SeNetSreamInit(&pkNetCSocketNode->kSendNetStream);
 	SeNetSreamInit(&pkNetCSocketNode->kRecvNetStream);
 	SeListInitNode(&pkNetCSocketNode->kNode);
+}
+
+void SeNetCSocketNodeFin(struct SECSOCKETNODE *pkNetCSocketNode, struct SENETSTREAM	*pkMemCache)
+{
+	struct SENETSTREAMNODE *pkNetStreamNode;
+
+	pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
+	while(pkNetStreamNode) {
+		SeNetSreamTailAdd(pkMemCache, pkNetStreamNode);
+		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kSendNetStream);
+	}
+	pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
+	while(pkNetStreamNode) {
+		SeNetSreamTailAdd(pkMemCache, pkNetStreamNode);
+		pkNetStreamNode = SeNetSreamHeadPop(&pkNetCSocketNode->kRecvNetStream);
+	}
+
+	pkNetCSocketNode->kHSocket = 0;
+	pkNetCSocketNode->kBelongToListenSocket = SE_INVALID_SOCKET;
+	pkNetCSocketNode->iStatus = CSOCKET_STATUS_INIT;
+	pkNetCSocketNode->iEvent = 0;
+	pkNetCSocketNode->iProtoFormat = 0;
 }
 
 void SeNetCSocketInit(struct SENETCSOCKET *pkNetCSocket)
@@ -63,6 +85,21 @@ void SeNetSSocketNodeInit(struct SESSOCKETNODE *pkNetSSocketNode)
 	pkNetSSocketNode->llMemSize = 0;
 	SeNetSreamInit(&pkNetSSocketNode->kMemSCache);
 	SeListInitNode(&pkNetSSocketNode->kNode);
+}
+
+void SeNetSSocketNodeFin(struct SESSOCKETNODE *pkNetSSocketNode, struct SENETSTREAM	*pkMemCache)
+{
+	struct SENETSTREAMNODE *pkNetStreamNode;
+
+	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSSocketNode->kMemSCache);
+	while(pkNetStreamNode) {
+		SeNetSreamTailAdd(pkMemCache, pkNetStreamNode);
+		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSSocketNode->kMemSCache);
+	}
+
+	pkNetSSocketNode->kListenSocket = SE_INVALID_SOCKET;
+	pkNetSSocketNode->iProtoFormat = 0;
+	pkNetSSocketNode->llMemSize = 0;
 }
 
 void SeNetSSocketInit(struct SENETSSOCKET *pkNetSSocket)
