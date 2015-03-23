@@ -25,4 +25,8 @@ SOCKET SeNetTcpCreateSvrSocket(struct SENETTCP *pkNetTcp, const char *pcIP, unsi
 	return pkNetSSocketNode->kListenSocket;
 }
 
+void SeNetTcpProcess(struct SENETTCP *pkNetTcp)
+{
+}
+
 #endif

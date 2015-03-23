@@ -54,4 +54,6 @@ bool SeNetTcpSend(struct SENETTCP *pkNetTcp, HSOCKET kHSocket, const char* pkDat
 
 void SeNetTcpDisconnect(struct SENETTCP *pkNetTcp, HSOCKET kHSocket);
 
+void SeNetTcpProcess(struct SENETTCP *pkNetTcp);
+
 #endif
