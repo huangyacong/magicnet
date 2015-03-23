@@ -5,11 +5,11 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 	int iBegin;
 
 	pkNetTcp->kHandle = SE_INVALID_HANDLE;
-	pkNetTcp->kListenHandle = SE_INVALID_HANDLE;
-	SeNetSreamInit(&pkNetTcp->kMemCCache);
-	SeNetSSocketInit(&pkNetTcp->kSvrSocketList);
+	pkNetTcp->usCounter = 0;
 	
+	SeInitLog(&pkNetTcp->kLog, pcLogName);
 	SeNetCSocketInit(&pkNetTcp->kFreeCSocketList);
+	SeNetCSocketInit(&pkNetTcp->kAcceptCSocketList);
 	SeNetCSocketInit(&pkNetTcp->kActiveCSocketList);
 	SeNetCSocketInit(&pkNetTcp->kConnectCSocketList);
 	SeNetCSocketInit(&pkNetTcp->kDisConnectCSocketList);
@@ -23,14 +23,11 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 	pkNetTcp->pkOnConnectFunc = 0;
 	pkNetTcp->pkOnDisconnectFunc = 0;
 	pkNetTcp->pkOnRecvDataFunc = 0;
-
-	SeInitLog(&pkNetTcp->kLog, pcLogName);
 }
 
 void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 {
 	struct SENETSTREAM kMemCache;
-	struct SESSOCKETNODE *pkNetSSocketNode;
 	struct SECSOCKETNODE *pkNetCSocketNode;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 	
@@ -64,48 +61,39 @@ void SeNetTcpFree(struct SENETTCP *pkNetTcp)
 		pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kDisConnectCSocketList);
 	}
 
-	pkNetSSocketNode = SeNetSSocketPop(&pkNetTcp->kSvrSocketList);
-	while(pkNetSSocketNode) {
-		SeShutDown(pkNetSSocketNode->kListenSocket);
-		SeCloseSocket(pkNetSSocketNode->kListenSocket);
-		SeNetSSocketNodeFin(pkNetSSocketNode, &kMemCache);
-		SeFreeMem((void*)pkNetSSocketNode);
-		pkNetSSocketNode = SeNetSSocketPop(&pkNetTcp->kSvrSocketList);
-	}
-
 	pkNetStreamNode = SeNetSreamHeadPop(&kMemCache);
 	while(pkNetStreamNode) {
 		SeFreeMem((void*)pkNetStreamNode);
 		pkNetStreamNode = SeNetSreamHeadPop(&kMemCache);
 	}
-
-	pkNetStreamNode = SeNetSreamHeadPop(&pkNetTcp->kMemCCache);
-	while(pkNetStreamNode) {
-		SeFreeMem((void*)pkNetStreamNode);
-		pkNetStreamNode = SeNetSreamHeadPop(&pkNetTcp->kMemCCache);
-	}
-
+	
+	pkNetTcp->usCounter = 0;
 	SeCloseHandle(pkNetTcp->kHandle);
-	SeCloseHandle(pkNetTcp->kListenHandle);
 	pkNetTcp->kHandle = SE_INVALID_HANDLE;
-	pkNetTcp->kListenHandle = SE_INVALID_HANDLE;
 
 	pkNetTcp->pkOnConnectFunc = 0;
 	pkNetTcp->pkOnDisconnectFunc = 0;
 	pkNetTcp->pkOnRecvDataFunc = 0;
 }
 
-struct SESSOCKETNODE* SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat)
+struct SECSOCKETNODE* SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned short usPort, int iMemSize, int iProtoFormat)
 {
 	SOCKET kSocket;
 	struct linger so_linger;
 	struct sockaddr kServerAddr;
-	struct SESSOCKETNODE *pkNetSSocketNode;
+	struct SECSOCKETNODE *pkNetCSocketNode;
 
-	if(pkNetTcp->kHandle == SE_INVALID_HANDLE || pkNetTcp->kListenHandle == SE_INVALID_HANDLE) {
+	if(pkNetTcp->kHandle == SE_INVALID_HANDLE) {
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Handle feaild\n");
 		return 0;
 	}
+
+	pkNetCSocketNode = SeNetCSocketPop(&pkNetTcp->kFreeCSocketList);
+	if(!pkNetCSocketNode) {
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "CSocketNode malloc feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
+		return 0;
+	}
+	SeNetCSocketNodeInit(pkNetCSocketNode);
 	
 	kSocket = SeSocket(SOCK_STREAM);
 	if(kSocket == SE_INVALID_SOCKET) {
@@ -137,13 +125,13 @@ struct SESSOCKETNODE* SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP
 		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set SO_LINGER feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return 0;
 	}
+	
+	pkNetTcp->usCounter++;
+	pkNetCSocketNode->kHSocket = SeGetHSocket(pkNetTcp->usCounter, pkNetCSocketNode->iFlag, kSocket);
+	pkNetCSocketNode->kSvrSocket = kSocket;
+	pkNetCSocketNode->iStatus = CSOCKET_STATUS_ACCEPT;
+	pkNetCSocketNode->iProtoFormat = iProtoFormat;
+	pkNetCSocketNode->llMemSize = iMemSize;
 
-	pkNetSSocketNode = (struct SESSOCKETNODE*)SeMallocMem(sizeof(struct SESSOCKETNODE));
-	SeNetSSocketNodeInit(pkNetSSocketNode);
-	pkNetSSocketNode->kListenSocket = kSocket;
-	pkNetSSocketNode->iProtoFormat = iProtoFormat;
-	pkNetSSocketNode->llMemSize = iMemSize;
-	SeNetSSocketAdd(&pkNetTcp->kSvrSocketList, pkNetSSocketNode);
-
-	return pkNetSSocketNode;
+	return pkNetCSocketNode;
 }
