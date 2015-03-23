@@ -100,13 +100,13 @@ SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned shor
 	struct SESSOCKETNODE *pkNetSSocketNode;
 
 	if(pkNetTcp->kHandle == SE_INVALID_HANDLE) {
-		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Handle feaild");
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Handle feaild\n");
 		return SE_INVALID_SOCKET;
 	}
 	
 	kSocket = SeSocket(SOCK_STREAM);
 	if(kSocket == SE_INVALID_SOCKET) {
-		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return SE_INVALID_SOCKET;
 	}
 	
@@ -114,24 +114,24 @@ SOCKET SeNetTcpAddSvr(struct SENETTCP *pkNetTcp, const char *pcIP, unsigned shor
 	SeSetReuseAddr(kSocket);
 
 	if(SeBind(kSocket, &kServerAddr) != 0) {
-		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Bind socket feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Bind socket feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return SE_INVALID_SOCKET;
 	}
 
 	if(SeListen(kSocket, 1000) != 0) {
-		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init Listen socket feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return SE_INVALID_SOCKET;
 	}
 
 	if(SeSetNoBlock(kSocket, true) != 0) {
-		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set no black feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set no black feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return SE_INVALID_SOCKET;
 	}
 
 	so_linger.l_onoff = true;
 	so_linger.l_linger = 0;
 	if(SeSetSockOpt(kSocket,SOL_SOCKET,SO_LINGER,(char*)&so_linger,sizeof(so_linger)) != 0) {
-		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set SO_LINGER feaild, addr=%s, port=%d", pcIP, (int)usPort);
+		SeLogWrite(&pkNetTcp->kLog, LT_CRITICAL, true, "Init set SO_LINGER feaild, addr=%s, port=%d\n", pcIP, (int)usPort);
 		return SE_INVALID_SOCKET;
 	}
 
