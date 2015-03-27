@@ -23,6 +23,7 @@ void SeNetTcpCreate(struct SENETTCP *pkNetTcp, char *pcLogName)
 	pkNetTcp->pkOnConnectFunc = 0;
 	pkNetTcp->pkOnDisconnectFunc = 0;
 	pkNetTcp->pkOnRecvDataFunc = 0;
+	assert(MAX_SOCKET_LEN > 65535);
 }
 
 void SeNetTcpFree(struct SENETTCP *pkNetTcp)
