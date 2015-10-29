@@ -33,6 +33,7 @@ void SeFinLog(struct SELOG *pkLog)
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, ...)
 {
 	int writelen;
+	int maxlen;
 	va_list argptr;
 	struct tm tt_now;
 	char acHeadr[128] = {0};
@@ -44,15 +45,22 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 		return;
 	}
 
+	maxlen = (int)sizeof(pkLog->actext);
+	pkLog->actext[maxlen - 2] = '\n';
+	pkLog->actext[maxlen - 1] = '\0';
+
 	va_start(argptr, argv);
-	pkLog->actext[sizeof(pkLog->actext) - 2] = '\n';
-	pkLog->actext[sizeof(pkLog->actext) - 1] = '\0';
-	writelen = vsnprintf(pkLog->actext, sizeof(pkLog->actext) - 2, argv, argptr);
+	writelen = vsnprintf(pkLog->actext, maxlen - 2, argv, argptr);
 	va_end(argptr);
 
-	if(writelen < 0)
+	if(writelen <= 0)
 	{
 		return;
+	}
+	if(writelen <= (maxlen - 2))
+	{
+		pkLog->actext[writelen + 1] = '\n';
+		pkLog->actext[writelen + 2] = '\0';
 	}
 	
 	if(SeHasLogLV(pkLog, LT_SPLIT))
