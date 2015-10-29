@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define LT_SPLIT	(1<<0)   // log split
+#define LT_SPLIT	(1<<0)   // log split by diff day
 #define LT_ERROR	(1<<1)   // error
 #define LT_WARNING	(1<<2)   // warning
 #define LT_INFO		(1<<3)   // info

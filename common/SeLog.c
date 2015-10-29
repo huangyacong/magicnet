@@ -32,6 +32,7 @@ void SeFinLog(struct SELOG *pkLog)
 
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, ...)
 {
+	int writelen;
 	va_list argptr;
 	struct tm tt_now;
 	char acHeadr[128] = {0};
@@ -39,8 +40,15 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 	memcpy(&tt_now, localtime(&my_time), sizeof(tt_now));
 
 	va_start(argptr, argv);
-	vsprintf(pkLog->actext, argv, argptr);
+	pkLog->actext[sizeof(pkLog->actext) - 2] = '\n';
+	pkLog->actext[sizeof(pkLog->actext) - 1] = '\0';
+	writelen = vsnprintf(pkLog->actext, sizeof(pkLog->actext) - 2, argv, argptr);
 	va_end(argptr);
+
+	if(writelen < 0)
+	{
+		return;
+	}
 
 	if(!pkLog->pFile || !SeHasLogLV(pkLog, iLogLv))
 	{
