@@ -96,6 +96,13 @@ unsigned long SeMysqlMyEscape(char *pcDst, const char *pcSrc, unsigned long ulSr
 			pcDst[ulPos] = '"';
 			ulPos++;
 		}
+		else if((char)pcSrc[ulIndex] == '\b')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = 'b';
+			ulPos++;
+		}
 		else if((char)pcSrc[ulIndex] == '\n')
 		{
 			pcDst[ulPos] = '\\';
@@ -108,6 +115,13 @@ unsigned long SeMysqlMyEscape(char *pcDst, const char *pcSrc, unsigned long ulSr
 			pcDst[ulPos] = '\\';
 			ulPos++;
 			pcDst[ulPos] = 'r';
+			ulPos++;
+		}
+		else if((char)pcSrc[ulIndex] == '\t')
+		{
+			pcDst[ulPos] = '\\';
+			ulPos++;
+			pcDst[ulPos] = 't';
 			ulPos++;
 		}
 		else if((char)pcSrc[ulIndex] == '\\')
