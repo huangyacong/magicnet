@@ -58,6 +58,22 @@ void SeListTailAdd(struct SELIST *root, struct SENODE *node)
 	if (root->head == 0) root->head = node;
 }
 
+void SeListHeadAddList(struct SELIST *root, struct SENODE *node_list)
+{
+	struct SENODE *node;
+	struct SENODE *nodetail;
+
+	nodetail = node_list;
+	while (nodetail) { if (nodetail->next) { nodetail = nodetail->next; } else { break; } }
+	while (nodetail) { node = nodetail; nodetail = nodetail->prev; SeListInitNode(node); SeListHeadAdd(root, node); }
+}
+
+void SeListTailAddList(struct SELIST *root, struct SENODE *node_list)
+{
+	struct SENODE *node;
+	while (node_list) { node = node_list; node_list = node_list->next; SeListInitNode(node); SeListTailAdd(root, node); }
+}
+
 struct SENODE *SeListRemove(struct SELIST *root, struct SENODE *node)
 {
 	assert(root && node);

@@ -40,6 +40,10 @@ void SeListHeadAdd(struct SELIST *root, struct SENODE *node);
 
 void SeListTailAdd(struct SELIST *root, struct SENODE *node);
 
+void SeListHeadAddList(struct SELIST *root, struct SENODE *node_list);
+
+void SeListTailAddList(struct SELIST *root, struct SENODE *node_list);
+
 struct SENODE *SeListRemove(struct SELIST *root, struct SENODE *node);
 
 struct SENODE *SeListRemoveEnd(struct SELIST *root, struct SENODE *node_end);
