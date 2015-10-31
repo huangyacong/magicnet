@@ -81,6 +81,19 @@ int copydata(char *dst, int iDstlen, char *src, int iSrclen)
 bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, \
 		SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize, char *pcBuf, int &riBufLen)
 {
+	int iPos;
+	int iCopyLen;
+	char acHeader[64];
+	struct SENETSTREAMNODE *pkNetStreamNode;
+	
+	assert(iHeaderSize < 0);
+	assert(sizeof(acHeader) < iHeaderSize);
+	if(riBufLen <= 0) return false;
+	pkGetHeaderLenFun(acHeader, iHeaderSize, riBufLen);
+	if(riBufLen <= 0) return false;
+	iCopyLen = iHeaderSize + riBufLen;
+
+	return true;
 }
 
 bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, \
