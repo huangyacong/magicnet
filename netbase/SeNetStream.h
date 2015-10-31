@@ -8,11 +8,11 @@
 struct SENETSTREAMNODE
 {
 	struct SENODE		kNode;
-	int					iFlag;
+	char				*pkBuf;
 	int					iMaxLen;
 	int					iReadPos;
 	int					iWritePos;
-	char				*pkBuf;
+	int					iFlag;
 };
 
 struct SENETSTREAM
