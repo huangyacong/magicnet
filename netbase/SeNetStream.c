@@ -2,6 +2,7 @@
 
 void SeNetSreamInit(struct SENETSTREAM *pkNetStream)
 {
+	pkNetStream->iSize = 0;
 	pkNetStream->iCount = 0;
 	SeListInit(&pkNetStream->kList);
 }
@@ -40,6 +41,7 @@ struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
 	pkNode = SeListHeadPop(&pkNetStream->kList);
 	if(!pkNode) return 0;
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
+	pkNetStream->iSize -= pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
 	pkNetStream->iCount--;
 	return pkNetStreamNode;
 }
@@ -47,12 +49,14 @@ struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
 void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode)
 {
 	SeListHeadAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
+	pkNetStream->iSize += pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
 	pkNetStream->iCount++;
 }
 
 void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode)
 {
 	SeListTailAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
+	pkNetStream->iSize += pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
 	pkNetStream->iCount++;
 }
 
@@ -64,6 +68,7 @@ void SeNetSreamTailPop(struct SENETSTREAM *pkNetStream)
 	pkNode = SeListTailPop(&pkNetStream->kList);
 	if(!pkNode) return 0;
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
+	pkNetStream->iSize -= pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
 	pkNetStream->iCount--;
 	return pkNetStreamNode;
 }

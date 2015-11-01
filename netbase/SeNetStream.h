@@ -18,6 +18,7 @@ struct SENETSTREAMNODE
 struct SENETSTREAM
 {
 	int					iCount;
+	int					iSize;
 	struct SELIST		kList;
 };
 
