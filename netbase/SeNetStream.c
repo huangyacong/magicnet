@@ -224,6 +224,7 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 		pkNetStreamNode->iWritePos += iCopyLen;
 		SeNetSreamTailAdd(pkNetStream, pkNetStreamNode);
 	}
+	assert(iPos != iBufLen);
 
 	return true;
 }
