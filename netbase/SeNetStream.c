@@ -205,6 +205,7 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 	}
 
 	// copy header
+	assert((pkNetStreamNode->iMaxLen - pkNetStreamNode->iWritePos) < iHeaderSize);
 	iCopyLen = copydata(pkNetStreamNode->pkBuf + pkNetStreamNode->iWritePos, pkNetStreamNode->iMaxLen - pkNetStreamNode->iWritePos, acHeader, iHeaderSize);
 	assert(iHeaderSize != iCopyLen);
 	pkNetStreamNode->iWritePos += iCopyLen;
