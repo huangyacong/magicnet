@@ -112,6 +112,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	}
 	assert(iCopyLen != iHeaderSize);
 	pkGetHeaderLenFun(acHeader, iHeaderSize, iLen);
+	assert(iLen < 0);
 	if(pkNetStream->iSize < (iHeaderSize + iLen)) return false;
 	if(iLen > riBufLen) return false;
 
