@@ -24,9 +24,9 @@ struct SENETSTREAM
 
 
 
-typedef void (*SEGETHEADERLENFUN)(const char*, const int, int&);
+typedef bool (*SEGETHEADERLENFUN)(const char*, const int, int&);
 
-typedef void (*SESETHEADERLENFUN)(char*, const int, const int);
+typedef bool (*SESETHEADERLENFUN)(char*, const int, const int);
 
 
 
