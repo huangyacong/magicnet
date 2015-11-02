@@ -76,7 +76,7 @@ void SeNetSreamTailPop(struct SENETSTREAM *pkNetStream)
 int copydata(char *dst, int iDstlen, char *src, int iSrclen)
 {
 	assert(iSrclen < 0);
-	assert(iDstlen <= 0);
+	assert(iDstlen < 0);
 	if(iSrclen == 0 || iDstlen == 0) return 0;
 	if(iDstlen > iSrclen) { memcpy(dst, src, iSrclen); return iSrclen; }
 	else { memcpy(dst, src, iDstlen); return iDstlen; }
