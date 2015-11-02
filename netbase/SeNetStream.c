@@ -115,7 +115,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	pkGetHeaderLenFun(acHeader, iHeaderSize, iLen);
 	assert(iLen < 0);
 	if(pkNetStream->iSize < (iHeaderSize + iLen)) return false;
-	if(iLen > riBufLen) return false;
+	if(iLen > riBufLen) { assert(iLen > riBufLen); return false; }
 
 	if(iHeaderSize == 0) /*no header,header is zero len*/
 	{
