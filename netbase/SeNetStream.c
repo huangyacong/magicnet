@@ -59,7 +59,7 @@ void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *
 	pkNetStream->iCount++;
 }
 
-void SeNetSreamTailPop(struct SENETSTREAM *pkNetStream)
+struct SENETSTREAMNODE *SeNetSreamTailPop(struct SENETSTREAM *pkNetStream)
 {
 	struct SENODE *pkNode;
 	struct SENETSTREAMNODE *pkNetStreamNode;
@@ -107,7 +107,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
 		iTmpCopyLen = copydata(acHeader + iPos, iHeaderSize - iPos, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
 		iCopyLen += iTmpCopyLen;
-		pos += iTmpCopyLen;
+		iPos += iTmpCopyLen;
 		pkNode = pkNode->next;
 	}
 	assert(iCopyLen != iHeaderSize);
@@ -122,7 +122,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		while(pkNetStreamNode)
 		{
 			iTmpCopyLen = copydata(pcBuf + iPos, riBufLen - iPos, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
-			pos += iTmpCopyLen;
+			iPos += iTmpCopyLen;
 			iCopyLen += iTmpCopyLen;
 			pkNetStreamNode->iReadPos += iTmpCopyLen;
 			if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamTailAdd(pkNetStreamIdle, pkNetStreamNode); pkNetStreamNode = 0; }
@@ -142,7 +142,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	while(pkNetStreamNode)
 	{
 		iTmpCopyLen = copydata(acHeader + iPos, iHeaderSize - iPos, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
-		pos += iTmpCopyLen;
+		iPos += iTmpCopyLen;
 		iCopyLen += iTmpCopyLen;
 		pkNetStreamNode->iReadPos += iTmpCopyLen;
 		if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamTailAdd(pkNetStreamIdle, pkNetStreamNode); pkNetStreamNode = 0; }
@@ -158,7 +158,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	while(pkNetStreamNode)
 	{
 		iTmpCopyLen = copydata(pcBuf + iPos, riBufLen - iPos, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
-		pos += iTmpCopyLen;
+		iPos += iTmpCopyLen;
 		iCopyLen += iTmpCopyLen;
 		pkNetStreamNode->iReadPos += iTmpCopyLen;
 		if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamTailAdd(pkNetStreamIdle, pkNetStreamNode); pkNetStreamNode = 0; }
@@ -188,7 +188,6 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 	pkNetStreamNode = SeNetSreamTailPop(pkNetStream);
 	if(pkNetStreamNode)
 	{
-		pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
 		if((pkNetStreamNode->iMaxLen - pkNetStreamNode->iWritePos) < iHeaderSize)
 		{
 			SeNetSreamTailAdd(pkNetStream, pkNetStreamNode);
@@ -209,19 +208,19 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 
 	// copy data
 	iPos = 0;
-	iCopyLen = copydata(pkNetStreamNode->pkBuf + pkNetStreamNode->iWritePos, pkNetStreamNode->iMaxLen - pkNetStreamNode->iWritePos, pcBuf + pos, iBufLen - pos);
-	pos += iCopyLen;
+	iCopyLen = copydata(pkNetStreamNode->pkBuf + pkNetStreamNode->iWritePos, pkNetStreamNode->iMaxLen - pkNetStreamNode->iWritePos, pcBuf + iPos, iBufLen - iPos);
+	iPos += iCopyLen;
 	pkNetStreamNode->iWritePos += iCopyLen;
 	SeNetSreamTailAdd(pkNetStream, pkNetStreamNode);
 	pkNetStreamNode = 0;
 
 	// copy leave data
-	while(pos < iBufLen)
+	while(iPos < iBufLen)
 	{
 		pkNetStreamNode = SeNetSreamHeadPop(pkNetStreamIdle);
 		SeNetSreamNodeZero(pkNetStreamNode);
-		iCopyLen = copydata(pkNetStreamNode->pkBuf + pkNetStreamNode->iWritePos, pkNetStreamNode->iMaxLen - pkNetStreamNode->iWritePos, pcBuf + pos, iBufLen - pos);
-		pos += iCopyLen;
+		iCopyLen = copydata(pkNetStreamNode->pkBuf + pkNetStreamNode->iWritePos, pkNetStreamNode->iMaxLen - pkNetStreamNode->iWritePos, pcBuf + iPos, iBufLen - iPos);
+		iPos += iCopyLen;
 		pkNetStreamNode->iWritePos += iCopyLen;
 		SeNetSreamTailAdd(pkNetStream, pkNetStreamNode);
 	}

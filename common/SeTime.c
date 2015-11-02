@@ -12,7 +12,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	int iYear = 0, iMon = 0, iDay = 0, iHour = 0, iMin = 0, iSec = 0;
 	
 	memset(&tb, 0, sizeof(tb));
-	uiLen = strlen(pcTimeChar);
+	uiLen = (unsigned int)strlen(pcTimeChar);
 
 	if(uiLen != 19) {
 		return time(NULL);
