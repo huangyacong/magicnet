@@ -130,7 +130,6 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 			pkNetStreamNode->iReadPos += iTmpCopyLen;
 			if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamTailAdd(pkNetStreamIdle, pkNetStreamNode); pkNetStreamNode = 0; }
 			else { break; }
-			if(iCopyLen >= riBufLen) { break; }
 			pkNetStreamNode = SeNetSreamTailPop(pkNetStream);
 		}
 		if(pkNetStreamNode) { SeNetSreamTailAdd(pkNetStream, pkNetStreamNode); }
