@@ -101,6 +101,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	// test header len
 	iPos = iLen = iCopyLen = 0;
 	pkNode = pkNetStream->kList.head;
+	if(!pkNode) return false;
 	while(iCopyLen < iHeaderSize)
 	{
 		if(!pkNode) break;
