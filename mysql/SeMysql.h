@@ -2,7 +2,7 @@
 #define __SE_MYSQL_H__
 
 #include "SeTool.h"
-#include "SeBool.h"
+#include <stdbool.h>
 
 #if defined(__linux)
 

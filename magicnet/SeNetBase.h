@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "SeBool.h"
+#include <stdbool.h>
 
 #if defined(__linux)
 	#include <errno.h>

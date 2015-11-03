@@ -1,7 +1,7 @@
 #ifndef __SE_LOG_H__
 #define __SE_LOG_H__
 
-#include "SeBool.h"
+#include <stdbool.h>
 #include "SeTime.h"
 #include <stdio.h>
 #include <assert.h>

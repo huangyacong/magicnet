@@ -1,7 +1,7 @@
 #include "SeList.h"
 #include <stdio.h>
 #include "SeList.h"
-#include "SeBool.h"
+#include <stdbool.h>
 
 
 struct SENETSTREAMNODE

@@ -86,7 +86,7 @@ int copydata(char *dst, int iDstlen, char *src, int iSrclen)
 }
 
 bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, \
-		SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize, char *pcBuf, int &riBufLen)
+		SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize, char *pcBuf, int *riBufLen)
 {
 	int iPos;
 	int iLen;
@@ -99,7 +99,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	
 	assert(iHeaderSize >= 0);
 	assert(sizeof(acHeader) >= iHeaderSize);
-	if(riBufLen <= 0) return false;
+	if(*riBufLen <= 0) return false;
 	if(pkNetStream->iSize < iHeaderSize) return false;
 	
 	// test header len
@@ -116,11 +116,11 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		pkNode = pkNode->next;
 	}
 	if(iCopyLen != iHeaderSize) { assert(iCopyLen == iHeaderSize); return false; }
-	bRet = pkGetHeaderLenFun(acHeader, iHeaderSize, iLen);
+	bRet = pkGetHeaderLenFun(acHeader, iHeaderSize, &iLen);
 	if(!bRet) return false;
 	assert(iLen >= 0);
 	if(pkNetStream->iSize < (iHeaderSize + iLen)) return false;
-	if(iLen > riBufLen) { assert(iLen <= riBufLen); return false; }
+	if(iLen > *riBufLen) { assert(iLen <= *riBufLen); return false; }
 
 	if(iHeaderSize == 0) /*no header,header is zero len*/
 	{
@@ -129,7 +129,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		assert(pkNetStreamNode);
 		while(pkNetStreamNode)
 		{
-			iTmpCopyLen = copydata(pcBuf + iPos, riBufLen - iPos, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
+			iTmpCopyLen = copydata(pcBuf + iPos, *riBufLen - iPos, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
 			iPos += iTmpCopyLen;
 			iCopyLen += iTmpCopyLen;
 			pkNetStreamNode->iReadPos += iTmpCopyLen;
@@ -138,7 +138,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 			pkNetStreamNode = SeNetSreamHeadPop(pkNetStream);
 		}
 		if(pkNetStreamNode) { SeNetSreamHeadAdd(pkNetStream, pkNetStreamNode); }
-		riBufLen = iCopyLen;
+		*riBufLen = iCopyLen;
 		return true;
 	}
 
@@ -174,7 +174,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	}
 	assert(iCopyLen == iLen);
 	if(pkNetStreamNode) { SeNetSreamHeadAdd(pkNetStream, pkNetStreamNode); }
-	riBufLen = iLen;
+	*riBufLen = iLen;
 
 	return true;
 }

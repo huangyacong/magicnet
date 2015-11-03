@@ -1,7 +1,7 @@
 #ifndef __SE_THREAD_H__
 #define __SE_THREAD_H__
 
-#include "SeBool.h"
+#include <stdbool.h>
 
 #ifdef __linux
 

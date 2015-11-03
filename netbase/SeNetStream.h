@@ -2,7 +2,7 @@
 #define __SE_NETSTREAM_H__
 
 #include "SeList.h"
-#include "SeBool.h"
+#include <stdbool.h>
 #include "SeNetBase.h"
 
 struct SENETSTREAMNODE
@@ -24,7 +24,7 @@ struct SENETSTREAM
 
 
 
-typedef bool (*SEGETHEADERLENFUN)(const char*, const int, int&);
+typedef bool (*SEGETHEADERLENFUN)(const char*, const int, int*);
 
 typedef bool (*SESETHEADERLENFUN)(char*, const int, const int);
 
@@ -46,7 +46,7 @@ void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *
 
 
 
-bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize, char *pcBuf, int &riBufLen);
+bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize, char *pcBuf, int *riBufLen);
 
 bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, char *pcBuf, int iBufLen);
 
