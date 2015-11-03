@@ -161,9 +161,9 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	
 	iPos = iCopyLen = 0;
 	pkNetStreamNode = SeNetSreamHeadPop(pkNetStream);
-	assert(pkNetStreamNode);
 	while(iCopyLen < iLen)
 	{
+		assert(pkNetStreamNode);
 		iTmpCopyLen = copydata(pcBuf + iPos, riBufLen - iPos, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
 		iPos += iTmpCopyLen;
 		iCopyLen += iTmpCopyLen;
