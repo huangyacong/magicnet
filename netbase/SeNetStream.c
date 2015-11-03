@@ -112,7 +112,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		iPos += iTmpCopyLen;
 		pkNode = pkNode->next;
 	}
-	assert(iCopyLen == iHeaderSize);
+	if(iCopyLen != iHeaderSize) { assert(iCopyLen == iHeaderSize); return false; }
 	bRet = pkGetHeaderLenFun(acHeader, iHeaderSize, iLen);
 	if(!bRet) return false;
 	assert(iLen >= 0);
