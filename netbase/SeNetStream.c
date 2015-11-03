@@ -25,6 +25,9 @@ void SeNetSreamNodeZero(struct SENETSTREAMNODE *pkNetStreamNode)
 	pkNetStreamNode->iReadPos = 0;
 	pkNetStreamNode->iWritePos = 0;
 	pkNetStreamNode->iFlag = 0;
+#if defined(_DEBUG)
+	memset(pkNetStreamNode->pkBuf, 0, pkNetStreamNode->iMaxLen);
+#endif
 }
 
 int SeNetSreamCount(struct SENETSTREAM *pkNetStream)
