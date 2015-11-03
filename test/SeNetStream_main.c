@@ -7,7 +7,7 @@ bool kSetHeaderLenFun(char* pcHeader, const int iheaderlen, const int ilen)
 	{
 		unsigned short tmp = (unsigned short)ilen;
 		memcpy(pcHeader, &tmp, iheaderlen);
-		printf("%c %c \n", pcHeader, pcHeader + 2);
+		printf("%d %d \n", pcHeader[0], pcHeader[1]);
 		return true;
 	}
 	if (iheaderlen == 0)
@@ -160,7 +160,41 @@ void test2()
 
 	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, iheaderlen, data, 0);
 	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, iheaderlen, data, 1);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 	
+	char a[2] = { 0 };
+	a[0] = 0;
+	a[1] = 0;
+
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 2);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+	
+	a[0] = 0;
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 1);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+	
+	a[0] = 0;
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 1);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+
+	a[0] = 1;
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 1);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+
+	a[0] = 0;
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 1);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+
+	a[0] = 'k';
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 1);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+	
+
+	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, iheaderlen, data, 1);
+	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+
 	memset(recvbuf, 0, sizeof(recvbuf));
 	irecvlen = sizeof(recvbuf) - 1;
 	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, irecvlen);
