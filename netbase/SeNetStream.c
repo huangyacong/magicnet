@@ -150,6 +150,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		iCopyLen += iTmpCopyLen;
 		pkNetStreamNode->iReadPos += iTmpCopyLen;
 		if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamTailAdd(pkNetStreamIdle, pkNetStreamNode); pkNetStreamNode = 0; }
+		else { assert(iCopyLen == iHeaderSize); break; }
 		pkNetStreamNode = SeNetSreamTailPop(pkNetStream);
 	}
 	assert(iCopyLen == iHeaderSize);
@@ -165,6 +166,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		iCopyLen += iTmpCopyLen;
 		pkNetStreamNode->iReadPos += iTmpCopyLen;
 		if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamTailAdd(pkNetStreamIdle, pkNetStreamNode); pkNetStreamNode = 0; }
+		else { assert(iCopyLen == iLen); break; }
 		pkNetStreamNode = SeNetSreamTailPop(pkNetStream);
 	}
 	assert(iCopyLen == iLen);
