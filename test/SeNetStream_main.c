@@ -38,10 +38,14 @@ bool kGetHeaderLenFun(const char* pcHeader, const int iheaderlen, int *ilen)
 
 void test1()
 {
+	int i;
 	struct SENETSTREAM kNetStreamIdle;
-	SeNetSreamInit(&kNetStreamIdle);
+	struct SENETSTREAM kNetStream;
 
-	for (int i = 0; i < 1000; i++)
+	SeNetSreamInit(&kNetStreamIdle);
+	SeNetSreamInit(&kNetStream);
+
+	for (i = 0; i < 1000; i++)
 	{
 		int ilen = sizeof(struct SENETSTREAMNODE) + 4;
 		char *pcbuf = (char*)malloc(ilen);
@@ -50,8 +54,8 @@ void test1()
 		SeNetSreamHeadAdd(&kNetStreamIdle, pkNetStreamNode);
 	}
 
-	struct SENETSTREAM kNetStream;
-	SeNetSreamInit(&kNetStream);
+	
+	
 
 	int iheaderlen = 0;
 	char data[datalen] = { 0 };
@@ -118,12 +122,13 @@ void test1()
 
 void test2()
 {
+	int i;
 	struct SENETSTREAM kNetStreamIdle;
 	SeNetSreamInit(&kNetStreamIdle);
 	struct SENETSTREAM kNetStream;
 	SeNetSreamInit(&kNetStream);
 
-	for (int i = 0; i < 1000; i++)
+	for (i = 0; i < 1000; i++)
 	{
 		int ilen = sizeof(struct SENETSTREAMNODE) + 4;
 		char *pcbuf = (char*)malloc(ilen);
