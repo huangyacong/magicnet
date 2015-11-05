@@ -47,9 +47,6 @@ void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 	int hashid;
 	struct SELIST *pkMain;
 	struct SEHASHNODE *pkHashNode;
-	
-	pkHashNode = SeHashGet(root, id);
-	if(pkHashNode) return;
 
 	hashid = id % root->max;
 	assert(hashid >= 0 && hashid < root->max);
