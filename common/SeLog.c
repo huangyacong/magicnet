@@ -1,6 +1,9 @@
 #include "SeLog.h"
 #include "SeTool.h"
 #include <stdarg.h>
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
 
 FILE * newFile(const char *pkFileName, int year, int mon, int day)
 {

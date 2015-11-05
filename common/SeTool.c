@@ -1,4 +1,7 @@
 #include "SeTool.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
 {
