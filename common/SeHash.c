@@ -46,10 +46,6 @@ bool SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 {
 	int hashid;
 	struct SELIST *pkMain;
-	struct SEHASHNODE *pkHashNode;
-	
-	pkHashNode = SeHashGet(root, id);
-	if(pkHashNode) return false;
 
 	hashid = id % root->max;
 	assert(hashid >= 0 && hashid < root->max);
@@ -86,10 +82,6 @@ struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node)
 {
 	int hashid;
 	struct SELIST *pkMain;
-	struct SEHASHNODE *pkHashNode;
-
-	pkHashNode = SeHashGet(root, node->id);
-	if(!pkHashNode) return 0;
 
 	hashid = node->id % root->max;
 	assert(hashid >= 0 && hashid < root->max);
