@@ -188,6 +188,22 @@ void test2()
 	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 1);
 	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 
+	memset(recvbuf, 0, sizeof(recvbuf));
+	irecvlen = sizeof(recvbuf) - 1;
+	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+	printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+	printf("data=%s %d\n", recvbuf, ret ? irecvlen : 0);
+	while (ret)
+	{
+
+		memset(recvbuf, 0, sizeof(recvbuf));
+		irecvlen = sizeof(recvbuf) - 1;
+		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+		printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+		printf("data=%s %d\n", recvbuf, ret ? irecvlen : 0);
+	}
+
+
 	a[0] = 0;
 	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, 0, a, 1);
 	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
@@ -199,6 +215,7 @@ void test2()
 
 	ret = SeNetSreamWrite(&kNetStream, &kNetStreamIdle, &kSetHeaderLenFun, iheaderlen, data, 1);
 	printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
+
 
 	memset(recvbuf, 0, sizeof(recvbuf));
 	irecvlen = sizeof(recvbuf) - 1;
