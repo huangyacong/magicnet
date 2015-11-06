@@ -47,10 +47,27 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 {
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	free(pkNetSocketMgr->pkSeSocket);
-	SeHashFin(&pkNetSocketMgr->kSendList);
-	SeHashFin(&pkNetSocketMgr->kRecvList);
+	for(i = 0; i < pkNetSocketMgr->iMax; i++)
+	{
+		pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->pkSeSocket[i].kSendNetStream));
+		while(pkNetStreamNode)
+		{
+			SeNetSreamNodeZero(pkNetStreamNode);
+			SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
+		}
+
+		pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->pkSeSocket[i].kRecvNetStream));
+		while(pkNetStreamNode)
+		{
+			SeNetSreamNodeZero(pkNetStreamNode);
+			SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
+		}
+	}
 
 	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);
 	while(pkNetStreamNode) {free(pkNetStreamNode);pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);}
+
+	free(pkNetSocketMgr->pkSeSocket);
+	SeHashFin(&pkNetSocketMgr->kSendList);
+	SeHashFin(&pkNetSocketMgr->kRecvList);
 }
