@@ -1,4 +1,16 @@
 #include "SeNetSocket.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <stdlib.h>
+#include "SeTool.h"
+
+void SeNetSocketReset(struct SESOCKET *pkNetSocket)
+{
+	pkNetSocket->kHSocket = SeGetHSocket(0, 0, SE_INVALID_SOCKET);
+	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
+	pkNetSocket->iFlag = 0;
+}
 
 void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
 {
@@ -11,9 +23,28 @@ void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
 	SeHashNodeInit(&pkNetSocket->kRecvNode);
 }
 
-void SeNetSocketReset(struct SESOCKET *pkNetSocket)
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usIndex)
 {
-	pkNetSocket->kHSocket = SeGetHSocket(0, 0, SE_INVALID_SOCKET);
-	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
-	pkNetSocket->iFlag = 0;
+	int i;
+
+	assert(usIndex > 0);
+	pkNetSocketMgr->iMax = usIndex;
+	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)malloc(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
+	SeListInit(&pkNetSocketMgr->kMainList);
+	SeHashInit(&pkNetSocketMgr->kSendList, (unsigned short)pkNetSocketMgr->iMax);
+	SeHashInit(&pkNetSocketMgr->kRecvList, (unsigned short)pkNetSocketMgr->iMax);
+
+	for(i = 0; i < pkNetSocketMgr->iMax; i++)
+	{
+		SeNetSocketInit(&pkNetSocketMgr->pkSeSocket[i], (unsigned short)i);
+		SeNetSocketReset(&pkNetSocketMgr->pkSeSocket[i]);
+		SeListHeadAdd(&pkNetSocketMgr->kMainList, &((pkNetSocketMgr->pkSeSocket[i]).kMainNode));
+	}
+}
+
+void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
+{
+	free(pkNetSocketMgr->pkSeSocket);
+	SeHashFin(&pkNetSocketMgr->kSendList);
+	SeHashFin(&pkNetSocketMgr->kRecvList);
 }

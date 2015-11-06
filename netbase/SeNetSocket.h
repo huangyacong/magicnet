@@ -27,9 +27,18 @@ struct SESOCKET
 	struct SEHASHNODE		kRecvNode;
 };
 
-void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex);
+struct SESOCKETMGR
+{
+	int						iMax;
+	struct SESOCKET			*pkSeSocket;
+	struct SELIST			kMainList;
+	struct SEHASH			kSendList;
+	struct SEHASH			kRecvList;
+};
 
-void SeNetSocketReset(struct SESOCKET *pkNetSocket);
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usIndex);
+
+void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr);
 
 
 #endif
