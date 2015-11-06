@@ -29,6 +29,7 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usInd
 
 	assert(usIndex > 0);
 	pkNetSocketMgr->iMax = usIndex;
+	SeNetSreamInit(&pkNetSocketMgr->kNetStreamIdle);
 	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)malloc(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
 	SeListInit(&pkNetSocketMgr->kMainList);
 	SeHashInit(&pkNetSocketMgr->kSendList, (unsigned short)pkNetSocketMgr->iMax);
@@ -44,7 +45,12 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usInd
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 {
+	struct SENETSTREAMNODE *pkNetStreamNode;
+
 	free(pkNetSocketMgr->pkSeSocket);
 	SeHashFin(&pkNetSocketMgr->kSendList);
 	SeHashFin(&pkNetSocketMgr->kRecvList);
+
+	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);
+	while(pkNetStreamNode) {free(pkNetStreamNode);pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);}
 }

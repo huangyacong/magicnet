@@ -30,6 +30,7 @@ struct SESOCKET
 struct SESOCKETMGR
 {
 	int						iMax;
+	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SELIST			kMainList;
 	struct SEHASH			kSendList;
