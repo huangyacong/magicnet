@@ -10,6 +10,7 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->kHSocket = SeGetHSocket(0, 0, 0);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iFlag = 0;
+	pkNetSocket->iTypeSocket = 0;
 }
 
 void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
