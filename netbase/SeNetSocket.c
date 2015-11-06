@@ -23,12 +23,14 @@ void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
 	SeHashNodeInit(&pkNetSocket->kRecvNode);
 }
 
-void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usIndex)
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usIndex, int iSeSocketBufSize)
 {
 	int i;
 
 	assert(usIndex > 0);
+	assert(iSeSocketBufSize > 0);
 	pkNetSocketMgr->iMax = usIndex;
+	pkNetSocketMgr->iSeSocketBufSize = iSeSocketBufSize;
 	SeNetSreamInit(&pkNetSocketMgr->kNetStreamIdle);
 	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)malloc(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
 	SeListInit(&pkNetSocketMgr->kMainList);

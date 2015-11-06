@@ -30,6 +30,7 @@ struct SESOCKET
 struct SESOCKETMGR
 {
 	int						iMax;
+	int						iSeSocketBufSize;
 	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SELIST			kMainList;
@@ -37,7 +38,7 @@ struct SESOCKETMGR
 	struct SEHASH			kRecvList;
 };
 
-void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usIndex);
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usIndex, int iSeSocketBufSize);
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr);
 
