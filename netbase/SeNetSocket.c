@@ -46,10 +46,14 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usInd
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 {
 	int i;
+	SOCKET kSocket;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
 	for(i = 0; i < pkNetSocketMgr->iMax; i++)
 	{
+		kSocket = SeGetSocketByHScoket(pkNetSocketMgr->pkSeSocket[i].kHSocket);
+		if(kSocket > 0) SeCloseSocket(kSocket);
+
 		pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->pkSeSocket[i].kSendNetStream));
 		while(pkNetStreamNode)
 		{
