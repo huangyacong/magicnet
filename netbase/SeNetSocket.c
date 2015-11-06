@@ -34,8 +34,8 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usInd
 	SeNetSreamInit(&pkNetSocketMgr->kNetStreamIdle);
 	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)malloc(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
 	SeListInit(&pkNetSocketMgr->kMainList);
-	SeHashInit(&pkNetSocketMgr->kSendList, (unsigned short)pkNetSocketMgr->iMax);
-	SeHashInit(&pkNetSocketMgr->kRecvList, (unsigned short)pkNetSocketMgr->iMax);
+	SeHashInit(&pkNetSocketMgr->kSendList, pkNetSocketMgr->iMax);
+	SeHashInit(&pkNetSocketMgr->kRecvList, pkNetSocketMgr->iMax);
 
 	for(i = 0; i < pkNetSocketMgr->iMax; i++)
 	{
