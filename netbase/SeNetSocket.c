@@ -62,6 +62,7 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 		{
 			SeNetSreamNodeZero(pkNetStreamNode);
 			SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
+			pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->pkSeSocket[i].kSendNetStream));
 		}
 
 		pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->pkSeSocket[i].kRecvNetStream));
@@ -69,6 +70,7 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 		{
 			SeNetSreamNodeZero(pkNetStreamNode);
 			SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
+			pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->pkSeSocket[i].kRecvNetStream));
 		}
 	}
 
