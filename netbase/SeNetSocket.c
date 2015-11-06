@@ -45,6 +45,7 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usInd
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 {
+	int i;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
 	for(i = 0; i < pkNetSocketMgr->iMax; i++)
