@@ -12,6 +12,7 @@
 #if defined(__linux)
 #define SE_CONTAINING_RECORD(ptr, type, member) ((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
 #elif (defined(_WIN32) || defined(WIN32))
+#include <winsock2.h>
 #define SE_CONTAINING_RECORD(address, type, field) ((type *)((PCHAR)(address) - (ULONG_PTR)(&((type *)0)->field)))
 #endif
 
