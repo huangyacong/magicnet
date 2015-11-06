@@ -42,7 +42,7 @@ void SeHashNodeInit(struct SEHASHNODE *node)
 	SeListInitNode(&node->list);
 }
 
-bool SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
+void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 {
 	int hashid;
 	struct SELIST *pkMain;
@@ -53,7 +53,6 @@ bool SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 	node->id = id;
 	SeListTailAdd(pkMain, &node->main);
 	SeListTailAdd(&root->list, &node->list);
-	return true;
 }
 
 struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
