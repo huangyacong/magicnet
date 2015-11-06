@@ -70,8 +70,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 	{
 		if(tt_now.tm_year != pkLog->ttDate.tm_year || tt_now.tm_mon != pkLog->ttDate.tm_mon || tt_now.tm_mday != pkLog->ttDate.tm_mday)
 		{
-			fclose(pkLog->pFile);
-
+			if(pkLog->pFile) { fclose(pkLog->pFile); pkLog->pFile = 0;}
 			pkLog->ttDate.tm_year = tt_now.tm_year;
 			pkLog->ttDate.tm_mon = tt_now.tm_mon;
 			pkLog->ttDate.tm_mday = tt_now.tm_mday;
