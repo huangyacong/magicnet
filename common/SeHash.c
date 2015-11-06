@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <stdlib.h>
+#include "SeNetBase.h"
 
 void SeHashInit(struct SEHASH *root, int max)
 {
@@ -18,7 +20,7 @@ void SeHashInit(struct SEHASH *root, int max)
 
 	assert(max > 0);
 	root->max = max;
-	root->pkMain = (struct SEHASH *)malloc(sizeof(struct SELIST)*root->max);
+	root->pkMain = (struct SELIST *)malloc(sizeof(struct SELIST)*root->max);
 	SeListInit(&root->list);
 	
 	for(i = 0; i < root->max; i++)
@@ -49,7 +51,7 @@ void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 
 	hashid = id % root->max;
 	assert(hashid >= 0 && hashid < root->max);
-	pkMain = root->pkMain[hashid];
+	pkMain = &root->pkMain[hashid];
 	node->id = id;
 	SeListTailAdd(pkMain, &node->main);
 	SeListTailAdd(&root->list, &node->list);
@@ -64,9 +66,9 @@ struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
 
 	hashid = id % root->max;
 	assert(hashid >= 0 && hashid < root->max);
-	pkMain = root->pkMain[hashid];
+	pkMain = &root->pkMain[hashid];
 
-	pkNode = pkMain->kList.head;
+	pkNode = pkMain->head;
 	if(!pkNode) return 0;
 	while(pkNode)
 	{
@@ -84,7 +86,7 @@ struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node)
 
 	hashid = node->id % root->max;
 	assert(hashid >= 0 && hashid < root->max);
-	pkMain = root->pkMain[hashid];
+	pkMain = &root->pkMain[hashid];
 
 	SeListRemove(pkMain, &node->main);
 	SeListRemove(&root->list, &node->list);
@@ -104,7 +106,7 @@ struct SEHASHNODE *SeHashPop(struct SEHASH *root)
 
 	hashid = pkHashNode->id % root->max;
 	assert(hashid >= 0 && hashid < root->max);
-	pkMain = root->pkMain[hashid];
+	pkMain = &root->pkMain[hashid];
 	SeListRemove(pkMain, &pkHashNode->main);
 
 	return pkHashNode;
