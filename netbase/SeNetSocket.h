@@ -3,6 +3,7 @@
 
 #include "SeList.h"
 #include "SeTool.h"
+#include "SeHash.h"
 #include "SeNetBase.h"
 #include "SeNetStream.h"
 
@@ -16,29 +17,19 @@
 struct SESOCKET
 {
 	HSOCKET					kHSocket;
-	int						iStatus;
+	unsigned short			usStatus;
+	unsigned short			usIndex;
 	int						iFlag;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
 	struct SENODE			kMainNode;
-	struct SENODE			kSendNode;
-	struct SENODE			kRecvNode;
+	struct SEHASHNODE		kSendNode;
+	struct SEHASHNODE		kRecvNode;
 };
 
-void SeNetSocketInit(struct SESOCKET *pkNetSocket);
+void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex);
 
 void SeNetSocketReset(struct SESOCKET *pkNetSocket);
 
-struct SESOCKET *SeNetSocketMainHeadPop(struct SELIST *pkSeList);
-
-void SeNetSocketMainTailAdd(struct SELIST *pkSeList, struct SESOCKET *pkSeSocket);
-
-struct SESOCKET *SeNetSocketSendHeadPop(struct SELIST *pkSeList);
-
-void SeNetSocketSendTailAdd(struct SELIST *pkSeList, struct SESOCKET *pkSeSocket);
-
-struct SESOCKET *SeNetSocketRecvHeadPop(struct SELIST *pkSeList);
-
-void SeNetSocketRecvTailAdd(struct SELIST *pkSeList, struct SESOCKET *pkSeSocket);
 
 #endif
