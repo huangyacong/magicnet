@@ -14,10 +14,6 @@
 #define SOCKET_STATUS_DISCONNECT 4
 #define SOCKET_STATUS_ACTIVECONNECT 5
 
-#define BIG_HEADER_FLAG 1
-#define ZERO_HEADER_FLAG 2
-#define SMALLER_HEADER_FLAG 3
-
 #define LISTEN_TYPE_SOCKET 1
 #define CLIENT_TYPE_SOCKET 2
 #define ACCEPT_TYPE_SOCKET 3
@@ -27,7 +23,7 @@ struct SESOCKET
 	HSOCKET					kHSocket;
 	unsigned short			usStatus;
 	unsigned short			usIndex;
-	int						iFlag;
+	int						iHeaderLen;
 	int						iTypeSocket;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
