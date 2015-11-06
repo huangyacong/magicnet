@@ -41,9 +41,6 @@
 	#define SE_SOCKET_ERROR         -1
 	#define SE_INVALID_HANDLE       -1
 
-	#define SE_CONTAINING_RECORD(ptr, type, member) \
-		((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
-
 #elif (defined(_WIN32) || defined(WIN32))
 	
 	#include <winsock2.h>
@@ -60,9 +57,6 @@
 	#define SE_INVALID_SOCKET       INVALID_SOCKET
 	#define SE_SOCKET_ERROR         SOCKET_ERROR
 	#define SE_INVALID_HANDLE       NULL
-
-	#define SE_CONTAINING_RECORD(address, type, field) \
-		((type *)((PCHAR)(address) - (ULONG_PTR)(&((type *)0)->field)))
 
 #endif
 

@@ -2,6 +2,7 @@
 #define __SE_NETSOCKET_H__
 
 #include "SeList.h"
+#include "SeTool.h"
 #include "SeNetBase.h"
 #include "SeNetStream.h"
 

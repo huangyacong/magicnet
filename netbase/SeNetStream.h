@@ -3,7 +3,7 @@
 
 #include "SeList.h"
 #include <stdbool.h>
-#include "SeNetBase.h"
+#include "SeTool.h"
 
 struct SENETSTREAMNODE
 {

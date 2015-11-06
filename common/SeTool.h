@@ -9,6 +9,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#if defined(__linux)
+#define SE_CONTAINING_RECORD(ptr, type, member) ((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+#elif (defined(_WIN32) || defined(WIN32))
+#define SE_CONTAINING_RECORD(address, type, field) ((type *)((PCHAR)(address) - (ULONG_PTR)(&((type *)0)->field)))
+#endif
+
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar);
 
 void SeStrNcpy(char* pcDstChar,int iDstLen,const char* pcSrcChar);

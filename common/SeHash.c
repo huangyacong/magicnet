@@ -12,7 +12,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "SeNetBase.h"
+#include "SeTool.h"
 
 void SeHashInit(struct SEHASH *root, int max)
 {
