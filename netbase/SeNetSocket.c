@@ -7,7 +7,7 @@
 
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
-	pkNetSocket->kHSocket = SeGetHSocket(0, 0, SE_INVALID_SOCKET);
+	pkNetSocket->kHSocket = SeGetHSocket(0, 0, 0);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iFlag = 0;
 }
