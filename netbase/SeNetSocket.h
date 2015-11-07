@@ -11,12 +11,13 @@
 #define SOCKET_STATUS_ACCEPT 1
 #define SOCKET_STATUS_CONNECTING 2
 #define SOCKET_STATUS_CONNECTED 3
-#define SOCKET_STATUS_DISCONNECT 4
-#define SOCKET_STATUS_ACTIVECONNECT 5
+#define SOCKET_STATUS_DISCONNECTING 4
+#define SOCKET_STATUS_DISCONNECT 5
+#define SOCKET_STATUS_ACTIVECONNECT 6
 
-#define LISTEN_TYPE_SOCKET 1
-#define CLIENT_TYPE_SOCKET 2
-#define ACCEPT_TYPE_SOCKET 3
+#define LISTEN_TCP_TYPE_SOCKET 1
+#define CLIENT_TCP_TYPE_SOCKET 2
+#define ACCEPT_TCP_TYPE_SOCKET 3
 
 struct SESOCKET
 {
@@ -35,7 +36,6 @@ struct SESOCKET
 struct SESOCKETMGR
 {
 	int						iMax;
-	int						iSeSocketBufSize;
 	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SELIST			kMainList;
@@ -43,9 +43,8 @@ struct SESOCKETMGR
 	struct SEHASH			kRecvList;
 };
 
-void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usIndex, int iSeSocketBufSize);
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax);
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr);
-
 
 #endif
