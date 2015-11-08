@@ -74,7 +74,7 @@ struct SESOCKET *SeNetSocketMgrTCPAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET
 	SeNetSocketReset(pkNetSocket);
 	pkNetSocketMgr->iCounter++;
 
-	pkNetSocket->kHSocket = SeGetHSocket(pkNetSocketMgr->iCounter, pkNetSocket->usIndex, socket);
+	pkNetSocket->kHSocket = SeGetHSocket((unsigned short)pkNetSocketMgr->iCounter, pkNetSocket->usIndex, socket);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = iHeaderLen;
 	pkNetSocket->iTypeSocket = iTypeSocket;
