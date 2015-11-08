@@ -62,7 +62,7 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 	SeHashFin(&pkNetSocketMgr->kRecvList);
 }
 
-struct SESOCKET *SeNetSocketMgrTCPAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int iTypeSocket, int iHeaderLen, \
+struct SESOCKET *SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int iTypeSocket, int iHeaderLen, \
 			SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun)
 {
 	struct SENODE *pkNode;
