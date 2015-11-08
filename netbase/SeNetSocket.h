@@ -55,4 +55,6 @@ struct SESOCKET *SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET so
 
 void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket);
 
+struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket);
+
 #endif

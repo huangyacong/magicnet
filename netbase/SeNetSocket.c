@@ -112,3 +112,15 @@ void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNe
 	pkNetSocketTmp = SeHashGet(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex);
 	if(pkNetSocketTmp) {assert(pkNetSocket == pkNetSocketTmp);SeHashRemove(&pkNetSocketMgr->kRecvList, &pkNetSocketTmp->kRecvNode);}
 }
+
+struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket)
+{
+	unsigned short usIndex;
+	struct SESOCKET *pkNetSocket;
+	
+	usIndex = SeGetIndexByHScoket(kHSocket);
+	assert(usIndex >= 0 && usIndex < pkNetSocketMgr->iMax);
+	pkNetSocket = &pkNetSocketMgr->pkSeSocket[usIndex];
+	assert(kHSocket == pkNetSocket->kHSocket);
+	return pkNetSocket;
+}
