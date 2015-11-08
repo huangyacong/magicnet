@@ -50,7 +50,6 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 {
 	int i;
-	SOCKET kSocket;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
 	for(i = 0; i < pkNetSocketMgr->iMax; i++) SeNetSocketMgrDel(pkNetSocketMgr, &pkNetSocketMgr->pkSeSocket[i]);
@@ -108,9 +107,9 @@ void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNe
 	SeNetSocketReset(pkNetSocket);
 	SeListTailAdd(&pkNetSocketMgr->kMainList, &pkNetSocket->kMainNode);
 	pkNetSocketTmp = SeHashGet(&pkNetSocketMgr->kSendList, pkNetSocket->usIndex);
-	if(pkNetSocketTmp) {assert(pkNetSocket == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kSendList, &pkNetSocketTmp->kSendNode);}
+	if(pkNetSocketTmp) { assert(&pkNetSocket->kSendNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kSendList, pkNetSocketTmp); }
 	pkNetSocketTmp = SeHashGet(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex);
-	if(pkNetSocketTmp) {assert(pkNetSocket == pkNetSocketTmp);SeHashRemove(&pkNetSocketMgr->kRecvList, &pkNetSocketTmp->kRecvNode);}
+	if(pkNetSocketTmp) { assert(&pkNetSocket->kRecvNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kRecvList, pkNetSocketTmp); }
 }
 
 struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket)
