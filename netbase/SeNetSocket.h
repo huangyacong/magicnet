@@ -31,11 +31,14 @@ struct SESOCKET
 	struct SENODE			kMainNode;
 	struct SEHASHNODE		kSendNode;
 	struct SEHASHNODE		kRecvNode;
+	SEGETHEADERLENFUN		pkGetHeaderLenFun;
+	SESETHEADERLENFUN		pkSetHeaderLenFun;
 };
 
 struct SESOCKETMGR
 {
 	int						iMax;
+	int						iCounter;
 	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SELIST			kMainList;
@@ -46,5 +49,10 @@ struct SESOCKETMGR
 void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax);
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr);
+
+struct SESOCKET *SeNetSocketMgrTCPAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int iTypeSocket, int iHeaderLen, \
+			SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
+
+void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket);
 
 #endif
