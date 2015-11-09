@@ -16,70 +16,101 @@ bool set(char *a, const int b, const int c)
 
 int main()
 {
-	HSOCKET kHSocket;
-	struct SESOCKET *pkNetSocketa, *pkNetSocketb, *pkNetSocketc, *pkNetSocketd;
+	HSOCKET kHScoket;
+	struct SESOCKET *pkSocket;
+	HSOCKET kHSocketA, kHSocketB, kHSocketC;
 	struct SESOCKETMGR kTest;
 
 	SeNetSocketMgrInit(&kTest, 3);
 
-	pkNetSocketa = SeNetSocketMgrAdd(&kTest, 0, 1, 0, get, set);
-	pkNetSocketb = SeNetSocketMgrAdd(&kTest, 0, 1, 0, get, set);
-	pkNetSocketc = SeNetSocketMgrAdd(&kTest, 0, 1, 0, get, set);
-	pkNetSocketd = SeNetSocketMgrAdd(&kTest, 0, 1, 0, get, set);
-	assert(pkNetSocketa && pkNetSocketb && pkNetSocketc);
-	if (!pkNetSocketd) printf("SeNetSocketMgrAdd failed pkNetSocketd\n");
+	
+	kHSocketA = SeNetSocketMgrAdd(&kTest, 1, 1, 0, get, set);
+	kHSocketB = SeNetSocketMgrAdd(&kTest, 2, 1, 0, get, set);
+	kHSocketC = SeNetSocketMgrAdd(&kTest, 3, 1, 0, get, set);
+	assert(kHSocketA > 0 && kHSocketB > 0 && kHSocketC > 0);
 
-	kHSocket = pkNetSocketa->kHSocket;
-	pkNetSocketd = SeNetSocketMgrGet(&kTest, kHSocket);
-	assert(pkNetSocketd);
+	kHScoket = SeNetSocketMgrAdd(&kTest, 4, 1, 0, get, set);
+	if (kHScoket <= 0) printf("SeNetSocketMgrAdd failed 4\n");
+	
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketA);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketA \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketB);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketB \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketC);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketC \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHScoket);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHScoket \n");
 
-	kHSocket = pkNetSocketb->kHSocket;
-	pkNetSocketd = SeNetSocketMgrGet(&kTest, kHSocket);
-	assert(pkNetSocketd);
+	SeNetSocketMgrDel(&kTest, kHSocketA);
+	SeNetSocketMgrDel(&kTest, kHSocketB);
+	SeNetSocketMgrDel(&kTest, kHSocketC);
+	SeNetSocketMgrDel(&kTest, kHScoket);
 
-	kHSocket = pkNetSocketc->kHSocket;
-	pkNetSocketd = SeNetSocketMgrGet(&kTest, kHSocket);
-	assert(pkNetSocketd);
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketA);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketA \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketB);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketB \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketC);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketC \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHScoket);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHScoket \n");
 
-	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkNetSocketa, true);
-	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkNetSocketa, true);
-	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkNetSocketa, false);
-	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkNetSocketa, false);
+	kHSocketA = SeNetSocketMgrAdd(&kTest, 1, 1, 0, get, set);
+	kHSocketB = SeNetSocketMgrAdd(&kTest, 2, 1, 0, get, set);
+	kHSocketC = SeNetSocketMgrAdd(&kTest, 3, 1, 0, get, set);
+	assert(kHSocketA > 0 && kHSocketB > 0 && kHSocketC > 0);
 
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList true failed \n");
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList true failed \n");
+	pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
+	while (pkSocket)
+	{
+		printf("SeNetSocketMgrPopSendOrRecvOutList true ok\n");
+		pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
+	}
 
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, false);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList false failed \n");
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, false);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList false failed \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketA);
+	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkSocket, true);
+	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkSocket, true);
+	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkSocket, false);
+	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkSocket, false);
 
-	SeNetSocketMgrUpdateNetStreamIdle(&kTest, 1024);
-	SeNetSocketMgrUpdateNetStreamIdle(&kTest, 1024);
-	SeNetSocketMgrUpdateNetStreamIdle(&kTest, 1024);
-	SeNetSocketMgrUpdateNetStreamIdle(&kTest, 1024);
+	pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
+	while (pkSocket)
+	{
+		printf("SeNetSocketMgrPopSendOrRecvOutList true ok\n");
+		pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
+	}
 
-	SeNetSocketMgrDel(&kTest, pkNetSocketa);
-	SeNetSocketMgrDel(&kTest, pkNetSocketb);
-	SeNetSocketMgrDel(&kTest, pkNetSocketc);
-	//SeNetSocketMgrDel(&kTest, pkNetSocketa);
+	pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, false);
+	while (pkSocket)
+	{
+		printf("SeNetSocketMgrPopSendOrRecvOutList false ok\n");
+		pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, false);
+	}
 
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList true failed \n");
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList true failed \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketB);
+	SeNetSocketMgrAddSendOrRecvInList(&kTest, pkSocket, false);
 
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, false);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList false failed \n");
-	pkNetSocketd = SeNetSocketMgrPopSendOrRecvOutList(&kTest, false);
-	if (!pkNetSocketd) printf("SeNetSocketMgrPopSendOrRecvOutList false failed \n");
+	pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
+	while (pkSocket)
+	{
+		printf("SeNetSocketMgrPopSendOrRecvOutList true ok\n");
+		pkSocket = SeNetSocketMgrPopSendOrRecvOutList(&kTest, true);
+	}
 
-	pkNetSocketd = SeNetSocketMgrGet(&kTest, pkNetSocketb->kHSocket);
-	if (!pkNetSocketd) printf("SeNetSocketMgrGet failed %lld \n", pkNetSocketb->kHSocket);
-	else printf("SeNetSocketMgrGet ok %lld  %lld \n", pkNetSocketd->kHSocket, pkNetSocketb->kHSocket);
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketA);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketA \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketB);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketB \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHSocketC);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHSocketC \n");
+	pkSocket = SeNetSocketMgrGet(&kTest, kHScoket);
+	if (!pkSocket) printf("SeNetSocketMgrGet failed kHScoket \n");
 
+	//pkSocket = SeNetSocketMgrGet(&kTest, kHScoket);
+	//SeNetSocketMgrAddSendOrRecvInList(&kTest, pkSocket, true);
+
+	SeNetSocketMgrUpdateNetStreamIdle(&kTest, 1024, 1024 * 1024 * 4);
+	
 	getchar();
 	SeNetSocketMgrFin(&kTest);
 	return 0;
