@@ -166,6 +166,7 @@ struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSoc
 
 void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iSize)
 {
+	int i;
 	int iCount;
 	char *pcBuf;
 	struct SENETSTREAMNODE *pkNetStreamNode;
