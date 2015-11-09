@@ -175,7 +175,7 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	iCount = (int)((int)0xFFFF / iSize) + 1;
 	iCount = iCount * 2;
 	
-	if((pkNetSocketMgr->kNetStreamIdle).SeNetSreamCount() >= iCount) return;
+	if(SeNetSreamCount(&pkNetSocketMgr->kNetStreamIdle) >= iCount) return;
 
 	for(i = 0; i < iCount; i++)
 	{
