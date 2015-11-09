@@ -120,6 +120,6 @@ struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET k
 	usIndex = SeGetIndexByHScoket(kHSocket);
 	assert(usIndex >= 0 && usIndex < pkNetSocketMgr->iMax);
 	pkNetSocket = &pkNetSocketMgr->pkSeSocket[usIndex];
-	assert(kHSocket == pkNetSocket->kHSocket);
+	if(kHSocket != pkNetSocket->kHSocket) return 0;
 	return pkNetSocket;
 }
