@@ -123,3 +123,43 @@ struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET k
 	if(kHSocket != pkNetSocket->kHSocket) return 0;
 	return pkNetSocket;
 }
+
+void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket, bool bSendOrRecv)
+{
+	struct SEHASHNODE *pkNetSocketTmp;
+
+	if(bSendOrRecv == true)
+	{
+		pkNetSocketTmp = SeHashGet(&pkNetSocketMgr->kSendList, pkNetSocket->usIndex);
+		if(pkNetSocketTmp) { assert(&pkNetSocket->kSendNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kSendList, &pkNetSocket->kSendNode); }
+		SeHashAdd(&pkNetSocketMgr->kSendList, pkNetSocket->usIndex, &pkNetSocket->kSendNode);
+	}
+	else
+	{
+		pkNetSocketTmp = SeHashGet(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex);
+		if(pkNetSocketTmp) { assert(&pkNetSocket->kRecvNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kRecvList, &pkNetSocket->kRecvNode); }
+		SeHashAdd(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex, &pkNetSocket->kRecvNode);
+	}
+}
+
+struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSocketMgr, bool bSendOrRecv)
+{
+	struct SESOCKET *pkNetSocket;
+	struct SEHASHNODE *pkNetSocketTmp;
+
+	if(bSendOrRecv == true)
+	{
+		pkNetSocketTmp = SeHashPop(&pkNetSocketMgr->kSendList);
+		if(!pkNetSocketTmp) return 0;
+		pkNetSocket = SE_CONTAINING_RECORD(pkNetSocketTmp, struct SESOCKET, kSendNode);
+		return pkNetSocket;
+	}
+	else
+	{
+		pkNetSocketTmp = SeHashPop(&pkNetSocketMgr->kRecvList);
+		if(!pkNetSocketTmp) return 0;
+		pkNetSocket = SE_CONTAINING_RECORD(pkNetSocketTmp, struct SESOCKET, kRecvNode);
+		return pkNetSocket;
+	}
+	return 0;
+}

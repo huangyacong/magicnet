@@ -57,4 +57,8 @@ void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNe
 
 struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket);
 
+void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket, bool bSendOrRecv);
+
+struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSocketMgr, bool bSendOrRecv);
+
 #endif
