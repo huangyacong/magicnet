@@ -180,6 +180,7 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	for(i = 0; i < iCount; i++)
 	{
 		pcBuf = (char *)malloc(iSize);
+		assert(pcBuf);
 		pkNetStreamNode = SeNetSreamNodeFormat(pcBuf, iSize);
 		SeNetSreamNodeZero(pkNetStreamNode);
 		SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
