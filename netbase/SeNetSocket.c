@@ -114,7 +114,7 @@ struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET k
 	
 	usIndex = SeGetIndexByHScoket(kHSocket);
 	assert(usIndex >= 0 && usIndex < pkNetSocketMgr->iMax);
-	if(usIndex <= 0 || usIndex >= pkNetSocketMgr->iMax) return 0;
+	if(usIndex < 0 || usIndex >= pkNetSocketMgr->iMax) return 0;
 	pkHashNode = SeHashGet(&pkNetSocketMgr->kMainList, usIndex);
 	if(pkHashNode) return 0;
 	pkNetSocket = &pkNetSocketMgr->pkSeSocket[usIndex];
