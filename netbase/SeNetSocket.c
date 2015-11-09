@@ -170,7 +170,7 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	char *pcBuf;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	assert(iSize > 0 && iSize < (int)0xFFFF);
+	assert(iSize > 0 && iSize <= (int)0xFFFF);
 	iCount = (int)((int)0xFFFF / iSize) + 1;
 	iCount = iCount * 2;
 	
