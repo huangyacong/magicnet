@@ -163,3 +163,24 @@ struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSoc
 	}
 	return 0;
 }
+
+void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iSize)
+{
+	int iCount;
+	char *pcBuf;
+	struct SENETSTREAMNODE *pkNetStreamNode;
+
+	assert(iSize > 0 && iSize < (int)0xFFFF);
+	iCount = (int)((int)0xFFFF / iSize) + 1;
+	iCount = iCount * 2;
+	
+	if((pkNetSocketMgr->kNetStreamIdle).SeNetSreamCount() >= iCount) return;
+
+	for(i = 0; i < iCount; i++)
+	{
+		pcBuf = (char *)malloc(iSize);
+		pkNetStreamNode = SeNetSreamNodeFormat(pcBuf, iSize);
+		SeNetSreamNodeZero(pkNetStreamNode);
+		SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
+	}
+}
