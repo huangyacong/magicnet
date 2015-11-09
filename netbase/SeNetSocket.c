@@ -79,7 +79,7 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 	int i;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	for(i = 0; i < pkNetSocketMgr->iMax; i++) SeNetSocketMgrDel(pkNetSocketMgr, &pkNetSocketMgr->pkSeSocket[i]);
+	for(i = 0; i < pkNetSocketMgr->iMax; i++) SeNetSocketMgrEnd(pkNetSocketMgr, &pkNetSocketMgr->pkSeSocket[i]);
 	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);
 	while(pkNetStreamNode) {free(pkNetStreamNode);pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);}
 
