@@ -28,7 +28,7 @@ struct SESOCKET
 	int						iTypeSocket;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
-	struct SENODE			kMainNode;
+	struct SEHASHNODE		kMainNode;
 	struct SEHASHNODE		kSendNode;
 	struct SEHASHNODE		kRecvNode;
 	SEGETHEADERLENFUN		pkGetHeaderLenFun;
@@ -41,7 +41,7 @@ struct SESOCKETMGR
 	int						iCounter;
 	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
-	struct SELIST			kMainList;
+	struct SEHASH			kMainList;
 	struct SEHASH			kSendList;
 	struct SEHASH			kRecvList;
 };
@@ -50,10 +50,10 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr);
 
-struct SESOCKET *SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int iTypeSocket, int iHeaderLen, \
+HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int iTypeSocket, int iHeaderLen, \
 			SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
 
-void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket);
+void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket);
 
 struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket);
 
@@ -61,6 +61,6 @@ void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struc
 
 struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSocketMgr, bool bSendOrRecv);
 
-void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iSize);
+void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iSize, int iBufLen);
 
 #endif
