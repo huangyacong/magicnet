@@ -132,9 +132,9 @@ void SeNetCoreAccept(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketLi
 		so_linger.l_onoff = true;
 		so_linger.l_linger = 0;
 		if(SeSetSockOpt(kSocket, SOL_SOCKET, SO_LINGER, (char*)&so_linger, sizeof(so_linger)) != 0) { SeCloseSocket(kSocket); continue; }
-		kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, socket, ACCEPT_TCP_TYPE_SOCKET, \
+		kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, kSocket, ACCEPT_TCP_TYPE_SOCKET, \
 							pkNetSocketListen->iHeaderLen, pkNetSocketListen->pkGetHeaderLenFun, pkNetSocketListen->pkSetHeaderLenFun);
-		if(kHSocket <= 0) { SeCloseSocket(socket); continue; }
+		if(kHSocket <= 0) { SeCloseSocket(kSocket); continue; }
 		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		pkNetSocketAccept->usStatus = SOCKET_STATUS_ACCEPT;
 	}
