@@ -65,8 +65,6 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, socket, CLIENT_TCP_TYPE_SOCKET, iHeaderLen, pkGetHeaderLenFun, pkSetHeaderLenFun);
 	if(kHSocket <= 0) { SeCloseSocket(socket); return 0; }
 	
-	
-	
 	iResult = SeConnect(m_kSocket,&m_kAddr);
 	iErrorno = SeErrno();
 	if(iResult != 0 && iErrorno != SE_EINPROGRESS) { SeCloseSocket(socket); SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket); return 0; }
