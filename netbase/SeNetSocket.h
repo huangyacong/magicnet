@@ -22,6 +22,7 @@
 struct SESOCKET
 {
 	HSOCKET					kHSocket;
+	HSOCKET					kBelongListenHSocket;
 	unsigned short			usStatus;
 	unsigned short			usIndex;
 	int						iHeaderLen;

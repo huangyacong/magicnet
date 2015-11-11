@@ -8,6 +8,7 @@
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
 	pkNetSocket->kHSocket = SeGetHSocket(0, 0, 0);
+	pkNetSocket->kBelongListenHSocket = SeGetHSocket(0, 0, 0);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = 0;
 	pkNetSocket->iTypeSocket = 0;

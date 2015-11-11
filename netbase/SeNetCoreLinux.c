@@ -132,6 +132,7 @@ void SeNetCoreAccept(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketLi
 		if(SeSetNoBlock(kSocket) != 0) { SeCloseSocket(kSocket); SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket); continue; }
 		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		pkNetSocketAccept->usStatus = SOCKET_STATUS_ACCEPT;
+		pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
 	}
 }
 
