@@ -33,7 +33,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	if(SeBind(socket, &kServerAddr) != 0) { SeCloseSocket(socket); return 0; }
 	if(SeListen(socket, 1024) != 0) { SeCloseSocket(socket); return 0; }
 	if(SeSetNoBlock(socket) != 0) { SeCloseSocket(socket); return 0; }
-	kEvent.events = EPOLLIN | EPOLLOUT | EPOLLET;
+	kEvent.events = EPOLLIN | EPOLLOUT;
 	if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) != 0) { SeCloseSocket(socket); return 0; }
 
 	kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, socket, LISTEN_TCP_TYPE_SOCKET, iHeaderLen, pkGetHeaderLenFun, pkSetHeaderLenFun);
@@ -122,19 +122,14 @@ void SeNetCoreAccept(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketLi
 	while(true)
 	{
 		kSocket = SeAccept(kListenSocket, &ksockaddr);
-		if(kSocket == SE_INVALID_SOCKET)
-		{
-			if(SeErrno() == SE_EWOULDBLOCK) break;
-			continue;
-		}
-		
-		if(SeSetNoBlock(kSocket) != 0) { SeCloseSocket(kSocket); continue; }
+		if(kSocket == SE_INVALID_SOCKET) break;
+		kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, kSocket, ACCEPT_TCP_TYPE_SOCKET, pkNetSocketListen->iHeaderLen, pkNetSocketListen->pkGetHeaderLenFun, pkNetSocketListen->pkSetHeaderLenFun);
+		if(kHSocket <= 0) { SeCloseSocket(kSocket); continue; }
+
 		so_linger.l_onoff = true;
 		so_linger.l_linger = 0;
-		if(SeSetSockOpt(kSocket, SOL_SOCKET, SO_LINGER, (char*)&so_linger, sizeof(so_linger)) != 0) { SeCloseSocket(kSocket); continue; }
-		kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, kSocket, ACCEPT_TCP_TYPE_SOCKET, \
-							pkNetSocketListen->iHeaderLen, pkNetSocketListen->pkGetHeaderLenFun, pkNetSocketListen->pkSetHeaderLenFun);
-		if(kHSocket <= 0) { SeCloseSocket(kSocket); continue; }
+		if(SeSetSockOpt(kSocket, SOL_SOCKET, SO_LINGER, (char*)&so_linger, sizeof(so_linger)) != 0) { SeCloseSocket(kSocket); SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket); continue; }
+		if(SeSetNoBlock(kSocket) != 0) { SeCloseSocket(kSocket); SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket); continue; }
 		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		pkNetSocketAccept->usStatus = SOCKET_STATUS_ACCEPT;
 	}
