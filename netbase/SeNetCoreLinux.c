@@ -69,11 +69,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	if(iResult != 0 && iErrorno != SE_EINPROGRESS) { SeCloseSocket(socket); SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket); return 0; }
-#ifndef EPOLLRDHUP
-	kEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLET;
-#else
-	kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-#endif
+	kEvent.events = EPOLLOUT | EPOLLONESHOT;
 	kEvent.data.u64 = kHSocket;
 	if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) != 0) { SeCloseSocket(socket); SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket); return 0; }
 	if(iResult == 0) { pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED; return kHSocket; }
