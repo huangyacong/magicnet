@@ -243,15 +243,14 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkHSocket
 	int iNum;
 	HSOCKET kHSocket;
 	struct SESOCKET *pkNetSocket;
-	struct epoll_event akEvents[1024];
 
-	memset(akEvents, 0, sizeof(epoll_event) * 1024);
-	iNum = epoll_wait(pkNetCore->kHandle, akEvents, 1024, 0);
+	memset(pkNetCore->akEvents, 0, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event));
+	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), 0);
 	if(iNum <= 0) return false;
 
 	for(int i = 0; i < iNum; i++)
 	{
-		kHSocket = (HSOCKET)akEvents[i].data.u64;
+		kHSocket = (HSOCKET)pkNetCore->akEvents[i].data.u64;
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		if(!pkNetSocket) continue;
 
@@ -273,27 +272,20 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkHSocket
 			continue;
 		}
 
-		if(akEvents[i].events & EPOLLIN)
+		if(pkNetCore->akEvents[i].events & EPOLLIN)
 		{
 			rkTransmit.AddEvent(SE_READ);
 		}
 
-		if(akEvents[i].events & EPOLLOUT)
+		if(pkNetCore->akEvents[i].events & EPOLLOUT)
 		{
 			rkTransmit.AddEvent(SE_WRITE);
 		}
 
-#ifndef EPOLLRDHUP
-		if((akEvents[i].events &  EPOLLERR) || (akEvents[i].events &  EPOLLHUP))
+		if((pkNetCore->akEvents[i].events & EPOLLRDHUP) || (pkNetCore->akEvents[i].events &  EPOLLERR) || (pkNetCore->akEvents[i].events &  EPOLLHUP))
 		{
 			rkTransmit.SetState(STS_READY_CLOSE);
 		}
-#else
-		if((akEvents[i].events & EPOLLRDHUP) || (akEvents[i].events &  EPOLLERR) || (akEvents[i].events &  EPOLLHUP))
-		{
-			rkTransmit.SetState(STS_READY_CLOSE);
-		}
-#endif
 	}
 
 	return true;
