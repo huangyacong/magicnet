@@ -284,7 +284,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	while(bWrite == true)
 	{
 		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
-		if(!pkNetStreamNode) break;
+		if(!pkNetStreamNode) { break; }
 		iLen = SeSend(socket, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos, MSG_DONTWAIT | MSG_NOSIGNAL);
 		if(iLen == 0)
 		{
@@ -304,7 +304,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		{
 			pkNetStreamNode->iReadPos += iLen;
 			if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamHeadAdd(&pkNetCore->kSocketMgr.kNetStreamIdle, pkNetStreamNode); }
-			else { SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); }
+			else { SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); break; }
 		}
 	}
 	if(bWrite == true) SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
