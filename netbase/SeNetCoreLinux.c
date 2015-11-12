@@ -192,6 +192,7 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 
 void SeNetCoreAccept(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketListen)
 {
+	int iErrorno;
 	HSOCKET kHSocket;
 	SOCKET kSocket, kListenSocket;
 	struct sockaddr ksockaddr;
@@ -201,15 +202,38 @@ void SeNetCoreAccept(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketLi
 	while(true)
 	{
 		kSocket = SeAccept(kListenSocket, &ksockaddr);
-		if(kSocket == SE_INVALID_SOCKET) break;
-		if(SeSetNoBlock(kSocket) != 0) { SeCloseSocket(kSocket); continue; }
-
-		kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, kSocket, ACCEPT_TCP_TYPE_SOCKET, pkNetSocketListen->iHeaderLen, pkNetSocketListen->pkGetHeaderLenFun, pkNetSocketListen->pkSetHeaderLenFun);
-		if(kHSocket <= 0) { SeCloseSocket(kSocket); continue; }
-
+		if(kSocket == SE_INVALID_SOCKET)
+		{
+			iErrorno = SeErrno();
+			if(iErrorno == SE_EINTR)
+			{
+				continue;
+			}
+			if(iErrorno != SE_EWOULDBLOCK)
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[ACCEPT SOCKET] SeAccept ERROR, errno=%d", iErrorno);
+			}
+			break;
+		}
+		if(SeSetNoBlock(kSocket) != 0)
+		{
+			iErrorno = SeErrno();
+			SeCloseSocket(kSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[ACCEPT SOCKET] SeSetNoBlock ERROR, errno=%d", iErrorno);
+			continue;
+		}
+		kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, kSocket, ACCEPT_TCP_TYPE_SOCKET, \
+			pkNetSocketListen->iHeaderLen, pkNetSocketListen->pkGetHeaderLenFun, pkNetSocketListen->pkSetHeaderLenFun);
+		if(kHSocket <= 0)
+		{
+			SeCloseSocket(kSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[ACCEPT SOCKET] SocketMgr is full");
+			continue;
+		}
 		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		pkNetSocketAccept->usStatus = SOCKET_STATUS_ACCEPT;
 		pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
 	}
 }
 
