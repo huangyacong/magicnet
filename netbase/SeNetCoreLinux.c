@@ -187,6 +187,7 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	}
 	SeShutDown(socket);
 	SeCloseSocket(socket);
+	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 }
 
 void SeNetCoreAccept(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketListen)
