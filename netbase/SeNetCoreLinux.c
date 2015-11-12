@@ -257,7 +257,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkHSocket
 		kHSocket = (HSOCKET)pkEvent->data.u64;
 		bError = (pkEvent->events & EPOLLRDHUP) || (pkEvent->events &  EPOLLERR) || (pkEvent->events &  EPOLLHUP);
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-		if(!pkNetSocket) { continue; }
+		if(!pkNetSocket) { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket not found"); continue; }
 		if(pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET) { SeNetCoreAccept(pkNetCore, pkNetSocket); }
 		if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET) {}
 		if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET) {}
