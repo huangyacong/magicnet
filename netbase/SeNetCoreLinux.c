@@ -4,6 +4,7 @@
 
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax)
 {
+	SeNetBaseInit();
 	pkNetCore->kHandle = epoll_create(usMax);
 	assert(pkNetCore->kHandle != SE_INVALID_HANDLE);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
@@ -16,6 +17,7 @@ void SeNetCoreFin(struct SENETCORE *pkNetCore)
 	SeCloseHandle(pkNetCore->kHandle);
 	SeFinLog(&pkNetCore->kLog);
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
+	SeNetBaseEnd();
 }
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\
