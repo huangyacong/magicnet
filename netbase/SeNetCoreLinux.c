@@ -239,9 +239,10 @@ void SeNetCoreAccept(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketLi
 
 bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkHSocket, char *pcBuf, int *riLen)
 {
-	int i;
-	int iNum;
+	int i, iNum;
 	HSOCKET kHSocket;
+	bool bRead, bWrite, bError;
+	struct epoll_event *pkEvent;
 	struct SESOCKET *pkNetSocket;
 
 	memset(pkNetCore->akEvents, 0, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event));
@@ -250,42 +251,16 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkHSocket
 
 	for(int i = 0; i < iNum; i++)
 	{
-		kHSocket = (HSOCKET)pkNetCore->akEvents[i].data.u64;
+		pkEvent = &pkNetCore->akEvents[i];
+		bRead = pkEvent->events & EPOLLIN;
+		bWrite =pkEvent->events & EPOLLOUT;
+		kHSocket = (HSOCKET)pkEvent->data.u64;
+		bError = (pkEvent->events & EPOLLRDHUP) || (pkEvent->events &  EPOLLERR) || (pkEvent->events &  EPOLLHUP);
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-		if(!pkNetSocket) continue;
-
-		if(pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET)
-		{
-			SeNetCoreAccept(pkNetCore, pkNetSocket);
-			continue;
-		}
-
-		if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET)
-		{
-			//accpet
-			continue;
-		}
-
-		if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET)
-		{
-			//accpet
-			continue;
-		}
-
-		if(pkNetCore->akEvents[i].events & EPOLLIN)
-		{
-			rkTransmit.AddEvent(SE_READ);
-		}
-
-		if(pkNetCore->akEvents[i].events & EPOLLOUT)
-		{
-			rkTransmit.AddEvent(SE_WRITE);
-		}
-
-		if((pkNetCore->akEvents[i].events & EPOLLRDHUP) || (pkNetCore->akEvents[i].events &  EPOLLERR) || (pkNetCore->akEvents[i].events &  EPOLLHUP))
-		{
-			rkTransmit.SetState(STS_READY_CLOSE);
-		}
+		if(!pkNetSocket) { continue; }
+		if(pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET) { SeNetCoreAccept(pkNetCore, pkNetSocket); }
+		if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET) {}
+		if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET) {}
 	}
 
 	return true;
