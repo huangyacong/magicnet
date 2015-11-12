@@ -58,7 +58,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SeBind ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
-	backlog = 1024;
+	backlog = 64;
 	if(SeListen(socket, backlog) != 0)
 	{
 		iErrorno = SeErrno();
@@ -170,14 +170,17 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 {
 	SOCKET socket;
+	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	if(!pkNetSocket) return;
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return;
-	if(pkNetSocket->usStatus < SOCKET_STATUS_ACCEPT || pkNetSocket->usStatus > SOCKET_STATUS_CONNECTED) return;
+	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return;
 	pkNetSocket->usStatus = SOCKET_STATUS_DISCONNECTING;
 	socket = SeGetSocketByHScoket(kHSocket);
+	epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
+	SeShutDown(socket);
 	SeCloseSocket(socket);
 }
 
