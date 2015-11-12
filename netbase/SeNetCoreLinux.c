@@ -169,6 +169,7 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 
 void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 {
+	int iErrorno;
 	SOCKET socket;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
@@ -179,7 +180,11 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return;
 	pkNetSocket->usStatus = SOCKET_STATUS_DISCONNECTING;
 	socket = SeGetSocketByHScoket(kHSocket);
-	epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
+	if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent) != 0)
+	{
+		iErrorno = SeErrno();
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[DISCONNECT] epoll_ctl del ERROR, errno=%d", iErrorno);
+	}
 	SeShutDown(socket);
 	SeCloseSocket(socket);
 }
