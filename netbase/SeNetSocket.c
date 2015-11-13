@@ -12,6 +12,7 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = 0;
 	pkNetSocket->iTypeSocket = 0;
+	pkNetSocket->iEventSocket = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
 }
@@ -200,4 +201,19 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 		SeNetSreamNodeZero(pkNetStreamNode);
 		SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
 	}
+}
+
+bool SeNetSocketMgrHasEvent(struct SESOCKET *pkNetSocket, int iEventSocket)
+{
+	return (((pkNetSocket->iEventSocket) & iEventSocket) == iEventSocket ? true : false);
+}
+
+void SeNetSocketMgrAddEvent(struct SESOCKET *pkNetSocket, int iEventSocket)
+{
+	pkNetSocket->iEventSocket |= iEventSocket;
+}
+
+void SeNetSocketMgrClearEvent(struct SESOCKET *pkNetSocket, int iEventSocket)
+{
+	pkNetSocket->iEventSocket &= ~iEventSocket;
 }

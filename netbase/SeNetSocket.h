@@ -18,6 +18,9 @@
 #define CLIENT_TCP_TYPE_SOCKET 2
 #define ACCEPT_TCP_TYPE_SOCKET 3
 
+#define READ_EVENT_SOCKET (1<<1)
+#define WRITE_EVENT_SOCKET (1<<2)
+
 struct SESOCKET
 {
 	HSOCKET					kHSocket;
@@ -26,6 +29,7 @@ struct SESOCKET
 	unsigned short			usIndex;
 	int						iHeaderLen;
 	int						iTypeSocket;
+	int						iEventSocket;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
 	struct SEHASHNODE		kMainNode;
@@ -62,5 +66,11 @@ void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struc
 struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSocketMgr, bool bSendOrRecv);
 
 void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iSize, int iBufLen);
+
+bool SeNetSocketMgrHasEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
+
+void SeNetSocketMgrAddEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
+
+void SeNetSocketMgrClearEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
 
 #endif
