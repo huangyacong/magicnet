@@ -280,25 +280,16 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			}
 		}
 	}
-	if(bRead == true) SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+
+	if(bRead == true)
+	{
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+	}
 
 	while(bWrite == true)
 	{
 		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
-		if(!pkNetStreamNode)
-		{
-			kEvent.data.u64 = pkNetSocket->kHSocket;
-			kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET;
-			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent) != 0)
-			{
-				iErrorno = SeErrno();
-				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[WAIT] SeNetCoreAcceptSocket MOD ERROR, errno=%d", iErrorno);
-				SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-				return;
-			}
-			SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
-			break;
-		}
+		if(!pkNetStreamNode) { return; }
 		iLen = SeSend(socket, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos, MSG_DONTWAIT | MSG_NOSIGNAL);
 		if(iLen == 0)
 		{
@@ -321,8 +312,23 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			else { SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); break; }
 		}
 	}
-	if(bWrite == true) SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
-	
+
+	if(bWrite == true)
+	{
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+		if(SeNetSreamCount(pkNetSocket->kSendNetStream) > 0)
+		{
+			SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
+			kEvent.data.u64 = pkNetSocket->kHSocket;
+			kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET;
+			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent) != 0)
+			{
+				iErrorno = SeErrno();
+				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[WAIT] SeNetCoreAcceptSocket MOD ERROR, errno=%d", iErrorno);
+				SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+			}
+		}
+	}
 }
 
 bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkHSocket, char *pcBuf, int *riLen)
