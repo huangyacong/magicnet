@@ -261,22 +261,22 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		if(iLen == 0)
 		{
 			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-			break;
+			return;
 		}
 		else if(iLen < 0)
 		{
 			iErrorno = SeErrno();
 			if(iErrorno == SE_EINTR) continue;
 			else if(iErrorno == SE_EWOULDBLOCK) break;
-			else { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); break; }
+			else { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
 		}
 		else
 		{
 			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
-			if(!SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, &pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->acBuf, iLen)
+			if(!SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, &pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->acBuf, iLen))
 			{
 				SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-				break;
+				return;
 			}
 		}
 	}
