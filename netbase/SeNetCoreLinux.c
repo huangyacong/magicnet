@@ -187,7 +187,6 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	pkNetSocket->usStatus = SOCKET_STATUS_DISCONNECT;
 	socket = SeGetSocketByHScoket(kHSocket);
 	epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
-	SeShutDown(socket);
 	SeCloseSocket(socket);
 	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 }
@@ -356,7 +355,6 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		{
 			pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
 			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
-			SeShutDown(socket);
 			SeCloseSocket(socket);
 			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 			return;
@@ -375,7 +373,6 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			{
 				pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
 				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
-				SeShutDown(socket);
 				SeCloseSocket(socket);
 			}
 			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
@@ -455,7 +452,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 				return true;
 			}
 			iErrorno = SeErrno();
-			SeShutDown(socket);
 			SeCloseSocket(socket);
 			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
@@ -475,7 +471,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 				return true;
 			}
 			iErrorno = SeErrno();
-			SeShutDown(socket);
 			SeCloseSocket(socket);
 			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
