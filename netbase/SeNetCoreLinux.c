@@ -437,7 +437,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			return true;
-			
 		}
 		
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED_FAILED)
