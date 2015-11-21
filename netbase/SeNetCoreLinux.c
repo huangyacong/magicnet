@@ -161,7 +161,8 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 {
 	bool bRet;
 	struct SESOCKET *pkNetSocket;
-
+	
+	if(iSize > (0xFFFF*2) || iSize < 0) { return false; }
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	if(!pkNetSocket) return false;
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
