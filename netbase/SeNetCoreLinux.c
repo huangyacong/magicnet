@@ -134,6 +134,14 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 
+	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+	if(iResult == 0)
+	{
+		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+		return kHSocket; 
+	}
+
 	kEvent.data.u64 = kHSocket;
 	kEvent.events = EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLONESHOT;
 	if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) != 0)
@@ -145,9 +153,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 	
-	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	if(iResult == 0) { pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED; SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
-	else { pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING; }
+	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
 	return kHSocket;
 }
 
