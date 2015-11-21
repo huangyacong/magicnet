@@ -479,7 +479,9 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			SeCloseSocket(socket);
 			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
-			return false;
+
+			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT_FAILED;
+			return true;
 		}
 		
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED_FAILED)
