@@ -333,7 +333,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			continue;
 		}
 		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-		pkNetSocketAccept->usStatus = SOCKET_STATUS_ACCEPT;
+		pkNetSocketAccept->usStatus = SOCKET_STATUS_CONNECTED;
 		pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
 	}
@@ -438,10 +438,8 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		*rkHSocket = pkNetSocket->kHSocket;
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
 		
-		if(pkNetSocket->usStatus == SOCKET_STATUS_ACCEPT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
+		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
 		{
-			if(pkNetSocket->usStatus == SOCKET_STATUS_ACCEPT) { assert(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET); }
-			if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED) { assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET); }
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
