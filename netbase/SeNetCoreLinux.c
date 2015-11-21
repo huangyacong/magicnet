@@ -528,13 +528,16 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	return false;
 }
 
-bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkHSocket, char *pcBuf, int *riLen)
+bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen)
 {
 	int i, iNum;
 	HSOCKET kHSocket;
-	bool bRead, bWrite, bError;
+	bool bOK, bRead, bWrite, bError;
 	struct epoll_event *pkEvent;
 	struct SESOCKET *pkNetSocket;
+
+	bOK = SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen);
+	if(bOK) { return true; }
 
 	memset(pkNetCore->akEvents, 0, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event));
 	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), 0);
