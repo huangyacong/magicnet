@@ -146,9 +146,8 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	}
 	
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	if(iResult == 0) { pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED; }
+	if(iResult == 0) { pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED; SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 	else { pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING; }
-	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 	return kHSocket;
 }
 
