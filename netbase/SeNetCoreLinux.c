@@ -345,9 +345,9 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 
 	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 
-	if(bError == true)
+	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
 	{
-		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
+		if(bError == true)
 		{
 			pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
 			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
@@ -356,9 +356,30 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 			return;
 		}
-		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+		if(bWrite == true)
+		{
+			iErrorno = -1;
+			iLen = sizeof(int);
+			SeGetSockOpt(socket, SOL_SOCKET, SO_ERROR, (char*)&iErrorno, (SOCK_LEN*)&iLen);
+			if(iErrorno == 0)
+			{
+				pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
+				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
+			}
+			else
+			{
+				pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
+				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
+				SeShutDown(socket);
+				SeCloseSocket(socket);
+			}
+			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+			return;
+		}
 		return;
 	}
+
+	if(bError == true) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
 
 	if(bRead == true)
 	{
@@ -369,30 +390,9 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 
 	if(bWrite == true)
 	{
-		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
-		{
-			iErrorno = -1;
-			iLen = sizeof(int);
-			SeGetSockOpt(socket, SOL_SOCKET, SO_ERROR, (char*)&iErrorno, (SOCK_LEN*)&iLen);
-			if(iErrorno == 0)
-			{
-				pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
-			}
-			else
-			{
-				pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
-				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
-				SeShutDown(socket);
-				SeCloseSocket(socket);
-			}
-			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
-		}
-		else
-		{
-			bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
-			if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
-			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
-		}
+		bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
+		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 	}
 }
 
