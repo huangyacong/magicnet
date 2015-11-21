@@ -269,24 +269,14 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 		kEvent.data.u64 = pkNetSocket->kHSocket;
 		kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET;
-		if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent) != 0)
-		{
-			iErrorno = SeErrno();
-			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[WAIT] SeNetCoreSendBuf MOD ERROR, errno=%d", iErrorno);
-			return false;
-		}
+		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
 	}
 	else if(iCount > 0 && !SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
 	{
 		SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 		kEvent.data.u64 = pkNetSocket->kHSocket;
 		kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET;
-		if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent) != 0)
-		{
-			iErrorno = SeErrno();
-			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[WAIT] SeNetCoreSendBuf MOD ERROR, errno=%d", iErrorno);
-			return false;
-		}
+		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
 	}
 
 	return true;
