@@ -439,6 +439,9 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
 	while(pkNetSocket)
 	{
+		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
+		*rkHSocket = pkNetSocket->kHSocket;
+
 		if(pkNetSocket->usStatus == SOCKET_STATUS_ACCEPT)
 		{
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
@@ -454,8 +457,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			}
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-			*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
-			*rkHSocket = pkNetSocket->kHSocket;
 			return true;
 		}
 
@@ -475,8 +476,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			}
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-			*rkListenHSocket = SeGetHSocket(0, 0, 0);
-			*rkHSocket = pkNetSocket->kHSocket;
 			return true;
 		}
 		
@@ -484,8 +483,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		{
 			assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET);
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT_FAILED;
-			*rkListenHSocket = SeGetHSocket(0, 0, 0);
-			*rkHSocket = pkNetSocket->kHSocket;
 			return true;
 		}
 
@@ -493,8 +490,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		{
 			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
 			*riEventSocket = SENETCORE_EVENT_SOCKET_DISCONNECT;
-			*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
-			*rkHSocket = pkNetSocket->kHSocket;
 			return true;
 		}
 
@@ -511,6 +506,9 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, false);
 	while(pkNetSocket)
 	{
+		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
+		*rkHSocket = pkNetSocket->kHSocket;
+
 		if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
 		{
 			bOK = SeNetSreamRead(&pkNetSocket->kSendNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, \
@@ -518,8 +516,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			if(bOK)
 			{
 				*riEventSocket = SENETCORE_EVENT_SOCKET_RECV_DATA;
-				*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
-				*rkHSocket = pkNetSocket->kHSocket;
 				SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
 				return true;
 			}
