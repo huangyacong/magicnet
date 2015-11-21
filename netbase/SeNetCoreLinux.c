@@ -428,7 +428,6 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen)
 {
 	bool bOK;
-	int iErrorno;
 	SOCKET socket;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
@@ -445,17 +444,11 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
-			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) == 0)
-			{
-				*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-				pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-				return true;
-			}
-			iErrorno = SeErrno();
-			SeCloseSocket(socket);
-			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
-			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
-			return false;
+			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
+			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
+			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
+			return true;
+			
 		}
 
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
@@ -464,18 +457,9 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
-			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) == 0)
-			{
-				*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-				pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-				return true;
-			}
-			iErrorno = SeErrno();
-			SeCloseSocket(socket);
-			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
-			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
-
-			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT_FAILED;
+			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
+			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
+			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			return true;
 		}
 		
