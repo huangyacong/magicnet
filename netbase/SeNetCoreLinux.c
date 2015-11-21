@@ -438,9 +438,10 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		*rkHSocket = pkNetSocket->kHSocket;
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
 		
-		if(pkNetSocket->usStatus == SOCKET_STATUS_ACCEPT)
+		if(pkNetSocket->usStatus == SOCKET_STATUS_ACCEPT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
 		{
-			assert(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET);
+			if(pkNetSocket->usStatus == SOCKET_STATUS_ACCEPT) { assert(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET); }
+			if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED) { assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET); }
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
@@ -449,18 +450,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			return true;
 			
-		}
-
-		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
-		{
-			assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET);
-			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
-			kEvent.data.u64 = pkNetSocket->kHSocket;
-			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
-			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
-			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-			return true;
 		}
 		
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED_FAILED)
