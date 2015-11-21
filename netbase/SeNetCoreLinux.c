@@ -532,16 +532,12 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 {
 	int i, iNum;
 	HSOCKET kHSocket;
-	bool bOK, bRead, bWrite, bError;
+	bool bRead, bWrite, bError;
 	struct epoll_event *pkEvent;
 	struct SESOCKET *pkNetSocket;
 
-	bOK = SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen);
-	if(bOK) { return true; }
-
 	memset(pkNetCore->akEvents, 0, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event));
 	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), 0);
-	if(iNum <= 0) return false;
 
 	for(int i = 0; i < iNum; i++)
 	{
@@ -557,7 +553,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET) { SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError); }
 	}
 
-	return true;
+	return SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen);
 }
 
 #endif
