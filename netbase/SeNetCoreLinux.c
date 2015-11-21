@@ -448,17 +448,18 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
-			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) != 0)
+			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) == 0)
 			{
-				iErrorno = SeErrno();
-				SeCloseSocket(socket);
-				SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
-				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
-				continue;
+				*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
+				pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
+				return true;
 			}
-			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-			return true;
+			iErrorno = SeErrno();
+			SeShutDown(socket);
+			SeCloseSocket(socket);
+			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
+			return false;
 		}
 
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
@@ -467,22 +468,24 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
-			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) != 0)
+			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) == 0)
 			{
-				iErrorno = SeErrno();
-				SeCloseSocket(socket);
-				SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
-				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
-				continue;
+				*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
+				pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
+				return true;
 			}
-			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-			return true;
+			iErrorno = SeErrno();
+			SeShutDown(socket);
+			SeCloseSocket(socket);
+			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP Process] epoll_ctl ERROR, errno=%d", iErrorno);
+			return false;
 		}
 		
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED_FAILED)
 		{
 			assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET);
+			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT_FAILED;
 			return true;
 		}
@@ -498,7 +501,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		{
 			bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
 			if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
-			return false;
 		}
 
 		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
