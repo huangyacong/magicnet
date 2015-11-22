@@ -37,7 +37,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] Create Socket ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
-	if(SeSetNoBlock(socket) != 0)
+	if(SeSetNoBlock(socket, true) != 0)
 	{
 		iErrorno = SeErrno();
 		SeCloseSocket(socket);
@@ -108,7 +108,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Create Socket ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
-	if(SeSetNoBlock(socket) != 0)
+	if(SeSetNoBlock(socket, true) != 0)
 	{
 		iErrorno = SeErrno();
 		SeCloseSocket(socket);
@@ -157,7 +157,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	return kHSocket;
 }
 
-bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pcBuf, int iSize)
+bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, char* pcBuf, int iSize)
 {
 	bool bRet;
 	struct SESOCKET *pkNetSocket;
@@ -168,7 +168,7 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
 	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return false;
 	SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
-	bRet = SeNetSreamWrite(&pkNetSocket->kSendNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, &pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderSize, pcBuf, iSize);
+	bRet = SeNetSreamWrite(&pkNetSocket->kSendNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, iSize);
 	if(bRet) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 	else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR"); }
 	return bRet;
@@ -176,7 +176,6 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 
 void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 {
-	int iErrorno;
 	SOCKET socket;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
@@ -218,7 +217,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		else
 		{
 			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
-			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, &pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->acBuf, iLen);
+			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->acBuf, iLen);
 			if(!bOk) { return false; }
 		}
 	}
@@ -232,6 +231,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	int iCount;
 	int iErrorno;
 	SOCKET socket;
+	struct epoll_event kEvent;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
 	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
@@ -307,7 +307,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			}
 			break;
 		}
-		if(SeSetNoBlock(kSocket) != 0)
+		if(SeSetNoBlock(kSocket, true) != 0)
 		{
 			iErrorno = SeErrno();
 			SeCloseSocket(kSocket);
@@ -336,7 +336,6 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	int iErrorno;
 	SOCKET socket;
 	struct epoll_event kEvent;
-	struct SENETSTREAMNODE *pkNetStreamNode;
 
 	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 
@@ -391,12 +390,6 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, bool bRead, bool bWrite, bool bError)
 {
 	bool bOK;
-	int iErrorno;
-	SOCKET socket;
-	struct epoll_event kEvent;
-	struct SENETSTREAMNODE *pkNetStreamNode;
-
-	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 
 	if(bError == true) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
 
@@ -442,14 +435,14 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED_FAILED)
 		{
 			assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET);
-			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT_FAILED;
 			return true;
 		}
 
 		if(pkNetSocket->usStatus == SOCKET_STATUS_DISCONNECT)
 		{
-			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
 			*riEventSocket = SENETCORE_EVENT_SOCKET_DISCONNECT;
 			return true;
 		}
@@ -474,7 +467,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) { continue; }
 		
 		bOK = SeNetSreamRead(&pkNetSocket->kSendNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, \
-				&pkNetSocket->pkGetHeaderLenFun, &pkNetSocket->iHeaderSize, pcBuf, riLen);
+				pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, riLen);
 		if(!bOK) { continue; }
 		
 		*rkHSocket = pkNetSocket->kHSocket;
@@ -482,7 +475,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
 		return true;
-	}while(true)
+	}while(true);
 
 	return false;
 }
@@ -498,7 +491,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	memset(pkNetCore->akEvents, 0, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event));
 	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), 0);
 
-	for(int i = 0; i < iNum; i++)
+	for(i = 0; i < iNum; i++)
 	{
 		pkEvent = &pkNetCore->akEvents[i];
 		bRead = pkEvent->events & EPOLLIN;
