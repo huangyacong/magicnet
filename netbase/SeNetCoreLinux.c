@@ -383,7 +383,7 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	{
 		bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
 		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
-		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+		if(SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 	}
 }
 
@@ -404,7 +404,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	{
 		bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
 		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
-		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+		if(SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 	}
 }
 
@@ -451,10 +451,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		{
 			bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
 			if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
-			else if(bOK && SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0)
-			{ 
-				SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
-			}
+			else if(bOK && SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 		}
 
 		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
