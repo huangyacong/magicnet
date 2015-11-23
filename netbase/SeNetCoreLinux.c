@@ -1,4 +1,5 @@
 #include "SeNetCore.h"
+#include "SeTime.h"
 
 #if defined(__linux)
 
@@ -153,7 +154,9 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 	
+	pkNetSocket->iEventSocket = (int)SeTimeGetTickCount();
 	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
+	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 	return kHSocket;
 }
 
@@ -414,12 +417,22 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	SOCKET socket;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
-
-	pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
-	while(pkNetSocket)
+	
+	do
 	{
+		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
+		if(!pkNetSocket) { break; }
+
 		*rkHSocket = pkNetSocket->kHSocket;
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
+
+		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
+		{
+			assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET);
+			if((pkNetSocket->iEventSocket + 5000) <= (int)SeTimeGetTickCount()) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, false, false, true); }
+			else { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
+			continue;
+		}
 		
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
 		{
@@ -450,12 +463,10 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT && SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0)
 		{
 			bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
-			if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
-			else if(bOK && SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
+			if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); continue; }
+			if(SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 		}
-
-		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
-	}
+	}while(true);
 	
 	do
 	{
