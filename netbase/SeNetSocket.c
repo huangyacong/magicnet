@@ -100,6 +100,7 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
 	SeNetSocketReset(pkNetSocket);
 	pkNetSocketMgr->iCounter++;
+	pkNetSocket->ullActive = SeTimeGetTickCount();
 	SeHashAdd(&pkNetSocketMgr->kActiveList, pkNetSocket->usIndex, &pkNetSocket->kMainNode);
 
 	pkNetSocket->kHSocket = SeGetHSocket((unsigned short)pkNetSocketMgr->iCounter, pkNetSocket->usIndex, socket);
