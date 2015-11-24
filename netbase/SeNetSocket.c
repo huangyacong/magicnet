@@ -204,6 +204,15 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	}
 }
 
+void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket)
+{
+}
+
+HSOCKET SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
+{
+	return SeGetHSocket(0, 0, 0);
+}
+
 bool SeNetSocketMgrHasEvent(struct SESOCKET *pkNetSocket, int iEventSocket)
 {
 	return (((pkNetSocket->iEventSocket) & iEventSocket) == iEventSocket ? true : false);
