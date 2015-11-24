@@ -368,6 +368,8 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			return;
 		}
 
+		// no call here?
+		assert(0 != 0);
 		return;
 	}
 
