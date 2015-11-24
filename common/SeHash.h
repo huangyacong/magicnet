@@ -29,6 +29,8 @@ void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node);
 
 struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id);
 
+struct SEHASHNODE *SeHashGetHead(struct SEHASH *root);
+
 struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node);
 
 struct SEHASHNODE *SeHashPop(struct SEHASH *root);

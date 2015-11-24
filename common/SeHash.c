@@ -79,6 +79,18 @@ struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
 	return 0;
 }
 
+struct SEHASHNODE *SeHashGetHead(struct SEHASH *root)
+{
+	struct SENODE *pkNode;
+	struct SEHASHNODE *pkHashNode;
+
+	pkNode = root->list.head;
+	if(!pkNode) return 0;
+	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, list);
+
+	return pkHashNode;
+}
+
 struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node)
 {
 	int hashid;
