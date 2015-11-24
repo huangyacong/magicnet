@@ -210,10 +210,34 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 
 void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket)
 {
+	struct SESOCKET *pkNetSocket;
+
+	pkNetSocket = SeNetSocketMgrGet(pkNetSocketMgr, kHSocket);
+	if(!pkNetSocket) return;
+	pkNetSocket->ullActive = SeTimeGetTickCount();
+
+	SeHashRemove(&pkNetSocketMgr->kActiveList, &pkNetSocket->kMainNode);
+	SeHashAdd(&pkNetSocketMgr->kActiveList, pkNetSocket->usIndex, &pkNetSocket->kMainNode);
 }
 
 HSOCKET SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 {
+	struct SESOCKET *pkNetSocket;
+	struct SEHASHNODE *pkHashNode;
+	
+	pkHashNode = SeHashGetHead(&pkNetSocketMgr->kActiveList)
+	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
+	
+	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
+	{
+		if((pkNetSocket->ullActive + 60*5) >= SeTimeGetTickCount()) { return pkNetSocket->kHSocket; }
+	}
+
+	if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+	{
+		if((pkNetSocket->ullActive + 60*30) >= SeTimeGetTickCount()) { return pkNetSocket->kHSocket; }
+	}
+
 	return SeGetHSocket(0, 0, 0);
 }
 
