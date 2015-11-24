@@ -1,6 +1,7 @@
 #ifndef __SE_NETSOCKET_H__
 #define __SE_NETSOCKET_H__
 
+#include "SeTime.h"
 #include "SeList.h"
 #include "SeTool.h"
 #include "SeHash.h"
