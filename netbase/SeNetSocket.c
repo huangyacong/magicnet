@@ -225,7 +225,7 @@ HSOCKET SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 	struct SESOCKET *pkNetSocket;
 	struct SEHASHNODE *pkHashNode;
 	
-	pkHashNode = SeHashGetHead(&pkNetSocketMgr->kActiveList)
+	pkHashNode = SeHashGetHead(&pkNetSocketMgr->kActiveList);
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
 	
 	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
