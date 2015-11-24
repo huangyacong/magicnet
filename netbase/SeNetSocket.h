@@ -48,6 +48,7 @@ struct SESOCKETMGR
 	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SEHASH			kMainList;
+	struct SEHASH			kActiveList;
 	struct SEHASH			kSendList;
 	struct SEHASH			kRecvList;
 };
