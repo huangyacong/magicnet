@@ -417,9 +417,19 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 {
 	bool bOK;
 	SOCKET socket;
+	HSOCKET kHSocket;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
-	
+
+	kHSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
+	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+	if(pkNetSocket)
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[PROCESS] socket timeout");
+		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, false, false, true); }
+		if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
+	}
+
 	do
 	{
 		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
