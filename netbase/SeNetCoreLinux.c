@@ -425,6 +425,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	if(pkNetSocket)
 	{
+		assert(pkNetSocket->usStatus > SOCKET_STATUS_INIT && pkNetSocket->usStatus <= SOCKET_STATUS_ACTIVECONNECT);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[PROCESS] socket timeout");
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, false, false, true); }
 		if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
