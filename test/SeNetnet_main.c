@@ -83,7 +83,6 @@ int main()
 			//printf("%s\n", buf);
 			SeNetCoreSend(&kNet, rkHSocket, buf, iLen);
 		}
-		printf(".......\n");
 	}
 	printf("end\n");
 	getchar();
