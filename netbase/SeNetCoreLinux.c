@@ -443,7 +443,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		{
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
-			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP;
+			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
 			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
