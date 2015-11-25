@@ -35,7 +35,7 @@ bool kGetHeaderLenFun(const char* pcHeader, const int iheaderlen, int *ilen)
 
 	if (iheaderlen == 0)
 	{
-		ilen = 0;
+		*ilen = 0;
 		return true;
 	}
 
@@ -54,7 +54,7 @@ int main()
 	struct SENETCORE kNet;
 
 	SeNetCoreInit(&kNet, "out.txt", 1000);
-	khsocket = SeNetCoreTCPListen(&kNet, "0.0.0.0", 8888, 2, kGetHeaderLenFun, kSetHeaderLenFun);
+	khsocket = SeNetCoreTCPListen(&kNet, "0.0.0.0", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
 	
 	while(khsocket != 0)
 	{
