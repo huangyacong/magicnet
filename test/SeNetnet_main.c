@@ -80,7 +80,7 @@ int main()
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
-			printf("%s\n", buf);
+			//printf("%s\n", buf);
 			SeNetCoreSend(&kNet, rkHSocket, buf, iLen);
 		}
 		printf(".......\n");
