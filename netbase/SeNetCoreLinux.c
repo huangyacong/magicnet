@@ -275,14 +275,14 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 		kEvent.data.u64 = pkNetSocket->kHSocket;
 		kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET;
-		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
+		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
 	}
 	else if(iCount > 0 && !SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
 	{
 		SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 		kEvent.data.u64 = pkNetSocket->kHSocket;
 		kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET;
-		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
+		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
 	}
 
 	return true;

@@ -23,7 +23,7 @@ struct SENETCORE
 	struct SELOG			kLog;
 	struct SESOCKETMGR		kSocketMgr;
 #if defined(__linux)
-	struct epoll_event		akEvents[64];
+	struct epoll_event		akEvents[1024];
 #endif
 	char					acBuf[SENETCORE_MAX_SOCKET_BUF_LEN];
 };
