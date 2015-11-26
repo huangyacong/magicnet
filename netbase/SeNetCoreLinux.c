@@ -202,7 +202,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 
 	while(true)
 	{
-		iLen = SeRecv(socket, pkNetCore->acBuf, SENETCORE_MAX_SOCKET_BUF_LEN, MSG_DONTWAIT);
+		iLen = SeRecv(socket, pkNetCore->acBuf, SENETCORE_MAX_SOCKET_BUF_LEN, 0);
 		if(iLen == 0)
 		{
 			return false;
@@ -240,7 +240,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	{
 		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
 		if(!pkNetStreamNode) { break; }
-		iLen = SeSend(socket, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos, MSG_DONTWAIT | MSG_NOSIGNAL);
+		iLen = SeSend(socket, pkNetStreamNode->pkBuf + pkNetStreamNode->iReadPos, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos, MSG_NOSIGNAL);
 		if(iLen == 0)
 		{
 			SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
