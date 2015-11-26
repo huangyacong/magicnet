@@ -95,8 +95,9 @@ int main()
 
 			if(timera - timer >= 2000)
 			{
+				iLen = (int)num;
 				num = (num/(timera - timer))*1000;
-				printf("num=%llu,rSSize=%d,rRSize=%d,%llx\n", num, rSSize, rRSize, num);
+				printf("num=%d,rSSize=%d,rRSize=%d,%d\n", iLen, rSSize, rRSize, (int)num);
 				num = 0;
 				timer = SeTimeGetTickCount();
 			}
