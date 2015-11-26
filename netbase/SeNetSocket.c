@@ -153,14 +153,14 @@ void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struc
 	if(bSendOrRecv == true)
 	{
 		pkNetSocketTmp = SeHashGet(&pkNetSocketMgr->kSendList, pkNetSocket->usIndex);
-		if(pkNetSocketTmp) { assert(&pkNetSocket->kSendNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kSendList, &pkNetSocket->kSendNode); }
-		SeHashAdd(&pkNetSocketMgr->kSendList, pkNetSocket->usIndex, &pkNetSocket->kSendNode);
+		//if(pkNetSocketTmp) { assert(&pkNetSocket->kSendNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kSendList, &pkNetSocket->kSendNode); }
+		if(!pkNetSocketTmp) SeHashAdd(&pkNetSocketMgr->kSendList, pkNetSocket->usIndex, &pkNetSocket->kSendNode);
 	}
 	else
 	{
 		pkNetSocketTmp = SeHashGet(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex);
-		if(pkNetSocketTmp) { assert(&pkNetSocket->kRecvNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kRecvList, &pkNetSocket->kRecvNode); }
-		SeHashAdd(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex, &pkNetSocket->kRecvNode);
+		//if(pkNetSocketTmp) { assert(&pkNetSocket->kRecvNode == pkNetSocketTmp); SeHashRemove(&pkNetSocketMgr->kRecvList, &pkNetSocket->kRecvNode); }
+		if(!pkNetSocketTmp)SeHashAdd(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex, &pkNetSocket->kRecvNode);
 	}
 }
 
