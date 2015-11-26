@@ -51,6 +51,8 @@ int main()
 	bool ret;
 	int iLen;
 	int riEvent;
+	int rSSize;
+	int rRSize;
 	HSOCKET khsocket;
 	HSOCKET rkHSocket;
 	char *buf = (char*)malloc(1024*1024*4);
@@ -66,7 +68,7 @@ int main()
 	while(khsocket != 0)
 	{
 		iLen = 1024*1024*4;
-		ret = SeNetCoreRead(&kNet, &riEvent, &rkListenHSocket, &rkHSocket, buf, &iLen);
+		ret = SeNetCoreRead(&kNet, &riEvent, &rkListenHSocket, &rkHSocket, buf, &iLen, &rSSize, &rRSize);
 		if(!ret) { continue; }
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_IDLE)
@@ -93,7 +95,7 @@ int main()
 
 			if(timera - timer >= 2000)
 			{
-				printf("num=%d,%lld\n", num, ((unsigned long long )num/(timera - timer))*1000);
+				printf("num=%d,rSSize=%d,rRSize=%d,%lld\n", num, rSSize, rRSize, ((unsigned long long )num/(timera - timer))*1000);
 				num = 0;
 				timer = SeTimeGetTickCount();
 			}
