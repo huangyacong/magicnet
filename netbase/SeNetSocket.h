@@ -70,10 +70,6 @@ struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSoc
 
 void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iSize, int iBufLen);
 
-void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket);
-
-HSOCKET SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr);
-
 bool SeNetSocketMgrHasEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
 
 void SeNetSocketMgrAddEvent(struct SESOCKET *pkNetSocket, int iEventSocket);

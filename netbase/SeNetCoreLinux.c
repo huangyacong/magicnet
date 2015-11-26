@@ -154,7 +154,6 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	}
 	
 	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
-	SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
 	return kHSocket;
 }
 
@@ -196,11 +195,9 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	int iLen;
 	bool bOk;
-	bool bRecv;
 	int iErrorno;
 	SOCKET socket;
 
-	bRecv = false;
 	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 
 	while(true)
@@ -219,14 +216,11 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		}
 		else
 		{
-			bRecv = true;
 			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
 			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->acBuf, iLen);
 			if(!bOk) { return false; }
 		}
 	}
-
-	if(bRecv) { SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket); }
 
 	return true;
 }
@@ -424,17 +418,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 
-	//kHSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
-	//pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	//if(pkNetSocket)
-	{
-		//printf("dddd=%d\n",pkNetSocket->usStatus);
-		//assert(pkNetSocket->usStatus > SOCKET_STATUS_INIT && pkNetSocket->usStatus <= SOCKET_STATUS_ACTIVECONNECT);
-		//SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[PROCESS] socket timeout");
-		//if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, false, false, true); }
-		//if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
-	}
-
 	do
 	{
 		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
@@ -451,7 +434,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-			SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
 			return true;
 		}
 		
