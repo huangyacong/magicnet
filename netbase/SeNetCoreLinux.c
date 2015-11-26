@@ -275,14 +275,14 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 		kEvent.data.u64 = pkNetSocket->kHSocket;
 		kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET;
-		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
+		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
 	}
 	else if(iCount > 0 && !SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
 	{
 		SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 		kEvent.data.u64 = pkNetSocket->kHSocket;
 		kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET;
-		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
+		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
 	}
 
 	return true;
@@ -424,14 +424,15 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 
-	kHSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
-	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	if(pkNetSocket)
+	//kHSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
+	//pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+	//if(pkNetSocket)
 	{
-		assert(pkNetSocket->usStatus > SOCKET_STATUS_INIT && pkNetSocket->usStatus <= SOCKET_STATUS_ACTIVECONNECT);
-		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[PROCESS] socket timeout");
-		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, false, false, true); }
-		if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
+		//printf("dddd=%d\n",pkNetSocket->usStatus);
+		//assert(pkNetSocket->usStatus > SOCKET_STATUS_INIT && pkNetSocket->usStatus <= SOCKET_STATUS_ACTIVECONNECT);
+		//SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[PROCESS] socket timeout");
+		//if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, false, false, true); }
+		//if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
 	}
 
 	do
