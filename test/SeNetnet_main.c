@@ -77,6 +77,11 @@ int main()
 			continue;
 		}
 
+		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED)
+		{
+			printf("Client connect failed! %llx\n", rkHSocket);
+		}
+
 		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
 		{
 			printf("connect! %llx\n", rkHSocket);
