@@ -229,16 +229,7 @@ HSOCKET SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 	pkHashNode = SeHashGetHead(&pkNetSocketMgr->kActiveList);
 	if(!pkHashNode) return SeGetHSocket(0, 0, 0);
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
-	
-	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
-	{
-		if((pkNetSocket->ullActive + 60*5*1000) >= SeTimeGetTickCount()) { return pkNetSocket->kHSocket; }
-	}
-
-	if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
-	{
-		if((pkNetSocket->ullActive + 60*30*1000) >= SeTimeGetTickCount()) { return pkNetSocket->kHSocket; }
-	}
+	if((pkNetSocket->ullActive + 60*30*1000) >= SeTimeGetTickCount()) { return pkNetSocket->kHSocket; }
 
 	return SeGetHSocket(0, 0, 0);
 }
