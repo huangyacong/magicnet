@@ -191,7 +191,8 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 	assert(iHeaderSize >= 0);
 	assert(sizeof(acHeader) >= iHeaderSize);
 	if(iBufLen < 0) return false;
-	bRet = pkSetHeaderLenFun(acHeader, iHeaderSize, iBufLen);
+
+	bRet = iHeaderSize == 0 ? true : pkSetHeaderLenFun(acHeader, iHeaderSize, iBufLen);
 	if(!bRet) return false;
 
 	pkNetStreamNode = SeNetSreamTailPop(pkNetStream);
