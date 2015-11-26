@@ -44,6 +44,10 @@ bool kGetHeaderLenFun(const char* pcHeader, const int iheaderlen, int *ilen)
 
 int main()
 {
+	unsigned long long num;
+	unsigned long long timer;
+	unsigned long long timera;
+
 	bool ret;
 	int iLen;
 	int riEvent;
@@ -52,6 +56,9 @@ int main()
 	char *buf = (char*)malloc(1024*1024*4);
 	HSOCKET rkListenHSocket;
 	struct SENETCORE kNet;
+	
+	num = 0;
+	timer = SeTimeGetTickCount();
 
 	SeNetCoreInit(&kNet, "out.txt", 1000);
 	khsocket = SeNetCoreTCPListen(&kNet, "0.0.0.0", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
@@ -70,21 +77,31 @@ int main()
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
 		{
-			printf("connect! %lld\n", khsocket);
+			printf("connect! %llx\n", rkHSocket);
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
 		{
-			printf("disconnect! %lld\n", khsocket);
+			printf("disconnect! %llx\n", rkHSocket);
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
-			//printf("%s\n", buf);
+			num++;
+			timera = SeTimeGetTickCount();
 			SeNetCoreSend(&kNet, rkHSocket, buf, iLen);
+
+			if(timera - timer >= 2000)
+			{
+				printf("num=%d,%lld\n", num, ((unsigned long long )num/(timera - timer))*1000);
+				num = 0;
+				timer = SeTimeGetTickCount();
+			}
 		}
 	}
+
 	printf("end\n");
+
 	getchar();
 	free(buf);
 	SeNetCoreFin(&kNet);
