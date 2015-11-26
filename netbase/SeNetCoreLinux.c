@@ -196,9 +196,11 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	int iLen;
 	bool bOk;
+	bool bRecv;
 	int iErrorno;
 	SOCKET socket;
 
+	bRecv = false;
 	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 
 	while(true)
@@ -212,17 +214,19 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		{
 			iErrorno = SeErrno();
 			if(iErrorno == SE_EINTR) continue;
-			else if(iErrorno == SE_EWOULDBLOCK) { return true; }
+			else if(iErrorno == SE_EWOULDBLOCK) { break; }
 			else { return false; }
 		}
 		else
 		{
-			SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
+			bRecv = true;
 			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
 			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->acBuf, iLen);
 			if(!bOk) { return false; }
 		}
 	}
+
+	if(bRecv) { SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket); }
 
 	return true;
 }
@@ -258,7 +262,6 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		}
 		else
 		{
-			SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
 			pkNetStreamNode->iReadPos += iLen;
 			if(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= 0) { SeNetSreamHeadAdd(&pkNetCore->kSocketMgr.kNetStreamIdle, pkNetStreamNode); }
 			else { SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); break; }
