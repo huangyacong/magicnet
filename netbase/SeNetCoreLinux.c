@@ -414,7 +414,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 {
 	bool bOK;
 	SOCKET socket;
-	HSOCKET kHSocket;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 
