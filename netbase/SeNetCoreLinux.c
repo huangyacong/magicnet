@@ -188,7 +188,7 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	if(!pkNetSocket) return;
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return;
 
-	if(pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING)
+	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
 	{
 		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
 	}
