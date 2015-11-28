@@ -25,7 +25,7 @@ struct SENETCORE
 #if defined(__linux)
 	struct epoll_event		akEvents[1024];
 #endif
-	char					acBuf[SENETCORE_MAX_SOCKET_BUF_LEN];
+	char					*pcBuf;
 };
 
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax);

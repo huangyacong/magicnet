@@ -9,6 +9,7 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short 
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
+	pkNetCore->pcBuf = (char*)malloc(SENETCORE_MAX_SOCKET_BUF_LEN);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -17,6 +18,7 @@ void SeNetCoreFin(struct SENETCORE *pkNetCore)
 	SeFinLog(&pkNetCore->kLog);
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeNetBaseEnd();
+	free(pkNetCore->pcBuf);
 }
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\
@@ -29,11 +31,18 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	struct sockaddr kAddr;
 	
 	SeSetSockAddr(&kAddr, pcIP, usPort);
-	socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL ,0 , WSA_FLAG_OVERLAPPED);
+	socket = SeSocket(SOCK_STREAM);
 	if(socket == SE_INVALID_SOCKET)
 	{
 		iErrorno = SeErrno();
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] Create Socket ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
+		return 0;
+	}
+	if(!CreateIoCompletionPort((HANDLE)socket, pkNetCore->kHandle, 0, 0))
+	{
+		iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] epoll_ctl ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
 	if(SeSetNoBlock(socket, true) != 0)

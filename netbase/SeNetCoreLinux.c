@@ -9,6 +9,7 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short 
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
+	pkNetCore->pcBuf = (char*)malloc(SENETCORE_MAX_SOCKET_BUF_LEN);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -17,6 +18,7 @@ void SeNetCoreFin(struct SENETCORE *pkNetCore)
 	SeFinLog(&pkNetCore->kLog);
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeNetBaseEnd();
+	free(pkNetCore->pcBuf);
 }
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\
@@ -214,7 +216,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 
 	while(true)
 	{
-		iLen = SeRecv(socket, pkNetCore->acBuf, SENETCORE_MAX_SOCKET_BUF_LEN, 0);
+		iLen = SeRecv(socket, pkNetCore->pcBuf, SENETCORE_MAX_SOCKET_BUF_LEN, 0);
 		if(iLen == 0)
 		{
 			return false;
@@ -229,7 +231,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		else
 		{
 			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
-			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->acBuf, iLen);
+			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->pcBuf, iLen);
 			if(!bOk) { return false; }
 		}
 	}
