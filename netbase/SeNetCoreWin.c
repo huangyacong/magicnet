@@ -2,6 +2,15 @@
 
 #if (defined(_WIN32) || defined(WIN32))
 
+struct{
+	OVERLAPPED overlapped;
+	HSOCKET HScoket;
+	WSABUF kBuf;
+	int iLen;
+	int iOPType;
+	char acData[1024*4];
+}IO_DATA;
+
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax)
 {
 	SeNetBaseInit();
@@ -9,7 +18,6 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short 
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
-	pkNetCore->pcBuf = (char*)malloc(SENETCORE_MAX_SOCKET_BUF_LEN);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -18,7 +26,6 @@ void SeNetCoreFin(struct SENETCORE *pkNetCore)
 	SeFinLog(&pkNetCore->kLog);
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeNetBaseEnd();
-	free(pkNetCore->pcBuf);
 }
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\
@@ -29,6 +36,10 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	SOCKET socket;
 	HSOCKET kHSocket;
 	struct sockaddr kAddr;
+
+	DWORD dwBytes;
+	LPFN_ACCEPTEX lpfnAcceptEx = NULL;
+	GUID GuidAcceptEx = WSAID_ACCEPTEX;
 	
 	SeSetSockAddr(&kAddr, pcIP, usPort);
 	socket = SeSocket(SOCK_STREAM);
@@ -82,6 +93,16 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SocketMgr is full, IP=%s port=%d", pcIP, usPort);
 		return 0;
 	}
+
+	if(WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidAcceptEx, sizeof (GuidAcceptEx), &lpfnAcceptEx, sizeof (lpfnAcceptEx), &dwBytes, NULL, NULL) == SE_SOCKET_ERROR)
+	{
+		iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SeListen ERROR, errno=%d backlog=%d IP=%s port=%d", iErrorno, backlog, pcIP, usPort);
+		return 0;
+	}
+	
 
 	return kHSocket;
 }

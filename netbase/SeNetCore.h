@@ -9,8 +9,6 @@
 #include "SeNetBase.h"
 #include "SeNetSocket.h"
 
-#define SENETCORE_MAX_SOCKET_BUF_LEN 1024*1024*4
-
 #define SENETCORE_EVENT_SOCKET_IDLE 0
 #define SENETCORE_EVENT_SOCKET_CONNECT 1
 #define SENETCORE_EVENT_SOCKET_CONNECT_FAILED 2
@@ -24,8 +22,8 @@ struct SENETCORE
 	struct SESOCKETMGR		kSocketMgr;
 #if defined(__linux)
 	struct epoll_event		akEvents[1024];
-#endif
 	char					*pcBuf;
+#endif
 };
 
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax);
