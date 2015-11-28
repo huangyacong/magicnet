@@ -183,8 +183,20 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	if(!pkNetSocket) return;
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return;
-	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return;
-	pkNetSocket->usStatus = SOCKET_STATUS_DISCONNECT;
+
+	if(pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING)
+	{
+		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
+	}
+	else if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+	{
+		pkNetSocket->usStatus = SOCKET_STATUS_DISCONNECT;
+	}
+	else
+	{
+		return;
+	}
+
 	socket = SeGetSocketByHScoket(kHSocket);
 	epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
 	SeCloseSocket(socket);
