@@ -59,9 +59,21 @@ void SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, HSOCKET kListenHSocket, int 
 	for(i = 0; i < iNum; i++)
 	{
 		socket = SeSocket(SOCK_STREAM);
-		if(socket == SE_INVALID_SOCKET) { break; }
+		if(socket == SE_INVALID_SOCKET)
+		{
+			iErrorno = SeErrno();
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[GET ACCEPT POINT] new client socket failed, errno=%d", iErrorno);
+			continue;
+		}
+
 		pkIOData = (struct IODATA*)GlobalAlloc(GPTR, sizeof(struct IODATA));
-		if(!pkIOData) { SeCloseSocket(socket); break; }
+		if(!pkIOData)
+		{
+			iErrorno = SeErrno();
+			SeCloseSocket(socket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[GET ACCEPT POINT] new mem failed, errno=%d", iErrorno);
+			continue;
+		}
 
 		memset(&pkIOData->overlapped, 0, sizeof(OVERLAPPED));
 		pkIOData->kHScoket = kListenHSocket;
