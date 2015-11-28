@@ -44,6 +44,10 @@
 #elif (defined(_WIN32) || defined(WIN32))
 	
 	#include <winsock2.h>
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
+	#include <mswsock.h>
+	#include <stdio.h>
 
 	#ifdef _MSC_VER
 		#pragma comment(lib, "ws2_32.lib")
