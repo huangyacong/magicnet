@@ -443,6 +443,8 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		
 		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
 		{
+			SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
+			SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
