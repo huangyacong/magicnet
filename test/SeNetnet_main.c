@@ -16,12 +16,12 @@ bool kSetHeaderLenFun(char* pcHeader, const int iheaderlen, const int ilen)
 		memcpy(pcHeader, &head, iheaderlen);
 		return true;
 	}
-
+/*
 	if (iheaderlen == 0)
 	{
 		return true;
 	}
-
+*/
 	return false;
 }
 
@@ -32,13 +32,13 @@ bool kGetHeaderLenFun(const char* pcHeader, const int iheaderlen, int *ilen)
 		*ilen = pcHeader[0] << 8 | pcHeader[1];
 		return true;
 	}
-
+/*
 	if (iheaderlen == 0)
 	{
 		*ilen = 0;
 		return true;
 	}
-
+*/
 	return false;
 }
 
