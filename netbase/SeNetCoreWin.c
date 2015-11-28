@@ -63,7 +63,7 @@ void SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, HSOCKET kListenHSocket, int 
 		pkIOData = (struct IODATA*)GlobalAlloc(GPTR, sizeof(struct IODATA));
 		if(!pkIOData) { SeCloseSocket(socket); break; }
 
-		memset(pkIOData, 0, sizeof(struct IODATA));
+		memset(&pkIOData->overlapped, 0, sizeof(OVERLAPPED));
 		pkIOData->kHScoket = kListenHSocket;
 		pkIOData->kSocket = socket;
 		pkIOData->iOPType = OP_TYPE_ACCEPT;
