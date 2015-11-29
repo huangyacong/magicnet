@@ -13,7 +13,6 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->iHeaderLen = 0;
 	pkNetSocket->iTypeSocket = 0;
 	pkNetSocket->iEventSocket = 0;
-	pkNetSocket->ullActive = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
 }
@@ -98,7 +97,6 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
 	SeNetSocketReset(pkNetSocket);
 	pkNetSocketMgr->iCounter++;
-	pkNetSocket->ullActive = SeTimeGetTickCount();
 
 	pkNetSocket->kHSocket = SeGetHSocket((unsigned short)pkNetSocketMgr->iCounter, pkNetSocket->usIndex, socket);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;

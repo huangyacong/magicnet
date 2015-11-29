@@ -53,7 +53,7 @@ int main()
 	int riEvent;
 	int rSSize;
 	int rRSize;
-	HSOCKET khsocket;
+	HSOCKET khsocket, socket;
 	HSOCKET rkHSocket;
 	char *buf = (char*)malloc(1024*1024*4);
 	HSOCKET rkListenHSocket;
@@ -64,6 +64,7 @@ int main()
 
 	SeNetCoreInit(&kNet, "out.txt", 1000);
 	khsocket = SeNetCoreTCPListen(&kNet, "0.0.0.0", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
+	socket = SeNetCoreTCPClient(&kNet, "127.0.0.1", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
 	
 	while(khsocket != 0)
 	{
@@ -84,7 +85,11 @@ int main()
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
 		{
-			printf("connect! %llx\n", rkHSocket);
+			printf("connect! %llx %s=%d\n", rkHSocket, buf, iLen);
+			if (socket == rkHSocket)
+			{
+				SeNetCoreSend(&kNet, rkHSocket, buf, 10);
+			}
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)

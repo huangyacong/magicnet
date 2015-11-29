@@ -31,7 +31,7 @@ struct SESOCKET
 	int						iHeaderLen;
 	int						iTypeSocket;
 	int						iEventSocket;
-	unsigned long long		ullActive;
+	struct sockaddr_in		kRemoteAddr;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
 	struct SEHASHNODE		kMainNode;
