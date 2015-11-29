@@ -49,22 +49,32 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 	}
 
 	maxlen = (int)sizeof(pkLog->actext);
-	pkLog->actext[maxlen - 2] = '\n';
-	pkLog->actext[maxlen - 1] = '\0';
 
 	va_start(argptr, argv);
-	writelen = vsnprintf(pkLog->actext, maxlen - 2, argv, argptr);
+	writelen = vsnprintf(pkLog->actext, maxlen - 3, argv, argptr);
 	va_end(argptr);
 
 	if(writelen <= 0)
 	{
 		return;
 	}
-	if(writelen <= (maxlen - 2))
+
+#if defined(__linux)
+	if(writelen <= (maxlen - 3))
 	{
+		pkLog->actext[writelen + 0] = '\n';
+		pkLog->actext[writelen + 1] = '\0';
+		pkLog->actext[writelen + 2] = '\0';
+	}
+#elif (defined(_WIN32) || defined(WIN32))
+	if (writelen <= (maxlen - 3))
+	{
+		pkLog->actext[writelen + 0] = '\r';
 		pkLog->actext[writelen + 1] = '\n';
 		pkLog->actext[writelen + 2] = '\0';
 	}
+#endif
+	
 	
 	if(SeHasLogLV(pkLog, LT_SPLIT))
 	{
