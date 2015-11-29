@@ -24,6 +24,7 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short 
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
+	SeAddLogLV(&pkNetCore->kLog, LT_SOCKET);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -106,6 +107,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	SOCKET socket;
 	HSOCKET kHSocket;
 	struct sockaddr kAddr;
+	struct SESOCKET *pkNetSocket;
 	
 	SeSetSockAddr(&kAddr, pcIP, usPort);
 	socket = SeSocket(SOCK_STREAM);
@@ -159,7 +161,9 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SocketMgr is full, IP=%s port=%d", pcIP, usPort);
 		return 0;
 	}
-
+	
+	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+	pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 	SeNetCoreAcceptEx(pkNetCore, kHSocket, backlog);
 	
 	return kHSocket;
@@ -516,14 +520,14 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		pkIOData = SE_CONTAINING_RECORD(pkOverlapped, struct IODATA, overlapped);
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, pkIOData->kHScoket);
 
-		if(pkNetSocket)
+		if(pkNetSocket && pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
 		{
 			if(pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET) { SeNetCoreListenSocket(pkNetCore, pkNetSocket, pkIOData->kSocket, pkIOData); }
 			if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET) { SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, pkIOData, dwLen); }
 			if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, pkIOData, dwLen); }
 		}
 		else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket not found"); }
-
+		
 		GlobalFree(pkIOData);
 	}
 
