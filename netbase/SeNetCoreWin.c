@@ -7,6 +7,7 @@
 #define OP_TYPE_ACCEPT 0
 #define OP_TYPE_SEND 1
 #define OP_TYPE_RECV 2
+#define OP_TYPE_CONNECT 3
 
 struct IODATA{
 	OVERLAPPED overlapped;
@@ -166,6 +167,104 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 	SeNetCoreAcceptEx(pkNetCore, kHSocket, backlog);
 	
+	return kHSocket;
+}
+
+HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\
+				int iHeaderLen, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun)
+{
+	int iErrorno;
+	SOCKET socket;
+	HSOCKET kHSocket;
+	DWORD dwSend,dwBytes;
+	struct sockaddr kAddr;
+	struct sockaddr local;
+	struct IODATA *pkIOData;
+	struct SESOCKET *pkNetSocket;
+	
+	SeSetSockAddr(&kAddr, pcIP, usPort);
+	socket = SeSocket(SOCK_STREAM);
+	if(socket == SE_INVALID_SOCKET)
+	{
+		iErrorno = SeErrno();
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Create Socket ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
+		return 0;
+	}
+	if(SeSetNoBlock(socket, true) != 0)
+	{
+		iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeSetNoBlock ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
+		return 0;
+	}
+
+	kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, socket, CLIENT_TCP_TYPE_SOCKET, iHeaderLen, pkGetHeaderLenFun, pkSetHeaderLenFun);
+	if(kHSocket <= 0)
+	{
+		SeCloseSocket(socket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SocketMgr is full, IP=%s port=%d", pcIP, usPort);
+		return 0;
+	}
+	
+	LPFN_CONNECTEX ConnectEx;
+    GUID guidConnectEx = WSAID_CONNECTEX;
+    if(SOCKET_ERROR == WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
+						&guidConnectEx, sizeof(guidConnectEx), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL))
+    {
+		iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] get ConnectEx failed, errno=%d", iErrorno);
+		return 0;
+    }
+
+	SeSetSockAddr(&local, "0.0.0.0", 0);
+    if(SOCKET_ERROR == SeBind(socket, &local))
+    {
+        iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeBind failed, errno=%d", iErrorno);
+		return 0;
+    }
+	if(!CreateIoCompletionPort((HANDLE)socket, pkNetCore->kHandle, 0, 0))
+	{
+		iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] CreateIoCompletionPort failed, errno=%d", iErrorno);
+		return 0;
+	}
+
+	pkIOData = (struct IODATA*)GlobalAlloc(GPTR, sizeof(struct IODATA));
+	if(!pkIOData)
+	{
+		iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] new mem failed, errno=%d", iErrorno);
+		return 0;
+	}
+
+	memset(&pkIOData->overlapped, 0, sizeof(OVERLAPPED));
+	pkIOData->kHScoket = kHSocket;
+	pkIOData->iOPType = OP_TYPE_CONNECT;
+ 
+    if(!ConnectEx(socket, &kAddr, sizeof(struct sockaddr), NULL, 0, &dwSend, &pkIOData->overlapped))
+    {
+		iErrorno = SeErrno();
+		if(ERROR_IO_PENDING != iErrorno)
+		{
+			GlobalFree(pkIOData);
+			SeCloseSocket(socket);
+			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] ConnectEx failed, errno=%d", iErrorno);
+			return 0;
+		}
+    }
+
+	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
 	return kHSocket;
 }
 
@@ -428,8 +527,16 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	}
 }
 
-void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, const struct IODATA *pkIOData, DWORD dwLen)
+void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, const struct IODATA *pkIOData, DWORD dwLen, BOOL bConnectFailed)
 {
+	if(pkIOData->iOPType == OP_TYPE_CONNECT)
+	{
+		assert(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING);
+		pkNetSocket->usStatus = bConnectFailed ? SOCKET_STATUS_CONNECTED : SOCKET_STATUS_CONNECTED_FAILED;
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+		return;
+	}
+
 	SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, pkIOData, dwLen);
 }
 
@@ -504,6 +611,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize)
 {
 	bool bWork;
+	bool bResult;
 	DWORD dwLen;
 	ULONG_PTR ulKey;
 	struct IODATA *pkIOData;
@@ -513,7 +621,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	bWork = false;
 	pkOverlapped = NULL;
 
-	GetQueuedCompletionStatus(pkNetCore->kHandle, &dwLen, &ulKey, &pkOverlapped, 0);
+	bResult = GetQueuedCompletionStatus(pkNetCore->kHandle, &dwLen, &ulKey, &pkOverlapped, 0);
 	if(pkOverlapped)
 	{
 		bWork = true;
@@ -524,7 +632,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		{
 			if(pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET && pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreListenSocket(pkNetCore, pkNetSocket, pkIOData->kSocket, pkIOData); }
 			else if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET && pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, pkIOData, dwLen); }
-			else if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET && (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, pkIOData, dwLen); }
+			else if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET && (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, pkIOData, dwLen, bResult); }
 		}
 		else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket not found"); }
 		
