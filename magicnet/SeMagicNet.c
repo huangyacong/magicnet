@@ -40,3 +40,20 @@ bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen)
 	return false;
 }
 
+bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort)
+{
+	SeNetCoreInit(&pkMagicNetS->kNetCore, "magicnet.log", usMax);
+	SeHashInit(&pkMagicNetS->kRegSvrList, 1000);
+
+	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, 2, &SeGetHeader, &SeSetHeader);
+	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usOutPort, 4, &SeGetHeader, &SeSetHeader);
+	if(pkMagicNetS->kHScoketOut <= 0 || pkMagicNetS->kHScoketIn <= 0) { SeMagicNetSFin(&pkMagicNetS->kNetCore); return false; }
+
+	return true;
+}
+
+void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
+{
+	SeNetCoreFin(&pkMagicNetS->kNetCore);
+	SeHashFin(&pkMagicNetS->kRegSvrList);
+}
