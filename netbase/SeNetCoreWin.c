@@ -563,7 +563,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			CreateIoCompletionPort((HANDLE)socket, pkNetCore->kHandle, 0, 0);
 			*riLen = 0;
 			pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
-			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = strlen(pcAddrIP); }
+			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); }
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);

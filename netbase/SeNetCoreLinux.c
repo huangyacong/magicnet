@@ -456,7 +456,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
 			*riLen = 0;
 			pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
-			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = strlen(pcAddrIP); }
+			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); }
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			return true;
