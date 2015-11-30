@@ -25,8 +25,4 @@ struct SEMAGICNETC
 	struct SENETCORE		kNetCore;
 };
 
-bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen);
-
-bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen);
-
 #endif
