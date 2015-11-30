@@ -31,6 +31,7 @@ struct SESOCKET
 	int						iHeaderLen;
 	int						iTypeSocket;
 	int						iEventSocket;
+	long long				llFlag;
 	struct sockaddr_in		kRemoteAddr;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
