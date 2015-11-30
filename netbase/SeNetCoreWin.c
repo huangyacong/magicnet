@@ -341,6 +341,8 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	pkIOData->iOPType = OP_TYPE_SEND;
 	pkIOData->kBuf.buf = pkIOData->acData;
 	pkIOData->kBuf.len = pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
+	assert(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos > 0);
+	assert(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos <= sizeof(pkIOData->acData));
 	memcpy(pkIOData->kBuf.buf, pkNetStreamNode->pkBuf, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
 
 	dwLen = 0;
