@@ -29,7 +29,7 @@ bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen)
 	if(iheaderlen == 2)
 	{
 		*ilen = (unsigned short)(pcHeader[0] << 8 | pcHeader[1]);
-		if(*ilen < 0) { return false; }
+		if(*ilen < 0 || *ilen > 0xFFFF) { return false; }
 		return true;
 	}
 
@@ -37,7 +37,7 @@ bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen)
 	{
 		// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
 		*ilen = (int)((pcHeader[0] & 0xFF) | ((pcHeader[1] << 8) & 0xFF00) | ((pcHeader[2] << 16) & 0xFF0000) | ((pcHeader[3] << 24) & 0xFF000000));
-		if(*ilen < 0) { return false; }
+		if(*ilen < 0 || *ilen > (0xFFFF*2)) { return false; }
 		return true;
 	}
 
