@@ -6,10 +6,12 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "SeNetCore.h"
+#include "SeTime.h"
 
 struct REGSVRNODE
 {
 	int						iSvrNo;
+	unsigned long long		llActive;
 	HSOCKET					kHSocket;
 	struct SEHASHNODE		kHashNode;
 };
