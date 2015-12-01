@@ -2,8 +2,6 @@
 
 #if defined(__linux)
 
-#define SENETCORE_MAX_SOCKET_BUF_LEN 1024*1024*4
-
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax)
 {
 	SeNetBaseInit();
@@ -173,7 +171,7 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, char* pcBuf, i
 	if(!pkNetSocket) return false;
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
 	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return false;
-	SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
+	SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, MAX_BUF_LEN, SENETCORE_MAX_SOCKET_BUF_LEN);
 	bRet = SeNetSreamWrite(&pkNetSocket->kSendNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, iSize);
 	if(bRet) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 	else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR"); }
@@ -234,7 +232,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		}
 		else
 		{
-			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
+			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, MAX_BUF_LEN, SENETCORE_MAX_SOCKET_BUF_LEN);
 			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->pcBuf, iLen);
 			if(!bOk) { return false; }
 		}

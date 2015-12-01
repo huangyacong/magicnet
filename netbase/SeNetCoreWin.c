@@ -2,8 +2,6 @@
 
 #if (defined(_WIN32) || defined(WIN32))
 
-#define SENETCORE_MAX_SOCKET_BUF_LEN 1024*1024*4
-
 #define OP_TYPE_ACCEPT 0
 #define OP_TYPE_SEND 1
 #define OP_TYPE_RECV 2
@@ -279,7 +277,7 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, char* pcBuf, i
 	if(!pkNetSocket) return false;
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
 	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return false;
-	SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
+	SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, MAX_BUF_LEN, SENETCORE_MAX_SOCKET_BUF_LEN);
 	bRet = SeNetSreamWrite(&pkNetSocket->kSendNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, iSize);
 	if(bRet) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 	else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR"); }
@@ -519,7 +517,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 
 	if(pkIOData->iOPType == OP_TYPE_RECV)
 	{
-		SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, 1024*4, SENETCORE_MAX_SOCKET_BUF_LEN);
+		SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, MAX_BUF_LEN, SENETCORE_MAX_SOCKET_BUF_LEN);
 		bOK = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkIOData->kBuf.buf, dwLen);
 		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
 		SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
