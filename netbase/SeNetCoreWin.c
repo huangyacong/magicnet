@@ -2,18 +2,19 @@
 
 #if (defined(_WIN32) || defined(WIN32))
 
-#define OP_TYPE_ACCEPT 0
 #define OP_TYPE_SEND 1
 #define OP_TYPE_RECV 2
-#define OP_TYPE_CONNECT 3
+#define OP_TYPE_ACCEPT 3
+#define OP_TYPE_CONNECT 4
 
-struct IODATA{
-	OVERLAPPED overlapped;
-	HSOCKET kHScoket;
-	SOCKET kSocket;
-	WSABUF kBuf;
-	int iOPType;
-	char acData[1024*4];
+struct IODATA
+{
+	OVERLAPPED	overlapped;
+	HSOCKET		kHScoket;
+	SOCKET		kSocket;
+	WSABUF		kBuf;
+	int			iOPType;
+	char		acData[1024*4];
 };
 
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax)
@@ -41,9 +42,9 @@ void SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, HSOCKET kListenHSocket, int 
 	int iErrorno;
 	DWORD dwBytes;
 	SOCKET socket;
-	GUID GuidAcceptEx = WSAID_ACCEPTEX;
 	struct IODATA *pkIOData;
 	LPFN_ACCEPTEX lpfnAcceptEx;
+	GUID GuidAcceptEx = WSAID_ACCEPTEX;
 	
 	lpfnAcceptEx = NULL;
 
@@ -406,19 +407,19 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 
 void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketListen, SOCKET kSocket, struct IODATA *pkIOData)
 {
-	int iErrorno;
-	HSOCKET kHSocket;
-	struct SESOCKET *pkNetSocketAccept;
+	int							iErrorno;
+	HSOCKET						kHSocket;
+	struct SESOCKET				*pkNetSocketAccept;
 
 	LPFN_GETACCEPTEXSOCKADDRS	lpfnGetAcceptExSockaddrs = NULL;
 	GUID						tGuidGetAcceptExSockaddrs = WSAID_GETACCEPTEXSOCKADDRS;
 	DWORD						dwBytes = 0;
 	int							tResult = 0;
 
-	struct	sockaddr_in	*local_addr = NULL;
-	struct  sockaddr_in *remote_addr = NULL;
-	int local_addr_len = sizeof(struct sockaddr_in);
-	int remote_addr_len = sizeof(struct sockaddr_in);
+	struct	sockaddr_in			*local_addr = NULL;
+	struct  sockaddr_in			*remote_addr = NULL;
+	int							local_addr_len = sizeof(struct sockaddr_in);
+	int							remote_addr_len = sizeof(struct sockaddr_in);
 
 	tResult = WSAIoctl(SeGetSocketByHScoket(pkNetSocketListen->kHSocket), SIO_GET_EXTENSION_FUNCTION_POINTER,
 						&tGuidGetAcceptExSockaddrs, sizeof(tGuidGetAcceptExSockaddrs),
@@ -543,8 +544,8 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize)
 {
 	bool bOK;
-	char *pcAddrIP;
 	SOCKET socket;
+	char *pcAddrIP;
 	struct SESOCKET *pkNetSocket;
 
 	do
