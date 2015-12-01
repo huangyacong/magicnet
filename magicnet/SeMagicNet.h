@@ -10,6 +10,7 @@
 struct REGSVRNODE
 {
 	int						iSvrNo;
+	HSOCKET					kHSocket;
 	struct SEHASHNODE		kHashNode;
 };
 
