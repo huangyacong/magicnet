@@ -2,6 +2,8 @@
 #include "SeTool.h"
 #include "SeTime.h"
 
+#define MAX_RECV_BUF_LEN 1024*1024*4
+
 bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 {
 	if(iheaderlen == 2)
@@ -84,6 +86,7 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsi
 {
 	SeNetCoreInit(&pkMagicNetS->kNetCore, "magicnet.log", usMax);
 	SeHashInit(&pkMagicNetS->kRegSvrList, 1000);
+	pkMagicNetS->pcBuf = (char*)malloc(MAX_RECV_BUF_LEN);
 
 	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, 2, &SeGetHeader, &SeSetHeader);
 	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usOutPort, 4, &SeGetHeader, &SeSetHeader);
@@ -94,6 +97,7 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsi
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 {
+	free(pkMagicNetS->pcBuf);
 	SeFreeRegSvrNode(&pkMagicNetS->kRegSvrList);
 	SeNetCoreFin(&pkMagicNetS->kNetCore);
 	SeHashFin(&pkMagicNetS->kRegSvrList);
@@ -101,4 +105,52 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 {
+	int riLen;
+	int rSSize;
+	int rRSize;
+	int riEvent;
+	bool result;
+	HSOCKET rkHSocket;
+	HSOCKET rkListenHSocket;
+	
+	riLen = MAX_RECV_BUF_LEN;
+	result = SeNetCoreRead(&pkMagicNetS->kNetCore, 
+			&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetS->pcBuf, &riLen, &rSSize, &rRSize);
+	if(!result) { return; }
+	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { SeTimeSleep(1); return; }
+	
+	// ÍâÍø 
+	if(rkListenHSocket == pkMagicNetS->kHScoketOut)
+	{	
+		// watchdog is working? 
+		if(!SeGetRegSvrNode(&pkMagicNetS->kRegSvrList, 0))
+		{
+			SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket);
+			return;
+		}
+
+		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
+		{
+		}
+		else if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
+		{
+		}
+		else if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
+		{
+		}
+	}
+	
+	//  ÄÚÍø
+	if(rkListenHSocket == pkMagicNetS->kHScoketIn)
+	{
+		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
+		{
+		}
+		else if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
+		{
+		}
+		else if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
+		{
+		}
+	}
 }
