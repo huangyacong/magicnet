@@ -2,6 +2,8 @@
 
 #if defined(__linux)
 
+#define SENETCORE_MAX_SOCKET_BUF_LEN 1024*1024*4
+
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax)
 {
 	SeNetBaseInit();
