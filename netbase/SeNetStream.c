@@ -13,8 +13,16 @@ struct SENETSTREAMNODE *SeNetSreamNodeFormat(char *pcBuf, int iBufLen)
 
 	assert(sizeof(struct SENETSTREAMNODE) < iBufLen);
 	pkNetStreamNode = (struct SENETSTREAMNODE *)pcBuf;
-	pkNetStreamNode->iMaxLen = iBufLen - sizeof(struct SENETSTREAMNODE);
 	pkNetStreamNode->pkBuf = pcBuf + sizeof(struct SENETSTREAMNODE);
+#if defined(_DEBUG)
+	assert(iBufLen > (sizeof(struct SENETSTREAMNODE + 2 + 2));
+	pkNetStreamNode->iMaxLen = iBufLen - sizeof(struct SENETSTREAMNODE) - 2;
+	pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 1] = 'A';
+	pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 2] = 'B';
+#else
+	assert(iBufLen > (sizeof(struct SENETSTREAMNODE + 2));
+	pkNetStreamNode->iMaxLen = iBufLen - sizeof(struct SENETSTREAMNODE);
+#endif
 	SeNetSreamNodeZero(pkNetStreamNode);
 	return pkNetStreamNode;
 }
@@ -26,7 +34,8 @@ void SeNetSreamNodeZero(struct SENETSTREAMNODE *pkNetStreamNode)
 	pkNetStreamNode->iWritePos = 0;
 	pkNetStreamNode->iFlag = 0;
 #if defined(_DEBUG)
-	memset(pkNetStreamNode->pkBuf, 0, pkNetStreamNode->iMaxLen);
+	assert(pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 1] == 'A');
+	assert(pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 2] == 'B');
 #endif
 }
 
