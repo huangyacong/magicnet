@@ -1,5 +1,6 @@
 #include "SeMagicNet.h"
 #include "SeTool.h"
+#include "SeTime.h"
 
 bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 {
@@ -92,4 +93,8 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 	SeFreeRegSvrNode(&pkMagicNetS->kRegSvrList);
 	SeNetCoreFin(&pkMagicNetS->kNetCore);
 	SeHashFin(&pkMagicNetS->kRegSvrList);
+}
+
+void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
+{
 }

@@ -31,4 +31,6 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsi
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
+void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
+
 #endif
