@@ -1,4 +1,5 @@
 #include "SeMagicNet.h"
+#include "SeTool.h"
 
 bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 {
@@ -40,6 +41,40 @@ bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen)
 	return false;
 }
 
+struct REGSVRNODE *SeGetRegSvrNode(struct SEHASH *pkRegSvrList, int id)
+{
+	struct SEHASHNODE *pkHashNode;
+	
+	pkHashNode = SeHashGet(pkRegSvrList, id);
+	if(!pkHashNode) { return 0; }
+	return SE_CONTAINING_RECORD(pkHashNode, struct SEHASHNODE, kHashNode);
+}
+
+struct REGSVRNODE *SeAddRegSvrNode(struct SEHASH *pkRegSvrList, int id)
+{
+	struct REGSVRNODE *pkRegSvrNode;
+
+	if(SeHashGet(pkRegSvrList, id)) { return 0; }
+	pkRegSvrNode = (struct REGSVRNODE *)malloc(sizeof(struct REGSVRNODE));
+	SeHashNodeInit(&pkRegSvrNode->kHashNode);
+	SeHashAdd(pkRegSvrList, id, &pkRegSvrNode->kHashNode);
+	return pkRegSvrNode;
+}
+
+void SeFreeRegSvrNode(struct SEHASH *pkRegSvrList)
+{
+	struct SEHASHNODE *pkHashNode;
+	struct REGSVRNODE *pkRegSvrNode;
+
+	pkHashNode = SeHashPop(pkRegSvrList);
+	while(pkHashNode)
+	{
+		pkRegSvrNode = SE_CONTAINING_RECORD(pkHashNode, struct SEHASHNODE, kHashNode);
+		free(pkRegSvrNode);
+		pkHashNode = SeHashPop(pkRegSvrList);
+	}
+}
+
 bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort)
 {
 	SeNetCoreInit(&pkMagicNetS->kNetCore, "magicnet.log", usMax);
@@ -54,6 +89,7 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsi
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 {
+	SeFreeRegSvrNode(&pkMagicNetS->kRegSvrList);
 	SeNetCoreFin(&pkMagicNetS->kNetCore);
 	SeHashFin(&pkMagicNetS->kRegSvrList);
 }
