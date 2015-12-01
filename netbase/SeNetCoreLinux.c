@@ -303,15 +303,14 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketListen)
 {
 	int iErrorno;
+	SOCKET kSocket;
 	HSOCKET kHSocket;
-	SOCKET kSocket, kListenSocket;
 	struct sockaddr ksockaddr;
 	struct SESOCKET *pkNetSocketAccept;
 	
-	kListenSocket = SeGetSocketByHScoket(pkNetSocketListen->kHSocket);
 	while(true)
 	{
-		kSocket = SeAccept(kListenSocket, &ksockaddr);
+		kSocket = SeAccept(SeGetSocketByHScoket(pkNetSocketListen->kHSocket), &ksockaddr);
 		if(kSocket == SE_INVALID_SOCKET)
 		{
 			iErrorno = SeErrno();
@@ -432,7 +431,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 {
 	bool bOK;
 	char *pcAddrIP;
-	SOCKET socket;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 
@@ -448,10 +446,9 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		{
 			SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
 			SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
-			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent);
+			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent);
 			*riLen = 0;
 			pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
 			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); }
