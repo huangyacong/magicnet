@@ -14,15 +14,7 @@ struct SENETSTREAMNODE *SeNetSreamNodeFormat(char *pcBuf, int iBufLen)
 	assert(sizeof(struct SENETSTREAMNODE) < iBufLen);
 	pkNetStreamNode = (struct SENETSTREAMNODE *)pcBuf;
 	pkNetStreamNode->pkBuf = pcBuf + sizeof(struct SENETSTREAMNODE);
-#if defined(_DEBUG)
-	assert(iBufLen > (sizeof(struct SENETSTREAMNODE + 2 + 2));
-	pkNetStreamNode->iMaxLen = iBufLen - sizeof(struct SENETSTREAMNODE) - 2;
-	pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 1] = 'A';
-	pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 2] = 'B';
-#else
-	assert(iBufLen > (sizeof(struct SENETSTREAMNODE + 2));
 	pkNetStreamNode->iMaxLen = iBufLen - sizeof(struct SENETSTREAMNODE);
-#endif
 	SeNetSreamNodeZero(pkNetStreamNode);
 	return pkNetStreamNode;
 }
@@ -33,10 +25,6 @@ void SeNetSreamNodeZero(struct SENETSTREAMNODE *pkNetStreamNode)
 	pkNetStreamNode->iReadPos = 0;
 	pkNetStreamNode->iWritePos = 0;
 	pkNetStreamNode->iFlag = 0;
-#if defined(_DEBUG)
-	assert(pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 1] == 'A');
-	assert(pkNetStreamNode->pkBuf[pkNetStreamNode->iMaxLen + 2] == 'B');
-#endif
 }
 
 int SeNetSreamCount(struct SENETSTREAM *pkNetStream)

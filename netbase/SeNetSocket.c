@@ -183,19 +183,23 @@ struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSoc
 	return 0;
 }
 
-void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iBufLen)
+void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iHeaderLen, int iBufLen)
 {
 	int i;
+	int iNode;
 	int iSize;
 	int iCount;
 	char *pcBuf;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 	
 	iSize = MAX_BUF_LEN;
-	assert(iSize > 0 && iBufLen > 0);
-	iBufLen = iBufLen < 0 ? 0 : iBufLen;
-	iCount = (int)(iBufLen / iSize) + 1;
-	iCount = iCount * 2;
+	iBufLen = iBufLen <= 0 ? 0 : iBufLen;
+
+	assert(iHeaderLen >= 0);
+	assert(iSize > (sizeof(struct SENETSTREAMNODE) + iHeaderLen));
+
+	iNode = iSize - (sizeof(struct SENETSTREAMNODE) + iHeaderLen);
+	iCount = ((iBufLen + (iNode - 1))/iNode)*2;
 	
 	if(SeNetSreamCount(&pkNetSocketMgr->kNetStreamIdle) >= iCount) return;
 
