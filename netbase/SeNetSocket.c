@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include "SeTool.h"
 
+#define MAX_BUF_LEN 1024*4
+
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
 	pkNetSocket->kHSocket = SeGetHSocket(0, 0, 0);
@@ -181,13 +183,15 @@ struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSoc
 	return 0;
 }
 
-void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iSize, int iBufLen)
+void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iBufLen)
 {
 	int i;
+	int iSize;
 	int iCount;
 	char *pcBuf;
 	struct SENETSTREAMNODE *pkNetStreamNode;
-
+	
+	iSize = MAX_BUF_LEN;
 	assert(iSize > 0 && iBufLen > 0);
 	iCount = (int)(iBufLen / iSize) + 1;
 	iCount = iCount * 2;
