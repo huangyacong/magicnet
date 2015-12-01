@@ -6,6 +6,7 @@ bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 {
 	if(iheaderlen == 2)
 	{
+		if(ilen < 0 || ilen > 0xFFFF) { return false; }
 		pcHeader[0] = (ilen >> 8) & 0xff;
 		pcHeader[1] = ilen & 0xff;
 		return true;
@@ -13,6 +14,7 @@ bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 
 	if(iheaderlen == 4)
 	{
+		if(ilen < 0 || ilen > (0xFFFF*2)) { return false; }
 		// 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。
 		pcHeader[3] = ((ilen & 0xFF000000) >> 24);
 		pcHeader[2] = ((ilen & 0x00FF0000) >> 16);
