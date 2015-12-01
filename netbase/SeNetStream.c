@@ -193,6 +193,7 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 {
 	int iPos;
 	bool bRet;
+	int iTotalLen;
 	int iCopyLen;
 	char acHeader[64];
 	struct SENETSTREAMNODE *pkNetStreamNode;
@@ -203,6 +204,15 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 
 	bRet = iHeaderSize == 0 ? true : pkSetHeaderLenFun(acHeader, iHeaderSize, iBufLen);
 	if(!bRet) return false;
+
+	// ¼ÆËã³¤¶È
+	pkNetStreamNode = SeNetSreamHeadPop(pkNetStreamIdle);
+	if(!pkNetStreamNode) return false;
+	SeNetSreamNodeZero(pkNetStreamNode);
+	iTotalLen = ((int)SeNetSreamCount(pkNetStreamIdle)) * pkNetStreamNode->iMaxLen;
+	SeNetSreamTailAdd(pkNetStreamIdle, pkNetStreamNode);
+	pkNetStreamNode = 0;
+	if(iTotalLen < (iBufLen + iHeaderSize)) return false;
 
 	pkNetStreamNode = SeNetSreamTailPop(pkNetStream);
 	if(pkNetStreamNode)

@@ -234,7 +234,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		{
 			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, MAX_BUF_LEN, SENETCORE_MAX_SOCKET_BUF_LEN);
 			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->pcBuf, iLen);
-			if(!bOk) { return false; }
+			if(!bOk) { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE RECV] recv data ERROR"); return false; }
 		}
 	}
 
