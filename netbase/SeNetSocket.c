@@ -193,7 +193,7 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	struct SENETSTREAMNODE *pkNetStreamNode;
 	
 	iSize = MAX_BUF_LEN;
-	iBufLen = iBufLen <= 1024 ? 0 : iBufLen;
+	iBufLen = iBufLen <= 0 ? 1024 : iBufLen;
 	
 	assert(iHeaderLen >= 0);
 	assert(iSize > (sizeof(struct SENETSTREAMNODE) + iHeaderLen));
