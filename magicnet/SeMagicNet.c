@@ -48,6 +48,15 @@ bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen)
 	return false;
 }
 
+struct REGSVRNODE
+{
+	unsigned int			uiSvrNo;
+	unsigned long long		llActive;
+	HSOCKET					kHSocket;
+	char					acName[128];
+	struct SEHASHNODE		kHashNode;
+};
+
 struct REGSVRNODE *SeGetRegSvrNode(struct SEHASH *pkRegSvrList, int id)
 {
 	struct SEHASHNODE *pkHashNode;
@@ -174,6 +183,7 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 		}
 		else if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
+			//svrname
 		}
 	}
 }

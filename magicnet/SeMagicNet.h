@@ -8,15 +8,6 @@
 #include "SeNetCore.h"
 #include "SeTime.h"
 
-struct REGSVRNODE
-{
-	unsigned int			uiSvrNo;
-	unsigned long long		llActive;
-	HSOCKET					kHSocket;
-	char					acName[128];
-	struct SEHASHNODE		kHashNode;
-};
-
 struct SEMAGICNETS
 {
 	HSOCKET					kHScoketIn;
