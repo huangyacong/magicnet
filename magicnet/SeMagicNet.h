@@ -10,9 +10,10 @@
 
 struct REGSVRNODE
 {
-	int						iSvrNo;
+	unsigned int			uiSvrNo;
 	unsigned long long		llActive;
 	HSOCKET					kHSocket;
+	char					acName[128];
 	struct SEHASHNODE		kHashNode;
 };
 
