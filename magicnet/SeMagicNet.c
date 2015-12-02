@@ -112,6 +112,7 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	bool result;
 	HSOCKET rkHSocket;
 	HSOCKET rkListenHSocket;
+	struct REGSVRNODE *pkSvrWatchdog;
 	
 	riLen = MAX_RECV_BUF_LEN;
 	result = SeNetCoreRead(&pkMagicNetS->kNetCore, 
@@ -123,7 +124,8 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	if(rkListenHSocket == pkMagicNetS->kHScoketOut)
 	{	
 		// watchdog is working? 
-		if(!SeGetRegSvrNode(&pkMagicNetS->kRegSvrList, 0))
+		pkSvrWatchdog = SeGetRegSvrNode(&pkMagicNetS->kRegSvrList, 0);
+		if(!pkSvrWatchdog)
 		{
 			SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket);
 			return;
