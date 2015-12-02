@@ -68,6 +68,18 @@ struct REGSVRNODE *SeAddRegSvrNode(struct SEHASH *pkRegSvrList, int id)
 	return pkRegSvrNode;
 }
 
+void SeDelRegSvrNode(struct SEHASH *pkRegSvrList, int id)
+{
+	struct SEHASHNODE *pkHashNode;
+	struct REGSVRNODE *pkRegSvrNode;
+
+	pkHashNode = SeHashGet(pkRegSvrList, id);
+	if (!pkHashNode) { return; }
+	pkRegSvrNode = SE_CONTAINING_RECORD(pkHashNode, struct REGSVRNODE, kHashNode);
+	SeHashRemove(pkRegSvrList, &pkRegSvrNode->kHashNode);
+	free(pkRegSvrNode);
+}
+
 void SeFreeRegSvrNode(struct SEHASH *pkRegSvrList)
 {
 	struct SEHASHNODE *pkHashNode;
