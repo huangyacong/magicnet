@@ -28,6 +28,7 @@ struct SEMAGICNETS
 struct SEMAGICNETC
 {
 	int						iSvrNo;
+	HSOCKET					kHSocket;
 	struct SENETCORE		kNetCore;
 };
 
