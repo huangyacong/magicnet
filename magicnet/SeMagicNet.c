@@ -115,6 +115,11 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 	SeHashFin(&pkMagicNetS->kRegSvrList);
 }
 
+#define SVR_TO_MAGICNET_REG_SVR 0
+#define SVR_TO_MAGICNET_SENDTO_SVR 1
+#define SVR_TO_MAGICNET_SENDTO_CLIENT 2
+
+
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 {
 	int riLen;

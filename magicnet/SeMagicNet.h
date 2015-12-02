@@ -25,6 +25,11 @@ struct SEMAGICNETS
 	char					*pcBuf;
 };
 
+#define CLIENT_CONNECT 0
+#define CLIENT_DISCONNECT 1
+#define RECV_DATA_FROM_SVR 2
+#define RECV_DATA_FROM_CLIENT 3
+
 bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
