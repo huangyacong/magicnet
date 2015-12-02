@@ -25,13 +25,6 @@ struct SEMAGICNETS
 	char					*pcBuf;
 };
 
-struct SEMAGICNETC
-{
-	int						iSvrNo;
-	HSOCKET					kHSocket;
-	struct SENETCORE		kNetCore;
-};
-
 bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
