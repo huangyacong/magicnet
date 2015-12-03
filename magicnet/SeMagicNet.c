@@ -5,6 +5,28 @@
 #define MAX_SVR_NAME_LEN 128
 #define MAX_RECV_BUF_LEN 1024*1024*4
 
+#define SVR_TO_MAGICNET_REG_SVR 0
+#define SVR_TO_MAGICNET_SENDTO_SVR 1
+#define SVR_TO_MAGICNET_SENDTO_CLIENT 2
+
+#define MAGICNET_TO_SVR_CLIENT_CONNECT 0
+#define MAGICNET_TO_SVR_CLIENT_DISCONNECT 1
+#define MAGICNET_TO_SVR_RECV_DATA_FROM_SVR 2
+#define MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT 3
+
+union COMMDATA
+{
+	HSOCKET			kHSocket;
+	char			acName[MAX_SVR_NAME_LEN];
+};
+
+struct SECOMMONDATA
+{
+	int				iProco;
+	union COMMDATA	kData;
+	int				iBufLen;
+};
+
 bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 {
 	if(iheaderlen == 2)
@@ -153,28 +175,6 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 	SeFreeRegSvrNode(&pkMagicNetS->kRegSvrList);
 	SeNetCoreFin(&pkMagicNetS->kNetCore);
 }
-
-#define SVR_TO_MAGICNET_REG_SVR 0
-#define SVR_TO_MAGICNET_SENDTO_SVR 1
-#define SVR_TO_MAGICNET_SENDTO_CLIENT 2
-
-#define MAGICNET_TO_SVR_CLIENT_CONNECT 0
-#define MAGICNET_TO_SVR_CLIENT_DISCONNECT 1
-#define MAGICNET_TO_SVR_RECV_DATA_FROM_SVR 2
-#define MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT 3
-
-union COMMDATA
-{
-	HSOCKET			kHSocket;
-	char			acName[MAX_SVR_NAME_LEN];
-};
-
-struct SECOMMONDATA
-{
-	int				iProco;
-	union COMMDATA	kData;
-	int				iBufLen;
-};
 
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 {
