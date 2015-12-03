@@ -23,14 +23,14 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
 
-enum SEE_SVR_STATE
+enum MAGIC_STATE
 {
-	SHUTDOWN_SVR = -1,
-	IDLE_SVR_DATA,
-	CLIENT_CONNECT,
-	CLIENT_DISCONNECT,
-	RECV_DATA_FROM_SVR,
-	RECV_DATA_FROM_CLIENT,
+	MAGIC_SHUTDOWN_SVR = -1,
+	MAGIC_IDLE_SVR_DATA,
+	MAGIC_CLIENT_CONNECT,
+	MAGIC_CLIENT_DISCONNECT,
+	MAGIC_RECV_DATA_FROM_SVR,
+	MAGIC_RECV_DATA_FROM_CLIENT,
 };
 
 char acWatchdogName[] = "watchdog.";
@@ -52,5 +52,7 @@ bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName);
 bool SeMagicNetCSendClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, const char *pcBuf, int iLen);
 
 bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, const char *pcBuf, int iLen);
+
+enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char *pcBuf, int *riBufLen);
 
 #endif

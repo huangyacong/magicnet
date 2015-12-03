@@ -332,7 +332,7 @@ bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName)
 			return true;
 		}
 
-		if (riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED || riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; return false; }
+		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED || riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; return false; }
 	}
 	return false;
 }
@@ -362,3 +362,45 @@ bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, 
 	return SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 }
 
+enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char *pcBuf, int *riBufLen)
+{
+	int riLen;
+	int rSSize;
+	int rRSize;
+	int riEvent;
+	bool result;
+	HSOCKET rkHSocket;
+	HSOCKET rkListenHSocket;
+	struct SECOMMONDATA *pkComData;
+
+	riLen = MAX_RECV_BUF_LEN;
+	result = SeNetCoreRead(&pkMagicNetC->kNetCore,
+		&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetC->pcRecvBuf, &riLen, &rSSize, &rRSize);
+	if(!result) { return MAGIC_IDLE_SVR_DATA; }
+	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { SeTimeSleep(1); return MAGIC_IDLE_SVR_DATA; }
+	assert(rkHSocket == pkMagicNetC->kHScoket);
+	if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; return MAGIC_SHUTDOWN_SVR; }
+
+	if(riEvent != SENETCORE_EVENT_SOCKET_RECV_DATA) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }
+	assert(riLen >= (int)sizeof(struct SECOMMONDATA));
+	pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcRecvBuf;
+	assert(pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA) == riLen);
+
+	if(pkComData->iProco == MAGICNET_TO_SVR_CLIENT_CONNECT || pkComData->iProco == MAGICNET_TO_SVR_CLIENT_DISCONNECT)
+	{
+		*rkRecvHSocket = pkComData->kData.kHSocket;
+		pcBuf = 0;
+		*riBufLen = 0;
+		return pkComData->iProco == MAGICNET_TO_SVR_CLIENT_CONNECT ? MAGIC_CLIENT_CONNECT : MAGIC_CLIENT_DISCONNECT;
+	}
+
+	if(pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_SVR || pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT)
+	{
+		*rkRecvHSocket = pkComData->kData.kHSocket;
+		pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
+		*riBufLen = pkComData->iBufLen;
+		return pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_SVR ? MAGIC_IDLE_SVR_DATA : MAGIC_RECV_DATA_FROM_CLIENT;
+	}
+
+	return MAGIC_IDLE_SVR_DATA;
+}
