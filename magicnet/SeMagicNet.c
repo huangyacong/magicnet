@@ -30,6 +30,14 @@ struct SECOMMONDATA
 	int				iBufLen;
 };
 
+struct REGSVRNODE
+{
+	struct SENODE			kNode;
+	unsigned long long		llActive;
+	HSOCKET					kHSocket;
+	char					acName[MAX_SVR_NAME_LEN];
+};
+
 bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 {
 	if(iheaderlen == 2)
@@ -73,14 +81,6 @@ bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen)
 
 	return false;
 }
-
-struct REGSVRNODE
-{
-	struct SENODE			kNode;
-	unsigned long long		llActive;
-	HSOCKET					kHSocket;
-	char					acName[MAX_SVR_NAME_LEN];
-};
 
 struct REGSVRNODE *SeGetRegSvrNodeBySvrName(struct SELIST *pkRegSvrList, const char *pcName)
 {
