@@ -15,7 +15,6 @@ struct SEMAGICNETS
 	struct SENETCORE		kNetCore;
 	struct SELIST			kRegSvrList;
 	char					*pcRecvBuf;
-	char					*pcSendBuf;
 };
 
 struct SEMAGICNETC
