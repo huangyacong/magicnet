@@ -163,13 +163,18 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 #define MAGICNET_TO_SVR_RECV_DATA_FROM_SVR 2
 #define MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT 3
 
+union COMMDATA
+{
+	HSOCKET			kHSocket;
+	char			acName[MAX_SVR_NAME_LEN];
+};
+
 struct SECOMMONDATA
 {
-	int		iProco;
-	int		iBufLen;
-	HSOCKET	kHSocket;
-	char	*pcBuf;
-	char	acName[MAX_SVR_NAME_LEN];
+	int				iProco;
+	union COMMDATA	kData;
+	int				iBufLen;
+	char			*pcBuf;
 };
 
 char acWatchdogName[] = "watchdog.";
