@@ -288,3 +288,24 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	}
 }
 
+bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, unsigned short usInPort)
+{
+	SeNetCoreInit(&pkMagicNetC->kNetCore, "magicnetsvr.log", 1);
+	pkMagicNetC->pcRecvBuf = (char*)malloc(MAX_RECV_BUF_LEN);
+	pkMagicNetC->pcSendBuf = (char*)malloc(MAX_RECV_BUF_LEN);
+	pkMagicNetC->llActive = SeTimeGetTickCount();
+
+	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", usInPort, 4, &SeGetHeader, &SeSetHeader);
+	if(pkMagicNetC->kHScoket <= 0) { SeMagicNetCFin(pkMagicNetC); return false; }
+
+	return true;
+}
+
+void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC)
+{
+	free(pkMagicNetC->pcRecvBuf);
+	free(pkMagicNetC->pcSendBuf);
+	SeNetCoreFin(&pkMagicNetC->kNetCore);
+	pkMagicNetC->kHScoket = 0;
+}
+
