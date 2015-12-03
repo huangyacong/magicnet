@@ -23,12 +23,15 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
 
-#define SHUTDOWN_SVR -1
-#define IDLE_SVR_DATA 0
-#define CLIENT_CONNECT 1
-#define CLIENT_DISCONNECT 2
-#define RECV_DATA_FROM_SVR 3
-#define RECV_DATA_FROM_CLIENT 4
+enum SEE_SVR_STATE
+{
+	SHUTDOWN_SVR  = -1,
+	IDLE_SVR_DATA,
+	CLIENT_CONNECT,
+	CLIENT_DISCONNECT,
+	RECV_DATA_FROM_SVR,
+	RECV_DATA_FROM_CLIENT,
+};
 
 char acWatchdogName[] = "watchdog.";
 
