@@ -650,4 +650,9 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	return !bWork;
 }
 
+struct SESOCKET *SeNetCoreGetSocket(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
+{
+	return SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+}
+
 #endif

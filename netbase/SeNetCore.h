@@ -42,4 +42,6 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket);
 
 bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize);
 
+struct SESOCKET *SeNetCoreGetSocket(struct SENETCORE *pkNetCore, HSOCKET kHSocket);
+
 #endif
