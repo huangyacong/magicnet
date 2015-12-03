@@ -98,6 +98,10 @@ struct REGSVRNODE *SeAddRegSvrNode(struct SELIST *pkRegSvrList, const char *pcNa
 
 	pkRegSvrNode = (struct REGSVRNODE *)malloc(sizeof(struct REGSVRNODE));
 	SeListInitNode(&pkRegSvrNode->kNode);
+	pkRegSvrNode->llActive = SeTimeGetTickCount();
+	pkRegSvrNode->kHSocket = kHSocket;
+	memset(pkRegSvrNode->acName, 0, sizeof(pkRegSvrNode->acName));
+	SeStrNcpy(pkRegSvrNode->acName, sizeof(pkRegSvrNode->acName), pcName);
 	SeListHeadAdd(pkRegSvrList, &pkRegSvrNode->kNode);
 	return pkRegSvrNode;
 }
@@ -240,11 +244,6 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 
 			pkSvr = SeAddRegSvrNode(&pkMagicNetS->kRegSvrList, acName, rkHSocket);
 			if (!pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
-			memset(pkSvr->acName, 0, sizeof(pkSvr->acName));
-
-			pkSvr->llActive = SeTimeGetTickCount();
-			pkSvr->kHSocket = rkHSocket;
-			SeStrNcpy(pkSvr->acName, sizeof(pkSvr->acName), acName);
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
