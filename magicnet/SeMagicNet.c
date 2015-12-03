@@ -169,6 +169,7 @@ struct SECOMMONDATA
 	int		iBufLen;
 	HSOCKET	kHSocket;
 	char	*pcBuf;
+	char	acName[MAX_SVR_NAME_LEN];
 };
 
 char acWatchdogName[] = "watchdog.";
@@ -180,10 +181,10 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	int rRSize;
 	int riEvent;
 	bool result;
-	char acName[256];
 	HSOCKET rkHSocket;
 	HSOCKET rkListenHSocket;
 	struct REGSVRNODE *pkSvr;
+	char acName[MAX_SVR_NAME_LEN];
 	struct SECOMMONDATA *pkComData;
 	struct REGSVRNODE *pkSvrWatchdog;
 	
@@ -223,9 +224,6 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 
 		if(pkComData->iProco == SVR_TO_MAGICNET_REG_SVR && riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
-			assert((sizeof(struct SECOMMONDATA) + pkComData->iBufLen) == riLen);
-			assert(sizeof(acName) > pkComData->iBufLen);
-
 			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, rkHSocket);
 			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 
@@ -235,15 +233,18 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 			pkComData->pcBuf = (char*)pkComData + sizeof(struct SECOMMONDATA);
 			memcpy(acName, pkComData->pcBuf, pkComData->iBufLen);
 			acName[pkComData->iBufLen - 1] = '\0';
+
+			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acName);
+			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 			
 			if(strcmp(acName, acWatchdogName) == 0)
 			{
 				pkSvrWatchdog = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acWatchdogName);
-				if (pkSvrWatchdog) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+				if(pkSvrWatchdog) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 			}
 
 			pkSvr = SeAddRegSvrNode(&pkMagicNetS->kRegSvrList, acName, rkHSocket);
-			if (!pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+			if(!pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
@@ -254,8 +255,6 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 		if((pkComData->iProco == SVR_TO_MAGICNET_SENDTO_SVR || pkComData->iProco == SVR_TO_MAGICNET_SENDTO_CLIENT) 
 				&& riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
-			assert((sizeof(struct SECOMMONDATA) + pkComData->iBufLen) == riLen);
-
 			pkSvrWatchdog = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acWatchdogName);
 			if(!pkSvrWatchdog) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 
