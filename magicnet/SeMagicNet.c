@@ -138,7 +138,8 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsi
 {
 	SeNetCoreInit(&pkMagicNetS->kNetCore, "magicnet.log", usMax);
 	SeListInit(&pkMagicNetS->kRegSvrList);
-	pkMagicNetS->pcBuf = (char*)malloc(MAX_RECV_BUF_LEN);
+	pkMagicNetS->pcRecvBuf = (char*)malloc(MAX_RECV_BUF_LEN);
+	pkMagicNetS->pcSendBuf = (char*)malloc(MAX_RECV_BUF_LEN);
 
 	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, 2, &SeGetHeader, &SeSetHeader);
 	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usOutPort, 4, &SeGetHeader, &SeSetHeader);
@@ -149,7 +150,8 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsi
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 {
-	free(pkMagicNetS->pcBuf);
+	free(pkMagicNetS->pcRecvBuf);
+	free(pkMagicNetS->pcSendBuf);
 	SeFreeRegSvrNode(&pkMagicNetS->kRegSvrList);
 	SeNetCoreFin(&pkMagicNetS->kNetCore);
 }
@@ -195,7 +197,7 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	
 	riLen = MAX_RECV_BUF_LEN;
 	result = SeNetCoreRead(&pkMagicNetS->kNetCore, 
-			&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetS->pcBuf, &riLen, &rSSize, &rRSize);
+		&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetS->pcRecvBuf, &riLen, &rSSize, &rRSize);
 	if(!result) { return; }
 	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { SeTimeSleep(1); return; }
 	
@@ -210,14 +212,25 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 			return;
 		}
 
-		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
+		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT || riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
 		{
+			pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcSendBuf;
+			pkComData->iProco = riEvent == SENETCORE_EVENT_SOCKET_CONNECT ? MAGICNET_TO_SVR_CLIENT_CONNECT : MAGICNET_TO_SVR_CLIENT_DISCONNECT;
+			pkComData->kData.kHSocket = rkHSocket;
+			pkComData->iBufLen = 0;
+			pkComData->pcBuf = 0;
+			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 		}
-		else if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
+
+		if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
-		}
-		else if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
-		{
+			pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcSendBuf;
+			pkComData->iProco = riEvent == MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT;
+			pkComData->kData.kHSocket = rkHSocket;
+			pkComData->iBufLen = riLen;
+			pkComData->pcBuf = pkMagicNetS->pcSendBuf + (int)sizeof(struct SECOMMONDATA);
+			memcpy(pkComData->pcBuf, pkMagicNetS->pcRecvBuf, pkComData->iBufLen);
+			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 		}
 	}
 	
@@ -225,30 +238,19 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	if(rkListenHSocket == pkMagicNetS->kHScoketIn)
 	{
 		if(riLen < sizeof(struct SECOMMONDATA)) { assert(0 != 0); return; }
-		pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcBuf;
+		pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcRecvBuf;
 
 		if(pkComData->iProco == SVR_TO_MAGICNET_REG_SVR && riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
-			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, rkHSocket);
-			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
-
 			if((sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
-			if(pkComData->iBufLen >= MAX_SVR_NAME_LEN || pkComData->iBufLen <= 0) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+			pkComData->kData.acName[MAX_SVR_NAME_LEN - 1] = '\0';
 
-			pkComData->pcBuf = (char*)pkComData + sizeof(struct SECOMMONDATA);
-			memcpy(acName, pkComData->pcBuf, pkComData->iBufLen);
-			acName[pkComData->iBufLen - 1] = '\0';
-
-			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acName);
+			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, rkHSocket);
+			if (pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, pkComData->kData.acName);
 			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
-			
-			if(strcmp(acName, acWatchdogName) == 0)
-			{
-				pkSvrWatchdog = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acWatchdogName);
-				if(pkSvrWatchdog) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
-			}
 
-			pkSvr = SeAddRegSvrNode(&pkMagicNetS->kRegSvrList, acName, rkHSocket);
+			pkSvr = SeAddRegSvrNode(&pkMagicNetS->kRegSvrList, pkComData->kData.acName, rkHSocket);
 			if(!pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 		}
 
@@ -268,16 +270,25 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 
 			if((sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { return; }
 			if(pkComData->iBufLen < 0 || pkComData->iBufLen > (0xFFFF*2)) { return; }
-			pkComData->pcBuf = (char*)pkComData + sizeof(struct SECOMMONDATA);
+			pkComData->pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
 			
 			if(pkComData->iProco == SVR_TO_MAGICNET_SENDTO_SVR)
 			{
-				
+				pkComData->kData.acName[MAX_SVR_NAME_LEN - 1] = '\0';
+				memset(acName, 0, sizeof(acName));
+				SeStrNcpy(acName, sizeof(acName), pkComData->kData.acName);
+				pkComData->kData.kHSocket = pkSvr->kHSocket;
+				pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acName);
+				if (!pkSvr) { return; }
+
+				pkComData->iProco = MAGICNET_TO_SVR_RECV_DATA_FROM_SVR;
+				SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, riLen);
 			}
 			else
 			{
-				
+				SeNetCoreSend(&pkMagicNetS->kNetCore, pkComData->kData.kHSocket, pkComData->pcBuf, pkComData->iBufLen);
 			}
 		}
 	}
 }
+

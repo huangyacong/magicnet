@@ -14,7 +14,8 @@ struct SEMAGICNETS
 	HSOCKET					kHScoketOut;
 	struct SENETCORE		kNetCore;
 	struct SELIST			kRegSvrList;
-	char					*pcBuf;
+	char					*pcRecvBuf;
+	char					*pcSendBuf;
 };
 
 #define SHUTDOWN_SVR -1
