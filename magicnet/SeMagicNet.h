@@ -25,7 +25,7 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
 
 enum SEE_SVR_STATE
 {
-	SHUTDOWN_SVR  = -1,
+	SHUTDOWN_SVR = -1,
 	IDLE_SVR_DATA,
 	CLIENT_CONNECT,
 	CLIENT_DISCONNECT,
