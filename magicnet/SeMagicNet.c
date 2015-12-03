@@ -19,15 +19,15 @@
 
 union COMMDATA
 {
-	HSOCKET			kHSocket;
-	char			acName[MAX_SVR_NAME_LEN];
+	HSOCKET					kHSocket;
+	char					acName[MAX_SVR_NAME_LEN];
 };
 
 struct SECOMMONDATA
 {
-	int				iProco;
-	union COMMDATA	kData;
-	int				iBufLen;
+	int						iProco;
+	union COMMDATA			kData;
+	int						iBufLen;
 };
 
 struct REGSVRNODE
