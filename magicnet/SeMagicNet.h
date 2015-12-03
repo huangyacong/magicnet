@@ -13,7 +13,7 @@ struct SEMAGICNETS
 	HSOCKET					kHScoketIn;
 	HSOCKET					kHScoketOut;
 	struct SENETCORE		kNetCore;
-	struct SEHASH			kRegSvrList;
+	struct SELIST			kRegSvrList;
 	char					*pcBuf;
 };
 

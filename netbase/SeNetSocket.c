@@ -196,9 +196,9 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	iBufLen = iBufLen <= 0 ? 1024 : iBufLen;
 	
 	assert(iHeaderLen >= 0);
-	assert(iSize > (sizeof(struct SENETSTREAMNODE) + iHeaderLen));
+	assert(iSize > (int)(sizeof(struct SENETSTREAMNODE) + iHeaderLen));
 
-	iNode = iSize - (sizeof(struct SENETSTREAMNODE) + iHeaderLen);
+	iNode = iSize - (int)(sizeof(struct SENETSTREAMNODE) + iHeaderLen);
 	iCount = ((iBufLen + (iNode - 1))/iNode)*2;
 	
 	if(SeNetSreamCount(&pkNetSocketMgr->kNetStreamIdle) >= iCount) return;
