@@ -17,23 +17,11 @@ struct SEMAGICNETS
 	char					*pcRecvBuf;
 };
 
-struct SEMAGICNETC
-{
-	HSOCKET					kHScoket;
-	unsigned long long		llActive;
-	struct SENETCORE		kNetCore;
-	char					*pcRecvBuf;
-	char					*pcSendBuf;
-};
-
-
 bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
-
-
 
 #define SHUTDOWN_SVR -1
 #define IDLE_SVR_DATA 0
@@ -42,10 +30,24 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
 #define RECV_DATA_FROM_SVR 3
 #define RECV_DATA_FROM_CLIENT 4
 
+char acWatchdogName[] = "watchdog.";
 
+struct SEMAGICNETC
+{
+	HSOCKET					kHScoket;
+	unsigned long long		llActive;
+	struct SENETCORE		kNetCore;
+	char					*pcRecvBuf;
+};
 
 bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, unsigned short usInPort);
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
+
+bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName);
+
+bool SeMagicNetCSendClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, const char *pcBuf, int iLen);
+
+bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, const char *pcBuf, int iLen);
 
 #endif
