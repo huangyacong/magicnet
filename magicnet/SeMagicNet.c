@@ -238,8 +238,8 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 			pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcRecvBuf;
 			pkComData->iProco = riEvent == SENETCORE_EVENT_SOCKET_CONNECT ? MAGICNET_TO_SVR_CLIENT_CONNECT : MAGICNET_TO_SVR_CLIENT_DISCONNECT;
 			pkComData->kData.kHSocket = rkHSocket;
-			pkComData->iBufLen = 0;
-			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, (int)sizeof(struct SECOMMONDATA));
+			pkComData->iBufLen = riLen;
+			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
@@ -255,6 +255,8 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	//  ÄÚÍø
 	if(rkListenHSocket == pkMagicNetS->kHScoketIn)
 	{
+		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT || riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED) { return; }
+
 		if(riLen < (int)sizeof(struct SECOMMONDATA)) { assert(0 != 0); return; }
 		pkComData = (struct SECOMMONDATA *)(pkMagicNetS->pcRecvBuf + (int)sizeof(struct SECOMMONDATA));
 
@@ -438,6 +440,8 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	if(!result) { return MAGIC_IDLE_SVR_DATA; }
 	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { SeTimeSleep(1); return MAGIC_IDLE_SVR_DATA; }
 	assert(rkHSocket == pkMagicNetC->kHScoket);
+	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here
+	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here
 	if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; return MAGIC_SHUTDOWN_SVR; }
 
 	if(riEvent != SENETCORE_EVENT_SOCKET_RECV_DATA) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here
