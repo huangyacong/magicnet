@@ -62,7 +62,7 @@ int main()
 	num = 0;
 	timer = SeTimeGetTickCount();
 
-	SeNetCoreInit(&kNet, "out.txt", 1000);
+	SeNetCoreInit(&kNet, "out.txt", 1000*30, 1000);
 	khsocket = SeNetCoreTCPListen(&kNet, "0.0.0.0", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
 	socket = SeNetCoreTCPClient(&kNet, "127.0.0.1", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
 	

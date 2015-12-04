@@ -21,7 +21,7 @@ int main()
 	HSOCKET kHSocketA, kHSocketB, kHSocketC;
 	struct SESOCKETMGR kTest;
 
-	SeNetSocketMgrInit(&kTest, 3);
+	SeNetSocketMgrInit(&kTest, 3, 3);
 
 	
 	kHSocketA = SeNetSocketMgrAdd(&kTest, 1, 1, 0, get, set);
