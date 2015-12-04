@@ -27,7 +27,7 @@ int main()
 
 		if (state == MAGIC_CLIENT_CONNECT)
 		{
-			assert(sizeof(acbug > riBufLen);
+			assert(sizeof(acbug) > riBufLen);
 			memset(acbug, 0, sizeof(acbug));
 			memcpy(acbug, pcBuf, riBufLen);
 			printf("Client  connect! %llu %s %d\n", rkRecvHSocket, acbug, riBufLen);
@@ -41,7 +41,7 @@ int main()
 
 		if (state == MAGIC_RECV_DATA_FROM_CLIENT)
 		{
-			assert(sizeof(acbug > riBufLen);
+			assert(sizeof(acbug) > riBufLen);
 			memset(acbug, 0, sizeof(acbug));
 			memcpy(acbug, pcBuf, riBufLen);
 			printf("recv from client! %llu %s\n", rkRecvHSocket, acbug);
@@ -51,7 +51,7 @@ int main()
 
 		if (state == MAGIC_RECV_DATA_FROM_SVR)
 		{
-			assert(sizeof(acbug > riBufLen);
+			assert(sizeof(acbug) > riBufLen);
 			memset(acbug, 0, sizeof(acbug));
 			memcpy(acbug, pcBuf, riBufLen);
 			printf("recv from svr! %llu %s %d\n", rkRecvHSocket, acbug, riBufLen);
