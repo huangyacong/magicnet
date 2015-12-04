@@ -353,6 +353,9 @@ bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName)
 	HSOCKET rkListenHSocket;
 	struct SECOMMONDATA *pkComData;
 
+	assert((int)strlen(pcSvrName) > 0);
+	assert(MAX_SVR_NAME_LEN > (int)strlen(pcSvrName));
+
 	while(true)
 	{
 		riLen = MAX_RECV_BUF_LEN;
