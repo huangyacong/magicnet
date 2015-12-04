@@ -162,9 +162,9 @@ void SeFreeRegSvrNode(struct SELIST *pkRegSvrList)
 	}
 }
 
-bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort)
+bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort)
 {
-	SeNetCoreInit(&pkMagicNetS->kNetCore, "magicnet.log", usMax);
+	SeNetCoreInit(&pkMagicNetS->kNetCore, pcLogName, usMax);
 	SeListInit(&pkMagicNetS->kRegSvrList);
 	pkMagicNetS->pcRecvBuf = (char*)malloc(MAX_RECV_BUF_LEN);
 
@@ -323,9 +323,9 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 	}
 }
 
-bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, unsigned short usInPort)
+bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, unsigned short usInPort)
 {
-	SeNetCoreInit(&pkMagicNetC->kNetCore, "magicnetsvr.log", 1);
+	SeNetCoreInit(&pkMagicNetC->kNetCore, pcLogName, 1);
 	pkMagicNetC->pcRecvBuf = (char*)malloc(MAX_RECV_BUF_LEN);
 	pkMagicNetC->llActive = SeTimeGetTickCount();
 
