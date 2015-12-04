@@ -466,7 +466,7 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 		*rkRecvHSocket = pkComData->kData.kHSocket;
 		*pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
 		*riBufLen = pkComData->iBufLen;
-		return pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_SVR ? MAGIC_IDLE_SVR_DATA : MAGIC_RECV_DATA_FROM_CLIENT;
+		return pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_SVR ? MAGIC_RECV_DATA_FROM_SVR : MAGIC_RECV_DATA_FROM_CLIENT;
 	}
 	
 	// no call here
