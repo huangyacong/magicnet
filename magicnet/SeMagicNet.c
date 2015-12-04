@@ -414,7 +414,7 @@ bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, 
 	return SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 }
 
-enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char *pcBuf, int *riBufLen)
+enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char **pcBuf, int *riBufLen)
 {
 	int riLen;
 	int rSSize;
@@ -456,7 +456,7 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	if(pkComData->iProco == MAGICNET_TO_SVR_CLIENT_CONNECT || pkComData->iProco == MAGICNET_TO_SVR_CLIENT_DISCONNECT)
 	{
 		*rkRecvHSocket = pkComData->kData.kHSocket;
-		pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
+		*pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
 		*riBufLen = pkComData->iBufLen;
 		return pkComData->iProco == MAGICNET_TO_SVR_CLIENT_CONNECT ? MAGIC_CLIENT_CONNECT : MAGIC_CLIENT_DISCONNECT;
 	}
@@ -464,7 +464,7 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	if(pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_SVR || pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT)
 	{
 		*rkRecvHSocket = pkComData->kData.kHSocket;
-		pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
+		*pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
 		*riBufLen = pkComData->iBufLen;
 		return pkComData->iProco == MAGICNET_TO_SVR_RECV_DATA_FROM_SVR ? MAGIC_IDLE_SVR_DATA : MAGIC_RECV_DATA_FROM_CLIENT;
 	}
