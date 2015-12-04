@@ -18,6 +18,8 @@
 #define MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT 3
 #define MAGICNET_TO_SVR_ACTIVE 4
 
+char acWatchdogName[] = "watchdog.";
+
 union COMMDATA
 {
 	HSOCKET					kHSocket;

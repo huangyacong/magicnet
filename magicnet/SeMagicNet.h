@@ -33,8 +33,6 @@ enum MAGIC_STATE
 	MAGIC_RECV_DATA_FROM_CLIENT,
 };
 
-char acWatchdogName[] = "watchdog.";
-
 struct SEMAGICNETC
 {
 	HSOCKET					kHScoket;
