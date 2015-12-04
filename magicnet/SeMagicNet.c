@@ -238,7 +238,7 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 			pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcRecvBuf;
 			pkComData->iProco = riEvent == SENETCORE_EVENT_SOCKET_CONNECT ? MAGICNET_TO_SVR_CLIENT_CONNECT : MAGICNET_TO_SVR_CLIENT_DISCONNECT;
 			pkComData->kData.kHSocket = rkHSocket;
-			pkComData->iBufLen = riLen;
+			pkComData->iBufLen = riEvent == SENETCORE_EVENT_SOCKET_CONNECT ? riLen : 0;
 			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 		}
 
