@@ -192,14 +192,14 @@ void SeMagicNetSSendActive(struct SEMAGICNETS *pkMagicNetS)
 	while(pkNode)
 	{
 		pkSvr = SE_CONTAINING_RECORD(pkNode, struct REGSVRNODE, kNode);
-		if((pkSvr->llActive + MAGICNET_TIME_OUT) > SeTimeGetTickCount()) { continue; }
-		
-		pkSvr->llActive = SeTimeGetTickCount();
-		pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcRecvBuf;
-		pkComData->iProco = MAGICNET_TO_SVR_ACTIVE;
-		pkComData->iBufLen = 0;
-		SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, (int)sizeof(struct SECOMMONDATA));
-
+		if((pkSvr->llActive + MAGICNET_TIME_OUT) <= SeTimeGetTickCount())
+		{
+			pkSvr->llActive = SeTimeGetTickCount();
+			pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcRecvBuf;
+			pkComData->iProco = MAGICNET_TO_SVR_ACTIVE;
+			pkComData->iBufLen = 0;
+			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, (int)sizeof(struct SECOMMONDATA));
+		}
 		pkNode = pkNode->next;
 	}
 }
