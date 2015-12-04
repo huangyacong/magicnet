@@ -2,7 +2,7 @@
 #include "SeTool.h"
 #include "SeTime.h"
 
-#define MAGICNET_TIME_OUT 10
+#define MAGICNET_TIME_OUT 1000*10 // sec
 #define MAX_SVR_NAME_LEN 128
 #define MAX_RECV_BUF_LEN 1024*1024*4
 
