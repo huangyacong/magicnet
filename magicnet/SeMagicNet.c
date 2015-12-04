@@ -9,7 +9,8 @@
 #define SVR_TO_MAGICNET_REG_SVR 0
 #define SVR_TO_MAGICNET_SENDTO_SVR 1
 #define SVR_TO_MAGICNET_SENDTO_CLIENT 2
-#define SVR_TO_MAGICNET_ACTIVE 3
+#define SVR_TO_MAGICNET_CLOSE_CLIENT 3
+#define SVR_TO_MAGICNET_ACTIVE 4
 
 #define MAGICNET_TO_SVR_CLIENT_CONNECT 0
 #define MAGICNET_TO_SVR_CLIENT_DISCONNECT 1
@@ -259,13 +260,20 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 
 		if(pkComData->iProco == SVR_TO_MAGICNET_ACTIVE) { return; }
 
+		if(pkComData->iProco == SVR_TO_MAGICNET_CLOSE_CLIENT)
+		{
+			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkComData->kData.kHSocket);
+			if(pkSvr) { return; }
+			SeNetCoreDisconnect(&pkMagicNetS->kNetCore, pkComData->kData.kHSocket);
+		}
+
 		if(pkComData->iProco == SVR_TO_MAGICNET_REG_SVR && riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
 			if(((int)sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 			pkComData->kData.acName[sizeof(pkComData->kData.acName) - 1] = '\0';
 
 			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, rkHSocket);
-			if (pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, pkComData->kData.acName);
 			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 
@@ -376,6 +384,17 @@ bool SeMagicNetCSendClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, co
 	pkComData->iBufLen = iLen;
 	memcpy(pkMagicNetC->pcRecvBuf + (int)sizeof(struct SECOMMONDATA), pcBuf, pkComData->iBufLen);
 	return SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
+}
+
+void SeMagicNetCCloseClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket)
+{
+	struct SECOMMONDATA *pkComData;
+
+	pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcRecvBuf;
+	pkComData->iProco = SVR_TO_MAGICNET_CLOSE_CLIENT;
+	pkComData->kData.kHSocket = kHSocket;
+	pkComData->iBufLen = 0;
+	return SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, (int)sizeof(struct SECOMMONDATA));
 }
 
 bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, const char *pcBuf, int iLen)
