@@ -19,7 +19,6 @@ int main()
 
 	while (1)
 	{
-		//printf("aaaaaaaaaaa\n");
 		pcBuf = 0;
 		state = SeMagicNetCRead(&kTest, &rkRecvHSocket, &pcBuf, &riBufLen);
 		if (state == MAGIC_SHUTDOWN_SVR) { printf("gate close\n"); break; }
@@ -27,17 +26,21 @@ int main()
 
 		if (state == MAGIC_CLIENT_CONNECT)
 		{
-			printf("Client  connect! %llu\n", rkRecvHSocket);
+			printf("game Client  connect! %llu\n", rkRecvHSocket);
 		}
 
 		if (state == MAGIC_CLIENT_DISCONNECT)
 		{
-			printf("Client  disconnect! %llu\n", rkRecvHSocket);
+			printf("game Client  disconnect! %llu\n", rkRecvHSocket);
 		}
 
 		if (state == MAGIC_RECV_DATA_FROM_CLIENT)
 		{
-			printf("recv from client! %llu %d\n", rkRecvHSocket, riBufLen);
+			assert(sizeof(acbug) > riBufLen);
+			memset(acbug, 0, sizeof(acbug));
+			memcpy(acbug, pcBuf, riBufLen);
+			printf("game recv from client! %llu %s %d\n", rkRecvHSocket, acbug, riBufLen);
+			SeMagicNetCSendClient(&kTest, rkRecvHSocket, acbug, riBufLen);
 		}
 
 		if (state == MAGIC_RECV_DATA_FROM_SVR)
@@ -45,7 +48,7 @@ int main()
 			assert(sizeof(acbug) > riBufLen);
 			memset(acbug, 0, sizeof(acbug));
 			memcpy(acbug, pcBuf, riBufLen);
-			printf("recv from svr! %llu %s %d\n", rkRecvHSocket, acbug, riBufLen);
+			printf("game recv from svr! %llu %s %d\n", rkRecvHSocket, acbug, riBufLen);
 		}
 	}
 

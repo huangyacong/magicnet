@@ -32,11 +32,13 @@ int main()
 			memcpy(acbug, pcBuf, riBufLen);
 			printf("Client  connect! %llu %s %d\n", rkRecvHSocket, acbug, riBufLen);
 			//SeMagicNetCCloseClient(&kTest, rkRecvHSocket);
+			SeMagicNetCBindClientToSvr(&kTest, rkRecvHSocket, "game");
 		}
 
 		if (state == MAGIC_CLIENT_DISCONNECT)
 		{
 			printf("Client  disconnect! %llu %d\n", rkRecvHSocket, riBufLen);
+			
 		}
 
 		if (state == MAGIC_RECV_DATA_FROM_CLIENT)
@@ -46,6 +48,7 @@ int main()
 			memcpy(acbug, pcBuf, riBufLen);
 			printf("recv from client! %llu %s\n", rkRecvHSocket, acbug);
 			SeMagicNetCSendSvr(&kTest, "game", acbug, riBufLen);
+			
 			SeMagicNetCSendClient(&kTest, rkRecvHSocket, acbug, riBufLen);
 		}
 
