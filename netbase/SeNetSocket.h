@@ -47,6 +47,7 @@ struct SESOCKETMGR
 {
 	int						iMax;
 	int						iCounter;
+	unsigned long long		llTimeOut;
 	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SEHASH			kMainList;
@@ -55,7 +56,7 @@ struct SESOCKETMGR
 	struct SEHASH			kRecvList;
 };
 
-void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax);
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, int iTimeOut, unsigned short usMax);
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr);
 

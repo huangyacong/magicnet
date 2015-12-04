@@ -26,7 +26,7 @@ struct SENETCORE
 #endif
 };
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax);
+void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax);
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore);
 

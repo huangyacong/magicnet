@@ -33,12 +33,13 @@ void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
 	SeHashNodeInit(&pkNetSocket->kRecvNode);
 }
 
-void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax)
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, int iTimeOut, unsigned short usMax)
 {
 	int i;
 
 	assert(usMax > 0);
 	pkNetSocketMgr->iCounter = 0;
+	pkNetSocketMgr->llTimeOut = iTimeOut;
 	pkNetSocketMgr->iMax = usMax;
 	SeNetSreamInit(&pkNetSocketMgr->kNetStreamIdle);
 	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)malloc(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
@@ -241,7 +242,7 @@ const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 	pkHashNode = SeHashGetHead(&pkNetSocketMgr->kActiveMainList);
 	if(!pkHashNode) { return 0; }
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
-	if((pkNetSocket->llTime + 30*1000) > SeTimeGetTickCount()) { return 0; }
+	if((pkNetSocket->llTime + pkNetSocketMgr->llTimeOut) > SeTimeGetTickCount()) { return 0; }
 	return pkNetSocket;
 }
 

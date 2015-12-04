@@ -17,12 +17,12 @@ struct IODATA
 	char		acData[1024*4];
 };
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax)
+void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax)
 {
 	SeNetBaseInit();
 	pkNetCore->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
-	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
+	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
 	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
 	SeAddLogLV(&pkNetCore->kLog, LT_SOCKET);
 }

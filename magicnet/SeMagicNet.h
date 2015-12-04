@@ -17,7 +17,7 @@ struct SEMAGICNETS
 	char					*pcRecvBuf;
 };
 
-bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
+bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
@@ -41,7 +41,7 @@ struct SEMAGICNETC
 	char					*pcRecvBuf;
 };
 
-bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, unsigned short usInPort);
+bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort);
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
 
