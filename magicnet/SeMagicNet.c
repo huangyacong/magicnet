@@ -425,6 +425,8 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	HSOCKET rkListenHSocket;
 	struct SECOMMONDATA *pkComData;
 
+	if(pkMagicNetC->kHScoket <= 0) { return MAGIC_SHUTDOWN_SVR; }
+
 	if((pkMagicNetC->llActive + MAGICNET_TIME_OUT) <= SeTimeGetTickCount())
 	{
 		pkMagicNetC->llActive = SeTimeGetTickCount();
