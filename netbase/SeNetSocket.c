@@ -15,7 +15,7 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->iHeaderLen = 0;
 	pkNetSocket->iTypeSocket = 0;
 	pkNetSocket->iEventSocket = 0;
-	pkNetSocket->llFlag = -1;
+	pkNetSocket->llFlag = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
 }
