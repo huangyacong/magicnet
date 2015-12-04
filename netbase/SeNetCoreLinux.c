@@ -213,9 +213,11 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	int iLen;
 	bool bOk;
+	bool bRecv;
 	int iErrorno;
 	SOCKET socket;
-
+	
+	bRecv = false;
 	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 
 	while(true)
@@ -234,11 +236,14 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		}
 		else
 		{
+			bRecv = true;
 			SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, iLen);
 			bOk = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkNetCore->pcBuf, iLen);
 			if(!bOk) { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE RECV] recv data ERROR"); return false; }
 		}
 	}
+
+	if(bRecv) { SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket); }
 
 	return true;
 }
@@ -433,6 +438,17 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	char *pcAddrIP;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
+	const struct SESOCKET *pkConstNetSocket;
+
+	pkConstNetSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
+	if(pkConstNetSocket)
+	{
+		if(pkConstNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkConstNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TIME OUT] Socket time out");
+			SeNetCoreDisconnect(pkNetCore, pkConstNetSocket->kHSocket);
+		}
+	}
 
 	do
 	{

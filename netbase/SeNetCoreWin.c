@@ -518,6 +518,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 
 	if(pkIOData->iOPType == OP_TYPE_RECV)
 	{
+		SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket);
 		SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, dwLen);
 		bOK = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, &pkNetCore->kSocketMgr.kNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkIOData->kBuf.buf, dwLen);
 		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE RECV] recv data ERROR"); return; }
@@ -547,6 +548,17 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	SOCKET socket;
 	char *pcAddrIP;
 	struct SESOCKET *pkNetSocket;
+	const struct SESOCKET *pkConstNetSocket;
+
+	pkConstNetSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
+	if(pkConstNetSocket)
+	{
+		if(pkConstNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkConstNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TIME OUT] Socket time out");
+			SeNetCoreDisconnect(pkNetCore, pkConstNetSocket->kHSocket);
+		}
+	}
 
 	do
 	{

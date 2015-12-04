@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "SeTool.h"
+#include "SeTime.h"
 
 #define MAX_BUF_LEN 1024*4
 
@@ -16,6 +17,7 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->iTypeSocket = 0;
 	pkNetSocket->iEventSocket = 0;
 	pkNetSocket->llFlag = 0;
+	pkNetSocket->llTime = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
 }
@@ -41,6 +43,7 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax
 	SeNetSreamInit(&pkNetSocketMgr->kNetStreamIdle);
 	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)malloc(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
 	SeHashInit(&pkNetSocketMgr->kMainList, pkNetSocketMgr->iMax);
+	SeHashInit(&pkNetSocketMgr->kActiveMainList, pkNetSocketMgr->iMax);
 	SeHashInit(&pkNetSocketMgr->kSendList, pkNetSocketMgr->iMax);
 	SeHashInit(&pkNetSocketMgr->kRecvList, pkNetSocketMgr->iMax);
 
@@ -84,6 +87,7 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 
 	free(pkNetSocketMgr->pkSeSocket);
 	SeHashFin(&pkNetSocketMgr->kMainList);
+	SeHashFin(&pkNetSocketMgr->kActiveMainList);
 	SeHashFin(&pkNetSocketMgr->kSendList);
 	SeHashFin(&pkNetSocketMgr->kRecvList);
 }
@@ -101,10 +105,16 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 	SeNetSocketReset(pkNetSocket);
 	pkNetSocketMgr->iCounter++;
 
+	if(iTypeSocket == CLIENT_TCP_TYPE_SOCKET || iTypeSocket == ACCEPT_TCP_TYPE_SOCKET )
+	{
+		SeHashAdd(&pkNetSocketMgr->kActiveMainList, pkNetSocket->usIndex, &pkNetSocket->kMainNode);
+	}
+
 	pkNetSocket->kHSocket = SeGetHSocket((unsigned short)pkNetSocketMgr->iCounter, pkNetSocket->usIndex, socket);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = iHeaderLen;
 	pkNetSocket->iTypeSocket = iTypeSocket;
+	pkNetSocket->llTime = SeTimeGetTickCount();
 	pkNetSocket->pkGetHeaderLenFun = pkGetHeaderLenFun;
 	pkNetSocket->pkSetHeaderLenFun = pkSetHeaderLenFun;
 
@@ -140,6 +150,7 @@ void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket)
 	pkHashNode = SeHashGet(&pkNetSocketMgr->kRecvList, pkNetSocket->usIndex);
 	if(pkHashNode) { assert(&pkNetSocket->kRecvNode == pkHashNode); SeHashRemove(&pkNetSocketMgr->kRecvList, pkHashNode); }
 	SeNetSocketReset(pkNetSocket);
+	if(SeHashGet(&pkNetSocketMgr->kActiveMainList, pkNetSocket->usIndex)) { SeHashRemove(&pkNetSocketMgr->kActiveMainList, &pkNetSocket->kMainNode); }
 	SeHashAdd(&pkNetSocketMgr->kMainList, pkNetSocket->usIndex, &pkNetSocket->kMainNode);
 }
 
@@ -212,6 +223,26 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 		SeNetSreamNodeZero(pkNetStreamNode);
 		SeNetSreamHeadAdd(&pkNetSocketMgr->kNetStreamIdle, pkNetStreamNode);
 	}
+}
+
+void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket)
+{
+	pkNetSocket->llTime = SeTimeGetTickCount();
+	if(!SeHashGet(&pkNetSocketMgr->kActiveMainList, pkNetSocket->usIndex)) { return; }
+	SeHashRemove(&pkNetSocketMgr->kActiveMainList, &pkNetSocket->kMainNode);
+	SeHashAdd(&pkNetSocketMgr->kActiveMainList, pkNetSocket->usIndex, &pkNetSocket->kMainNode);
+}
+
+const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
+{
+	struct SESOCKET *pkNetSocket;
+	struct SEHASHNODE *pkHashNode;
+
+	pkHashNode = SeHashGetHead(&pkNetSocketMgr->kActiveMainList);
+	if(!pkHashNode) { return 0; }
+	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
+	if((pkNetSocket->llTime + 30*1000) > SeTimeGetTickCount()) { return 0; }
+	return pkNetSocket;
 }
 
 bool SeNetSocketMgrHasEvent(struct SESOCKET *pkNetSocket, int iEventSocket)

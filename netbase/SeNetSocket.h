@@ -32,6 +32,7 @@ struct SESOCKET
 	int						iTypeSocket;
 	int						iEventSocket;
 	long long				llFlag;
+	unsigned long long		llTime;
 	struct sockaddr_in		kRemoteAddr;
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
@@ -49,6 +50,7 @@ struct SESOCKETMGR
 	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SEHASH			kMainList;
+	struct SEHASH			kActiveMainList;
 	struct SEHASH			kSendList;
 	struct SEHASH			kRecvList;
 };
@@ -69,6 +71,10 @@ void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struc
 struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSocketMgr, bool bSendOrRecv);
 
 void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iHeaderLen, int iBufLen);
+
+void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket);
+
+const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr);
 
 bool SeNetSocketMgrHasEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
 
