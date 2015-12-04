@@ -456,8 +456,8 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	if(pkComData->iProco == MAGICNET_TO_SVR_CLIENT_CONNECT || pkComData->iProco == MAGICNET_TO_SVR_CLIENT_DISCONNECT)
 	{
 		*rkRecvHSocket = pkComData->kData.kHSocket;
-		pcBuf = 0;
-		*riBufLen = 0;
+		pcBuf = (char*)pkComData + (int)sizeof(struct SECOMMONDATA);
+		*riBufLen = pkComData->iBufLen;
 		return pkComData->iProco == MAGICNET_TO_SVR_CLIENT_CONNECT ? MAGIC_CLIENT_CONNECT : MAGIC_CLIENT_DISCONNECT;
 	}
 
