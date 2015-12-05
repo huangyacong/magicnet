@@ -11,8 +11,9 @@
 #include <time.h>
 
 #ifdef __linux
-
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE
+#endif
 #include <unistd.h>
 
 #elif (defined(_WIN32) || defined(WIN32))
