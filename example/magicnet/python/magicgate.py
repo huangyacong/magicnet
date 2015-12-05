@@ -1,0 +1,34 @@
+﻿import magicnet
+
+'''
+MagicGateInit = magicnet.GateInit
+MagicGateFin = magicnet.GateFin
+MagicGateProcess = magicnet.GateProcess
+
+MAGIC_SHUTDOWN_SVR = magicnet.MAGIC_SHUTDOWN_SVR
+MAGIC_IDLE_SVR_DATA = magicnet.MAGIC_IDLE_SVR_DATA
+MAGIC_CLIENT_CONNECT = magicnet.MAGIC_CLIENT_CONNECT
+MAGIC_CLIENT_DISCONNECT = magicnet.MAGIC_CLIENT_DISCONNECT
+MAGIC_RECV_DATA_FROM_SVR = magicnet.MAGIC_RECV_DATA_FROM_SVR
+MAGIC_RECV_DATA_FROM_CLIENT = magicnet.MAGIC_RECV_DATA_FROM_CLIENT
+
+MagicSvrInit = magicnet.SvrInit
+MagicSvrFin = magicnet.SvrFin
+MagicRegSvr = magicnet.RegSvr
+MagicSvrSendClient = magicnet.SvrSendClient
+MagicSvrBindClient = magicnet.SvrBindClient
+MagicSvrCloseClient = magicnet.SvrCloseClient
+MagicSvrSendSvr = magicnet.SvrSendSvr
+MagicSvrRead = magicnet.SvrRead
+'''
+
+pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort = "gate", 30*1000, 1000, 8888, 6666
+result = magicnet.GateInit(pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort)
+
+if not result:
+	raise "gate inti failed!"
+
+while True:
+	magicnet.GateProcess()
+
+magicnet.GateFin()
