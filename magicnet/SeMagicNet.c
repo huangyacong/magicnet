@@ -297,6 +297,9 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 			if(strcmp(acWatchdogName, acName) == 0) { return; }
 			pkSeSocket = SeNetCoreGetSocket(&pkMagicNetS->kNetCore, pkComData->kData.kHSocket);
 			if(!pkSeSocket) { return; }
+			if(pkSeSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) { return; }
+			if(pkSeSocket->kBelongListenHSocket != pkMagicNetS->kHScoketOut) { return; }
+			if(SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkComData->kData.kHSocket)) { return; }
 			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acName);
 			if(!pkSvr) { return; }
 			if(pkSeSocket->llFlag != 0) { return; }
