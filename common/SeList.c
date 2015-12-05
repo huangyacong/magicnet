@@ -35,7 +35,7 @@ void SeListHeadAdd(struct SELIST *root, struct SENODE *node)
 	assert(root && node);
 	assert(!node->prev);
 	assert(!node->next);
-#if defined(_DEBUG)
+#if defined(_TEST)
 	if (SeListNodeInRoot(root, node) == 1) assert( 0 != 0);
 #endif
 	node->prev = 0; node->next = root->head;
@@ -49,7 +49,7 @@ void SeListTailAdd(struct SELIST *root, struct SENODE *node)
 	assert(root && node);
 	assert(!node->prev);
 	assert(!node->next);
-#if defined(_DEBUG)
+#if defined(_TEST)
 	if (SeListNodeInRoot(root, node) == 1) assert( 0 != 0);
 #endif
 	node->next = 0; node->prev = root->tail;
@@ -77,7 +77,7 @@ void SeListTailAddList(struct SELIST *root, struct SENODE *node_list)
 struct SENODE *SeListRemove(struct SELIST *root, struct SENODE *node)
 {
 	assert(root && node);
-#if defined(_DEBUG)
+#if defined(_TEST)
 	if (SeListNodeInRoot(root, node) == 0) assert( 0 != 0);
 #endif
 	if (node->prev) node->prev->next = node->next;
@@ -91,7 +91,7 @@ struct SENODE *SeListRemove(struct SELIST *root, struct SENODE *node)
 struct SENODE *SeListRemoveEnd(struct SELIST *root, struct SENODE *node_end)
 {
 	struct SENODE *result = 0;
-#if defined(_DEBUG)
+#if defined(_TEST)
 	if (SeListNodeInRoot(root, node_end) == 0) assert( 0 != 0);
 #endif
 	assert(root && node_end);
