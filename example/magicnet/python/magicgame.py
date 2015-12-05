@@ -26,6 +26,7 @@ while True:
 		if event == magicnet.MAGIC_RECV_DATA_FROM_CLIENT:
 			print("recv data from client hid=%d data=%s len=%s"%(hid, data, len(data)))
 			magicnet.SvrSendClient(hid, data)
+			magicnet.SvrSendSvr("watchdog.", "game to game data")
 	except:
 		print(traceback.format_exc())
 
