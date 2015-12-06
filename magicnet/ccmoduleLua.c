@@ -151,7 +151,10 @@ static int MagicNetSvrRead(lua_State *L)
 	return 3;
 }
 
-static const luaL_Reg magicnet[] = {
+int luaopen_magicnet(lua_State *L)
+{
+	luaL_checkversion(L);
+	luaL_Reg l[] = {
 		{"GateInit", MagicNetGateInit},
 		{"GateFin", MagicNetGateFin},
 		{"GateProcess", MagicNetGateProcess},
@@ -166,8 +169,6 @@ static const luaL_Reg magicnet[] = {
 		{ NULL, NULL },
 	};
 
-int luaopen_magicnet(lua_State *L)
-{
-	luaL_newlib(L, magicnet);
+	luaL_newlib(L, l);
 	return 1;
 }
