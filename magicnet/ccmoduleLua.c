@@ -12,7 +12,7 @@ static int MagicNetGateInit(lua_State *L)
 	
 	seplen = 0;
 	pcLogName = luaL_checklstring(L, 1, &seplen);
-	iTimeOut = luaL_checkinteger(L, 2);
+	iTimeOut = (int)luaL_checkinteger(L, 2);
 	usMax = (unsigned short)luaL_checkinteger(L, 3);
 	usOutPort = (unsigned short)luaL_checkinteger(L, 4);
 	usInPort = (unsigned short)luaL_checkinteger(L, 5);
