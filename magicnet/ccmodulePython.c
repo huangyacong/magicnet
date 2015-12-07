@@ -14,19 +14,19 @@ PyObject *MagicNetGateInit(PyObject *module, PyObject* args)
 	return NULL;
 
 	bResult = SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, usOutPort, usInPort);
-	return Py_BuildValue("b", bResult);
+	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 
 PyObject *MagicNetGateFin(PyObject *module, PyObject* args)
 {
 	SeMagicNetSFin(&kMagicNetGate);
-	return Py_BuildValue("b", true);
+	return Py_BuildValue("O", Py_True);
 }
 
 PyObject *MagicNetGateProcess(PyObject *module, PyObject* args)
 {
 	SeMagicNetSProcess(&kMagicNetGate);
-	return Py_BuildValue("b", true);
+	return Py_BuildValue("O", Py_True);
 }
 
 PyObject *MagicNetSvrInit(PyObject *module, PyObject* args)
@@ -40,13 +40,13 @@ PyObject *MagicNetSvrInit(PyObject *module, PyObject* args)
 	return NULL;
 
 	bResult = SeMagicNetCInit(&kMagicNetSvr, pcLogName, iTimeOut, usInPort);
-	return Py_BuildValue("b", bResult);
+	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 
 PyObject *MagicNetSvrFin(PyObject *module, PyObject* args)
 {
 	SeMagicNetCFin(&kMagicNetSvr);
-	return Py_BuildValue("b", true);
+	return Py_BuildValue("O", Py_True);
 }
 
 PyObject *MagicNetSvrReg(PyObject *module, PyObject* args)
@@ -58,7 +58,7 @@ PyObject *MagicNetSvrReg(PyObject *module, PyObject* args)
 	return NULL;
 
 	bResult = SeMagicNetCReg(&kMagicNetSvr, pcSvrName);
-	return Py_BuildValue("b", bResult);
+	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 
 PyObject *MagicNetSvrSendClient(PyObject *module, PyObject* args)
@@ -72,7 +72,7 @@ PyObject *MagicNetSvrSendClient(PyObject *module, PyObject* args)
 	return NULL;
 
 	bResult = SeMagicNetCSendClient(&kMagicNetSvr, kHSocket, pcBuf, iLen);
-	return Py_BuildValue("b", bResult);
+	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 
 PyObject *MagicNetSvrBindClient(PyObject *module, PyObject* args)
@@ -84,7 +84,7 @@ PyObject *MagicNetSvrBindClient(PyObject *module, PyObject* args)
 	return NULL;
 
 	SeMagicNetCBindClientToSvr(&kMagicNetSvr, kHSocket, pcSvrName);
-	return Py_BuildValue("b", true);
+	return Py_BuildValue("O", Py_True);
 }
 
 PyObject *MagicNetSvrCloseClient(PyObject *module, PyObject* args)
@@ -95,7 +95,7 @@ PyObject *MagicNetSvrCloseClient(PyObject *module, PyObject* args)
 	return NULL;
 
 	SeMagicNetCCloseClient(&kMagicNetSvr, kHSocket);
-	return Py_BuildValue("b", true);
+	return Py_BuildValue("O", Py_True);
 }
 
 PyObject *MagicNetSvrSendSvr(PyObject *module, PyObject* args)
@@ -109,7 +109,7 @@ PyObject *MagicNetSvrSendSvr(PyObject *module, PyObject* args)
 	return NULL;
 
 	bResult = SeMagicNetCSendSvr(&kMagicNetSvr, pcSvrName, pcBuf, iLen);
-	return Py_BuildValue("b", bResult);
+	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 
 PyObject *MagicNetSvrRead(PyObject *module, PyObject* args)
