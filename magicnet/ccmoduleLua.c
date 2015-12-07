@@ -153,6 +153,8 @@ static int MagicNetSvrRead(lua_State *L)
 
 int luaopen_magicnet(lua_State *L)
 {
+	// must use int64 number
+	if(LUA_VERSION_NUM < 503) { luaL_error(L, "Lua ver must > 5.3"); return 0; }
 	luaL_checkversion(L);
 	luaL_Reg l[] = {
 		{"GateInit", MagicNetGateInit},
