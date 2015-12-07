@@ -10,7 +10,7 @@ PyObject *MagicNetGateInit(PyObject *module, PyObject* args)
 	unsigned short usOutPort;
 	unsigned short usInPort;
 
-	if(!PyArg_ParseTuple(args, "sihhh", &pcLogName, &iTimeOut, &usMax, &usOutPort, &usInPort))
+	if(!PyArg_ParseTuple(args, "siHHH", &pcLogName, &iTimeOut, &usMax, &usOutPort, &usInPort))
 	return NULL;
 
 	bResult = SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, usOutPort, usInPort);
@@ -36,7 +36,7 @@ PyObject *MagicNetSvrInit(PyObject *module, PyObject* args)
 	int iTimeOut;
 	unsigned short usInPort;
 
-	if(!PyArg_ParseTuple(args, "sih", &pcLogName, &iTimeOut, &usInPort))
+	if(!PyArg_ParseTuple(args, "siH", &pcLogName, &iTimeOut, &usInPort))
 	return NULL;
 
 	bResult = SeMagicNetCInit(&kMagicNetSvr, pcLogName, iTimeOut, usInPort);
