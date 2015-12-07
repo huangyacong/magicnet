@@ -18,6 +18,6 @@ NETBASE_H="./../../../../netbase/"
 $CC  $FLAG -fPIC -shared -ldl -llua -lm  $COMMON_SRC -I"$COMMON_H" $NETBASE_SRC -I"$NETBASE_H" $MAGICNET_SRC $MAGICNET_SRC_A -I"$MAGICNET_H" -I"$INC" -L"$LIB"  -o $OUTPUT $LIBS -lpthread -lrt -Wl,-E
 
 rm -r -f *.plg *.o > /dev/null
-
+mv -f $OUTPUT ./
 
 
