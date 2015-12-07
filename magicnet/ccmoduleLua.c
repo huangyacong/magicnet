@@ -25,13 +25,15 @@ static int MagicNetGateInit(lua_State *L)
 static int MagicNetGateFin(lua_State *L)
 {
 	SeMagicNetSFin(&kMagicNetGate);
-	return 0;
+	lua_pushboolean(L, true);
+	return 1;
 }
 
 static int MagicNetGateProcess(lua_State *L)
 {
 	SeMagicNetSProcess(&kMagicNetGate);
-	return 0;
+	lua_pushboolean(L, true);
+	return 1;
 }
 
 static int MagicNetSvrInit(lua_State *L)
@@ -55,7 +57,8 @@ static int MagicNetSvrInit(lua_State *L)
 static int MagicNetSvrFin(lua_State *L)
 {
 	SeMagicNetCFin(&kMagicNetSvr);
-	return 0;
+	lua_pushboolean(L, true);
+	return 1;
 }
 
 static int MagicNetSvrReg(lua_State *L)
@@ -101,7 +104,8 @@ static int MagicNetSvrBindClient(lua_State *L)
 	pcSvrName = luaL_checklstring(L, 2, &seplen);
 
 	SeMagicNetCBindClientToSvr(&kMagicNetSvr, kHSocket, pcSvrName);
-	return 0;
+	lua_pushboolean(L, true);
+	return 1;
 }
 
 static int MagicNetSvrCloseClient(lua_State *L)
@@ -111,7 +115,8 @@ static int MagicNetSvrCloseClient(lua_State *L)
 	kHSocket = luaL_checkinteger(L, 1);
 
 	SeMagicNetCCloseClient(&kMagicNetSvr, kHSocket);
-	return 0;
+	lua_pushboolean(L, true);
+	return 1;
 }
 
 static int MagicNetSvrSendSvr(lua_State *L)
