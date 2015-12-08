@@ -177,5 +177,23 @@ int luaopen_magicnet(lua_State *L)
 	};
 
 	luaL_newlib(L, l);
+
+	lua_pushnumber(L, MAGIC_SHUTDOWN_SVR);
+	lua_setfield(L, -2, "MAGIC_SHUTDOWN_SVR");
+
+	lua_pushnumber(L, MAGIC_IDLE_SVR_DATA);
+	lua_setfield(L, -2, "MAGIC_IDLE_SVR_DATA");
+
+	lua_pushnumber(L, MAGIC_CLIENT_CONNECT);
+	lua_setfield(L, -2, "MAGIC_CLIENT_CONNECT");
+
+	lua_pushnumber(L, MAGIC_CLIENT_DISCONNECT);
+	lua_setfield(L, -2, "MAGIC_CLIENT_DISCONNECT");
+
+	lua_pushnumber(L, MAGIC_RECV_DATA_FROM_SVR);
+	lua_setfield(L, -2, "MAGIC_RECV_DATA_FROM_SVR");
+
+	lua_pushnumber(L, MAGIC_RECV_DATA_FROM_CLIENT);
+	lua_setfield(L, -2, "MAGIC_RECV_DATA_FROM_CLIENT");
 	return 1;
 }
