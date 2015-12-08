@@ -14,31 +14,31 @@ while true do
 	local function work(event, hid, data)
 
 		if event == magicnet.MAGIC_CLIENT_CONNECT then
-			print(string.format("client connect hid=%s data=%s len=%s", hid, data, len(data)))
+			print(string.format("client connect hid=%s data=%s len=%s", hid, data, string.len(data)))
 		end
 
 		if event == magicnet.MAGIC_CLIENT_DISCONNECT then
-			print(string.format("client disconnect hid=%s data=%s len=%s", hid, data, len(data)))
+			print(string.format("client disconnect hid=%s data=%s len=%s", hid, data, string.len(data)))
 		end
 
 		if event == magicnet.MAGIC_RECV_DATA_FROM_SVR then
-			print(string.format("recv data from svr hid=%s data=%s len=%s", hid, data, len(data)))
+			print(string.format("recv data from svr hid=%s data=%s len=%s", hid, data, string.len(data)))
 			magicnet.SvrSendSvr("watchdog.", "game to watchdog data")
 		end
 
 		if event == magicnet.MAGIC_RECV_DATA_FROM_CLIENT then
-			print(string.format("recv data from client hid=%s data=%s len=%s", hid, data, len(data)))
+			print(string.format("recv data from client hid=%s data=%s len=%s", hid, data, string.len(data)))
 			magicnet.SvrSendClient(hid, data)
 		end
 
 	end
 
-	local event, hid, data = magicnet.SvrRead()
+	local netevent, nethid, netdata = magicnet.SvrRead()
 
-	if event == magicnet.MAGIC_SHUTDOWN_SVR then break end
+	if netevent == magicnet.MAGIC_SHUTDOWN_SVR then break end
 
-	if event ~= magicnet.MAGIC_IDLE_SVR_DATA then
-		local isOK, ret = pcall(function () return work(event, hid, data) end)
+	if netevent ~= magicnet.MAGIC_IDLE_SVR_DATA then
+		local isOK, ret = pcall(function () return work(netevent, nethid, netdata) end)
 		if not isOK then print(ret) end
 	end
 
