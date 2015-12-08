@@ -17,14 +17,14 @@ while True:
 		if event == magicnet.MAGIC_IDLE_SVR_DATA:
 			continue
 		if event == magicnet.MAGIC_CLIENT_CONNECT:
-			print("client connect hid=%d data=%s len=%s"%(hid, data, len(data)))
+			print("client connect hid=%s data=%s len=%s"%(hid, data, len(data)))
 		if event == magicnet.MAGIC_CLIENT_DISCONNECT:
-			print("client disconnect hid=%d data=%s len=%s"%(hid, data, len(data)))
+			print("client disconnect hid=%s data=%s len=%s"%(hid, data, len(data)))
 		if event == magicnet.MAGIC_RECV_DATA_FROM_SVR:
-			print("recv data from svr hid=%d data=%s len=%s"%(hid, data, len(data)))
+			print("recv data from svr hid=%s data=%s len=%s"%(hid, data, len(data)))
 			magicnet.SvrSendSvr("watchdog.", "game to game data")
 		if event == magicnet.MAGIC_RECV_DATA_FROM_CLIENT:
-			print("recv data from client hid=%d data=%s len=%s"%(hid, data, len(data)))
+			print("recv data from client hid=%s data=%s len=%s"%(hid, data, len(data)))
 			magicnet.SvrSendClient(hid, data)
 			magicnet.SvrSendSvr("watchdog.", "game to game data")
 	except:

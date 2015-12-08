@@ -14,20 +14,20 @@ while true do
 	local function work(event, hid, data)
 
 		if event == magicnet.MAGIC_CLIENT_CONNECT then
-			print(string.format("client connect hid=%d data=%s len=%s", hid, data, len(data)))
+			print(string.format("client connect hid=%s data=%s len=%s", hid, data, len(data)))
 		end
 
 		if event == magicnet.MAGIC_CLIENT_DISCONNECT then
-			print(string.format("client disconnect hid=%d data=%s len=%s", hid, data, len(data)))
+			print(string.format("client disconnect hid=%s data=%s len=%s", hid, data, len(data)))
 		end
 
 		if event == magicnet.MAGIC_RECV_DATA_FROM_SVR then
-			print(string.format("recv data from svr hid=%d data=%s len=%s", hid, data, len(data)))
+			print(string.format("recv data from svr hid=%s data=%s len=%s", hid, data, len(data)))
 			magicnet.SvrSendSvr("watchdog.", "game to watchdog data")
 		end
 
 		if event == magicnet.MAGIC_RECV_DATA_FROM_CLIENT then
-			print(string.format("recv data from client hid=%d data=%s len=%s", hid, data, len(data)))
+			print(string.format("recv data from client hid=%s data=%s len=%s", hid, data, len(data)))
 			magicnet.SvrSendClient(hid, data)
 		end
 
