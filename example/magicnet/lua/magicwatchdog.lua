@@ -4,7 +4,7 @@ local pcLogName, iSocketTimeOut, iSvrPort = "watchdog", 30*1000, 6666
 local result = magicnet.SvrInit(pcLogName, iSocketTimeOut, iSvrPort)
 
 if not result then
-	assert(false, "gate init failed!")
+	assert(false, "watchdog init failed!")
 end
 
 magicnet.RegSvr("watchdog.")
