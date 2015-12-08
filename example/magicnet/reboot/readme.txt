@@ -1,0 +1,1 @@
+使用python写的机器人，请安装python，同时安装easy_install,使用easy_install安装easy_install msgpack-python
