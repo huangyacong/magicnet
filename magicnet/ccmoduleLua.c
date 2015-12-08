@@ -12,6 +12,7 @@ static int MagicNetGateInit(lua_State *L)
 	
 	seplen = 0;
 	pcLogName = luaL_checklstring(L, 1, &seplen);
+	if(!pcLogName) { luaL_error(L, "pcLogName is NULL!"); return 0;}
 	iTimeOut = (int)luaL_checkinteger(L, 2);
 	usMax = (unsigned short)luaL_checkinteger(L, 3);
 	usOutPort = (unsigned short)luaL_checkinteger(L, 4);
@@ -46,6 +47,7 @@ static int MagicNetSvrInit(lua_State *L)
 
 	seplen = 0;
 	pcLogName = luaL_checklstring(L, 1, &seplen);
+	if(!pcLogName) { luaL_error(L, "pcLogName is NULL!"); return 0;}
 	iTimeOut = (unsigned short)luaL_checkinteger(L, 2);
 	usInPort = (unsigned short)luaL_checkinteger(L, 3);
 
@@ -69,6 +71,7 @@ static int MagicNetSvrReg(lua_State *L)
 
 	seplen = 0;
 	pcSvrName = luaL_checklstring(L, 1, &seplen);
+	if(!pcSvrName) { luaL_error(L, "pcSvrName is NULL!"); return 0;}
 
 	bResult = SeMagicNetCReg(&kMagicNetSvr, pcSvrName);
 	lua_pushboolean(L, bResult);
@@ -86,6 +89,7 @@ static int MagicNetSvrSendClient(lua_State *L)
 	kHSocket = luaL_checkinteger(L, 1);
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 2, &seplen);
+	if(!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0;}
 	iLen = (int)seplen;
 
 	bResult = SeMagicNetCSendClient(&kMagicNetSvr, kHSocket, pcBuf, iLen);
@@ -102,6 +106,7 @@ static int MagicNetSvrBindClient(lua_State *L)
 	kHSocket = luaL_checkinteger(L, 1);
 	seplen = 0;
 	pcSvrName = luaL_checklstring(L, 2, &seplen);
+	if(!pcSvrName) { luaL_error(L, "pcSvrName is NULL!"); return 0;}
 
 	SeMagicNetCBindClientToSvr(&kMagicNetSvr, kHSocket, pcSvrName);
 	lua_pushboolean(L, true);
@@ -129,8 +134,10 @@ static int MagicNetSvrSendSvr(lua_State *L)
 	
 	seplen = 0;
 	pcSvrName = luaL_checklstring(L, 1, &seplen);
+	if(!pcSvrName) { luaL_error(L, "pcSvrName is NULL!"); return 0;}
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 2, &seplen);
+	if(!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0;}
 	iLen = (int)seplen;
 
 	bResult = SeMagicNetCSendSvr(&kMagicNetSvr, pcSvrName, pcBuf, iLen);
@@ -160,6 +167,7 @@ int luaopen_magicnet(lua_State *L)
 {
 	// must use int64 number
 	if(LUA_VERSION_NUM < 503) { luaL_error(L, "Lua ver must > 5.3"); return 0; }
+	if(sizeof(lua_Integer) != 8) { luaL_error(L, "must use int64 for lua_Integer"); return 0; }
 	luaL_checkversion(L);
 	luaL_Reg l[] = {
 		{"GateInit", MagicNetGateInit},
