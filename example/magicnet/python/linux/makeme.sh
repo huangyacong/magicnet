@@ -3,7 +3,7 @@ PYTHON=`python -c "from sys import version_info as v;print 'python%d.%d'%(v[0],v
 INC="/usr/include/$PYTHON/"
 LIB="/usr/lib"
 CC=gcc
-FLAG="-Wall -DNDEBUG "
+FLAG="-Wall -DNDEBUG -g "
 LIBS=""
 OUTPUT="magicnet.so"
 
