@@ -31,5 +31,3 @@ static int MagicNetSvrCloseClient(lua_State *L);
 static int MagicNetSvrSendSvr(lua_State *L);
 
 static int MagicNetSvrRead(lua_State *L);
-
-int luaopen_magicnet(lua_State *L);

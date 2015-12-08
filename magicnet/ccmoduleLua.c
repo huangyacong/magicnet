@@ -163,7 +163,11 @@ static int MagicNetSvrRead(lua_State *L)
 	return 3;
 }
 
+#if (defined(_WIN32) || defined(WIN32))
+__declspec(dllexport) int luaopen_magicnet(lua_State *L)
+#elif defined(__linux)
 int luaopen_magicnet(lua_State *L)
+#endif
 {
 	// must use int64 number
 	if(LUA_VERSION_NUM < 503) { luaL_error(L, "Lua ver must > 5.3"); return 0; }
