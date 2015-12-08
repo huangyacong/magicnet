@@ -210,7 +210,7 @@ class client(skynetclient):
 	def process(self, onconnect, disconnect, update):
 		super(client, self).process(onconnect, disconnect)
 		recv_data = self.recv()
-		if not recv_data:
+		if recv_data == None:
 			return
 		update(recv_data)
 		pass

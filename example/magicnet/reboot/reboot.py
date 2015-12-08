@@ -58,7 +58,7 @@ class reboot(client):
 		print 'disconnect username=%s,%s'%(self.username, num['dis'])
 		
 	def recv_data(self, data):
-		print u'recv username=%s'%(self.username), data
+		print u'recv username=%s,recvdata=%s,len=%s'%(self.username, data, len(data))
 		self.send_to_server(5002, {'plat':0, 'token':self.username})
 
 	 
