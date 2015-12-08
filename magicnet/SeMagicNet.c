@@ -206,7 +206,7 @@ void SeMagicNetSSendActive(struct SEMAGICNETS *pkMagicNetS)
 	}
 }
 
-void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
+void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 {
 	int riLen;
 	int rSSize;
@@ -371,6 +371,11 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 		}
 	}
+}
+
+void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
+{
+	while(true) { SeMagicNetSWork(pkMagicNetS); }
 }
 
 bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort)
