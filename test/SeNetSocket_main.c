@@ -4,12 +4,12 @@
 #include <stdbool.h>
 #include "SeNetSocket.h"
 
-bool get(const char*a, const int b, int* c)
+bool get(const unsigned char*a, const int b, int* c)
 {
 	return false;
 }
 
-bool set(char *a, const int b, const int c)
+bool set(unsigned char *a, const int b, const int c)
 {
 	return false;
 }

@@ -42,7 +42,7 @@ struct REGSVRNODE
 	char					acName[MAX_SVR_NAME_LEN];
 };
 
-bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
+bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
 	if(iheaderlen == 2)
 	{
@@ -66,7 +66,7 @@ bool SeSetHeader(char* pcHeader, const int iheaderlen, const int ilen)
 	return false;
 }
 
-bool SeGetHeader(const char* pcHeader, const int iheaderlen, int *ilen)
+bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 {
 	if(iheaderlen == 2)
 	{

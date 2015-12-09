@@ -3,7 +3,7 @@
 
 #define datalen  6
 
-bool kSetHeaderLenFun(char* pcHeader, const int iheaderlen, const int ilen)
+bool kSetHeaderLenFun(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
 	if (iheaderlen == 2)
 	{
@@ -19,7 +19,7 @@ bool kSetHeaderLenFun(char* pcHeader, const int iheaderlen, const int ilen)
 	return false;
 }
 
-bool kGetHeaderLenFun(const char* pcHeader, const int iheaderlen, int *ilen)
+bool kGetHeaderLenFun(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 {
 	if (iheaderlen == 2)
 	{
