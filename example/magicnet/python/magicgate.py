@@ -22,7 +22,7 @@ MagicSvrSendSvr = magicnet.SvrSendSvr
 MagicSvrRead = magicnet.SvrRead
 '''
 
-pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort = "gate", 30*1000, 1000, 8888, 6666
+pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort = "gate", 60*1000, 10000, 8888, 6666
 result = magicnet.GateInit(pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort)
 
 if not result:

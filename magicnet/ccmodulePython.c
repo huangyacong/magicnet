@@ -118,12 +118,28 @@ PyObject *MagicNetSvrRead(PyObject *module, PyObject* args)
 	HSOCKET rkRecvHSocket;
 	char *pcBuf;
 	int riBufLen;
+	int i, iCounter;
+
+	if(!PyArg_ParseTuple(args, "i", &iCounter))
+	return NULL;
+	if(iCounter <= 0)
+	return NULL;
 	
-	rkRecvHSocket = 0;
-	riBufLen = 0;
-	pcBuf = 0;
-	result = SeMagicNetCRead(&kMagicNetSvr, &rkRecvHSocket, &pcBuf, &riBufLen);
-	return Py_BuildValue("iKs#", result, rkRecvHSocket, riBufLen > 0 ? pcBuf : "", riBufLen);
+	PyObject* pkList = PyList_New(0);
+	
+	for(i = 0; i < iCounter; i++)
+	{
+		rkRecvHSocket = 0;
+		riBufLen = 0;
+		pcBuf = 0;
+		result = SeMagicNetCRead(&kMagicNetSvr, &rkRecvHSocket, &pcBuf, &riBufLen);
+		PyObject* obj= Py_BuildValue("iKs#", result, rkRecvHSocket, riBufLen > 0 ? pcBuf : "", riBufLen);
+		PyList_Append(pkList, obj);
+		Py_DECREF(obj);
+		if(result == MAGIC_SHUTDOWN_SVR || result == MAGIC_IDLE_SVR_DATA) { break; }
+	}
+
+	return pkList;
 }
 
 static void AddIntConstant(PyObject *module)
