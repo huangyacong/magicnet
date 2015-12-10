@@ -155,6 +155,13 @@ PyObject *MagicTimeSleep(PyObject *module, PyObject* args)
 	return Py_BuildValue("O", Py_True);
 }
 
+PyObject *MagicTimeGetTickCount(PyObject *module, PyObject* args)
+{
+	unsigned long long ullTime;
+	ullTime = SeTimeGetTickCount();
+	return Py_BuildValue("K", ullTime);
+}
+
 static void AddIntConstant(PyObject *module)
 {
 	PyModule_AddIntConstant(module, "MAGIC_SHUTDOWN_SVR", MAGIC_SHUTDOWN_SVR);

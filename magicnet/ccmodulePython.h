@@ -29,6 +29,8 @@ PyObject *MagicNetSvrRead(PyObject *module, PyObject* args);
 
 PyObject *MagicTimeSleep(PyObject *module, PyObject* args);
 
+PyObject *MagicTimeGetTickCount(PyObject *module, PyObject* args);
+
 static void AddIntConstant(PyObject *module);
 
 static PyMethodDef Methods[] = {
@@ -45,6 +47,7 @@ static PyMethodDef Methods[] = {
 	{"SvrSendSvr", MagicNetSvrSendSvr, METH_VARARGS, ""},
 	{"SvrRead", MagicNetSvrRead, METH_VARARGS, ""},
 	{"TimeSleep", MagicTimeSleep, METH_VARARGS, ""},
+	{"TimeGetTickCount", MagicTimeGetTickCount, METH_VARARGS, ""},
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

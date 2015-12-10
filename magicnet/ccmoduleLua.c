@@ -174,6 +174,14 @@ static int MagicTimeSleep(lua_State *L)
 	return 1;
 }
 
+static int MagicTimeGetTickCount(lua_State *L)
+{
+	unsigned long long ullTime;
+	ullTime = SeTimeGetTickCount();
+	lua_pushinteger(L, ullTime);
+	return 1;
+}
+
 #if (defined(_WIN32) || defined(WIN32))
 __declspec(dllexport) int luaopen_magicnet(lua_State *L)
 #elif defined(__linux)
@@ -197,6 +205,7 @@ int luaopen_magicnet(lua_State *L)
 		{"SvrSendSvr", MagicNetSvrSendSvr},
 		{"SvrRead", MagicNetSvrRead},
 		{"TimeSleep", MagicTimeSleep},
+		{"TimeGetTickCount", MagicTimeGetTickCount},
 		{ NULL, NULL },
 	};
 

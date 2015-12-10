@@ -34,3 +34,5 @@ static int MagicNetSvrSendSvr(lua_State *L);
 static int MagicNetSvrRead(lua_State *L);
 
 static int MagicTimeSleep(lua_State *L);
+
+static int MagicTimeGetTickCount(lua_State *L);
