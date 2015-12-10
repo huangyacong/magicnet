@@ -205,7 +205,7 @@ int luaopen_magicnet(lua_State *L)
 		{"SvrSendSvr", MagicNetSvrSendSvr},
 		{"SvrRead", MagicNetSvrRead},
 		{"TimeSleep", MagicTimeSleep},
-		{"TimeGetTickCount", MagicTimeGetTickCount},
+		{"TickCount", MagicTimeGetTickCount},
 		{ NULL, NULL },
 	};
 

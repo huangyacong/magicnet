@@ -47,7 +47,7 @@ static PyMethodDef Methods[] = {
 	{"SvrSendSvr", MagicNetSvrSendSvr, METH_VARARGS, ""},
 	{"SvrRead", MagicNetSvrRead, METH_VARARGS, ""},
 	{"TimeSleep", MagicTimeSleep, METH_VARARGS, ""},
-	{"TimeGetTickCount", MagicTimeGetTickCount, METH_VARARGS, ""},
+	{"TickCount", MagicTimeGetTickCount, METH_VARARGS, ""},
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
