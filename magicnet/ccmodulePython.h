@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "SeMagicNet.h"
+#include "SeTime.h"
 
 static struct SEMAGICNETS kMagicNetGate;
 static struct SEMAGICNETC kMagicNetSvr;
@@ -26,6 +27,8 @@ PyObject *MagicNetSvrSendSvr(PyObject *module, PyObject* args);
 
 PyObject *MagicNetSvrRead(PyObject *module, PyObject* args);
 
+PyObject *MagicTimeSleep(PyObject *module, PyObject* args);
+
 static void AddIntConstant(PyObject *module);
 
 static PyMethodDef Methods[] = {
@@ -41,6 +44,7 @@ static PyMethodDef Methods[] = {
 	{"SvrCloseClient", MagicNetSvrCloseClient, METH_VARARGS, ""},
 	{"SvrSendSvr", MagicNetSvrSendSvr, METH_VARARGS, ""},
 	{"SvrRead", MagicNetSvrRead, METH_VARARGS, ""},
+	{"TimeSleep", MagicTimeSleep, METH_VARARGS, ""},
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

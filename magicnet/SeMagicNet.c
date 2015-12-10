@@ -510,7 +510,7 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	result = SeNetCoreRead(&pkMagicNetC->kNetCore,
 		&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetC->pcRecvBuf, &riLen, &rSSize, &rRSize);
 	if(!result) { return MAGIC_IDLE_SVR_DATA; }
-	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { SeTimeSleep(1); return MAGIC_IDLE_SVR_DATA; }
+	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { return MAGIC_IDLE_SVR_DATA; }
 	assert(rkHSocket == pkMagicNetC->kHScoket);
 	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here
 	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here

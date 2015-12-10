@@ -142,6 +142,19 @@ PyObject *MagicNetSvrRead(PyObject *module, PyObject* args)
 	return pkList;
 }
 
+PyObject *MagicTimeSleep(PyObject *module, PyObject* args)
+{
+	int iCounter;
+
+	if(!PyArg_ParseTuple(args, "i", &iCounter))
+	return Py_BuildValue("O", Py_False);;
+	if(iCounter <= 0)
+	return Py_BuildValue("O", Py_False);;
+	
+	SeTimeSleep(iCounter);
+	return Py_BuildValue("O", Py_True);
+}
+
 static void AddIntConstant(PyObject *module)
 {
 	PyModule_AddIntConstant(module, "MAGIC_SHUTDOWN_SVR", MAGIC_SHUTDOWN_SVR);

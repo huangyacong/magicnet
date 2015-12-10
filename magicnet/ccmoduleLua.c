@@ -163,6 +163,17 @@ static int MagicNetSvrRead(lua_State *L)
 	return 3;
 }
 
+static int MagicTimeSleep(lua_State *L)
+{
+	int iCounter;
+
+	iCounter = luaL_checkinteger(L, 1);
+	SeTimeSleep(iCounter);
+	
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 #if (defined(_WIN32) || defined(WIN32))
 __declspec(dllexport) int luaopen_magicnet(lua_State *L)
 #elif defined(__linux)
@@ -185,6 +196,7 @@ int luaopen_magicnet(lua_State *L)
 		{"SvrCloseClient", MagicNetSvrCloseClient},
 		{"SvrSendSvr", MagicNetSvrSendSvr},
 		{"SvrRead", MagicNetSvrRead},
+		{"TimeSleep", MagicTimeSleep},
 		{ NULL, NULL },
 	};
 
