@@ -148,19 +148,43 @@ static int MagicNetSvrSendSvr(lua_State *L)
 static int MagicNetSvrRead(lua_State *L)
 {
 	enum MAGIC_STATE result;
+	int i, iCounter, riBufLen;
 	HSOCKET rkRecvHSocket;
 	char *pcBuf;
-	int riBufLen;
+
+	iCounter = luaL_checkinteger(L, 1);
+	if(iCounter <= 0) { luaL_error(L, "para one must > 0!"); return 0;}
 	
-	rkRecvHSocket = 0;
-	riBufLen = 0;
-	pcBuf = 0;
-	result = SeMagicNetCRead(&kMagicNetSvr, &rkRecvHSocket, &pcBuf, &riBufLen);
-	
-	lua_pushinteger(L, result);
-	lua_pushinteger(L, rkRecvHSocket);
-	lua_pushlstring(L, riBufLen > 0 ? pcBuf : "", riBufLen);
-	return 3;
+	lua_newtable(L);
+
+	for(i = 0; i < iCounter; i++)
+	{
+		pcBuf = 0;
+		riBufLen = 0;
+		rkRecvHSocket = 0;
+		result = SeMagicNetCRead(&kMagicNetSvr, &rkRecvHSocket, &pcBuf, &riBufLen);
+		
+		lua_pushnumber(L, i + 1);
+		lua_newtable(L);
+
+		lua_pushnumber(L, 1);
+		lua_pushinteger(L, result);
+		lua_settable(L, -3);
+		
+		lua_pushnumber(L, 2);
+		lua_pushinteger(L, rkRecvHSocket);
+		lua_settable(L, -3);
+		
+		lua_pushnumber(L, 3);
+		lua_pushlstring(L, riBufLen > 0 ? pcBuf : "", riBufLen);
+		lua_settable(L, -3);
+
+		lua_settable(L,-3);
+
+		if(result == MAGIC_SHUTDOWN_SVR || result == MAGIC_IDLE_SVR_DATA) { break; }
+	}
+
+	return 1;
 }
 
 static int MagicTimeSleep(lua_State *L)
