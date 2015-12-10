@@ -1,6 +1,6 @@
 ﻿local magicnet = require "magicnet"
 
-local pcLogName, iSocketTimeOut, iSvrPort = "game", 30*1000, 6666
+local pcLogName, iSocketTimeOut, iSvrPort = "game", 60*1000, 6666
 local result = magicnet.SvrInit(pcLogName, iSocketTimeOut, iSvrPort)
 
 if not result then
@@ -40,6 +40,8 @@ while true do
 	if netevent ~= magicnet.MAGIC_IDLE_SVR_DATA then
 		local isOK, ret = pcall(function () return work(netevent, nethid, netdata) end)
 		if not isOK then print(ret) end
+	else
+		magicnet.TimeSleep(1)
 	end
 
 end

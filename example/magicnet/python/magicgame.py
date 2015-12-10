@@ -32,7 +32,7 @@ while True:
 		if nowEvent == magicnet.MAGIC_SHUTDOWN_SVR:
 			break
 		if nowEvent == magicnet.MAGIC_IDLE_SVR_DATA:
-			time.sleep(0.001)
+			magicnet.TimeSleep(1)
 	except:
 		print(traceback.format_exc())
 
