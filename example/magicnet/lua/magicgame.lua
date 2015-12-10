@@ -15,6 +15,9 @@ while true do
 
 		if event == magicnet.MAGIC_CLIENT_CONNECT then
 			print(string.format("client connect hid=%s data=%s len=%s", hid, data, string.len(data)))
+			--magicnet.SvrSendSvr("game", "watchdog to game data")
+			--magicnet.SvrBindClient(hid, "game")
+			--magicnet.SvrCloseClient(hid)
 		end
 
 		if event == magicnet.MAGIC_CLIENT_DISCONNECT then
@@ -23,7 +26,6 @@ while true do
 
 		if event == magicnet.MAGIC_RECV_DATA_FROM_SVR then
 			print(string.format("recv data from svr hid=%s data=%s len=%s", hid, data, string.len(data)))
-			magicnet.SvrSendSvr("watchdog.", "game to watchdog data")
 		end
 
 		if event == magicnet.MAGIC_RECV_DATA_FROM_CLIENT then
@@ -32,18 +34,28 @@ while true do
 		end
 
 	end
+	
+	local nowEvent = nil
+	local recvData = magicnet.SvrRead(1000)
+	
+	for _, oneValue in ipairs(recvData) do
+		local netevent, nethid, netdata = oneValue[1], oneValue[2], oneValue[3]
 
-	local netevent, nethid, netdata = magicnet.SvrRead()
+		if netevent == magicnet.MAGIC_SHUTDOWN_SVR or netevent == magicnet.MAGIC_IDLE_SVR_DATA then
+			nowEvent = netevent
+			break
+		else
+			local isOK, ret = pcall(function () return work(netevent, nethid, netdata) end)
+			if not isOK then print(ret) end
+		end
 
-	if netevent == magicnet.MAGIC_SHUTDOWN_SVR then break end
-
-	if netevent ~= magicnet.MAGIC_IDLE_SVR_DATA then
-		local isOK, ret = pcall(function () return work(netevent, nethid, netdata) end)
-		if not isOK then print(ret) end
-	else
-		magicnet.TimeSleep(1)
 	end
 
+	if nowEvent == magicnet.MAGIC_SHUTDOWN_SVR then break end
+	if nowEvent == magicnet.MAGIC_IDLE_SVR_DATA then magicnet.TimeSleep(1) end
+
 end
+
+print("game exit")
 
 magicnet.SvrFin()

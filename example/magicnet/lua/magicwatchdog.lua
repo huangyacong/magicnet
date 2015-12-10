@@ -34,18 +34,28 @@ while true do
 		end
 
 	end
+	
+	local nowEvent = nil
+	local recvData = magicnet.SvrRead(1000)
+	
+	for _, oneValue in ipairs(recvData) do
+		local netevent, nethid, netdata = oneValue[1], oneValue[2], oneValue[3]
 
-	local netevent, nethid, netdata = magicnet.SvrRead()
+		if netevent == magicnet.MAGIC_SHUTDOWN_SVR or netevent == magicnet.MAGIC_IDLE_SVR_DATA then
+			nowEvent = netevent
+			break
+		else
+			local isOK, ret = pcall(function () return work(netevent, nethid, netdata) end)
+			if not isOK then print(ret) end
+		end
 
-	if netevent == magicnet.MAGIC_SHUTDOWN_SVR then break end
-
-	if netevent ~= magicnet.MAGIC_IDLE_SVR_DATA then
-		local isOK, ret = pcall(function () return work(netevent, nethid, netdata) end)
-		if not isOK then print(ret) end
-	else
-		magicnet.TimeSleep(1)
 	end
 
+	if nowEvent == magicnet.MAGIC_SHUTDOWN_SVR then break end
+	if nowEvent == magicnet.MAGIC_IDLE_SVR_DATA then magicnet.TimeSleep(1) end
+
 end
+
+print("watchdog exit")
 
 magicnet.SvrFin()
