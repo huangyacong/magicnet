@@ -163,23 +163,19 @@ static int MagicNetSvrRead(lua_State *L)
 		riBufLen = 0;
 		rkRecvHSocket = 0;
 		result = SeMagicNetCRead(&kMagicNetSvr, &rkRecvHSocket, &pcBuf, &riBufLen);
-		
-		lua_pushnumber(L, i + 1);
+
 		lua_newtable(L);
 
-		lua_pushnumber(L, 1);
 		lua_pushinteger(L, result);
-		lua_settable(L, -3);
+		lua_rawseti(L, -2, 1);
 		
-		lua_pushnumber(L, 2);
 		lua_pushinteger(L, rkRecvHSocket);
-		lua_settable(L, -3);
+		lua_rawseti(L, -2, 2);
 		
-		lua_pushnumber(L, 3);
 		lua_pushlstring(L, riBufLen > 0 ? pcBuf : "", riBufLen);
-		lua_settable(L, -3);
+		lua_rawseti(L, -2, 3);
 
-		lua_settable(L,-3);
+		lua_rawseti(L,-2, i + 1);
 
 		if(result == MAGIC_SHUTDOWN_SVR || result == MAGIC_IDLE_SVR_DATA) { break; }
 	}
