@@ -495,6 +495,9 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	HSOCKET rkListenHSocket;
 	struct SECOMMONDATA *pkComData;
 
+	*pcBuf = pkMagicNetC->pcRecvBuf;
+	*riBufLen = 0;
+
 	if(pkMagicNetC->kHScoket <= 0) { return MAGIC_SHUTDOWN_SVR; }
 
 	if((pkMagicNetC->llActive + MAGICNET_TIME_OUT) <= SeTimeGetTickCount())
@@ -509,9 +512,6 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	riLen = MAX_RECV_BUF_LEN;
 	result = SeNetCoreRead(&pkMagicNetC->kNetCore,
 		&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetC->pcRecvBuf, &riLen, &rSSize, &rRSize);
-	*pcBuf = pkMagicNetC->pcRecvBuf;
-	*riBufLen = 0;
-
 	if(!result) { return MAGIC_IDLE_SVR_DATA; }
 	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { return MAGIC_IDLE_SVR_DATA; }
 	assert(rkHSocket == pkMagicNetC->kHScoket);
