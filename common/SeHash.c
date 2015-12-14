@@ -17,7 +17,7 @@
 /* Our hash table capability is a power of two */
 int tableCapability(int size)
 {
-    int i = 2^6;
+    int i = 2^11;
     if (size >= 65536) return 65536;
     while(1) { if(i >= size) { return i; } i *= 2; }
 }
