@@ -230,8 +230,7 @@ void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *p
 {
 	pkNetSocket->llTime = SeTimeGetTickCount();
 	if(!SeHashGet(&pkNetSocketMgr->kActiveMainList, pkNetSocket->usIndex)) { return; }
-	SeHashRemove(&pkNetSocketMgr->kActiveMainList, &pkNetSocket->kMainNode);
-	SeHashAdd(&pkNetSocketMgr->kActiveMainList, pkNetSocket->usIndex, &pkNetSocket->kMainNode);
+	SeHashMoveToEnd(&pkNetSocketMgr->kActiveMainList, &pkNetSocket->kMainNode);
 }
 
 const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)

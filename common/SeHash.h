@@ -35,7 +35,7 @@ struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node);
 
 struct SEHASHNODE *SeHashPop(struct SEHASH *root);
 
-
+void SeHashMoveToEnd(struct SEHASH *root, struct SEHASHNODE *node);
 
 #endif
 

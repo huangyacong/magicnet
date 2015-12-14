@@ -135,3 +135,9 @@ struct SEHASHNODE *SeHashPop(struct SEHASH *root)
 
 	return pkHashNode;
 }
+
+void SeHashMoveToEnd(struct SEHASH *root, struct SEHASHNODE *node)
+{
+	SeListRemove(&root->list, &node->list);
+	SeListTailAdd(&root->list, &node->list);
+}
