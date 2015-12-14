@@ -14,12 +14,25 @@
 #include <stdlib.h>
 #include "SeTool.h"
 
+/* Our hash table capability is a power of two */
+int tableCapability(int size)
+{
+    int i = 2^6;
+    if (size >= 65536) return 65536;
+    while(1) { if (i >= size) { return i; } i *= 2; }
+}
+
+int getHashID(struct SEHASH *root, int id)
+{
+	return id&(root->max - 1);
+}
+
 void SeHashInit(struct SEHASH *root, int max)
 {
 	int i;
 
 	assert(max > 0);
-	root->max = max;
+	root->max = tableCapability(max);
 	root->pkMain = (struct SELIST *)malloc(sizeof(struct SELIST)*root->max);
 	SeListInit(&root->list);
 	
@@ -48,8 +61,9 @@ void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 {
 	int hashid;
 	struct SELIST *pkMain;
-
-	hashid = id % root->max;
+	
+	assert(id >= 0);
+	hashid = getHashID(root, id);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 	node->id = id;
@@ -63,19 +77,22 @@ struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
 	struct SENODE *pkNode;
 	struct SELIST *pkMain;
 	struct SEHASHNODE *pkHashNode;
-
-	hashid = id % root->max;
+	
+	assert(id >= 0);
+	hashid = getHashID(root, id);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 
 	pkNode = pkMain->head;
 	if(!pkNode) return 0;
-	while(pkNode)
+	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, main);
+	if(pkHashNode->id == id) return pkHashNode;
+	do
 	{
 		pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, main);
 		if(pkHashNode->id == id) return pkHashNode;
 		pkNode = pkNode->next;
-	}
+	}while(pkNode);
 	return 0;
 }
 
@@ -96,7 +113,7 @@ struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node)
 	int hashid;
 	struct SELIST *pkMain;
 
-	hashid = node->id % root->max;
+	hashid = getHashID(root, node->id);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 
@@ -116,7 +133,7 @@ struct SEHASHNODE *SeHashPop(struct SEHASH *root)
 	if(!pkNode) return 0;
 	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, list);
 
-	hashid = pkHashNode->id % root->max;
+	hashid = getHashID(root, pkHashNode->id);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 	SeListRemove(pkMain, &pkHashNode->main);
