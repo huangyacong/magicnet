@@ -625,7 +625,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
 		*rSSize = SeNetSreamCount(&pkNetSocket->kSendNetStream);
 		*rRSize = SeNetSreamCount(&pkNetSocket->kRecvNetStream);
-		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+		if(SeNetSreamCount(&pkNetSocket->kRecvNetStream) > 0) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false); }
 		return true;
 	}while(true);
 
