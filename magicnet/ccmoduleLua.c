@@ -152,7 +152,7 @@ static int MagicNetSvrRead(lua_State *L)
 	HSOCKET rkRecvHSocket;
 	char *pcBuf;
 
-	iCounter = luaL_checkinteger(L, 1);
+	iCounter = (int)luaL_checkinteger(L, 1);
 	if(iCounter <= 0) { luaL_error(L, "para one must > 0!"); return 0;}
 	
 	lua_newtable(L);
@@ -187,7 +187,7 @@ static int MagicTimeSleep(lua_State *L)
 {
 	int iCounter;
 
-	iCounter = luaL_checkinteger(L, 1);
+	iCounter = (int)luaL_checkinteger(L, 1);
 	SeTimeSleep(iCounter);
 	
 	lua_pushboolean(L, true);
