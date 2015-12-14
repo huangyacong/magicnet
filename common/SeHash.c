@@ -19,12 +19,7 @@ int tableCapability(int size)
 {
     int i = 2^6;
     if (size >= 65536) return 65536;
-    while(1) { if (i >= size) { return i; } i *= 2; }
-}
-
-int getHashID(struct SEHASH *root, int id)
-{
-	return id&(root->max - 1);
+    while(1) { if(i >= size) { return i; } i *= 2; }
 }
 
 void SeHashInit(struct SEHASH *root, int max)
@@ -63,7 +58,7 @@ void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 	struct SELIST *pkMain;
 	
 	assert(id >= 0);
-	hashid = getHashID(root, id);
+	hashid = id&(root->max - 1);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 	node->id = id;
@@ -79,7 +74,7 @@ struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
 	struct SEHASHNODE *pkHashNode;
 	
 	assert(id >= 0);
-	hashid = getHashID(root, id);
+	hashid = id&(root->max - 1);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 
@@ -113,7 +108,7 @@ struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node)
 	int hashid;
 	struct SELIST *pkMain;
 
-	hashid = getHashID(root, node->id);
+	hashid = node->id&(root->max - 1);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 
@@ -133,7 +128,7 @@ struct SEHASHNODE *SeHashPop(struct SEHASH *root)
 	if(!pkNode) return 0;
 	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, list);
 
-	hashid = getHashID(root, pkHashNode->id);
+	hashid = pkHashNode->id&(root->max - 1);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 	SeListRemove(pkMain, &pkHashNode->main);
