@@ -17,9 +17,11 @@
 /* Our hash table capability is a power of two */
 int tableCapability(int size)
 {
-	int i = 2^10;
-	int iMax = 2^16;
+	int i = 1024;
+	int iMax = 65536;
 	
+	assert((i&(i - 1)) == 0);
+	assert((iMax&(iMax - 1)) == 0);
 	if (size >= iMax) return iMax;
 	while(1) { if(i >= size) { return i; } i *= 2; }
 }
