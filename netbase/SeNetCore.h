@@ -21,7 +21,7 @@ struct SENETCORE
 	struct SELOG			kLog;
 	struct SESOCKETMGR		kSocketMgr;
 #if defined(__linux)
-	struct epoll_event		akEvents[1024];
+	struct epoll_event		akEvents[64];
 	char					*pcBuf;
 #endif
 };
