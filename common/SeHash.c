@@ -17,9 +17,11 @@
 /* Our hash table capability is a power of two */
 int tableCapability(int size)
 {
-    int i = 2^11;
-    if (size >= 65536) return 65536;
-    while(1) { if(i >= size) { return i; } i *= 2; }
+	int i = 2^10;
+	int iMax = 2^16;
+	
+	if (size >= iMax) return iMax;
+	while(1) { if(i >= size) { return i; } i *= 2; }
 }
 
 void SeHashInit(struct SEHASH *root, int max)
