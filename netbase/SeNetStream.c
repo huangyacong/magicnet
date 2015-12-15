@@ -42,6 +42,7 @@ struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
 	if(!pkNode) return 0;
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
 	iLeaveLen = pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
+	assert(iLeaveLen >= 0);
 	pkNetStream->iSize -= iLeaveLen;
 	pkNetStream->iCount--;
 	return pkNetStreamNode;
@@ -53,6 +54,7 @@ void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *
 
 	SeListHeadAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
 	iLeaveLen = pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
+	assert(iLeaveLen >= 0);
 	pkNetStream->iSize += iLeaveLen;
 	pkNetStream->iCount++;
 }
@@ -62,6 +64,7 @@ void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *
 	int iLeaveLen;
 	SeListTailAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
 	iLeaveLen = pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
+	assert(iLeaveLen >= 0);
 	pkNetStream->iSize += iLeaveLen;
 	pkNetStream->iCount++;
 }
@@ -76,6 +79,7 @@ struct SENETSTREAMNODE *SeNetSreamTailPop(struct SENETSTREAM *pkNetStream)
 	if(!pkNode) return 0;
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
 	iLeaveLen = pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
+	assert(iLeaveLen >= 0);
 	pkNetStream->iSize -= iLeaveLen;
 	pkNetStream->iCount--;
 	return pkNetStreamNode;
