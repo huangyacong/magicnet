@@ -125,7 +125,7 @@ struct REGSVRNODE *SeAddRegSvrNode(struct SELIST *pkRegSvrList, const char *pcNa
 	if(SeGetRegSvrNodeBySvrName(pkRegSvrList, pcName)) { return 0; }
 	if(SeGetRegSvrNodeBySocket(pkRegSvrList, kHSocket)) { return 0; }
 
-	pkRegSvrNode = (struct REGSVRNODE *)malloc(sizeof(struct REGSVRNODE));
+	pkRegSvrNode = (struct REGSVRNODE *)SeMallocMem(sizeof(struct REGSVRNODE));
 	SeListInitNode(&pkRegSvrNode->kNode);
 	pkRegSvrNode->llActive = SeTimeGetTickCount();
 	pkRegSvrNode->kHSocket = kHSocket;
@@ -144,7 +144,7 @@ void SeDelRegSvrNode(struct SELIST *pkRegSvrList, HSOCKET kHSocket)
 	while(pkNode)
 	{
 		pkSvr = SE_CONTAINING_RECORD(pkNode, struct REGSVRNODE, kNode);
-		if(kHSocket == pkSvr->kHSocket) { SeListRemove(pkRegSvrList, &pkSvr->kNode); free(pkSvr); break; }
+		if(kHSocket == pkSvr->kHSocket) { SeListRemove(pkRegSvrList, &pkSvr->kNode); SeFreeMem(pkSvr); break; }
 		pkNode = pkNode->next;
 	}
 }
@@ -158,7 +158,7 @@ void SeFreeRegSvrNode(struct SELIST *pkRegSvrList)
 	while(pkNode)
 	{
 		pkRegSvrNode = SE_CONTAINING_RECORD(pkNode, struct REGSVRNODE, kNode);
-		free(pkRegSvrNode);
+		SeFreeMem(pkRegSvrNode);
 		pkNode = SeListHeadPop(pkRegSvrList);
 	}
 }
@@ -167,7 +167,7 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTime
 {
 	SeNetCoreInit(&pkMagicNetS->kNetCore, pcLogName, iTimeOut, usMax);
 	SeListInit(&pkMagicNetS->kRegSvrList);
-	pkMagicNetS->pcRecvBuf = (char*)malloc(MAX_RECV_BUF_LEN);
+	pkMagicNetS->pcRecvBuf = (char*)SeMallocMem(MAX_RECV_BUF_LEN);
 
 	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, 2, &SeGetHeader, &SeSetHeader);
 	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usInPort, 4, &SeGetHeader, &SeSetHeader);
@@ -177,7 +177,7 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTime
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 {
-	free(pkMagicNetS->pcRecvBuf);
+	SeFreeMem(pkMagicNetS->pcRecvBuf);
 	SeFreeRegSvrNode(&pkMagicNetS->kRegSvrList);
 	SeNetCoreFin(&pkMagicNetS->kNetCore);
 	pkMagicNetS->kHScoketOut = 0;
@@ -381,7 +381,7 @@ void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS)
 bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort)
 {
 	SeNetCoreInit(&pkMagicNetC->kNetCore, pcLogName, iTimeOut, 1);
-	pkMagicNetC->pcRecvBuf = (char*)malloc(MAX_RECV_BUF_LEN);
+	pkMagicNetC->pcRecvBuf = (char*)SeMallocMem(MAX_RECV_BUF_LEN);
 	pkMagicNetC->llActive = SeTimeGetTickCount();
 
 	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", usInPort, 4, &SeGetHeader, &SeSetHeader);
@@ -392,7 +392,7 @@ bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTime
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC)
 {
-	free(pkMagicNetC->pcRecvBuf);
+	SeFreeMem(pkMagicNetC->pcRecvBuf);
 	SeNetCoreFin(&pkMagicNetC->kNetCore);
 	pkMagicNetC->kHScoket = 0;
 }

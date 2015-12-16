@@ -4,6 +4,7 @@
 #include "SeTime.h"
 #include <stdbool.h>
 #include "SeNetCore.h"
+#include "SeTool.h"
 
 bool kSetHeaderLenFun(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
@@ -55,7 +56,7 @@ int main()
 	int rRSize;
 	HSOCKET khsocket, socket;
 	HSOCKET rkHSocket;
-	char *buf = (char*)malloc(1024*1024*4);
+	char *buf = (char*)SeMallocMem(1024*1024*4);
 	HSOCKET rkListenHSocket;
 	struct SENETCORE kNet;
 	
@@ -117,7 +118,7 @@ int main()
 	printf("end\n");
 
 	getchar();
-	free(buf);
+	SeFreeMem(buf);
 	SeNetCoreFin(&kNet);
 	return 0;
 }

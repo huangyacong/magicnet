@@ -1,5 +1,6 @@
 #include "SeNetStream.h"
 #include <stdio.h>
+#include "SeTool.h"
 
 #define datalen  6
 
@@ -48,7 +49,7 @@ void test1()
 	for (i = 0; i < 1000; i++)
 	{
 		int ilen = sizeof(struct SENETSTREAMNODE) + 4;
-		char *pcbuf = (char*)malloc(ilen);
+		char *pcbuf = (char*)SeMallocMem(ilen);
 		struct SENETSTREAMNODE *pkNetStreamNode = SeNetSreamNodeFormat(pcbuf, ilen);
 		SeNetSreamNodeZero(pkNetStreamNode);
 		SeNetSreamHeadAdd(&kNetStreamIdle, pkNetStreamNode);
@@ -131,7 +132,7 @@ void test2()
 	for (i = 0; i < 1000; i++)
 	{
 		int ilen = sizeof(struct SENETSTREAMNODE) + 4;
-		char *pcbuf = (char*)malloc(ilen);
+		char *pcbuf = (char*)SeMallocMem(ilen);
 		struct SENETSTREAMNODE *pkNetStreamNode = SeNetSreamNodeFormat(pcbuf, ilen);
 		SeNetSreamNodeZero(pkNetStreamNode);
 		SeNetSreamHeadAdd(&kNetStreamIdle, pkNetStreamNode);

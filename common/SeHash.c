@@ -32,7 +32,7 @@ void SeHashInit(struct SEHASH *root, int max)
 
 	assert(max > 0);
 	root->max = tableCapability(max);
-	root->pkMain = (struct SELIST *)malloc(sizeof(struct SELIST)*root->max);
+	root->pkMain = (struct SELIST *)SeMallocMem(sizeof(struct SELIST)*root->max);
 	SeListInit(&root->list);
 	
 	for(i = 0; i < root->max; i++)
@@ -43,7 +43,7 @@ void SeHashInit(struct SEHASH *root, int max)
 
 void SeHashFin(struct SEHASH *root)
 {
-	free(root->pkMain);
+	SeFreeMem(root->pkMain);
 	root->max = 0;
 	root->pkMain = 0;
 	SeListInit(&root->list);

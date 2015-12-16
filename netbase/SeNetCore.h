@@ -8,6 +8,7 @@
 #include "SeLog.h"
 #include "SeNetBase.h"
 #include "SeNetSocket.h"
+#include "SeTool.h"
 
 #define SENETCORE_EVENT_SOCKET_IDLE 0
 #define SENETCORE_EVENT_SOCKET_CONNECT 1

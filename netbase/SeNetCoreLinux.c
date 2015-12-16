@@ -12,7 +12,7 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
 	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
 	SeAddLogLV(&pkNetCore->kLog, LT_SOCKET);
-	pkNetCore->pcBuf = (char*)malloc(SENETCORE_MAX_SOCKET_BUF_LEN);
+	pkNetCore->pcBuf = (char*)SeMallocMem(SENETCORE_MAX_SOCKET_BUF_LEN);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -21,7 +21,7 @@ void SeNetCoreFin(struct SENETCORE *pkNetCore)
 	SeFinLog(&pkNetCore->kLog);
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeNetBaseEnd();
-	free(pkNetCore->pcBuf);
+	SeFreeMem(pkNetCore->pcBuf);
 }
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\

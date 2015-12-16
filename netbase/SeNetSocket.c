@@ -42,7 +42,7 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, int iTimeOut, unsign
 	pkNetSocketMgr->llTimeOut = iTimeOut;
 	pkNetSocketMgr->iMax = usMax;
 	SeNetSreamInit(&pkNetSocketMgr->kNetStreamIdle);
-	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)malloc(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
+	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)SeMallocMem(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
 	SeHashInit(&pkNetSocketMgr->kMainList, pkNetSocketMgr->iMax);
 	SeHashInit(&pkNetSocketMgr->kActiveMainList, pkNetSocketMgr->iMax);
 	SeHashInit(&pkNetSocketMgr->kSendList, pkNetSocketMgr->iMax);
@@ -84,9 +84,9 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 
 	for(i = 0; i < pkNetSocketMgr->iMax; i++) SeNetSocketMgrEnd(pkNetSocketMgr, &pkNetSocketMgr->pkSeSocket[i]);
 	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);
-	while(pkNetStreamNode) {free(pkNetStreamNode);pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);}
+	while(pkNetStreamNode) {SeFreeMem(pkNetStreamNode);pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocketMgr->kNetStreamIdle);}
 
-	free(pkNetSocketMgr->pkSeSocket);
+	SeFreeMem(pkNetSocketMgr->pkSeSocket);
 	SeHashFin(&pkNetSocketMgr->kMainList);
 	SeHashFin(&pkNetSocketMgr->kActiveMainList);
 	SeHashFin(&pkNetSocketMgr->kSendList);
@@ -217,7 +217,7 @@ void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 
 	for(i = 0; i < iCount; i++)
 	{
-		pcBuf = (char *)malloc(iSize);
+		pcBuf = (char *)SeMallocMem(iSize);
 		assert(pcBuf);
 		if(!pcBuf) { continue; }
 		pkNetStreamNode = SeNetSreamNodeFormat(pcBuf, iSize);
