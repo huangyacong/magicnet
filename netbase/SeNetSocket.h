@@ -25,6 +25,14 @@
 
 struct SESOCKET
 {
+	struct SEHASHNODE		kMainNode;
+	struct SEHASHNODE		kSendNode;
+	struct SEHASHNODE		kRecvNode;
+	struct SENETSTREAM		kSendNetStream;
+	struct SENETSTREAM		kRecvNetStream;
+	SEGETHEADERLENFUN		pkGetHeaderLenFun;
+	SESETHEADERLENFUN		pkSetHeaderLenFun;
+
 	HSOCKET					kHSocket;
 	HSOCKET					kBelongListenHSocket;
 	unsigned short			usStatus;
@@ -35,13 +43,6 @@ struct SESOCKET
 	long long				llFlag;
 	unsigned long long		llTime;
 	struct sockaddr_in		kRemoteAddr;
-	struct SENETSTREAM		kSendNetStream;
-	struct SENETSTREAM		kRecvNetStream;
-	struct SEHASHNODE		kMainNode;
-	struct SEHASHNODE		kSendNode;
-	struct SEHASHNODE		kRecvNode;
-	SEGETHEADERLENFUN		pkGetHeaderLenFun;
-	SESETHEADERLENFUN		pkSetHeaderLenFun;
 };
 
 struct SESOCKETMGR
@@ -49,10 +50,10 @@ struct SESOCKETMGR
 	int						iMax;
 	int						iCounter;
 	unsigned long long		llTimeOut;
-	struct SENETSTREAM		kNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 	struct SEHASH			kMainList;
 	struct SEHASH			kActiveMainList;
+	struct SENETSTREAM		kNetStreamIdle;
 	struct SEHASH			kSendList;
 	struct SEHASH			kRecvList;
 };
