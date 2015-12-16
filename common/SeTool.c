@@ -2,6 +2,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
+
+#define SEALIGNMENT 64
 
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
 {
@@ -76,10 +79,18 @@ unsigned int SeStr2Hash(const char *pcStr,int iLen)
 
 void * SeMallocMem(size_t size)
 {
-	return malloc(size);
+#if defined(__linux)
+	return memalign(SEALIGNMENT, size);
+#elif (defined(_WIN32) || defined(WIN32))
+	return _aligned_malloc(size, SEALIGNMENT);
+#endif
 }
 
 void SeFreeMem(void* pvPtr)
 {
+#if defined(__linux)
 	free(pvPtr);
+#elif (defined(_WIN32) || defined(WIN32))
+	_aligned_free(pvPtr);
+#endif
 }
