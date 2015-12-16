@@ -6,9 +6,9 @@
 
 struct SEHASHNODE
 {
-	int id;
 	struct SENODE main;
 	struct SENODE list;
+	int id;
 };
 
 struct SEHASH
