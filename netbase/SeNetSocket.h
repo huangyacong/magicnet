@@ -54,16 +54,17 @@ struct SESOCKET
 	struct sockaddr_in		kRemoteAddr;
 };
 
+// 64 ¶ÔÆë
 struct SESOCKETMGR
 {
 	int						iMax;
 	int						iCounter;
 	unsigned long long		llTimeOut;
-	struct SEHASH			kMainList;
-	struct SEHASH			kActiveMainList;
-	struct SEHASH			kSendList;
-	struct SEHASH			kRecvList;
-	struct SENETSTREAM		kNetStreamIdle;
+	struct SEHASH			*pkMainList;
+	struct SEHASH			*pkActiveMainList;
+	struct SEHASH			*pkSendList;
+	struct SEHASH			*pkRecvList;
+	struct SENETSTREAM		*pkNetStreamIdle;
 	struct SESOCKET			*pkSeSocket;
 };
 
