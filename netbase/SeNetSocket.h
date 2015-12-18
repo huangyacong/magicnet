@@ -8,20 +8,29 @@
 #include "SeNetBase.h"
 #include "SeNetStream.h"
 
-#define SOCKET_STATUS_INIT 0
-#define SOCKET_STATUS_CONNECTING 1
-#define SOCKET_STATUS_CONNECTED 2
-#define SOCKET_STATUS_CONNECTED_FAILED 3
-#define SOCKET_STATUS_DISCONNECT 4
-#define SOCKET_STATUS_COMM_IDLE 5
-#define SOCKET_STATUS_ACTIVECONNECT 6
+enum SOCKET_STATUS
+{
+	SOCKET_STATUS_INIT = 0,
+	SOCKET_STATUS_CONNECTING = 1,
+	SOCKET_STATUS_CONNECTED = 2,
+	SOCKET_STATUS_CONNECTED_FAILED = 3,
+	SOCKET_STATUS_DISCONNECT = 4,
+	SOCKET_STATUS_COMM_IDLE = 5,
+	SOCKET_STATUS_ACTIVECONNECT = 6
+};
 
-#define LISTEN_TCP_TYPE_SOCKET 1
-#define CLIENT_TCP_TYPE_SOCKET 2
-#define ACCEPT_TCP_TYPE_SOCKET 3
+enum LISTEN_TCP_TYPE
+{
+	LISTEN_TCP_TYPE_SOCKET = 1,
+	CLIENT_TCP_TYPE_SOCKET = 2,
+	ACCEPT_TCP_TYPE_SOCKET = 3
+};
 
-#define READ_EVENT_SOCKET (1<<1)
-#define WRITE_EVENT_SOCKET (1<<2)
+enum EVENT_SOCKET
+{
+	READ_EVENT_SOCKET = (1<<1),
+	WRITE_EVENT_SOCKET = (1<<2)
+};
 
 struct SESOCKET
 {
@@ -50,12 +59,12 @@ struct SESOCKETMGR
 	int						iMax;
 	int						iCounter;
 	unsigned long long		llTimeOut;
-	struct SESOCKET			*pkSeSocket;
 	struct SEHASH			kMainList;
 	struct SEHASH			kActiveMainList;
-	struct SENETSTREAM		kNetStreamIdle;
 	struct SEHASH			kSendList;
 	struct SEHASH			kRecvList;
+	struct SENETSTREAM		kNetStreamIdle;
+	struct SESOCKET			*pkSeSocket;
 };
 
 void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, int iTimeOut, unsigned short usMax);
