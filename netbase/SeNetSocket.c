@@ -91,11 +91,17 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 	pkNetStreamNode = SeNetSreamHeadPop(pkNetSocketMgr->pkNetStreamIdle);
 	while(pkNetStreamNode) {SeFreeMem(pkNetStreamNode);pkNetStreamNode = SeNetSreamHeadPop(pkNetSocketMgr->pkNetStreamIdle);}
 
-	SeFreeMem(pkNetSocketMgr->pkSeSocket);
 	SeHashFin(pkNetSocketMgr->pkMainList);
 	SeHashFin(pkNetSocketMgr->pkActiveMainList);
 	SeHashFin(pkNetSocketMgr->pkSendList);
 	SeHashFin(pkNetSocketMgr->pkRecvList);
+	
+	SeFreeMem(pkNetSocketMgr->pkMainList);
+	SeFreeMem(pkNetSocketMgr->pkActiveMainList);
+	SeFreeMem(pkNetSocketMgr->pkSendList);
+	SeFreeMem(pkNetSocketMgr->pkRecvList);
+	SeFreeMem(pkNetSocketMgr->pkNetStreamIdle);
+	SeFreeMem(pkNetSocketMgr->pkSeSocket);
 }
 
 HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int iTypeSocket, int iHeaderLen, \
