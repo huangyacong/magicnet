@@ -13,7 +13,7 @@ struct SENETSTREAMNODE *SeNetSreamNodeFormat(char *pcBuf, int iBufLen)
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
 	assert(sizeof(struct SENETSTREAMNODE) < iBufLen);
-	assert((iBufLen - sizeof(struct SENETSTREAMNODE)) < sizeof(pkNetStreamNode->iMaxLen));
+	assert((iBufLen - sizeof(struct SENETSTREAMNODE)) < 0xFFFF);
 	pkNetStreamNode = (struct SENETSTREAMNODE *)pcBuf;
 	pkNetStreamNode->pkBuf = pcBuf + sizeof(struct SENETSTREAMNODE);
 	pkNetStreamNode->iMaxLen = (unsigned short)(iBufLen - sizeof(struct SENETSTREAMNODE));
