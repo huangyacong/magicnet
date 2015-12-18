@@ -34,11 +34,11 @@ enum EVENT_SOCKET
 
 struct SESOCKET
 {
-	struct SEHASHNODE		kMainNode;
-	struct SEHASHNODE		kSendNode;
-	struct SEHASHNODE		kRecvNode;
-	struct SENETSTREAM		kSendNetStream;
-	struct SENETSTREAM		kRecvNetStream;
+	struct SEHASHNODE		*pkMainNode;
+	struct SEHASHNODE		*pkSendNode;
+	struct SEHASHNODE		*pkRecvNode;
+	struct SENETSTREAM		*pkSendNetStream;
+	struct SENETSTREAM		*pkRecvNetStream;
 	SEGETHEADERLENFUN		pkGetHeaderLenFun;
 	SESETHEADERLENFUN		pkSetHeaderLenFun;
 
