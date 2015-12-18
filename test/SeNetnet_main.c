@@ -4,17 +4,14 @@
 #include "SeTime.h"
 #include <stdbool.h>
 #include "SeNetCore.h"
-#include "SeTool.h"
 
 bool kSetHeaderLenFun(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
-	char head[2];
 
 	if (iheaderlen == 2)
 	{
-		head[0] = (ilen >> 8) & 0xff;
-		head[1] = ilen & 0xff;
-		memcpy(pcHeader, &head, iheaderlen);
+		pcHeader[0] = (ilen >> 8) & 0xff;
+		pcHeader[1] = ilen & 0xff;
 		return true;
 	}
 /*
@@ -63,9 +60,8 @@ int main()
 	num = 0;
 	timer = SeTimeGetTickCount();
 
-	SeNetCoreInit(&kNet, "out.txt", 1000*30, 1000);
+	SeNetCoreInit(&kNet, "out.txt", 1000*30, 10000);
 	khsocket = SeNetCoreTCPListen(&kNet, "0.0.0.0", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
-	socket = SeNetCoreTCPClient(&kNet, "127.0.0.1", 8888, 2, &kGetHeaderLenFun, &kSetHeaderLenFun);
 	
 	while(khsocket != 0)
 	{
@@ -86,11 +82,6 @@ int main()
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
 		{
-			printf("connect! %llx %s=%d\n", rkHSocket, buf, iLen);
-			if (socket == rkHSocket)
-			{
-				SeNetCoreSend(&kNet, rkHSocket, buf, 10);
-			}
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
@@ -100,6 +91,7 @@ int main()
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
 		{
+			//if(iLen == 0) {break;}
 			num++;
 			timera = SeTimeGetTickCount();
 			SeNetCoreSend(&kNet, rkHSocket, buf, iLen);
@@ -108,7 +100,7 @@ int main()
 			{
 				iLen = (int)num;
 				num = (num/(timera - timer))*1000;
-				printf("num=%d,rSSize=%d,rRSize=%d,%d\n", iLen, rSSize, rRSize, (int)num);
+				printf("num=%d,rSSize=%d,rRSize=%d,%d=%d\n", iLen, rSSize, rRSize, (int)num, (int)sizeof(long));
 				num = 0;
 				timer = SeTimeGetTickCount();
 			}
