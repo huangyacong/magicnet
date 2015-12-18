@@ -237,11 +237,13 @@ const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 {
 	struct SESOCKET *pkNetSocket;
 	struct SEHASHNODE *pkHashNode;
+	unsigned long long llTimeOut;
 
 	pkHashNode = SeHashGetHead(&pkNetSocketMgr->kActiveMainList);
 	if(!pkHashNode) { return 0; }
+	llTimeOut = pkNetSocketMgr->llTimeOut;
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
-	if((pkNetSocket->llTime + pkNetSocketMgr->llTimeOut) > SeTimeGetTickCount()) { return 0; }
+	if((pkNetSocket->llTime + llTimeOut) > SeTimeGetTickCount()) { return 0; }
 	return pkNetSocket;
 }
 
