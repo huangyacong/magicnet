@@ -62,10 +62,10 @@ void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 	struct SELIST *pkMain;
 	
 	assert(id >= 0);
+	node->id = id;
 	hashid = id&(root->max - 1);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
-	node->id = id;
 	SeListTailAdd(pkMain, &node->main);
 	SeListTailAdd(&root->list, &node->list);
 }
