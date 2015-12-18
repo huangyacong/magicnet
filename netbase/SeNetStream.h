@@ -5,21 +5,24 @@
 #include <stdbool.h>
 #include "SeTool.h"
 
+// 32 size
 struct SENETSTREAMNODE
 {
 	struct SENODE		kNode;
 	char				*pkBuf;
-	int					iMaxLen;
-	int					iReadPos;
-	int					iWritePos;
-	int					iFlag;
+	unsigned short		iMaxLen;
+	unsigned short		iReadPos;
+	unsigned short		iWritePos;
+	unsigned short		iFlag;
 };
 
+// 32 size
 struct SENETSTREAM
 {
 	struct SELIST		kList;
 	int					iCount;
 	int					iSize;
+	long long			llFlag;
 };
 
 

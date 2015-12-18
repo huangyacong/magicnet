@@ -4,6 +4,7 @@ void SeNetSreamInit(struct SENETSTREAM *pkNetStream)
 {
 	pkNetStream->iSize = 0;
 	pkNetStream->iCount = 0;
+	pkNetStream->llFlag = 0;
 	SeListInit(&pkNetStream->kList);
 }
 
@@ -12,9 +13,10 @@ struct SENETSTREAMNODE *SeNetSreamNodeFormat(char *pcBuf, int iBufLen)
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
 	assert(sizeof(struct SENETSTREAMNODE) < iBufLen);
+	assert((iBufLen - sizeof(struct SENETSTREAMNODE)) < sizeof(pkNetStreamNode->iMaxLen));
 	pkNetStreamNode = (struct SENETSTREAMNODE *)pcBuf;
 	pkNetStreamNode->pkBuf = pcBuf + sizeof(struct SENETSTREAMNODE);
-	pkNetStreamNode->iMaxLen = iBufLen - sizeof(struct SENETSTREAMNODE);
+	pkNetStreamNode->iMaxLen = (unsigned short)(iBufLen - sizeof(struct SENETSTREAMNODE));
 	SeNetSreamNodeZero(pkNetStreamNode);
 	return pkNetStreamNode;
 }
