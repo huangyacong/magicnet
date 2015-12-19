@@ -32,15 +32,11 @@ enum EVENT_SOCKET
 	WRITE_EVENT_SOCKET = (1<<2)
 };
 
-struct SESOCKET
+struct SE_ALIGN(64) SESOCKET
 {
 	struct SEHASHNODE		kMainNode;
 	struct SEHASHNODE		kSendNode;
 	struct SEHASHNODE		kRecvNode;
-	struct SENETSTREAM		kSendNetStream;
-	struct SENETSTREAM		kRecvNetStream;
-	SEGETHEADERLENFUN		pkGetHeaderLenFun;
-	SESETHEADERLENFUN		pkSetHeaderLenFun;
 
 	HSOCKET					kHSocket;
 	HSOCKET					kBelongListenHSocket;
@@ -51,6 +47,12 @@ struct SESOCKET
 	int						iEventSocket;
 	long long				llFlag;
 	unsigned long long		llTime;
+	SEGETHEADERLENFUN		pkGetHeaderLenFun;
+	SESETHEADERLENFUN		pkSetHeaderLenFun;
+
+	struct SENETSTREAM		kSendNetStream;
+	struct SENETSTREAM		kRecvNetStream;
+
 	struct sockaddr_in		kRemoteAddr;
 };
 
