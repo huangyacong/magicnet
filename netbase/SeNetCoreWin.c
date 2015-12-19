@@ -339,10 +339,10 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	pkIOData->kHScoket = pkNetSocket->kHSocket;
 	pkIOData->iOPType = OP_TYPE_SEND;
 	pkIOData->kBuf.buf = pkIOData->acData;
-	pkIOData->kBuf.len = pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos;
-	assert(pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos > 0);
-	assert(pkNetStreamNode->iMaxLen <= sizeof(pkIOData->acData));
-	memcpy(pkIOData->kBuf.buf, pkNetStreamNode->pkBuf, pkNetStreamNode->iWritePos - pkNetStreamNode->iReadPos);
+	pkIOData->kBuf.len = pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos;
+	assert(pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos > 0);
+	assert(pkNetStreamNode->usMaxLen <= (unsigned short)sizeof(pkIOData->acData));
+	memcpy(pkIOData->kBuf.buf, pkNetStreamNode->pkBuf, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos);
 
 	dwLen = 0;
 	if(WSASend(socket, &pkIOData->kBuf, 1, &dwLen, 0, &pkIOData->overlapped, 0) == SE_SOCKET_ERROR)

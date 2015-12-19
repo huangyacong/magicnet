@@ -10,10 +10,10 @@ struct SENETSTREAMNODE
 {
 	struct SENODE		kNode;
 	char				*pkBuf;
-	unsigned short		iMaxLen;
-	unsigned short		iReadPos;
-	unsigned short		iWritePos;
-	unsigned short		iFlag;
+	unsigned short		usMaxLen;
+	unsigned short		usReadPos;
+	unsigned short		usWritePos;
+	unsigned short		usStreamFlag;
 };
 
 // 32 size
