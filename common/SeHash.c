@@ -86,12 +86,13 @@ struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
 	if(!pkNode) return 0;
 	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, main);
 	if(pkHashNode->id == id) return pkHashNode;
-	do
+	pkNode = pkNode->next;
+	while(pkNode)
 	{
 		pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, main);
 		if(pkHashNode->id == id) return pkHashNode;
 		pkNode = pkNode->next;
-	}while(pkNode);
+	}
 	return 0;
 }
 
