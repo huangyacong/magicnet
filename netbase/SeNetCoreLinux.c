@@ -158,7 +158,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 	
-	pkNetSocket->llFlag = ((struct sockaddr_in*)&kAddr)->sin_addr.s_addr;
+	memcpy(&pkNetSocket->kRemoteAddr, &kAddr, sizeof(struct sockaddr));
 	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
 	return kHSocket;
 }
@@ -363,8 +363,8 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		pkNetSocketAccept->usStatus = SOCKET_STATUS_CONNECTED;
 		pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
-		pkNetSocketAccept->llFlag = ((struct sockaddr_in*)&ksockaddr)->sin_addr.s_addr;
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
+		memcpy(&pkNetSocketAccept->kRemoteAddr, &ksockaddr, sizeof(struct sockaddr));
 	}
 }
 
@@ -451,7 +451,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 {
 	bool bOK;
 	char *pcAddrIP;
-	struct in_addr sin_addr;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 	const struct SESOCKET *pkConstNetSocket;
@@ -482,12 +481,10 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
 			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent);
 			*riLen = 0;
-			sin_addr.s_addr = (unsigned int)pkNetSocket->llFlag;
-			pcAddrIP = inet_ntoa(sin_addr);
+			pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
 			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); }
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-			pkNetSocket->llFlag = 0;
 			return true;
 		}
 		
