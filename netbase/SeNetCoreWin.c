@@ -263,7 +263,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	}
 	
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	memcpy(&pkNetSocket->kRemoteAddr, &kAddr, sizeof(struct sockaddr));
+	pkNetSocket->llFlag = ((struct sockaddr_in*)&kAddr)->sin_addr.s_addr;
 	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
 	return kHSocket;
 }
@@ -457,7 +457,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		return;
 	}
 	pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	memcpy(&pkNetSocketAccept->kRemoteAddr, remote_addr, sizeof(struct sockaddr_in));
+	pkNetSocketAccept->llFlag = ((struct sockaddr_in*)&remote_addr)->sin_addr.s_addr;
 	pkNetSocketAccept->usStatus = SOCKET_STATUS_CONNECTED;
 	pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
 	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
@@ -547,6 +547,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	bool bOK;
 	SOCKET socket;
 	char *pcAddrIP;
+	struct in_addr sin_addr;
 	struct SESOCKET *pkNetSocket;
 	const struct SESOCKET *pkConstNetSocket;
 
@@ -573,10 +574,12 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 			CreateIoCompletionPort((HANDLE)socket, pkNetCore->kHandle, 0, 0);
 			*riLen = 0;
-			pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
+			sin_addr.s_addr = (unsigned int)pkNetSocket->llFlag;
+			pcAddrIP = inet_ntoa(sin_addr);
 			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); }
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
+			pkNetSocket->llFlag = 0;
 			SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
 			SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 			SeNetCoreRecvBuf(pkNetCore, pkNetSocket);
