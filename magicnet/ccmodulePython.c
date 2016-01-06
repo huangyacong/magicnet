@@ -116,6 +116,7 @@ PyObject *MagicNetSvrRead(PyObject *module, PyObject* args)
 {
 	enum MAGIC_STATE result;
 	HSOCKET rkRecvHSocket;
+	PyObject* pkList;
 	char *pcBuf;
 	int riBufLen;
 	int i, iCounter;
@@ -125,7 +126,7 @@ PyObject *MagicNetSvrRead(PyObject *module, PyObject* args)
 	if(iCounter <= 0)
 	return NULL;
 	
-	PyObject* pkList = PyList_New(0);
+	pkList = PyList_New(0);
 	
 	for(i = 0; i < iCounter; i++)
 	{
