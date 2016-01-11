@@ -60,7 +60,7 @@ enum MAGIC_STATE SvrRead(HSOCKET *rkRecvHSocket, char *pcBuf, int *riBufLen)
 
 	pcRecvBuf = 0;
 	result = SeMagicNetCRead(&kMagicNetSvr, rkRecvHSocket, &pcRecvBuf, riBufLen);
-	memcpy(pcBuf, pcRecvBuf, (size_t)riBufLen);
+	memcpy(pcBuf, pcRecvBuf, *riBufLen);
 	return result;
 }
 
