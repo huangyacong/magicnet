@@ -1,29 +1,29 @@
 #include "SeMagicNet.h"
 #include "SeTime.h"
 
-bool GateInit(char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
+__declspec(dllexport) bool GateInit(char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
 
-void GateFin();
+__declspec(dllexport) void GateFin();
 
-void GateProcess();
+__declspec(dllexport) void GateProcess();
 
-bool SvrInit(char *pcLogName, int iTimeOut, unsigned short usInPort);
+__declspec(dllexport) bool SvrInit(char *pcLogName, int iTimeOut, unsigned short usInPort);
 
-void SvrFin();
+__declspec(dllexport) void SvrFin();
 
-bool RegSvr(char *pcSvrName);
+__declspec(dllexport) bool RegSvr(char *pcSvrName);
 
-bool SvrSendClient(HSOCKET kHSocket, char *pcBuf, int iLen);
+__declspec(dllexport) bool SvrSendClient(HSOCKET kHSocket, char *pcBuf, int iLen);
 
-void SvrBindClient(HSOCKET kHSocket, char *pcSvrName);
+__declspec(dllexport) void SvrBindClient(HSOCKET kHSocket, char *pcSvrName);
 
-void SvrCloseClient(HSOCKET kHSocket);
+__declspec(dllexport) void SvrCloseClient(HSOCKET kHSocket);
 
-bool SvrSendSvr(char *pcSvrName, char *pcBuf, int iLen);
+__declspec(dllexport) bool SvrSendSvr(char *pcSvrName, char *pcBuf, int iLen);
 
-enum MAGIC_STATE SvrRead(HSOCKET *rkRecvHSocket, char *pcBuf, int *riBufLen);
+__declspec(dllexport) enum MAGIC_STATE SvrRead(HSOCKET *rkRecvHSocket, char *pcBuf, int *riBufLen);
 
-void TimeSleep(unsigned long ulMillisecond);
+__declspec(dllexport) void TimeSleep(unsigned long ulMillisecond);
 
-unsigned long long TickCount();
+__declspec(dllexport) unsigned long long TickCount();
 
