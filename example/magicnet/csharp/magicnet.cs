@@ -28,7 +28,7 @@ namespace magicnetdll
         public static extern bool RegSvr(string strSvrName);
 
         [DllImport("magicnet.dll", EntryPoint = "SvrSendClient", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-        public static extern bool SvrSendClient(ulong kHSocket, string strBuf, int iLen);
+        public static extern bool SvrSendClient(ulong kHSocket, [MarshalAs(UnmanagedType.LPArray)] byte[] buf, int iLen);
 
         [DllImport("magicnet.dll", EntryPoint = "SvrBindClient", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
         public static extern void SvrBindClient(ulong kHSocket, string strSvrName);
@@ -37,10 +37,10 @@ namespace magicnetdll
         public static extern void SvrCloseClient(ulong kHSocket);
 
         [DllImport("magicnet.dll", EntryPoint = "SvrSendSvr", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-        public static extern bool SvrSendSvr(string strSvrName, string strBuf, int iLen);
+        public static extern bool SvrSendSvr(string strSvrName, [MarshalAs(UnmanagedType.LPArray)] byte[] buf, int iLen);
 
         [DllImport("magicnet.dll", EntryPoint = "SvrRead", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-        public static extern MAGIC_STATE SvrRead(ref ulong rkRecvHSocket, StringBuilder pcBuf, ref int riBufLen);
+        public static extern MAGIC_STATE SvrRead(ref ulong rkRecvHSocket, [MarshalAs(UnmanagedType.LPArray)] byte[] buf, ref int riBufLen);
 
 
         [DllImport("magicnet.dll", EntryPoint = "TimeSleep", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
