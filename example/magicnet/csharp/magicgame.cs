@@ -3,17 +3,17 @@ using System.Text;
 using magicnetdll;
 using System.Runtime.InteropServices;
 
-namespace watchdog
+namespace game
 {
-    public class watchdog
+    public class game
     {
         public static void Main(String[] args)
         {
-           watchdog();
+           start();
            Console.Read();
         }
 
-        public static void watchdog()
+        public static void start()
         {
             byte[] pcBuf = new byte[1024 * 1024 * 4];
             magicnet.SvrInit("game", 30 * 1000, 9999);

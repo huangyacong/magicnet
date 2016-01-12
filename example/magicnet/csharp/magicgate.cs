@@ -9,11 +9,11 @@ namespace gate
     {
 		public static void Main(String[] args)
 		{
-			gate();
+			start();
 			Console.Read();
 		}
 
-        public static void gate()
+        public static void start()
         {
             bool result = true;
             magicnet.GateInit("gate", 30 * 1000, 1000, 8888, 9999);
