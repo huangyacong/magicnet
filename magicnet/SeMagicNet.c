@@ -294,6 +294,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 
 			memset(acName, 0, sizeof(acName));
 			memcpy(acName, (char*)pkComData + (int)sizeof(struct SECOMMONDATA), pkComData->iBufLen);
+			acName[sizeof(acName) - 1] = '\0';
 			if(strcmp(acWatchdogName, acName) == 0) { return; }
 			pkSeSocket = SeNetCoreGetSocket(&pkMagicNetS->kNetCore, pkComData->kData.kHSocket);
 			if(!pkSeSocket) { return; }
