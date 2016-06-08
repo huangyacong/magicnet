@@ -170,7 +170,9 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTime
 	pkMagicNetS->pcRecvBuf = (char*)SeMallocMem(MAX_RECV_BUF_LEN);
 
 	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, 2, &SeGetHeader, &SeSetHeader);
+	if(pkMagicNetS->kHScoketOut <= 0) { return false; }
 	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usInPort, 4, &SeGetHeader, &SeSetHeader);
+	if(pkMagicNetS->kHScoketIn <= 0) { return false; }
 
 	return true;
 }
@@ -386,7 +388,7 @@ bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTime
 	pkMagicNetC->llActive = SeTimeGetTickCount();
 
 	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", usInPort, 4, &SeGetHeader, &SeSetHeader);
-	if(pkMagicNetC->kHScoket <= 0) { SeMagicNetCFin(pkMagicNetC); return false; }
+	if(pkMagicNetC->kHScoket <= 0) { return false; }
 
 	return true;
 }
