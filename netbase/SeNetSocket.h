@@ -45,7 +45,7 @@ struct SE_ALIGN(64) SESOCKET
 	int						iHeaderLen;
 	int						iTypeSocket;
 	int						iEventSocket;
-	long long				llFlag;
+	long long				llFlag;// for user flag,wo can't use it!
 	unsigned long long		llTime;
 	SEGETHEADERLENFUN		pkGetHeaderLenFun;
 	SESETHEADERLENFUN		pkSetHeaderLenFun;
