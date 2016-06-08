@@ -94,6 +94,7 @@ time_t SeTimeAddTime(time_t srcTime, int sec)
 {
 	if(sec >= 3600*24*366 || sec <= 3600*24*366*(-1)) {
 		assert(0 != 0);
+		sec = 3600*24*366;
 	}
 	return srcTime + sec;
 }
