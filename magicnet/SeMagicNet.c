@@ -218,6 +218,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 	HSOCKET rkHSocket;
 	HSOCKET rkListenHSocket;
 	struct REGSVRNODE *pkSvr;
+	struct REGSVRNODE *pkSvrMe;
 	struct SESOCKET *pkSeSocket;
 	char acName[MAX_SVR_NAME_LEN];
 	struct SECOMMONDATA *pkComData;
@@ -357,8 +358,8 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			pkSvrWatchdog = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acWatchdogName);
 			if(!pkSvrWatchdog) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 
-			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, rkHSocket);
-			if(!pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+			pkSvrMe = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, rkHSocket);
+			if(!pkSvrMe) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 
 			if(((int)sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { return; }
 			if(pkComData->iBufLen < 0 || pkComData->iBufLen > (0xFFFF*2)) { return; }
@@ -366,9 +367,10 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			memset(acName, 0, sizeof(acName));
 			pkComData->kData.acName[sizeof(pkComData->kData.acName) - 1] = '\0';
 			SeStrNcpy(acName, sizeof(acName), pkComData->kData.acName);
-			pkComData->kData.kHSocket = pkSvr->kHSocket;
+			pkComData->kData.kHSocket = pkSvrMe->kHSocket;
 			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acName);
 			if (!pkSvr) { return; }
+			if(pkSvrMe->kHSocket == pkSvr->kHSocket) { return; } //me send to me?
 
 			pkComData->iProco = MAGICNET_TO_SVR_RECV_DATA_FROM_SVR;
 			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
