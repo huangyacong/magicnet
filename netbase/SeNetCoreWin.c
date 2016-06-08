@@ -162,6 +162,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 	
+	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SocketMgr listen ok, IP=%s port=%d", pcIP, usPort);
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 	SeNetCoreAcceptEx(pkNetCore, kHSocket, backlog);
