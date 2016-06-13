@@ -367,6 +367,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		{
 			GlobalFree(pkIOData);
 			SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SEND DATA] SeNetCoreSendBuf WSASend failed, errno=%d", iErrorno);
 			return false;
 		}
 	}
@@ -411,6 +412,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		if(iErrorno != WSA_IO_PENDING)
 		{
 			GlobalFree(pkIOData);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[RECV DATA] SeNetCoreRecvBuf WSARecv failed, errno=%d", iErrorno);
 			return false;
 		}
 	}
@@ -539,6 +541,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 				{
 					GlobalFree(pkSendIOData);
 					SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+					SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SEND DATA] SeNetCoreAcceptSocket WSASend failed, errno=%d", iErrorno);
 					return;
 				}
 			}
