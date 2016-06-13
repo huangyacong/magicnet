@@ -54,7 +54,7 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 
 	if(iheaderlen == 4)
 	{
-		if(ilen < 0 || ilen > (0xFFFF*2)) { return false; }
+		if(ilen < 0 || ilen > 1024*1024) { return false; }
 		// 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。
 		pcHeader[3] = ((ilen & 0xFF000000) >> 24);
 		pcHeader[2] = ((ilen & 0x00FF0000) >> 16);
@@ -79,7 +79,7 @@ bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 	{
 		// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
 		*ilen = (int)((pcHeader[0] & 0xFF) | ((pcHeader[1] << 8) & 0xFF00) | ((pcHeader[2] << 16) & 0xFF0000) | ((pcHeader[3] << 24) & 0xFF000000));
-		if(*ilen < 0 || *ilen > (0xFFFF*2)) { return false; }
+		if(*ilen < 0 || *ilen > 1024*1024) { return false; }
 		return true;
 	}
 
@@ -348,7 +348,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			if(!pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 
 			if(((int)sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { return; }
-			if(pkComData->iBufLen < 0 || pkComData->iBufLen > (0xFFFF*2)) { return; }
+			if(pkComData->iBufLen < 0) { return; }
 
 			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkComData->kData.kHSocket);
 			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }// not send to client,is send to svr
@@ -365,7 +365,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			if(!pkSvrMe) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
 
 			if(((int)sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { return; }
-			if(pkComData->iBufLen < 0 || pkComData->iBufLen > (0xFFFF*2)) { return; }
+			if(pkComData->iBufLen < 0) { return; }
 			
 			memset(acName, 0, sizeof(acName));
 			pkComData->kData.acName[sizeof(pkComData->kData.acName) - 1] = '\0';
