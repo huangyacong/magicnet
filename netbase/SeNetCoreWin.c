@@ -204,7 +204,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 
 	so_linger.l_onoff = 1;
 	so_linger.l_linger = 0;
-	if(SeSetSockOpt(socket, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger)) != 0)
+	if(SeSetSockOpt(socket, SOL_SOCKET, SO_LINGER, (const char *)&so_linger, sizeof(so_linger)) != 0)
 	{
 		iErrorno = SeErrno();
 		SeCloseSocket(socket);
@@ -471,12 +471,12 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	
 	so_linger.l_onoff = 1;
 	so_linger.l_linger = 0;
-	if(SeSetSockOpt(kSocket, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger)) != 0)
+	if(SeSetSockOpt(kSocket, SOL_SOCKET, SO_LINGER, (const char *)&so_linger, sizeof(so_linger)) != 0)
 	{
 		iErrorno = SeErrno();
 		SeCloseSocket(kSocket);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeSetSockOpt ERROR, errno=%d", iErrorno);
-		return 0;
+		return;
 	}
 
 	kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, kSocket, ACCEPT_TCP_TYPE_SOCKET, \
@@ -677,7 +677,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	bWork = false;
 	pkOverlapped = NULL;
 
-	bResult = GetQueuedCompletionStatus(pkNetCore->kHandle, &dwLen, &ulKey, &pkOverlapped, 0);
+	bResult = GetQueuedCompletionStatus(pkNetCore->kHandle, &dwLen, &ulKey, &pkOverlapped, 0) == TRUE ? true : false;
 	if(pkOverlapped)
 	{
 		bWork = true;
@@ -695,7 +695,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		GlobalFree(pkIOData);
 	}
 
-	if(pkNetCore->iListenNo <= 0) { SeNetCoreAcceptEx(pkNetCore, pkNetSocketListen->kHSocket, 1); }
+	if(pkNetCore->iListenNo <= 0) { SeNetCoreAcceptEx(pkNetCore, pkNetSocket->kHSocket, 1); }
 
 	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize)) { return true; }
 
