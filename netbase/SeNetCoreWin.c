@@ -179,6 +179,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	DWORD dwSend,dwBytes;
 	struct sockaddr kAddr;
 	struct sockaddr local;
+	struct linger so_linger;
 	struct IODATA *pkIOData;
 	struct SESOCKET *pkNetSocket;
 	
@@ -195,6 +196,16 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		iErrorno = SeErrno();
 		SeCloseSocket(socket);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeSetNoBlock ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
+		return 0;
+	}
+
+	so_linger.l_onoff = 1;
+	so_linger.l_linger = 0;
+	if(SeSetSockOpt(socket, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger)) != 0)
+	{
+		iErrorno = SeErrno();
+		SeCloseSocket(socket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeSetSockOpt ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
 
@@ -410,6 +421,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 {
 	int							iErrorno;
 	HSOCKET						kHSocket;
+	struct linger				so_linger;
 	struct SESOCKET				*pkNetSocketAccept;
 
 	LPFN_GETACCEPTEXSOCKADDRS	lpfnGetAcceptExSockaddrs = NULL;
@@ -449,6 +461,17 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[ACCEPT SOCKET] SeSetNoBlock ERROR, errno=%d", iErrorno);
 		return;
 	}
+	
+	so_linger.l_onoff = 1;
+	so_linger.l_linger = 0;
+	if(SeSetSockOpt(kSocket, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger)) != 0)
+	{
+		iErrorno = SeErrno();
+		SeCloseSocket(kSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeSetSockOpt ERROR, errno=%d", iErrorno);
+		return 0;
+	}
+
 	kHSocket = SeNetSocketMgrAdd(&pkNetCore->kSocketMgr, kSocket, ACCEPT_TCP_TYPE_SOCKET, \
 		pkNetSocketListen->iHeaderLen, pkNetSocketListen->pkGetHeaderLenFun, pkNetSocketListen->pkSetHeaderLenFun);
 	if(kHSocket <= 0)
