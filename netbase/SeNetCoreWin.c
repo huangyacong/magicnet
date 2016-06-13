@@ -20,6 +20,7 @@ struct IODATA
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax)
 {
 	SeNetBaseInit();
+	pkNetCore->iListenNo = 0;
 	pkNetCore->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
@@ -29,6 +30,7 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
 {
+	pkNetCore->iListenNo = 0;
 	SeCloseHandle(pkNetCore->kHandle);
 	SeFinLog(&pkNetCore->kLog);
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
@@ -86,7 +88,7 @@ void SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, HSOCKET kListenHSocket, int 
 				pkIOData->acData, 0,
 				sizeof(struct sockaddr_in) + 16, sizeof(struct sockaddr_in) + 16,
 				&dwBytes, &pkIOData->overlapped);
-		if(bRet) { continue; }
+		if(bRet) { pkNetCore->iListenNo++; continue; }
 	
 		iErrorno = SeErrno();
 		if(iErrorno != ERROR_IO_PENDING)
@@ -96,6 +98,7 @@ void SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, HSOCKET kListenHSocket, int 
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[GET ACCEPT POINT] add socket failed, errno=%d", iErrorno);
 			continue;
 		}
+		pkNetCore->iListenNo++;
 	}
 }
 
@@ -438,6 +441,8 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 						&tGuidGetAcceptExSockaddrs, sizeof(tGuidGetAcceptExSockaddrs),
 						&lpfnGetAcceptExSockaddrs, sizeof(lpfnGetAcceptExSockaddrs),
 						&dwBytes, NULL, NULL);
+	
+	pkNetCore->iListenNo--;
 
 	if(tResult != SE_SOCKET_ERROR)
 	{
@@ -686,6 +691,8 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		
 		GlobalFree(pkIOData);
 	}
+
+	if(pkNetCore->iListenNo <= 0) { SeNetCoreAcceptEx(pkNetCore, pkNetSocketListen->kHSocket, 1); }
 
 	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize)) { return true; }
 
