@@ -65,6 +65,7 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 	}
 	*/
 
+	// 小头
 	if(iheaderlen == 4)
 	{
 		if(ilen < 0 || ilen > 1024*1024) { return false; }
@@ -100,6 +101,7 @@ bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 	}
 	*/
 
+	// 小头
 	if(iheaderlen == 4)
 	{
 		// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
