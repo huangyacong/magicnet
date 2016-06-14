@@ -28,6 +28,7 @@ struct SENETCORE
 	struct epoll_event		akEvents[64];
 	char					*pcBuf;
 #elif (defined(_WIN32) || defined(WIN32))
+	struct SELIST			kList;
 	int						iListenNo;
 #endif
 };
