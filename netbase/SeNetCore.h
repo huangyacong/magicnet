@@ -33,6 +33,8 @@ struct SENETCORE
 #endif
 };
 
+typedef void (*SENETCORERECV)(int iEvent, HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize);
+
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax);
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore);
