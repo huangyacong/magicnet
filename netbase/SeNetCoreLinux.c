@@ -12,6 +12,7 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
 	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
 	SeAddLogLV(&pkNetCore->kLog, LT_SOCKET);
+	SeAddLogLV(&pkNetCore->kLog, LT_WARNING);
 	pkNetCore->pcBuf = (char*)SeMallocMem(SENETCORE_MAX_SOCKET_BUF_LEN);
 }
 
