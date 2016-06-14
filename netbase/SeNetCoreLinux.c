@@ -305,6 +305,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		}
 		else
 		{
+			SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] send buf leave some data,now send again");
 			pkNetStreamNode->usReadPos += iLen;
 			if(pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos <= 0) { SeNetSreamHeadAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
 			else { SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); break; }

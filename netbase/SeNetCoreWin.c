@@ -558,6 +558,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			pkSendIOData->kBuf.buf = pkSendIOData->acData;
 			pkSendIOData->kBuf.len = pkIOData->kBuf.len - dwLen;
 			memcpy(pkSendIOData->kBuf.buf, pkIOData->kBuf.buf + dwLen, pkIOData->kBuf.len - dwLen);
+			SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] wsasend buf leave some data,now send again");
 
 			dwSendLen = 0;
 			if(WSASend(socket, &pkSendIOData->kBuf, 1, &dwSendLen, 0, &pkSendIOData->overlapped, 0) == SE_SOCKET_ERROR)
