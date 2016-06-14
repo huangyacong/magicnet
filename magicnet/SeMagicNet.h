@@ -38,6 +38,7 @@ struct SEMAGICNETC
 	HSOCKET					kHScoket;
 	unsigned long long		llActive;
 	struct SENETCORE		kNetCore;
+	unsigned short			usInPort;
 	char					*pcRecvBuf;
 };
 
