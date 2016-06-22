@@ -3,7 +3,7 @@
 
 bool TryConnect(struct SEMYSQL *pkMysql)
 {
-	mysql_init(&pkMysql->kMysql);
+	if(!mysql_init(&pkMysql->kMysql)) { return false; }
 	return (mysql_real_connect(&pkMysql->kMysql,pkMysql->acHost, pkMysql->acUser, pkMysql->acPasswd, pkMysql->acDBName, pkMysql->uiPort, 
 		NULL,CLIENT_COMPRESS) ? true : false);
 }
@@ -16,7 +16,6 @@ void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPor
 	SeStrNcpy(pkMysql->acUser, 256, pcUser);
 	SeStrNcpy(pkMysql->acPasswd, 256, pcPasswd);
 	SeStrNcpy(pkMysql->acDBName, 256, pcDBName);
-	//memset(&pkMysql->kMysql, 0, sizeof(pkMysql->kMysql));
 }
 
 void SeMysqlFin(struct SEMYSQL *pkMysql)
