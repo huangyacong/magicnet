@@ -3,7 +3,6 @@
 
 #include "SeTool.h"
 #include <stdbool.h>
-
 #if defined(__linux)
 
 #include <sys/socket.h>
@@ -27,14 +26,17 @@ struct SEMYSQL
 	MYSQL			kMysql;
 	
 	unsigned int	uiPort;
-	int				iAutoReconnect;
 	char			acHost[256];
 	char			acUser[256];
 	char			acPasswd[256];
 	char			acDBName[256];
 };
 
-void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPort, const char* pcDBName, const char* pcUser, const char* pcPasswd, int iAutoReconnect);
+bool SeMysqlLibraryInit();
+
+void SeMysqlLibraryEnd();
+
+void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPort, const char* pcDBName, const char* pcUser, const char* pcPasswd);
 
 void SeMysqlFin(struct SEMYSQL *pkMysql);
 
@@ -69,6 +71,8 @@ long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned
 bool SeMysqlNextResult(struct SEMYSQL *pkMysql);
 
 bool SeMysqlStoreResult(struct SEMYSQL *pkMysql, struct SEMYSQLRESULT *pkMysqlResult);
+
+unsigned long long SeMysqlInsertId(struct SEMYSQL *pkMysql);
 
 
 

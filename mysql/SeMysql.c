@@ -3,15 +3,27 @@
 
 bool TryConnect(struct SEMYSQL *pkMysql)
 {
-	if(!mysql_init(&pkMysql->kMysql)) { return false; }
+	if(!mysql_init(&pkMysql->kMysql))
+	{
+		return false;
+	}
 	return (mysql_real_connect(&pkMysql->kMysql,pkMysql->acHost, pkMysql->acUser, pkMysql->acPasswd, pkMysql->acDBName, pkMysql->uiPort, 
 		NULL,CLIENT_COMPRESS) ? true : false);
 }
 
-void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPort, const char* pcDBName, const char* pcUser, const char* pcPasswd, int iAutoReconnect)
+bool SeMysqlLibraryInit()
+{
+	return mysql_library_init(0, NULL, NULL) == 0 ? true : false;
+}
+
+void SeMysqlLibraryEnd()
+{
+	mysql_library_end();
+}
+
+void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPort, const char* pcDBName, const char* pcUser, const char* pcPasswd)
 {
 	pkMysql->uiPort = uiPort;
-	pkMysql->iAutoReconnect = iAutoReconnect;
 	SeStrNcpy(pkMysql->acHost, 256, pcHost);
 	SeStrNcpy(pkMysql->acUser, 256, pcUser);
 	SeStrNcpy(pkMysql->acPasswd, 256, pcPasswd);
@@ -165,6 +177,11 @@ bool SeMysqlStoreResult(struct SEMYSQL *pkMysql, struct SEMYSQLRESULT *pkMysqlRe
 {
 	pkMysqlResult->pkRes = mysql_store_result(&pkMysql->kMysql);
 	return pkMysqlResult->pkRes ? true : false;
+}
+
+unsigned long long SeMysqlInsertId(struct SEMYSQL *pkMysql)
+{
+	return mysql_insert_id(&pkMysql->kMysql);
 }
 
 void SeMysqlResultInit(struct SEMYSQLRESULT *pkMysqlResult)
