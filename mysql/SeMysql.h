@@ -66,7 +66,7 @@ unsigned long SeMysqlEscape(struct SEMYSQL *pkMysql, char *pcDst, const char *pc
 // pcDst len must at least (ulSrcLen*2 + 1) and return value = copy len not include '\0'
 unsigned long SeMysqlMyEscape(char *pcDst, const char *pcSrc, unsigned long ulSrcLen);
 
-long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen);
+bool SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen);
 
 bool SeMysqlNextResult(struct SEMYSQL *pkMysql);
 

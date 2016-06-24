@@ -158,14 +158,9 @@ unsigned long SeMysqlMyEscape(char *pcDst, const char *pcSrc, unsigned long ulSr
 	return ulPos;
 }
 
-long SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen)
+bool SeMysqlExecuteSql(struct SEMYSQL *pkMysql, const char *pcQuerySql, unsigned long ulLen)
 {
-	my_ulonglong lAffectedRows;
-	if(mysql_real_query(&pkMysql->kMysql, pcQuerySql, ulLen) == 0) {
-		lAffectedRows = mysql_affected_rows(&pkMysql->kMysql);
-		return lAffectedRows == (my_ulonglong)-1 ? 0 : (long)lAffectedRows;
-	}
-	return -1;
+	return mysql_real_query(&pkMysql->kMysql, pcQuerySql, ulLen) == 0 ? true : false;
 }
 
 bool SeMysqlNextResult(struct SEMYSQL *pkMysql)
