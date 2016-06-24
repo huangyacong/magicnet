@@ -46,9 +46,13 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 	pkNetCore->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
-	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
 	SeAddLogLV(&pkNetCore->kLog, LT_SOCKET);
 	SeAddLogLV(&pkNetCore->kLog, LT_WARNING);
+	SeAddLogLV(&pkNetCore->kLog, LT_SPLIT);
+	SeAddLogLV(&pkNetCore->kLog, LT_ERROR);
+	SeAddLogLV(&pkNetCore->kLog, LT_INFO);
+	SeAddLogLV(&pkNetCore->kLog, LT_DEBUG);
+	SeAddLogLV(&pkNetCore->kLog, LT_CRITICAL);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -705,7 +709,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	bWork = false;
 	pkOverlapped = NULL;
 
-	bResult = GetQueuedCompletionStatus(pkNetCore->kHandle, &dwLen, &ulKey, &pkOverlapped, 0) == TRUE ? true : false;
+	bResult = GetQueuedCompletionStatus(pkNetCore->kHandle, &dwLen, &ulKey, &pkOverlapped, NET_CORE_WAIT_TIME) == TRUE ? true : false;
 	if(pkOverlapped)
 	{
 		bWork = true;

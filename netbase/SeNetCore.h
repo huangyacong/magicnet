@@ -33,6 +33,8 @@ struct SENETCORE
 #endif
 };
 
+#define NET_CORE_WAIT_TIME 50
+
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax);
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore);

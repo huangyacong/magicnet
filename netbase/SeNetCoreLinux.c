@@ -10,9 +10,13 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 	pkNetCore->kHandle = epoll_create(usMax);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
-	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
 	SeAddLogLV(&pkNetCore->kLog, LT_SOCKET);
 	SeAddLogLV(&pkNetCore->kLog, LT_WARNING);
+	SeAddLogLV(&pkNetCore->kLog, LT_SPLIT);
+	SeAddLogLV(&pkNetCore->kLog, LT_ERROR);
+	SeAddLogLV(&pkNetCore->kLog, LT_INFO);
+	SeAddLogLV(&pkNetCore->kLog, LT_DEBUG);
+	SeAddLogLV(&pkNetCore->kLog, LT_CRITICAL);
 	pkNetCore->pcBuf = (char*)SeMallocMem(SENETCORE_MAX_SOCKET_BUF_LEN);
 }
 
@@ -572,7 +576,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	struct SESOCKET *pkNetSocket;
 
 	memset(pkNetCore->akEvents, 0, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event));
-	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), 0);
+	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), NET_CORE_WAIT_TIME);
 	bWork = iNum > 0 ? true : false;
 
 	for(i = 0; i < iNum; i++)
