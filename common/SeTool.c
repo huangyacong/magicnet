@@ -58,6 +58,11 @@ bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
 void SeStrNcpy(char* pcDstChar,int iDstLen,const char* pcSrcChar)
 {
 	assert(iDstLen > 1);
+	assert(pcDstChar != pcSrcChar);
+	if(pcDstChar == pcSrcChar)
+	{
+		return;
+	}
 	strncpy(pcDstChar,pcSrcChar,iDstLen);
 	pcDstChar[iDstLen - 1] = '\0';
 }

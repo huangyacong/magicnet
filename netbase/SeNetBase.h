@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
-
 #if defined(__linux)
 	#include <errno.h>
 	#include <netdb.h>
@@ -110,6 +109,8 @@ int SeSetSockOpt(SOCKET kSocket, int iLevel, int iOptname, const char *pcOptval,
 
 int SeGetSockOpt(SOCKET kSocket, int iLevel, int iOptname, char *pcOptval, SOCK_LEN *piOptlen);
 
+int SeSetNoDelay(SOCKET kSocket);
+
 int SeGetSockName(SOCKET kSocket, struct sockaddr *pkAddr);
 
 int SeGetPeerName(SOCKET kSocket, struct sockaddr *pkAddr);
@@ -119,6 +120,8 @@ void SeSetSockAddr(struct sockaddr *pkAddr, const char *pcIP, unsigned short usP
 void SeErrStr(int iErrno, char *pcMsg, unsigned long ulSize);
 
 int SeSetReuseAddr(SOCKET kSocket);
+
+int SeSetExclusiveAddruse(SOCKET kSocket);
 
 int SeSetNoBlock(SOCKET kSocket,bool bBlock /*= true*/);
 

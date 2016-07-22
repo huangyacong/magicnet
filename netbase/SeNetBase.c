@@ -182,6 +182,12 @@ int SeGetSockOpt(SOCKET kSocket, int iLevel, int iOptname, char *pcOptval, SOCK_
 	return getsockopt(kSocket, iLevel, iOptname, pcOptval, piOptlen);
 }
 
+int SeSetNoDelay(SOCKET kSocket)
+{
+	int iFlag = 1;
+	return SeSetSockOpt(kSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&iFlag, sizeof(iFlag));
+}
+
 int SeGetSockName(SOCKET kSocket, struct sockaddr *pkAddr)
 {
 	SOCK_LEN kLen = sizeof(struct sockaddr);
@@ -222,6 +228,12 @@ int SeSetReuseAddr(SOCKET kSocket)
 {
 	unsigned long value = 1;
 	return SeSetSockOpt(kSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&value, sizeof(value));
+}
+
+int SeSetExclusiveAddruse(SOCKET kSocket)
+{
+	int value = 1;
+	return SeSetSockOpt(kSocket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&value, sizeof(value));
 }
 
 int SeSetNoBlock(SOCKET kSocket,bool bBlock)

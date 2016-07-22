@@ -43,7 +43,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 	time_t my_time = SeTimeTime();
 	memcpy(&tt_now, localtime(&my_time), sizeof(tt_now));
 
-	if(!pkLog->pFile || !SeHasLogLV(pkLog, iLogLv))
+	if(!SeHasLogLV(pkLog, iLogLv))
 	{
 		return;
 	}
@@ -74,8 +74,53 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 		pkLog->actext[writelen + 2] = '\0';
 	}
 #endif
-	
-	
+
+	if(iLogLv == LT_ERROR)
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [ERROR] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+	else if(iLogLv == LT_WARNING)
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [WARNING] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+	else if(iLogLv == LT_INFO)
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [INFO] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+	else if(iLogLv == LT_DEBUG)
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [DEBUG] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+	else if(iLogLv == LT_CRITICAL)
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [CRITICAL] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+	else if(iLogLv == LT_SOCKET)
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [SOCKET] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+	else if(iLogLv == LT_NOTSET)
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [NOTSET] ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+	else
+	{
+		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d ", tt_now.tm_year + 1900, 
+			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
+	}
+
+	if(SeHasLogLV(pkLog, LT_PRINT))
+	{
+		printf("%s%s", acHeadr, pkLog->actext);
+	}
+
 	if(SeHasLogLV(pkLog, LT_SPLIT))
 	{
 		if(tt_now.tm_year != pkLog->ttDate.tm_year || tt_now.tm_mon != pkLog->ttDate.tm_mon || tt_now.tm_mday != pkLog->ttDate.tm_mday)
@@ -92,57 +137,11 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, 
 	{
 		return;
 	}
-
-	if(iLogLv == LT_ERROR)
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG ERROR] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
-	else if(iLogLv == LT_WARNING)
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG WARNING] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
-	else if(iLogLv == LT_INFO)
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG INFO] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
-	else if(iLogLv == LT_DEBUG)
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG DEBUG] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
-	else if(iLogLv == LT_CRITICAL)
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG CRITICAL] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
-	else if(iLogLv == LT_SOCKET)
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG SOCKET] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
-	else if(iLogLv == LT_NOTSET)
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [LOG NOTSET] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
-	else
-	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
-	}
 	
 	fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
 	fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
 	if(bFlushToDisk) {
 		fflush(pkLog->pFile);
-	}
-	
-	if(SeHasLogLV(pkLog, LT_PRINT))
-	{
-		printf("%s%s", acHeadr, pkLog->actext);
 	}
 }
 

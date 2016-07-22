@@ -155,6 +155,7 @@ unsigned long SeMysqlMyEscape(char *pcDst, const char *pcSrc, unsigned long ulSr
 			ulPos++;
 		}
 	}
+	pcDst[ulPos] = '\0';
 	return ulPos;
 }
 

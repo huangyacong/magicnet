@@ -15,11 +15,14 @@ struct SEMAGICNETS
 	struct SENETCORE		kNetCore;
 	struct SELIST			kRegSvrList;
 	char					*pcRecvBuf;
+	char					*pcSendBuf;
 };
 
 bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
+
+void SeMagicNetSSetWaitTime(struct SEMAGICNETS *pkMagicNetS, unsigned int uiWaitTime);
 
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
 
@@ -40,11 +43,14 @@ struct SEMAGICNETC
 	struct SENETCORE		kNetCore;
 	unsigned short			usInPort;
 	char					*pcRecvBuf;
+	char					*pcSendBuf;
 };
 
 bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort);
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
+
+void SeMagicNetCSetWaitTime(struct SEMAGICNETC *pkMagicNetC, unsigned int uiWaitTime);
 
 bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName);
 

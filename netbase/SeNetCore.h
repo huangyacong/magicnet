@@ -19,17 +19,20 @@ enum SENETCORE_EVENT_SOCKET
 	SENETCORE_EVENT_SOCKET_RECV_DATA = 4
 };
 
+#define SENETCORE_SOCKET_BACKLOG 64
+
 struct SENETCORE
 {
+	int						iWaitTime;
 	HANDLE					kHandle;
 	struct SELOG			kLog;
 	struct SESOCKETMGR		kSocketMgr;
 #if defined(__linux)
-	struct epoll_event		akEvents[64];
+	struct epoll_event		akEvents[SENETCORE_SOCKET_BACKLOG];
 	char					*pcBuf;
 #elif (defined(_WIN32) || defined(WIN32))
 	struct SELIST			kList;
-	int						iListenNo;
+	struct SELIST			kListenList;
 #endif
 };
 
@@ -38,6 +41,8 @@ struct SENETCORE
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax);
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore);
+
+void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, unsigned int uiWaitTime);
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\
 				int iHeaderLen, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
