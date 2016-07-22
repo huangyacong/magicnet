@@ -602,6 +602,8 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 
 	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[ACCEPT SOCKET] Client Connect");
 
+	SeSetAcceptSocket(pkNetCore);
+
 	tResult = WSAIoctl(SeGetSocketByHScoket(pkNetSocketListen->kHSocket), SIO_GET_EXTENSION_FUNCTION_POINTER,
 						&tGuidGetAcceptExSockaddrs, sizeof(tGuidGetAcceptExSockaddrs),
 						&lpfnGetAcceptExSockaddrs, sizeof(lpfnGetAcceptExSockaddrs),
