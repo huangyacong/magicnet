@@ -3,7 +3,6 @@
 #include "SeTime.h"
 
 #define MAGICNET_TIME_OUT 1000*5 // sec
-#define MAX_SVR_NAME_LEN 128
 #define MAX_RECV_BUF_LEN 1024*1024*4
 
 #define SVR_TO_MAGICNET_REG_SVR 0
@@ -12,12 +11,14 @@
 #define SVR_TO_MAGICNET_CLOSE_CLIENT 3
 #define SVR_TO_MAGICNET_BIND_CLIENT 4
 #define SVR_TO_MAGICNET_ACTIVE 5
+#define SVR_TO_MAGICNET_GATE_STAT 6
 
 #define MAGICNET_TO_SVR_CLIENT_CONNECT 0
 #define MAGICNET_TO_SVR_CLIENT_DISCONNECT 1
 #define MAGICNET_TO_SVR_RECV_DATA_FROM_SVR 2
 #define MAGICNET_TO_SVR_RECV_DATA_FROM_CLIENT 3
 #define MAGICNET_TO_SVR_ACTIVE 4
+#define MAGICNET_TO_SVR_GATE_STAT 5
 
 char acWatchdogName[] = "watchdog.";
 
@@ -32,6 +33,12 @@ struct SECOMMONDATA
 	int						iProco;
 	union COMMDATA			kData;
 	int						iBufLen;
+};
+
+struct SEGATESTAT
+{
+	int iSend;
+	int iRecv;
 };
 
 struct REGSVRNODE
@@ -153,6 +160,7 @@ struct REGSVRNODE *SeAddRegSvrNode(struct SELIST *pkRegSvrList, const char *pcNa
 	if(SeGetRegSvrNodeBySocket(pkRegSvrList, kHSocket)) { return 0; }
 
 	pkRegSvrNode = (struct REGSVRNODE *)SeMallocMem(sizeof(struct REGSVRNODE));
+	if(!pkRegSvrNode) { return 0; }
 	SeListInitNode(&pkRegSvrNode->kNode);
 	pkRegSvrNode->llActive = SeTimeGetTickCount();
 	pkRegSvrNode->kHSocket = kHSocket;
@@ -199,6 +207,10 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTime
 	pkMagicNetS->pcSendBuf = (char*)SeMallocMem(MAX_RECV_BUF_LEN);
 	assert(pkMagicNetS->pcSendBuf);
 
+	pkMagicNetS->ullTime = SeTimeGetTickCount();
+	pkMagicNetS->iSendNum = 0;
+	pkMagicNetS->iRecvNum = 0;
+
 	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, 2, &SeGetHeader, &SeSetHeader);
 	if(pkMagicNetS->kHScoketOut <= 0) { return false; }
 	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usInPort, 4, &SeGetHeader, &SeSetHeader);
@@ -239,9 +251,43 @@ void SeMagicNetSSendActive(struct SEMAGICNETS *pkMagicNetS)
 			pkComData->iProco = MAGICNET_TO_SVR_ACTIVE;
 			pkComData->iBufLen = 0;
 			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, (int)sizeof(struct SECOMMONDATA));
+			pkMagicNetS->iSendNum++;
 		}
 		pkNode = pkNode->next;
 	}
+}
+
+void SeMagicNetSSendStat(struct SEMAGICNETS *pkMagicNetS)
+{
+	unsigned long long ullTime;
+	struct SEGATESTAT kGateStat;
+	struct REGSVRNODE *pkSvrWatchdog;
+	struct SECOMMONDATA *pkComDataGateStat;
+
+	ullTime = SeTimeGetTickCount();
+
+	if(pkMagicNetS->ullTime + 500 > ullTime)
+	{
+		return;
+	}
+
+	kGateStat.iSend = (pkMagicNetS->iSendNum*1000)/(int)(ullTime - pkMagicNetS->ullTime);
+	kGateStat.iRecv = (pkMagicNetS->iRecvNum*1000)/(int)(ullTime - pkMagicNetS->ullTime);
+
+	pkSvrWatchdog = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acWatchdogName);
+	if(pkSvrWatchdog)
+	{
+		pkComDataGateStat = (struct SECOMMONDATA *)pkMagicNetS->pcSendBuf;
+		pkComDataGateStat->iProco = MAGICNET_TO_SVR_GATE_STAT;
+		pkComDataGateStat->iBufLen = (int)sizeof(struct SEGATESTAT);
+		SeStrNcpy(pkComDataGateStat->kData.acName, sizeof(pkComDataGateStat->kData.acName), "gate");
+		memcpy(pkMagicNetS->pcSendBuf + (int)sizeof(struct SECOMMONDATA), &kGateStat, (int)sizeof(struct SEGATESTAT));
+		SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComDataGateStat, pkComDataGateStat->iBufLen + (int)sizeof(struct SECOMMONDATA));
+	}
+
+	pkMagicNetS->iRecvNum = 0;
+	pkMagicNetS->iSendNum = 0;
+	pkMagicNetS->ullTime = ullTime;
 }
 
 void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
@@ -261,12 +307,15 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 	struct REGSVRNODE *pkSvrWatchdog;
 
 	SeMagicNetSSendActive(pkMagicNetS);
+	SeMagicNetSSendStat(pkMagicNetS);
 	
 	riLen = MAX_RECV_BUF_LEN - (int)sizeof(struct SECOMMONDATA);
 	result = SeNetCoreRead(&pkMagicNetS->kNetCore, 
 		&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetS->pcRecvBuf + (int)sizeof(struct SECOMMONDATA), &riLen, &rSSize, &rRSize);
 	if(!result) { return; }
 	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { SeTimeSleep(1); return; }
+
+	pkMagicNetS->iRecvNum++;
 	
 	// ÍâÍø 
 	if(rkListenHSocket == pkMagicNetS->kHScoketOut)
@@ -297,6 +346,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 				if(pkSvr) { SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA)); }
 				pkSeSocket->llFlag = 0;
 			}
+			pkMagicNetS->iSendNum++;
 		}
 
 		if(riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
@@ -312,6 +362,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkSeSocket->llFlag);
 			if(pkSvr) { SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA)); }
 			else { SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA)); }
+			pkMagicNetS->iSendNum++;
 		}
 	}
 	
@@ -351,6 +402,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			pkComData->kData.kHSocket = pkSeSocket->kHSocket;
 			pkComData->iBufLen = 0;
 			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
+			pkMagicNetS->iSendNum++;
 			return;
 		}
 
@@ -390,6 +442,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			if(pkSvr) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }// not send to client,is send to svr
 			
 			SeNetCoreSend(&pkMagicNetS->kNetCore, pkComData->kData.kHSocket, (char*)pkComData + (int)sizeof(struct SECOMMONDATA), pkComData->iBufLen);
+			pkMagicNetS->iSendNum++;
 		}
 
 		if(pkComData->iProco == SVR_TO_MAGICNET_SENDTO_SVR && riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
@@ -413,6 +466,24 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 
 			pkComData->iProco = MAGICNET_TO_SVR_RECV_DATA_FROM_SVR;
 			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
+			pkMagicNetS->iSendNum++;
+		}
+
+		if(pkComData->iProco == SVR_TO_MAGICNET_GATE_STAT && riEvent == SENETCORE_EVENT_SOCKET_RECV_DATA)
+		{
+			pkSvrWatchdog = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acWatchdogName);
+			if(!pkSvrWatchdog) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+
+			pkSvrMe = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, rkHSocket);
+			if(!pkSvrMe) { SeNetCoreDisconnect(&pkMagicNetS->kNetCore, rkHSocket); return; }
+
+			if(((int)sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { return; }
+			if(pkComData->iBufLen < 0) { return; }
+			if(pkSvrMe->kHSocket == pkSvrWatchdog->kHSocket) { return; } //me send to me?
+
+			pkComData->iProco = MAGICNET_TO_SVR_GATE_STAT;
+			SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
+			pkMagicNetS->iSendNum++;
 		}
 	}
 }
@@ -430,6 +501,11 @@ bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTime
 	pkMagicNetC->llActive = SeTimeGetTickCount();
 	pkMagicNetC->usInPort = usInPort;
 	pkMagicNetC->kHScoket = 0;
+	pkMagicNetC->pkGateStatFunc = 0;
+	pkMagicNetC->ullTime = SeTimeGetTickCount();
+	pkMagicNetC->iSendNum = 0;
+	pkMagicNetC->iRecvNum = 0;
+	memset(pkMagicNetC->acSvrName, 0, sizeof(pkMagicNetC->acSvrName));
 
 	return true;
 }
@@ -440,6 +516,11 @@ void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC)
 	SeFreeMem(pkMagicNetC->pcSendBuf);
 	SeNetCoreFin(&pkMagicNetC->kNetCore);
 	pkMagicNetC->kHScoket = 0;
+}
+
+void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc)
+{
+	pkMagicNetC->pkGateStatFunc = pkGateStatFunc;
 }
 
 void SeMagicNetCSetWaitTime(struct SEMAGICNETC *pkMagicNetC, unsigned int uiWaitTime)
@@ -481,6 +562,7 @@ bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName)
 			pkComData->iProco = SVR_TO_MAGICNET_REG_SVR;
 			memset(pkComData->kData.acName, 0, (int)sizeof(pkComData->kData.acName));
 			SeStrNcpy(pkComData->kData.acName, (int)sizeof(pkComData->kData.acName), pcSvrName);
+			SeStrNcpy(pkMagicNetC->acSvrName, sizeof(pkMagicNetC->acSvrName), pcSvrName);
 			pkComData->iBufLen = 0;
 			if(!SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, (int)sizeof(struct SECOMMONDATA))) { return false; }
 			return true;
@@ -500,6 +582,7 @@ bool SeMagicNetCSendClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, co
 	pkComData->kData.kHSocket = kHSocket;
 	pkComData->iBufLen = iLen;
 	memcpy(pkMagicNetC->pcSendBuf + (int)sizeof(struct SECOMMONDATA), pcBuf, pkComData->iBufLen);
+	pkMagicNetC->iSendNum++;
 	return SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 }
 
@@ -513,6 +596,40 @@ void SeMagicNetCBindClientToSvr(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocke
 	pkComData->iBufLen = (int)strlen(pcSvrName);
 	memcpy(pkMagicNetC->pcSendBuf + (int)sizeof(struct SECOMMONDATA), pcSvrName, (int)strlen(pcSvrName));
 	SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
+}
+
+char *SePacketData(struct SEMAGICNETC *pkMagicNetC, bool bToClient, const char *pcSvrName, HSOCKET kHSocket, int iLen, int &riBegin)
+{
+	struct SECOMMONDATA *pkComData;
+
+	if(iLen + (int)sizeof(struct SECOMMONDATA) >= MAX_RECV_BUF_LEN)
+	{
+		riBegin = 0;
+		return 0;
+	}
+
+	pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcSendBuf;
+	pkComData->iProco = bToClient ? SVR_TO_MAGICNET_SENDTO_CLIENT : SVR_TO_MAGICNET_SENDTO_SVR;
+
+	if(bToClient)
+	{
+		pkComData->kData.kHSocket = kHSocket;
+	}
+	else
+	{
+		SeStrNcpy(pkComData->kData.acName, (int)sizeof(pkComData->kData.acName), pcSvrName);
+	}
+
+	pkComData->iBufLen = iLen;
+
+	riBegin = (int)sizeof(struct SECOMMONDATA);
+	return pkMagicNetC->pcSendBuf;
+}
+
+bool SeMagicNetCSendPacket(struct SEMAGICNETC *pkMagicNetC, const char *pcBuf, int iLen)
+{
+	pkMagicNetC->iSendNum++;
+	return SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pcBuf, iLen);
 }
 
 void SeMagicNetCCloseClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket)
@@ -536,7 +653,51 @@ bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, 
 	SeStrNcpy(pkComData->kData.acName, (int)sizeof(pkComData->kData.acName), pcSvrName);
 	pkComData->iBufLen = iLen;
 	memcpy(pkMagicNetC->pcSendBuf + (int)sizeof(struct SECOMMONDATA), pcBuf, pkComData->iBufLen);
+	pkMagicNetC->iSendNum++;
 	return SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
+}
+
+void SeMagicNetCSendStat(struct SEMAGICNETC *pkMagicNetC)
+{
+	unsigned long long ullTime;
+	struct SEGATESTAT kGateStat;
+	struct SECOMMONDATA *pkComDataGateStat;
+
+	if(strlen(pkMagicNetC->acSvrName) <= 0)
+	{
+		return;
+	}
+
+	ullTime = SeTimeGetTickCount();
+
+	if(pkMagicNetC->ullTime + 500 > ullTime)
+	{
+		return;
+	}
+
+	kGateStat.iSend = (pkMagicNetC->iSendNum*1000)/(int)(ullTime - pkMagicNetC->ullTime);
+	kGateStat.iRecv = (pkMagicNetC->iRecvNum*1000)/(int)(ullTime - pkMagicNetC->ullTime);
+
+	if(strcmp(pkMagicNetC->acSvrName, acWatchdogName) == 0)
+	{
+		if(pkMagicNetC->pkGateStatFunc)
+		{
+			pkMagicNetC->pkGateStatFunc(pkMagicNetC->acSvrName, kGateStat.iSend, kGateStat.iRecv);
+		}
+	}
+	else
+	{
+		pkComDataGateStat = (struct SECOMMONDATA *)pkMagicNetC->pcSendBuf;
+		pkComDataGateStat->iProco = SVR_TO_MAGICNET_GATE_STAT;
+		pkComDataGateStat->iBufLen = (int)sizeof(struct SEGATESTAT);
+		SeStrNcpy(pkComDataGateStat->kData.acName, sizeof(pkComDataGateStat->kData.acName), pkMagicNetC->acSvrName);
+		memcpy(pkMagicNetC->pcSendBuf + (int)sizeof(struct SECOMMONDATA), &kGateStat, (int)sizeof(struct SEGATESTAT));
+		SeMagicNetCSendPacket(pkMagicNetC, (char*)pkComDataGateStat, pkComDataGateStat->iBufLen + (int)sizeof(struct SECOMMONDATA));
+	}
+
+	pkMagicNetC->iRecvNum = 0;
+	pkMagicNetC->iSendNum = 0;
+	pkMagicNetC->ullTime = ullTime;
 }
 
 enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char **pcBuf, int *riBufLen)
@@ -548,12 +709,13 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	bool result;
 	HSOCKET rkHSocket;
 	HSOCKET rkListenHSocket;
+	struct SEGATESTAT *pkGateStat;
 	struct SECOMMONDATA *pkComData;
 
 	*pcBuf = pkMagicNetC->pcRecvBuf;
 	*riBufLen = 0;
 
-	if(pkMagicNetC->kHScoket <= 0) { return MAGIC_SHUTDOWN_SVR; }
+	if(pkMagicNetC->kHScoket <= 0) { SeTimeSleep(1); return MAGIC_SHUTDOWN_SVR; }
 
 	if((pkMagicNetC->llActive + MAGICNET_TIME_OUT) <= SeTimeGetTickCount())
 	{
@@ -564,22 +726,37 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 		SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, (int)sizeof(struct SECOMMONDATA));
 	}
 
+	SeMagicNetCSendStat(pkMagicNetC);
+
 	riLen = MAX_RECV_BUF_LEN;
 	result = SeNetCoreRead(&pkMagicNetC->kNetCore,
 		&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetC->pcRecvBuf, &riLen, &rSSize, &rRSize);
 	if(!result) { return MAGIC_IDLE_SVR_DATA; }
-	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { return MAGIC_IDLE_SVR_DATA; }
+	if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { SeTimeSleep(1); return MAGIC_IDLE_SVR_DATA; }
 	assert(rkHSocket == pkMagicNetC->kHScoket);
-	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here
-	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here
-	if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; return MAGIC_SHUTDOWN_SVR; }
+	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT) { assert(0 != 0); SeTimeSleep(1); return MAGIC_IDLE_SVR_DATA; }// no call here
+	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED) { assert(0 != 0); SeTimeSleep(1); return MAGIC_IDLE_SVR_DATA; }// no call here
+	if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; SeTimeSleep(1);return MAGIC_SHUTDOWN_SVR; }
 
-	if(riEvent != SENETCORE_EVENT_SOCKET_RECV_DATA) { assert(0 != 0); return MAGIC_IDLE_SVR_DATA; }// no call here
+	if(riEvent != SENETCORE_EVENT_SOCKET_RECV_DATA) { assert(0 != 0); SeTimeSleep(1); return MAGIC_IDLE_SVR_DATA; }// no call here
 	assert(riLen >= (int)sizeof(struct SECOMMONDATA));
 	pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcRecvBuf;
-	assert(pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA) == riLen);
+	if(pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA) != riLen) { return MAGIC_IDLE_SVR_DATA; }
+
+	pkMagicNetC->iRecvNum++;
 
 	if(pkComData->iProco == MAGICNET_TO_SVR_ACTIVE) { return MAGIC_IDLE_SVR_DATA; }
+
+	if(pkComData->iProco == MAGICNET_TO_SVR_GATE_STAT)
+	{
+		if(!pkMagicNetC->pkGateStatFunc)
+		{
+			return MAGIC_IDLE_SVR_DATA;
+		}
+		pkGateStat = (struct SEGATESTAT *)((char*)pkComData + (int)sizeof(struct SECOMMONDATA));
+		pkMagicNetC->pkGateStatFunc(pkComData->kData.acName, pkGateStat->iSend, pkGateStat->iRecv);
+		return MAGIC_IDLE_SVR_DATA;
+	}
 
 	if(pkComData->iProco == MAGICNET_TO_SVR_CLIENT_CONNECT || pkComData->iProco == MAGICNET_TO_SVR_CLIENT_DISCONNECT)
 	{
@@ -599,5 +776,6 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 	
 	// no call here
 	assert(0 != 0);
+	SeTimeSleep(1);
 	return MAGIC_IDLE_SVR_DATA;
 }

@@ -8,6 +8,10 @@
 #include "SeNetCore.h"
 #include "SeTime.h"
 
+#define MAX_SVR_NAME_LEN 128
+
+typedef void (*MAGICNETENGINEGATESTAT)(char *pcSvrName, int, int);
+
 struct SEMAGICNETS
 {
 	HSOCKET					kHScoketIn;
@@ -16,6 +20,9 @@ struct SEMAGICNETS
 	struct SELIST			kRegSvrList;
 	char					*pcRecvBuf;
 	char					*pcSendBuf;
+	unsigned long long		ullTime;
+	int						iSendNum;
+	int						iRecvNum;
 };
 
 bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
@@ -44,11 +51,18 @@ struct SEMAGICNETC
 	unsigned short			usInPort;
 	char					*pcRecvBuf;
 	char					*pcSendBuf;
+	MAGICNETENGINEGATESTAT	pkGateStatFunc;
+	unsigned long long		ullTime;
+	int						iSendNum;
+	int						iRecvNum;
+	char					acSvrName[MAX_SVR_NAME_LEN];
 };
 
 bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort);
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
+
+void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc);
 
 void SeMagicNetCSetWaitTime(struct SEMAGICNETC *pkMagicNetC, unsigned int uiWaitTime);
 
@@ -61,6 +75,10 @@ void SeMagicNetCBindClientToSvr(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocke
 void SeMagicNetCCloseClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket);
 
 bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, const char *pcBuf, int iLen);
+
+char *SePacketData(struct SEMAGICNETC *pkMagicNetC, bool bToClient, const char *pcSvrName, HSOCKET kHSocket, int iLen, int &riBegin);
+
+bool SeMagicNetCSendPacket(struct SEMAGICNETC *pkMagicNetC, const char *pcBuf, int iLen);
 
 enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char **pcBuf, int *riBufLen);
 

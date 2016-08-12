@@ -7,6 +7,12 @@
 #define OP_TYPE_ACCEPT 3
 #define OP_TYPE_CONNECT 4
 
+#if defined(IO_DATA_LEN)
+#define MAX_IO_DATA_LEN 1024*512
+#else
+#define MAX_IO_DATA_LEN 1024*4
+#endif
+
 struct IODATA
 {
 	OVERLAPPED			overlapped;
@@ -15,7 +21,7 @@ struct IODATA
 	SOCKET				kSocket;
 	WSABUF				kBuf;
 	int					iOPType;
-	char				acData[1024*4];
+	char				acData[MAX_IO_DATA_LEN];
 };
 
 struct ListenSocket
@@ -439,7 +445,11 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, char* pcBuf, i
 	if(!pkNetSocket) return false;
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
 	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return false;
-	SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, iSize);
+	if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, iSize))
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.");
+		return false;
+	}
 	bRet = SeNetSreamWrite(&pkNetSocket->kSendNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, iSize);
 	if(bRet) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
 	else { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] send data ERROR"); }
@@ -473,24 +483,35 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 }
 
+bool SeNetCoreGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
+{
+	if(iheaderlen == 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	DWORD dwLen;
+	int iSize;
 	int iErrorno;
 	SOCKET socket;
 	struct IODATA *pkIOData;
-	struct SENETSTREAMNODE *pkNetStreamNode;
 	
 	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 	if(SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET)) { return true; }
-	
-	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
-	if(!pkNetStreamNode) { return true; }
+
+	if(SeNetSreamCount(&pkNetSocket->kSendNetStream) <= 0)
+	{
+		return true;
+	}
 
 	pkIOData = SeNewIOData(pkNetCore);
 	if(!pkIOData)
 	{
-		SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SEND DATA] new mem failed");
 		return false;
 	}
@@ -499,19 +520,15 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	pkIOData->kHScoket = pkNetSocket->kHSocket;
 	pkIOData->iOPType = OP_TYPE_SEND;
 	pkIOData->kBuf.buf = pkIOData->acData;
-	pkIOData->kBuf.len = pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos;
-	assert(pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos > 0);
-	assert(pkNetStreamNode->usMaxLen <= sizeof(pkIOData->acData));
+	pkIOData->kBuf.len = (int)sizeof(pkIOData->acData);
 
-	if(pkNetStreamNode->usMaxLen > sizeof(pkIOData->acData))
+	iSize = pkIOData->kBuf.len;
+	if(!SeNetSreamRead(&pkNetSocket->kSendNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, SeNetCoreGetHeader, 0, pkIOData->kBuf.buf, &iSize))
 	{
 		SeDelIOData(pkNetCore, pkIOData);
-		SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
-		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SEND DATA] mem too smore! failed");
 		return false;
 	}
-
-	memcpy(pkIOData->kBuf.buf, pkNetStreamNode->pkBuf, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos);
+	pkIOData->kBuf.len = iSize;
 
 	dwLen = 0;
 	if(WSASend(socket, &pkIOData->kBuf, 1, &dwLen, 0, &pkIOData->overlapped, 0) == SE_SOCKET_ERROR)
@@ -520,14 +537,12 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		if(iErrorno != WSA_IO_PENDING)
 		{
 			SeDelIOData(pkNetCore, pkIOData);
-			SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
-			SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] SeNetCoreSendBuf WSASend failed, errno=%d", iErrorno);
+			SeLogWrite(&pkNetCore->kLog, LT_DEBUG, true, "[SEND DATA] SeNetCoreSendBuf WSASend failed, errno=%d", iErrorno);
 			return false;
 		}
 	}
 	
 	SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);
-	SeNetSreamHeadAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode);
 
 	return true;
 }
@@ -564,7 +579,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		if(iErrorno != WSA_IO_PENDING)
 		{
 			SeDelIOData(pkNetCore, pkIOData);
-			SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[RECV DATA] SeNetCoreRecvBuf WSARecv failed, errno=%d", iErrorno);
+			SeLogWrite(&pkNetCore->kLog, LT_DEBUG, true, "[RECV DATA] SeNetCoreRecvBuf WSARecv failed, errno=%d", iErrorno);
 			return false;
 		}
 	}
@@ -599,8 +614,6 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	{
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[ACCEPT SOCKET] Can't Get Listen Obj.");
 	}
-
-	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[ACCEPT SOCKET] Client Connect");
 
 	SeSetAcceptSocket(pkNetCore);
 
@@ -713,7 +726,7 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 				{
 					SeDelIOData(pkNetCore, pkSendIOData);
 					SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-					SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] SeNetCoreAcceptSocket WSASend failed, errno=%d", iErrorno);
+					SeLogWrite(&pkNetCore->kLog, LT_DEBUG, true, "[SEND DATA] SeNetCoreAcceptSocket WSASend failed, errno=%d", iErrorno);
 					return;
 				}
 			}
@@ -723,9 +736,14 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	if(pkIOData->iOPType == OP_TYPE_RECV)
 	{
 		SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket);
-		SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, dwLen);
+		if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, dwLen))
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] no more memcahce.");
+			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+			return;
+		}
 		bOK = SeNetSreamWrite(&pkNetSocket->kRecvNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetSocket->pkSetHeaderLenFun, 0, pkIOData->kBuf.buf, dwLen);
-		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE RECV] recv data ERROR"); return; }
+		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] recv data ERROR"); return; }
 		SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
 		bOK = SeNetCoreRecvBuf(pkNetCore, pkNetSocket);
 		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
@@ -753,6 +771,9 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	char *pcAddrIP;
 	struct SESOCKET *pkNetSocket;
 	const struct SESOCKET *pkConstNetSocket;
+
+	*rSSize = 0;
+	*rRSize = 0;
 
 	pkConstNetSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
 	if(pkConstNetSocket)
@@ -864,7 +885,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 			else if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET && pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT) { SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, pkIOData, dwLen); }
 			else if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET && (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, pkIOData, dwLen, bResult); }
 		}
-		else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket not found"); }
+		//else //{ SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket not found"); }
 		
 		SeDelIOData(pkNetCore, pkIOData);
 	}

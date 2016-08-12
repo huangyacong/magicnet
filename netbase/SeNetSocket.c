@@ -214,35 +214,34 @@ struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSoc
 	return 0;
 }
 
-void SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iHeaderLen, int iBufLen)
+bool SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iHeaderLen, int iBufLen)
 {
 	int i;
 	int iNode;
-	int iSize;
 	int iCount;
 	char *pcBuf;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 	
-	iSize = MAX_BUF_LEN;
-	iBufLen = iBufLen <= 0 ? iSize : iBufLen;
+	iBufLen = iBufLen <= 0 ? MAX_BUF_LEN : iBufLen;
 	
 	assert(iHeaderLen >= 0);
-	assert(iSize > (int)(sizeof(struct SENETSTREAMNODE) + iHeaderLen));
+	assert(MAX_BUF_LEN > (int)(sizeof(struct SENETSTREAMNODE) + iHeaderLen));
 
-	iNode = iSize - (int)(sizeof(struct SENETSTREAMNODE) + iHeaderLen);
+	iNode = MAX_BUF_LEN - (int)(sizeof(struct SENETSTREAMNODE) + iHeaderLen);
 	iCount = ((iBufLen + (iNode - 1))/iNode)*2;
 	
-	if(SeNetSreamCount(pkNetSocketMgr->pkNetStreamIdle) >= iCount) return;
+	if(SeNetSreamCount(pkNetSocketMgr->pkNetStreamIdle) >= iCount) return true;
 
 	for(i = 0; i < iCount; i++)
 	{
-		pcBuf = (char *)SeMallocMem(iSize);
+		pcBuf = (char *)SeMallocMem(MAX_BUF_LEN);
 		assert(pcBuf);
-		if(!pcBuf) { continue; }
-		pkNetStreamNode = SeNetSreamNodeFormat(pcBuf, iSize);
+		if(!pcBuf) { return false; }
+		pkNetStreamNode = SeNetSreamNodeFormat(pcBuf, MAX_BUF_LEN);
 		SeNetSreamNodeZero(pkNetStreamNode);
 		SeNetSreamHeadAdd(pkNetSocketMgr->pkNetStreamIdle, pkNetStreamNode);
 	}
+	return true;
 }
 
 void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket)

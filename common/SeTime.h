@@ -30,6 +30,9 @@
 // now time
 time_t SeTimeTime();
 
+// get timeszone
+int SeGetTimeZone();
+
 // convert string time to time_t, pcTimeChar format to '9999-02-31 23:00:59'
 // if pcTimeChar error,return nowtime
 time_t SeTimeStringToTime(const char* pcTimeChar);
@@ -43,6 +46,10 @@ time_t SeTimeAddTime(time_t srcTime, int sec);
 // format to '9999-02-31 23:00:59', len >=20
 void SeTimeFormatTime(time_t srcTime, char *pOut, int len);
 
+// format to '9999-02-31', len >=20
+void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len);
+// format to '23:00:59', len >=9
+void SeTimeFormatSecondTime(time_t srcTime, char *pOut, int len);
 void SeTimeSleep(unsigned long ulMillisecond);
 
 unsigned long long SeTimeGetTickCount();

@@ -9,6 +9,36 @@ time_t SeTimeTime()
 	return time(NULL);
 }
 
+int SeGetTimeZone()
+{
+	time_t time_utc;
+	struct tm tm_local;
+
+	// Get the UTC time
+	time(&time_utc);
+
+	// Get the local time
+	tm_local = *localtime(&time_utc);
+
+	time_t time_local;
+	struct tm tm_gmt;
+
+	// Change tm to time_t
+	time_local = mktime(&tm_local);
+
+	// Change it to GMT tm
+	tm_gmt = *gmtime(&time_utc);
+
+	int time_zone = tm_local.tm_hour - tm_gmt.tm_hour;
+	if (time_zone < -12) {
+		time_zone += 24;
+	} else if (time_zone > 12) {
+		time_zone -= 24;
+	}
+
+	return time_zone;
+}
+
 time_t SeTimeStringToTime(const char* pcTimeChar)
 {
 	struct tm tb;
@@ -102,6 +132,16 @@ time_t SeTimeAddTime(time_t srcTime, int sec)
 void SeTimeFormatTime(time_t srcTime, char *pOut, int len)
 {
 	strftime(pOut, len, "%Y-%m-%d %H:%M:%S", localtime(&srcTime));
+}
+
+void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len)
+{
+	strftime(pOut, len, "%Y-%m-%d", localtime(&srcTime));
+}
+
+void SeTimeFormatSecondTime(time_t srcTime, char *pOut, int len)
+{
+	strftime(pOut, len, "%H:%M:%S", localtime(&srcTime));
 }
 
 void SeTimeSleep(unsigned long ulMillisecond)

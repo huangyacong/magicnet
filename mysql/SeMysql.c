@@ -3,12 +3,18 @@
 
 bool TryConnect(struct SEMYSQL *pkMysql)
 {
+	bool ret = false;
 	if(!mysql_init(&pkMysql->kMysql))
 	{
 		return false;
 	}
-	return (mysql_real_connect(&pkMysql->kMysql,pkMysql->acHost, pkMysql->acUser, pkMysql->acPasswd, pkMysql->acDBName, pkMysql->uiPort, 
-		NULL,CLIENT_COMPRESS) ? true : false);
+	
+	ret = (mysql_real_connect(&pkMysql->kMysql,pkMysql->acHost, pkMysql->acUser, pkMysql->acPasswd, pkMysql->acDBName, pkMysql->uiPort, NULL,CLIENT_COMPRESS) ? true : false);
+	if(ret)
+	{
+		mysql_set_character_set(&pkMysql->kMysql, "utf8");
+	}
+	return ret;
 }
 
 bool SeMysqlLibraryInit()

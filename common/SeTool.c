@@ -6,6 +6,25 @@
 
 #define SEALIGNMENT 64
 
+static unsigned int next = 1;
+
+// rand [0,UINT_MAX)
+unsigned int SeRand(void)
+{
+	next = next * 1103515245 + 12345;
+	return next;
+}
+
+void SeSrand(unsigned int seed)
+{
+	next = seed;
+}
+// rand [start,end)
+unsigned int SeRandNum(unsigned int start, unsigned int end)
+{
+	return start + SeRand() % (end - start);
+}
+
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
 {
 	int iLen = 0;
@@ -59,6 +78,12 @@ void SeStrNcpy(char* pcDstChar,int iDstLen,const char* pcSrcChar)
 {
 	assert(iDstLen > 1);
 	assert(pcDstChar != pcSrcChar);
+
+	if (iDstLen <= 1)
+	{
+		return;
+	}
+
 	if(pcDstChar == pcSrcChar)
 	{
 		return;
@@ -73,13 +98,27 @@ unsigned int SeStr2Hash(const char *pcStr,int iLen)
 	unsigned int uiResult = iLen;
 	unsigned int uiStep = (iLen>>5) + 1;
 	assert(iLen > 0);
-	
+
 	for(i = iLen;i >= uiStep;i -= uiStep)
 	{
 		uiResult = uiResult ^ ((uiResult<<5) + (uiResult>>2) + (unsigned int)pcStr[i - 1]);
 	}
 
 	return uiResult;
+}
+
+long long SeAToLongLong(char *pcString)
+{
+#if defined(__linux)
+	return atoll(pcString);
+#elif (defined(_WIN32) || defined(WIN32))
+	return _atoi64(pcString);
+#endif
+}
+
+int SeAToInt(char *pcString)
+{
+	return atoi(pcString);
 }
 
 void * SeMallocMem(size_t size)

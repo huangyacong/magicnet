@@ -24,9 +24,19 @@ void SeStrNcpy(char* pcDstChar,int iDstLen,const char* pcSrcChar);
 
 unsigned int SeStr2Hash(const char *pcStr,int iLen);
 
+long long SeAToLongLong(char *pcString);
+
+int SeAToInt(char *pcString);
+
 void * SeMallocMem(size_t size);
 
 void SeFreeMem(void* pvPtr);
+
+unsigned int SeRand(void);
+
+void SeSrand(unsigned int seed);
+
+unsigned int SeRandNum(unsigned int start, unsigned int end);
 
 #endif
 
