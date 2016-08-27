@@ -767,20 +767,20 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	}
 }
 
-void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, const struct IODATA *pkIOData, DWORD dwLen, BOOL bConnectFailed)
+void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, const struct IODATA *pkIOData, DWORD dwLen, BOOL bConnectOK)
 {
 	if(pkIOData->iOPType == OP_TYPE_CONNECT)
 	{
 		assert(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING);
-		pkNetSocket->usStatus = bConnectFailed ? SOCKET_STATUS_CONNECTED : SOCKET_STATUS_CONNECTED_FAILED;
 
-		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED_FAILED)
+		if(bConnectOK)
 		{
-			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+			pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
+			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 		}
 		else
 		{
-			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
 		}
 
 		return;
