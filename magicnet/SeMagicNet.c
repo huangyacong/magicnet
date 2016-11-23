@@ -4,6 +4,7 @@
 
 #define MAGICNET_TIME_OUT 1000*5 // sec
 #define MAX_RECV_BUF_LEN 1024*1024*4
+#define STAT_TIME 1000
 
 #define SVR_TO_MAGICNET_REG_SVR 0
 #define SVR_TO_MAGICNET_SENDTO_SVR 1
@@ -266,7 +267,7 @@ void SeMagicNetSSendStat(struct SEMAGICNETS *pkMagicNetS)
 
 	ullTime = SeTimeGetTickCount();
 
-	if(pkMagicNetS->ullTime + 500 > ullTime)
+	if(pkMagicNetS->ullTime + STAT_TIME > ullTime)
 	{
 		return;
 	}
@@ -670,7 +671,7 @@ void SeMagicNetCSendStat(struct SEMAGICNETC *pkMagicNetC)
 
 	ullTime = SeTimeGetTickCount();
 
-	if(pkMagicNetC->ullTime + 500 > ullTime)
+	if(pkMagicNetC->ullTime + STAT_TIME > ullTime)
 	{
 		return;
 	}
