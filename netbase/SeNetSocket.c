@@ -20,6 +20,7 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->llTime = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
+	memset(pkNetSocket->acBindSvrName, 0, sizeof(pkNetSocket->acBindSvrName));
 }
 
 void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)

@@ -338,14 +338,14 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 
 			if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
 			{
-				pkSeSocket->llFlag = 0;
+				memset(pkSeSocket->acBindSvrName, 0, sizeof(pkSeSocket->acBindSvrName));
 			}
 
 			if(riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT)
 			{
-				pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkSeSocket->llFlag);
+				pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, pkSeSocket->acBindSvrName);
 				if(pkSvr) { SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA)); }
-				pkSeSocket->llFlag = 0;
+				memset(pkSeSocket->acBindSvrName, 0, sizeof(pkSeSocket->acBindSvrName));
 			}
 			pkMagicNetS->iSendNum++;
 		}
@@ -360,7 +360,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			pkComData->kData.kHSocket = rkHSocket;
 			pkComData->iBufLen = riLen;
 
-			pkSvr = SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkSeSocket->llFlag);
+			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, pkSeSocket->acBindSvrName);
 			if(pkSvr) { SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvr->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA)); }
 			else { SeNetCoreSend(&pkMagicNetS->kNetCore, pkSvrWatchdog->kHSocket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA)); }
 			pkMagicNetS->iSendNum++;
@@ -394,9 +394,9 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 			if(SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkComData->kData.kHSocket)) { return; }
 			pkSvr = SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, acName);
 			if(!pkSvr) { return; }
-			if(pkSeSocket->llFlag != 0) { return; }
-			if(SeGetRegSvrNodeBySocket(&pkMagicNetS->kRegSvrList, pkSeSocket->llFlag)) { return; }
-			pkSeSocket->llFlag = pkSvr->kHSocket;
+			if((int)strlen(pkSeSocket->acBindSvrName) != 0) { return; }
+			if(SeGetRegSvrNodeBySvrName(&pkMagicNetS->kRegSvrList, pkSeSocket->acBindSvrName)) { return; }
+			SeStrNcpy(pkSeSocket->acBindSvrName, sizeof(pkSeSocket->acBindSvrName), pkSvr->acName);
 
 			pkComData = (struct SECOMMONDATA *)pkMagicNetS->pcRecvBuf;
 			pkComData->iProco = MAGICNET_TO_SVR_CLIENT_CONNECT;
