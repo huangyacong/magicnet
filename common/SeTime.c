@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
+bool TestTimeValid()
+{
+	return sizeof(time_t) == 8;
+}
+
 time_t SeTimeTime()
 {
 	return time(NULL);
@@ -122,25 +128,38 @@ long long SeTimeDiffTime(time_t timeEnd, time_t timeBegin)
 
 time_t SeTimeAddTime(time_t srcTime, int sec)
 {
-	if(sec >= 3600*24*366 || sec <= 3600*24*366*(-1)) {
-		assert(0 != 0);
-		sec = 3600*24*366;
+
+	if(sizeof(time_t) != 8)
+	{
+		return srcTime;
 	}
 	return srcTime + sec;
 }
 
 void SeTimeFormatTime(time_t srcTime, char *pOut, int len)
 {
+	if(srcTime < 0)
+	{
+		srcTime = SeTimeTime();
+	}
 	strftime(pOut, len, "%Y-%m-%d %H:%M:%S", localtime(&srcTime));
 }
 
 void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len)
 {
+	if(srcTime < 0)
+	{
+		srcTime = SeTimeTime();
+	}
 	strftime(pOut, len, "%Y-%m-%d", localtime(&srcTime));
 }
 
 void SeTimeFormatSecondTime(time_t srcTime, char *pOut, int len)
 {
+	if(srcTime < 0)
+	{
+		srcTime = SeTimeTime();
+	}
 	strftime(pOut, len, "%H:%M:%S", localtime(&srcTime));
 }
 
@@ -164,4 +183,17 @@ unsigned long long SeTimeGetTickCount()
 #endif
 	return ulTime;
 }
+bool SeIsSameDay(time_t iTimeA, time_t iTimeB)
+{
+	if (iTimeA < 0 || iTimeB < 0)
+	{
+		return false;
+	}
+	tm A;
+	tm B;
 
+	memcpy(&A, localtime(&iTimeA), sizeof(A));
+	memcpy(&B, localtime(&iTimeB), sizeof(B));
+
+	return A.tm_mday == B.tm_mday;
+}

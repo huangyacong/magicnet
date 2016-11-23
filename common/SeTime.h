@@ -27,6 +27,8 @@
 // mysql: datetime->'1971-01-01 00:00:00'to'9999-12-31 23:59:59'; TIMESTAMP->1970to2037
 // valid time in '1971-01-01 00:00:00'->'9999-12-31 23:59:59'
 
+bool TestTimeValid();
+
 // now time
 time_t SeTimeTime();
 
@@ -51,6 +53,8 @@ void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len);
 // format to '23:00:59', len >=9
 void SeTimeFormatSecondTime(time_t srcTime, char *pOut, int len);
 void SeTimeSleep(unsigned long ulMillisecond);
+
+bool SeIsSameDay(time_t iTimeA, time_t iTimeB);
 
 unsigned long long SeTimeGetTickCount();
 
