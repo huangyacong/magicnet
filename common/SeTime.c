@@ -12,6 +12,8 @@ bool TestTimeValid()
 
 time_t SeTimeTime()
 {
+	assert(TestTimeValid() == true);
+
 	return time(NULL);
 }
 
@@ -19,6 +21,8 @@ int SeGetTimeZone()
 {
 	time_t time_utc;
 	struct tm tm_local;
+
+	assert(TestTimeValid() == true);
 
 	// Get the UTC time
 	time(&time_utc);
@@ -51,6 +55,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	unsigned int uiLen = 0, uiBegin = 0;
 	int iYear = 0, iMon = 0, iDay = 0, iHour = 0, iMin = 0, iSec = 0;
 	
+	assert(TestTimeValid() == true);
 	memset(&tb, 0, sizeof(tb));
 	uiLen = (unsigned int)strlen(pcTimeChar);
 
@@ -123,12 +128,13 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 
 long long SeTimeDiffTime(time_t timeEnd, time_t timeBegin)
 {
+	assert(TestTimeValid() == true);
 	return (long long)difftime(timeEnd, timeBegin);
 }
 
 time_t SeTimeAddTime(time_t srcTime, int sec)
 {
-
+	assert(TestTimeValid() == true);
 	if(sizeof(time_t) != 8)
 	{
 		return srcTime;
@@ -138,6 +144,7 @@ time_t SeTimeAddTime(time_t srcTime, int sec)
 
 void SeTimeFormatTime(time_t srcTime, char *pOut, int len)
 {
+	assert(TestTimeValid() == true);
 	if(srcTime < 0)
 	{
 		srcTime = SeTimeTime();
@@ -147,6 +154,7 @@ void SeTimeFormatTime(time_t srcTime, char *pOut, int len)
 
 void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len)
 {
+	assert(TestTimeValid() == true);
 	if(srcTime < 0)
 	{
 		srcTime = SeTimeTime();
@@ -156,6 +164,7 @@ void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len)
 
 void SeTimeFormatSecondTime(time_t srcTime, char *pOut, int len)
 {
+	assert(TestTimeValid() == true);
 	if(srcTime < 0)
 	{
 		srcTime = SeTimeTime();
@@ -185,12 +194,15 @@ unsigned long long SeTimeGetTickCount()
 }
 bool SeIsSameDay(time_t iTimeA, time_t iTimeB)
 {
+	tm A;
+	tm B;
+
+	assert(TestTimeValid() == true);
+
 	if (iTimeA < 0 || iTimeB < 0)
 	{
 		return false;
 	}
-	tm A;
-	tm B;
 
 	memcpy(&A, localtime(&iTimeA), sizeof(A));
 	memcpy(&B, localtime(&iTimeB), sizeof(B));

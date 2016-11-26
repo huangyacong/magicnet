@@ -22,6 +22,10 @@
 #include <windows.h>
 #include <process.h>
 
+#ifdef _USE_32BIT_TIME_T
+#error time_t not 64 bit!!
+#endif
+
 #endif
 
 // mysql: datetime->'1971-01-01 00:00:00'to'9999-12-31 23:59:59'; TIMESTAMP->1970to2037
