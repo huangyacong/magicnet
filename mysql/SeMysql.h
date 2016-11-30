@@ -74,6 +74,7 @@ bool SeMysqlStoreResult(struct SEMYSQL *pkMysql, struct SEMYSQLRESULT *pkMysqlRe
 
 unsigned long long SeMysqlInsertId(struct SEMYSQL *pkMysql);
 
+unsigned long long SeMysqlAffectedRows(struct SEMYSQL *pkMysql);
 
 
 

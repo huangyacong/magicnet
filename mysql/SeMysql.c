@@ -186,6 +186,11 @@ unsigned long long SeMysqlInsertId(struct SEMYSQL *pkMysql)
 	return mysql_insert_id(&pkMysql->kMysql);
 }
 
+unsigned long long SeMysqlAffectedRows(struct SEMYSQL *pkMysql)
+{
+	return mysql_affected_rows(&pkMysql->kMysql);
+}
+
 void SeMysqlResultInit(struct SEMYSQLRESULT *pkMysqlResult)
 {
 	pkMysqlResult->pkRes = 0;
