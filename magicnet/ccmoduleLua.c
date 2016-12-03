@@ -6,6 +6,7 @@ static int MagicNetGateInit(lua_State *L)
 	size_t seplen;
 	const char *pcLogName;
 	int iTimeOut;
+	int iLogLV;
 	unsigned short usMax;
 	unsigned short usOutPort;
 	unsigned short usInPort;
@@ -17,8 +18,9 @@ static int MagicNetGateInit(lua_State *L)
 	usMax = (unsigned short)luaL_checkinteger(L, 3);
 	usOutPort = (unsigned short)luaL_checkinteger(L, 4);
 	usInPort = (unsigned short)luaL_checkinteger(L, 5);
+	iLogLV = (int)luaL_checkinteger(L, 6);
 
-	bResult = SeMagicNetSInit(&kMagicNetGate, (char*)pcLogName, iTimeOut, usMax, usOutPort, usInPort);
+	bResult = SeMagicNetSInit(&kMagicNetGate, (char*)pcLogName, iTimeOut, usMax, usOutPort, usInPort, iLogLV);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -43,6 +45,7 @@ static int MagicNetSvrInit(lua_State *L)
 	size_t seplen;
 	const char *pcLogName;
 	int iTimeOut;
+	int iLogLV;
 	unsigned short usInPort;
 
 	seplen = 0;
@@ -50,8 +53,9 @@ static int MagicNetSvrInit(lua_State *L)
 	if(!pcLogName) { luaL_error(L, "pcLogName is NULL!"); return 0;}
 	iTimeOut = (unsigned short)luaL_checkinteger(L, 2);
 	usInPort = (unsigned short)luaL_checkinteger(L, 3);
+	iLogLV = (int)luaL_checkinteger(L, 4);
 
-	bResult = SeMagicNetCInit(&kMagicNetSvr, (char*)pcLogName, iTimeOut, usInPort);
+	bResult = SeMagicNetCInit(&kMagicNetSvr, (char*)pcLogName, iTimeOut, usInPort, iLogLV);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

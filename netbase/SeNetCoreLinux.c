@@ -4,12 +4,13 @@
 
 #define SENETCORE_MAX_SOCKET_BUF_LEN 1024*1024*4
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax)
+void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax, int iLogLV)
 {
 	pkNetCore->iWaitTime = NET_CORE_WAIT_TIME;
 	SeNetBaseInit();
 	pkNetCore->kHandle = epoll_create(usMax);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
+	SeAddLogLV(&pkNetCore->kLog, iLogLV);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
 	pkNetCore->pcBuf = (char*)SeMallocMem(SENETCORE_MAX_SOCKET_BUF_LEN);
 }

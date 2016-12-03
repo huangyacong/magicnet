@@ -6,14 +6,15 @@ PyObject *MagicNetGateInit(PyObject *module, PyObject* args)
 	bool bResult;
 	char *pcLogName;
 	int iTimeOut;
+	int iLogLV;
 	unsigned short usMax;
 	unsigned short usOutPort;
 	unsigned short usInPort;
 
-	if(!PyArg_ParseTuple(args, "siHHH", &pcLogName, &iTimeOut, &usMax, &usOutPort, &usInPort))
+	if(!PyArg_ParseTuple(args, "siHHHi", &pcLogName, &iTimeOut, &usMax, &usOutPort, &usInPort, &iLogLV))
 	return NULL;
 
-	bResult = SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, usOutPort, usInPort);
+	bResult = SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, usOutPort, usInPort, iLogLV);
 	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 
@@ -34,12 +35,13 @@ PyObject *MagicNetSvrInit(PyObject *module, PyObject* args)
 	bool bResult;
 	char *pcLogName;
 	int iTimeOut;
+	int iLogLV;
 	unsigned short usInPort;
 
-	if(!PyArg_ParseTuple(args, "siH", &pcLogName, &iTimeOut, &usInPort))
+	if(!PyArg_ParseTuple(args, "siHi", &pcLogName, &iTimeOut, &usInPort, &iLogLV))
 	return NULL;
 
-	bResult = SeMagicNetCInit(&kMagicNetSvr, pcLogName, iTimeOut, usInPort);
+	bResult = SeMagicNetCInit(&kMagicNetSvr, pcLogName, iTimeOut, usInPort, iLogLV);
 	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 

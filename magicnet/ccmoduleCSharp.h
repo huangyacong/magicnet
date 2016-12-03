@@ -7,13 +7,13 @@
 #define DLLEXPORT 
 #endif
 
-DLLEXPORT bool GateInit(char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
+DLLEXPORT bool GateInit(char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort, int iLogLV);
 
 DLLEXPORT void GateFin();
 
 DLLEXPORT void GateProcess();
 
-DLLEXPORT bool SvrInit(char *pcLogName, int iTimeOut, unsigned short usInPort);
+DLLEXPORT bool SvrInit(char *pcLogName, int iTimeOut, unsigned short usInPort, int iLogLV);
 
 DLLEXPORT void SvrFin();
 

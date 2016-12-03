@@ -3,9 +3,9 @@
 static struct SEMAGICNETS kMagicNetGate;
 static struct SEMAGICNETC kMagicNetSvr;
 
-bool GateInit(char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort)
+bool GateInit(char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort, int iLogLV)
 {
-	return SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, usOutPort, usInPort);
+	return SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, usOutPort, usInPort, iLogLV);
 }
 
 void GateFin()
@@ -18,9 +18,9 @@ void GateProcess()
 	SeMagicNetSProcess(&kMagicNetGate);
 }
 
-bool SvrInit(char *pcLogName, int iTimeOut, unsigned short usInPort)
+bool SvrInit(char *pcLogName, int iTimeOut, unsigned short usInPort, int iLogLV)
 {
-	return SeMagicNetCInit(&kMagicNetSvr, pcLogName, iTimeOut, usInPort);
+	return SeMagicNetCInit(&kMagicNetSvr, pcLogName, iTimeOut, usInPort, iLogLV);
 }
 
 void SvrFin()

@@ -25,7 +25,7 @@ struct SEMAGICNETS
 	int						iRecvNum;
 };
 
-bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort);
+bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort, int iLogLV);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
@@ -58,7 +58,7 @@ struct SEMAGICNETC
 	char					acSvrName[MAX_SVR_NAME_LEN];
 };
 
-bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort);
+bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort, int iLogLV);
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
 
