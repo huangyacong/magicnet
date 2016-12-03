@@ -1,6 +1,10 @@
 #ifndef __SE_NETSOCKET_H__
 #define __SE_NETSOCKET_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include "SeTime.h"
 #include "SeList.h"
 #include "SeTool.h"
@@ -97,5 +101,9 @@ bool SeNetSocketMgrHasEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
 void SeNetSocketMgrAddEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
 
 void SeNetSocketMgrClearEvent(struct SESOCKET *pkNetSocket, int iEventSocket);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif

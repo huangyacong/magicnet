@@ -1,6 +1,10 @@
 #ifndef __SE_MUTEX_H__
 #define __SE_MUTEX_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #if (defined(WIN32) || defined(_WIN32))
 
 #ifndef _WIN32_WINNT
@@ -37,6 +41,10 @@ void SeMutexDes(SeMutex *pkMutex);
 void SeMutexLock(SeMutex *pkMutex);
 
 void SeMutexUnLock(SeMutex *pkMutex);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
 

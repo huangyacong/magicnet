@@ -1,6 +1,10 @@
 #ifndef __SE_LOG_H__
 #define __SE_LOG_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include "SeTime.h"
 #include <stdio.h>
@@ -39,5 +43,9 @@ bool SeHasLogLV(struct SELOG *pkLog, int iLogLv);
 void SeAddLogLV(struct SELOG *pkLog, int iLogLv);
 
 void SeClearLogLV(struct SELOG *pkLog, int iLogLv);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif

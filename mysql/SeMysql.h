@@ -1,6 +1,10 @@
 #ifndef __SE_MYSQL_H__
 #define __SE_MYSQL_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include "SeTool.h"
 #include <stdbool.h>
 #if defined(__linux)
@@ -94,7 +98,8 @@ unsigned long SeMysqlResultGetFieldLen(struct SEMYSQLRESULT *pkMysqlResult, unsi
 
 const char* SeMysqlResultGetFieldValue(struct SEMYSQLRESULT *pkMysqlResult, unsigned int iIndex);
 
+#ifdef	__cplusplus
+}
 #endif
 
-
-
+#endif

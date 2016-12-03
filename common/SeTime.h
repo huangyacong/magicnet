@@ -1,6 +1,10 @@
 #ifndef __SE_TIME_H__
 #define __SE_TIME_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
@@ -61,6 +65,10 @@ void SeTimeSleep(unsigned long ulMillisecond);
 bool SeIsSameDay(time_t iTimeA, time_t iTimeB);
 
 unsigned long long SeTimeGetTickCount();
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
 

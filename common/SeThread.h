@@ -1,6 +1,10 @@
 #ifndef __SE_THREAD_H__
 #define __SE_THREAD_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 #ifdef __linux
@@ -30,6 +34,10 @@ THREADHANDLE SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs);
 bool SeSchedSetaffinity(int iCpu);
 
 long SeGetCpuNum();
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
 

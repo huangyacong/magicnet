@@ -1,6 +1,10 @@
 #ifndef __SE_MAGICNET_H__
 #define __SE_MAGICNET_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -81,5 +85,9 @@ char *SePacketData(struct SEMAGICNETC *pkMagicNetC, bool bToClient, const char *
 bool SeMagicNetCSendPacket(struct SEMAGICNETC *pkMagicNetC, const char *pcBuf, int iLen);
 
 enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char **pcBuf, int *riBufLen);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif

@@ -1,6 +1,10 @@
 #ifndef __SE_HASH_H__
 #define __SE_HASH_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include "SeTool.h"
 #include "SeList.h"
 #include <stdbool.h>
@@ -40,6 +44,10 @@ struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node);
 struct SEHASHNODE *SeHashPop(struct SEHASH *root);
 
 void SeHashMoveToEnd(struct SEHASH *root, struct SEHASHNODE *node);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
 

@@ -1,3 +1,10 @@
+#ifndef __SE_MAGICNET_CSHARP_H__
+#define __SE_MAGICNET_CSHARP_H__
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include "SeMagicNet.h"
 #include "SeTime.h"
 
@@ -33,3 +40,8 @@ DLLEXPORT void TimeSleep(unsigned long ulMillisecond);
 
 DLLEXPORT unsigned long long TickCount();
 
+#ifdef	__cplusplus
+}
+#endif
+
+#endif

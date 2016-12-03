@@ -1,6 +1,10 @@
 #ifndef __SE_TOOL_H__
 #define __SE_TOOL_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
@@ -37,6 +41,10 @@ unsigned int SeRand(void);
 void SeSrand(unsigned int seed);
 
 unsigned int SeRandNum(unsigned int start, unsigned int end);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
 

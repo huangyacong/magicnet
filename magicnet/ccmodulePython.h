@@ -1,3 +1,10 @@
+#ifndef __SE_MAGICNET_PYTHON_H__
+#define __SE_MAGICNET_PYTHON_H__
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include <Python.h>
 #include "SeMagicNet.h"
 #include "SeTime.h"
@@ -53,3 +60,9 @@ static PyMethodDef Methods[] = {
 
 
 PyMODINIT_FUNC initmagicnet(void);
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif

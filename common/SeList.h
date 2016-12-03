@@ -10,6 +10,10 @@
 #ifndef __SE_LIST_H__
 #define __SE_LIST_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 /**********************************************************************
  * Define a node in list                                              *
  **********************************************************************/
@@ -51,6 +55,10 @@ struct SENODE *SeListRemoveEnd(struct SELIST *root, struct SENODE *node_end);
 struct SENODE *SeListHeadPop(struct SELIST *root);
 
 struct SENODE *SeListTailPop(struct SELIST *root);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
 

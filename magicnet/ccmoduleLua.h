@@ -1,3 +1,10 @@
+#ifndef __SE_MAGICNET_LUA_H__
+#define __SE_MAGICNET_LUA_H__
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include <lua.h>
 #include <lauxlib.h>
 #include <time.h>
@@ -36,3 +43,9 @@ static int MagicNetSvrRead(lua_State *L);
 static int MagicTimeSleep(lua_State *L);
 
 static int MagicTimeGetTickCount(lua_State *L);
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif

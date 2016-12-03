@@ -1,6 +1,10 @@
 #ifndef __SE_NETSTREAM_H__
 #define __SE_NETSTREAM_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #include "SeList.h"
 #include <stdbool.h>
 #include "SeTool.h"
@@ -52,5 +56,9 @@ void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *
 bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize, char *pcBuf, int *riBufLen);
 
 bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, char *pcBuf, int iBufLen);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif

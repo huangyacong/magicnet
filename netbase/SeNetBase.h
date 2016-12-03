@@ -1,6 +1,10 @@
 #ifndef __SE_NETBASE_H__
 #define __SE_NETBASE_H__
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 /**********************************************************************
  *
  * 
@@ -129,7 +133,8 @@ int SeNetBaseInit(void);
 
 void SeNetBaseEnd(void);
 
+#ifdef	__cplusplus
+}
 #endif
 
-
-
+#endif
