@@ -194,8 +194,8 @@ unsigned long long SeTimeGetTickCount()
 }
 bool SeIsSameDay(time_t iTimeA, time_t iTimeB)
 {
-	tm A;
-	tm B;
+	struct tm A;
+	struct tm B;
 
 	assert(TestTimeValid() == true);
 
