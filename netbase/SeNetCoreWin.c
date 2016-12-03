@@ -130,14 +130,6 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 	pkNetCore->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
-	SeAddLogLV(&pkNetCore->kLog, LT_SOCKET);
-	SeAddLogLV(&pkNetCore->kLog, LT_WARNING);
-	SeAddLogLV(&pkNetCore->kLog, LT_SPLIT);
-	SeAddLogLV(&pkNetCore->kLog, LT_ERROR);
-	SeAddLogLV(&pkNetCore->kLog, LT_INFO);
-	SeAddLogLV(&pkNetCore->kLog, LT_DEBUG);
-	SeAddLogLV(&pkNetCore->kLog, LT_CRITICAL);
-	SeAddLogLV(&pkNetCore->kLog, LT_PRINT);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
