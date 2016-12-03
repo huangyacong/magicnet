@@ -16,7 +16,7 @@ namespace gate
         public static void start()
         {
             bool result = true;
-            magicnet.GateInit("gate", 30 * 1000, 1000, 8888, 9999);
+            magicnet.GateInit("gate", 30 * 1000, 1000, 8888, 9999, 0);
             while (result) { magicnet.GateProcess(); }
             magicnet.GateFin();
         }

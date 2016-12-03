@@ -2,7 +2,7 @@
 import traceback
 
 pcLogName, iSocketTimeOut, iSvrPort = "game", 60*1000, 6666
-result = magicnet.SvrInit(pcLogName, iSocketTimeOut, iSvrPort)
+result = magicnet.SvrInit(pcLogName, iSocketTimeOut, iSvrPort, 0)
 
 if not result:
 	raise "game inti failed!"

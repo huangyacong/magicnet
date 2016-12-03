@@ -16,7 +16,7 @@ namespace game
         public static void start()
         {
             byte[] pcBuf = new byte[1024 * 1024 * 4];
-            magicnet.SvrInit("game", 30 * 1000, 9999);
+            magicnet.SvrInit("game", 30 * 1000, 9999, 0);
             magicnet.RegSvr("game");
 
             while(true)

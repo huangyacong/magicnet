@@ -1,7 +1,7 @@
 ﻿local magicnet = require "magicnet"
 
 local pcLogName, iSocketTimeOut, iSvrPort = "watchdog", 60*1000, 6666
-local result = magicnet.SvrInit(pcLogName, iSocketTimeOut, iSvrPort)
+local result = magicnet.SvrInit(pcLogName, iSocketTimeOut, iSvrPort, 0)
 
 if not result then
 	assert(false, "watchdog init failed!")

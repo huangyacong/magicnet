@@ -23,7 +23,7 @@ MagicSvrRead = magicnet.SvrRead
 --]]
 
 local pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort = "gate", 60*1000, 10000, 8888, 6666
-local result = magicnet.GateInit(pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort)
+local result = magicnet.GateInit(pcLogName, iSocketTimeOut, iMaxConnect, iGatePort, iSvrPort, 0)
 
 if not result then
 	assert(false, "gate init failed!")

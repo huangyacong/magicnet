@@ -16,7 +16,7 @@ namespace watchdog
         public static void start()
         {
             byte[] pcBuf = new byte[1024 * 1024 * 4];
-            magicnet.SvrInit("watchdog", 30 * 1000, 9999);
+            magicnet.SvrInit("watchdog", 30 * 1000, 9999, 0);
             magicnet.RegSvr("watchdog.");
 
             while(true)
