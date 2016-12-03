@@ -599,13 +599,13 @@ void SeMagicNetCBindClientToSvr(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocke
 	SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (char*)pkComData, pkComData->iBufLen + (int)sizeof(struct SECOMMONDATA));
 }
 
-char *SePacketData(struct SEMAGICNETC *pkMagicNetC, bool bToClient, const char *pcSvrName, HSOCKET kHSocket, int iLen, int &riBegin)
+char *SePacketData(struct SEMAGICNETC *pkMagicNetC, bool bToClient, const char *pcSvrName, HSOCKET kHSocket, int iLen, int *riBegin)
 {
 	struct SECOMMONDATA *pkComData;
 
 	if(iLen + (int)sizeof(struct SECOMMONDATA) >= MAX_RECV_BUF_LEN)
 	{
-		riBegin = 0;
+		*riBegin = 0;
 		return 0;
 	}
 
@@ -623,7 +623,7 @@ char *SePacketData(struct SEMAGICNETC *pkMagicNetC, bool bToClient, const char *
 
 	pkComData->iBufLen = iLen;
 
-	riBegin = (int)sizeof(struct SECOMMONDATA);
+	*riBegin = (int)sizeof(struct SECOMMONDATA);
 	return pkMagicNetC->pcSendBuf;
 }
 
