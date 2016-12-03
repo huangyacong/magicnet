@@ -9,7 +9,7 @@ namespace magicnetdll
         public enum MAGIC_STATE { MAGIC_SHUTDOWN_SVR = -1, MAGIC_IDLE_SVR_DATA, MAGIC_CLIENT_CONNECT, MAGIC_CLIENT_DISCONNECT, MAGIC_RECV_DATA_FROM_SVR, MAGIC_RECV_DATA_FROM_CLIENT };
 
         [DllImport("magicnet.dll", EntryPoint = "GateInit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-        public static extern bool GateInit(string strLogName, int iTimeOut, ushort usMax, ushort usOutPort, ushort usInPort);
+        public static extern bool GateInit(string strLogName, int iTimeOut, ushort usMax, ushort usOutPort, ushort usInPort, int iLogLV);
 
         [DllImport("magicnet.dll", EntryPoint = "GateFin", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
         public static extern void GateFin();
@@ -19,7 +19,7 @@ namespace magicnetdll
 
 
         [DllImport("magicnet.dll", EntryPoint = "SvrInit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-        public static extern bool SvrInit(string strLogName, int iTimeOut, ushort usInPort);
+        public static extern bool SvrInit(string strLogName, int iTimeOut, ushort usInPort, int iLogLV);
 
         [DllImport("magicnet.dll", EntryPoint = "SvrFin", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
         public static extern void SvrFin();
