@@ -62,7 +62,6 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SeSetExclusiveAddruse ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
-	/*
 	if(SeSetReuseAddr(socket) != 0)
 	{
 		iErrorno = SeErrno();
@@ -70,7 +69,6 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SeSetReuseAddr ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
-	*/
 	if(SeBind(socket, &kAddr) != 0)
 	{
 		iErrorno = SeErrno();

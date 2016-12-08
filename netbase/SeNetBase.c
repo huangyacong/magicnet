@@ -232,8 +232,12 @@ int SeSetReuseAddr(SOCKET kSocket)
 
 int SeSetExclusiveAddruse(SOCKET kSocket)
 {
+	#ifdef (defined(_WIN32) || defined(WIN32))
 	int value = 1;
 	return SeSetSockOpt(kSocket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&value, sizeof(value));
+	#else
+	return 0;
+	#endif
 }
 
 int SeSetNoBlock(SOCKET kSocket,bool bBlock)
