@@ -12,7 +12,7 @@ struct SENETSTREAMNODE *SeNetSreamNodeFormat(char *pcBuf, int iBufLen)
 {
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	assert(sizeof(struct SENETSTREAMNODE) < iBufLen);
+	assert((int)sizeof(struct SENETSTREAMNODE) < iBufLen);
 	assert((iBufLen - sizeof(struct SENETSTREAMNODE)) < 0xFFFF);
 	pkNetStreamNode = (struct SENETSTREAMNODE *)pcBuf;
 	pkNetStreamNode->pkBuf = pcBuf + sizeof(struct SENETSTREAMNODE);
@@ -110,7 +110,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	struct SENETSTREAMNODE *pkNetStreamNode;
 	
 	assert(iHeaderSize >= 0);
-	assert(sizeof(acHeader) >= iHeaderSize);
+	assert((int)sizeof(acHeader) >= iHeaderSize);
 	if(*riBufLen <= 0) return false;
 	if(pkNetStream->iSize < iHeaderSize) return false;
 	
@@ -204,7 +204,7 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 	struct SENETSTREAMNODE *pkNetStreamNode;
 	
 	assert(iHeaderSize >= 0);
-	assert(sizeof(acHeader) >= iHeaderSize);
+	assert((int)sizeof(acHeader) >= iHeaderSize);
 	if(iBufLen < 0) return false;
 
 	bRet = iHeaderSize == 0 ? true : pkSetHeaderLenFun((unsigned char *)acHeader, iHeaderSize, iBufLen);
