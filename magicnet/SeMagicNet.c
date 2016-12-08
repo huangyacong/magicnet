@@ -379,7 +379,7 @@ void SeMagicNetSWork(struct SEMAGICNETS *pkMagicNetS)
 
 		if(pkComData->iProco == SVR_TO_MAGICNET_ACTIVE) { return; }
 
-		if(pkComData->iProco == SVR_TO_MAGICNET_BIND_CLIENT && pkComData->iBufLen > 0 && pkComData->iBufLen < sizeof(acName))
+		if(pkComData->iProco == SVR_TO_MAGICNET_BIND_CLIENT && pkComData->iBufLen > 0 && pkComData->iBufLen < (int)sizeof(acName))
 		{
 			if(((int)sizeof(struct SECOMMONDATA) + pkComData->iBufLen) != riLen) { return; }
 
