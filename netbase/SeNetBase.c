@@ -232,11 +232,11 @@ int SeSetReuseAddr(SOCKET kSocket)
 
 int SeSetExclusiveAddruse(SOCKET kSocket)
 {
-	#ifdef (defined(_WIN32) || defined(WIN32))
+	#ifdef __linux
+	return 0;
+	#elif (defined(_WIN32) || defined(WIN32))
 	int value = 1;
 	return SeSetSockOpt(kSocket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&value, sizeof(value));
-	#elif __linux
-	return 0;
 	#endif
 }
 
