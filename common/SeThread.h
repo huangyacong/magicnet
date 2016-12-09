@@ -12,6 +12,7 @@ extern "C" {
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+
 #include <pthread.h>
 #include <unistd.h>
 #include <sched.h>
@@ -21,7 +22,10 @@ extern "C" {
 
 #elif (defined(_WIN32) || defined(WIN32))
 
-#define  WIN32_LEAN_AND_MEAN 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <windows.h>
 #include <process.h>
 

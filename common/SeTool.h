@@ -14,12 +14,17 @@ extern "C" {
 #include <stdio.h>
 
 #if defined(__linux)
+
 #define SE_CONTAINING_RECORD(ptr, type, member) ((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
 #define SE_ALIGN(x) __attribute__((__aligned__((x))))
+
 #elif (defined(_WIN32) || defined(WIN32))
+
 #include <winsock2.h>
+
 #define SE_CONTAINING_RECORD(address, type, field) ((type *)((PCHAR)(address) - (ULONG_PTR)(&((type *)0)->field)))
 #define SE_ALIGN(x) __declspec(align(x))
+
 #endif
 
 bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar);

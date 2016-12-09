@@ -15,19 +15,24 @@ extern "C" {
 #include <time.h>
 
 #ifdef __linux
+
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE
 #endif
+
 #include <unistd.h>
 
 #elif (defined(_WIN32) || defined(WIN32))
 
-#define   WIN32_LEAN_AND_MEAN 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <windows.h>
 #include <process.h>
 
 #ifdef _USE_32BIT_TIME_T
-#error time_t not 64 bit!!
+#error time_t not 64 bit!! dont use _USE_32BIT_TIME_T.
 #endif
 
 #endif
