@@ -10,11 +10,15 @@ bool TryConnect(struct SEMYSQL *pkMysql)
 	}
 	
 	ret = (mysql_real_connect(&pkMysql->kMysql,pkMysql->acHost, pkMysql->acUser, pkMysql->acPasswd, pkMysql->acDBName, pkMysql->uiPort, NULL,CLIENT_COMPRESS) ? true : false);
-	if(ret)
-	{
-		mysql_set_character_set(&pkMysql->kMysql, "utf8");
-	}
 	return ret;
+}
+
+void SeSetCharacterSet(struct SEMYSQL *pkMysql, const char *pcCharacterSet)
+{
+	if(SeMysqlIsConnect(pkMysql))
+	{
+		mysql_set_character_set(&pkMysql->kMysql, pcCharacterSet);
+	}
 }
 
 bool SeMysqlLibraryInit()

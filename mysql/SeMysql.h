@@ -7,6 +7,7 @@ extern "C" {
 
 #include "SeTool.h"
 #include <stdbool.h>
+
 #if defined(__linux)
 
 #include <sys/socket.h>
@@ -50,6 +51,9 @@ bool SeMysqlTryConnect(struct SEMYSQL *pkMysql);
 bool SeMysqlIsConnect(struct SEMYSQL *pkMysql);
 
 void SeMysqlDisConnect(struct SEMYSQL *pkMysql);
+
+
+void SeSetCharacterSet(struct SEMYSQL *pkMysql, const char *pcCharacterSet);
 
 
 unsigned int SeMysqlGetErrorCode(struct SEMYSQL *pkMysql);
