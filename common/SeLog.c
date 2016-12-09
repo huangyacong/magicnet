@@ -111,10 +111,8 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [SOCKET] ", tt_now.tm_year + 1900, 
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
-	else if(iLogLv == LT_NOTSET)
+	else if(iLogLv == LT_NOHEAD)
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [NOTSET] ", tt_now.tm_year + 1900, 
-			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else
 	{
