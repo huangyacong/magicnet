@@ -18,6 +18,7 @@ extern "C" {
 #include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
+
 #if defined(__linux)
 	#include <errno.h>
 	#include <netdb.h>

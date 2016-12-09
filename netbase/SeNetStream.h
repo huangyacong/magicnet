@@ -5,8 +5,9 @@
 extern "C" {
 #endif
 
-#include "SeList.h"
 #include <stdbool.h>
+
+#include "SeList.h"
 #include "SeTool.h"
 
 // 32 size

@@ -9,6 +9,7 @@ extern "C" {
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+
 #include "SeLog.h"
 #include "SeNetBase.h"
 #include "SeNetSocket.h"
@@ -40,7 +41,7 @@ struct SENETCORE
 #endif
 };
 
-#define NET_CORE_WAIT_TIME 50
+#define NET_CORE_WAIT_TIME 0
 
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax, int iLogLV);
 

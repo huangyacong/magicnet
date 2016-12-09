@@ -1,10 +1,11 @@
 #include "SeNetSocket.h"
+#include "SeTool.h"
+#include "SeTime.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "SeTool.h"
-#include "SeTime.h"
 
 #define MAX_BUF_LEN 1024*4
 
