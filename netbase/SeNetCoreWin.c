@@ -520,7 +520,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	pkIOData = SeNewIOData(pkNetCore);
 	if(!pkIOData)
 	{
-		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SEND DATA] new mem failed.socket=%llx", pkNetSocket->kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SEND DATA] new mem failed.socket=%llx", pkNetSocket->kHSocket);
 		return false;
 	}
 
@@ -533,6 +533,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	iSize = pkIOData->kBuf.len;
 	if(!SeNetSreamRead(&pkNetSocket->kSendNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, SeNetCoreGetHeader, 0, pkIOData->kBuf.buf, &iSize))
 	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SeNetCoreSendBuf] mem error.socket=%llx", pkNetSocket->kHSocket);
 		SeDelIOData(pkNetCore, pkIOData);
 		return false;
 	}
