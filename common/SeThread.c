@@ -20,7 +20,9 @@ bool SeSchedSetaffinity(int iCpu)
 	CPU_SET(iCpu, &kCpuSet);
 	return sched_setaffinity(0,sizeof(kCpuSet),&kCpuSet) == 0 ? true:false;
 #elif (defined(_WIN32) || defined(WIN32))
-	return false;
+	DWORD_PTR dwMask;
+	dwMask = 1;
+	return SetThreadAffinityMask(GetCurrentThread(), (dwMask<<iCpu)) == 0 ? false : true;
 #endif
 }
 
