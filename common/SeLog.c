@@ -17,11 +17,17 @@ void SeInitLog(struct SELOG *pkLog, char *pkFileName)
 	time_t my_time = SeTimeTime();
 
 	pkLog->iFlag = 0;
+	pkLog->pkLogContextFunc = 0;
 	memcpy(&pkLog->ttDate, localtime(&my_time), sizeof(pkLog->ttDate));
 	SeStrNcpy(pkLog->acfname, sizeof(pkLog->acfname), pkFileName);
 	memset(pkLog->actext, 0, sizeof(pkLog->actext));
 	
 	pkLog->pFile = newFile(pkLog->acfname, pkLog->ttDate.tm_year + 1900, pkLog->ttDate.tm_mon + 1, pkLog->ttDate.tm_mday);
+}
+
+void SeLogSetLogContextFunc(struct SELOG *pkLog, SELOGCONTEXT pkLogContextFunc)
+{
+	pkLog->pkLogContextFunc = pkLogContextFunc;
 }
 
 void SeFinLog(struct SELOG *pkLog)
@@ -118,7 +124,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 
 	if(SeHasLogLV(pkLog, LT_PRINT))
 	{
-		printf("%s%s", acHeadr, pkLog->actext);
+		printf("%s%s", !SeHasLogLV(pkLog, LT_NOHEAD) ? acHeadr : "", pkLog->actext);
 	}
 
 	if(SeHasLogLV(pkLog, LT_SPLIT))
@@ -133,14 +139,26 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		}
 	}
 
+	if(pkLog->pkLogContextFunc)
+	{
+		pkLog->pkLogContextFunc(acHeadr, pkLog->actext);
+		return;
+	}
+
 	if(!pkLog->pFile)
 	{
 		return;
 	}
 	
-	fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
+	if(!SeHasLogLV(pkLog, LT_NOHEAD))
+	{
+		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
+	}
+
 	fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
-	if(bFlushToDisk) {
+
+	if(bFlushToDisk)
+	{
 		fflush(pkLog->pFile);
 	}
 }

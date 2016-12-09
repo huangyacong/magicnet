@@ -18,8 +18,10 @@ extern "C" {
 #define LT_DEBUG	(1<<4)   // debug
 #define LT_CRITICAL (1<<5)   // CRITICAL
 #define LT_SOCKET	(1<<6)   // socket
-#define LT_NOTSET	(1<<7)   // NOTSET
+#define LT_NOHEAD	(1<<7)   // not print header
 #define LT_PRINT	(1<<8)   // print log to screen
+
+typedef void (*SELOGCONTEXT)(const char* pcHeader, const char* pcContext);
 
 struct SELOG
 {
@@ -27,12 +29,15 @@ struct SELOG
 	FILE*		pFile;
 	struct tm	ttDate;
 	char		acfname[128];
-	char		actext[4096];
+	char		actext[1024*10];
+	SELOGCONTEXT pkLogContextFunc;
 };
 
 void SeInitLog(struct SELOG *pkLog, char *pkFileName);
 
 void SeFinLog(struct SELOG *pkLog);
+
+void SeLogSetLogContextFunc(struct SELOG *pkLog, SELOGCONTEXT pkLogContextFunc);
 
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *argv, ...);
 
