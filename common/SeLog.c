@@ -33,7 +33,7 @@ void SeFinLog(struct SELOG *pkLog)
 	}
 }
 
-void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, ...)
+void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *argv, ...)
 {
 	int writelen;
 	int maxlen;

@@ -34,7 +34,7 @@ void SeInitLog(struct SELOG *pkLog, char *pkFileName);
 
 void SeFinLog(struct SELOG *pkLog);
 
-void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, char *argv, ...);
+void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *argv, ...);
 
 void SeLogFlushToDisk(struct SELOG *pkLog);
 
