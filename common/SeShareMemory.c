@@ -68,6 +68,7 @@ bool SeUnViewShareMemory(void *pvBuf)
 #if (defined(WIN32) || defined(_WIN32))
 	return UnmapViewOfFile(pvBuf) == TRUE ? true : false;
 #elif defined(__linux)
+	return shmdt((const void*)pvBuf) == 0 ? true : false;
 #endif
 }
 
