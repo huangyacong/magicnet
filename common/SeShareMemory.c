@@ -39,7 +39,7 @@ void *SeViewShareMemory(HANDLE kHandle)
 bool SeUnViewShareMemory(void *pvBuf)
 {
 #if (defined(WIN32) || defined(_WIN32))
-	return UnmapViewOfFile(pvBuf);
+	return UnmapViewOfFile(pvBuf) == TRUE ? true : false;
 #elif defined(__linux)
 #endif
 }
