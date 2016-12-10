@@ -28,6 +28,7 @@ extern "C" {
 
 #endif
 
+/*for win pcName is string. for linux pcName is path or filename*/
 HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize);
 
 HANDLE SeOpenShareMemory(const char *pcName);
