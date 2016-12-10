@@ -1,20 +1,20 @@
 #include "SeShareMemory.h"
 
-HANDLE SeCreateShareMemory(int iKey, unsigned long long ullSize)
+HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 {
 	char acName[128];
 #if (defined(WIN32) || defined(_WIN32))
-	sprintf(acName, "Global\\%d", iKey);
+	sprintf(acName, "Global\\%s", pcName);
 	return CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, ullSize>>32, ullSize<<32>>32, acName);
 #elif defined(__linux)
 #endif
 }
 
-HANDLE SeOpenShareMemory(int iKey)
+HANDLE SeOpenShareMemory(const char *pcName)
 {
 	char acName[128];
 #if (defined(WIN32) || defined(_WIN32))
-	sprintf(acName, "Global\\%d", iKey);
+	sprintf(acName, "Global\\%s", pcName);
 	return OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, acName);
 #elif defined(__linux)
 #endif
