@@ -21,9 +21,9 @@ extern "C" {
 
 #endif
 
-HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize);
+HANDLE SeCreateShareMemory(int iKey, unsigned long long ullSize);
 
-HANDLE SeOpenShareMemory(const char *pcName);
+HANDLE SeOpenShareMemory(int iKey);
 
 void SeCloseShareMemory(HANDLE kHandle);
 
