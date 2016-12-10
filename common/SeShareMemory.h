@@ -18,10 +18,12 @@ extern "C" {
 #elif defined(__linux)
 
 #include <stdio.h>
+#include <errno.h>
 #include <unistd.h>
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 
 #endif
