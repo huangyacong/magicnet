@@ -47,6 +47,7 @@ void SeCloseShareMemory(HANDLE kHandle)
 #if (defined(WIN32) || defined(_WIN32))
 	CloseHandle(kHandle);
 #elif defined(__linux)
+	shmctl(kHandle, IPC_RMID, 0);
 #endif
 }
 
