@@ -55,6 +55,11 @@ void *SeViewShareMemory(HANDLE kHandle)
 #if (defined(WIN32) || defined(_WIN32))
 	return (void*)MapViewOfFile(kHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 #elif defined(__linux)
+	char *shmadd;
+
+	shmadd = (char*)shmat(kHandle, 0, !SHM_RDONLY);
+	if(shmadd == -1) { return 0; }
+	return (void*)shmadd;
 #endif
 }
 
