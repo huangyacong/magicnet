@@ -22,7 +22,7 @@ HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 	key_t kKey;
 
 	sprintf(acName, "%s", pcName);
-	kKey = ftok(acName, 0);
+	kKey = ftok(acName, 1);
 	return shmget(kKey, ullSize, IPC_CREAT|IPC_EXCL|0666);
 #endif
 }
@@ -37,7 +37,7 @@ HANDLE SeOpenShareMemory(const char *pcName)
 #elif defined(__linux)
 	key_t kKey;
 	sprintf(acName, "%s", pcName);
-	kKey = ftok(acName, 0);
+	kKey = ftok(acName, 1);
 	return shmget(kKey, 0, 0);
 #endif
 }
