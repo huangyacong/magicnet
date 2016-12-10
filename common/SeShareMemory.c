@@ -4,8 +4,17 @@ HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 {
 	char acName[128];
 #if (defined(WIN32) || defined(_WIN32))
+	HANDLE kHandle;
 	sprintf(acName, "Global\\%s", pcName);
-	return CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, ullSize>>32, ullSize<<32>>32, acName);
+	kHandle = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, ullSize>>32, ullSize<<32>>32, acName);
+	if(kHandle != SE_INVALID_HANDLE)
+	{
+		if(SeGetShareMemoryErrorID() == ERROR_ALREADY_EXISTS)
+		{
+			return SE_INVALID_HANDLE;
+		}
+	}
+	return kHandle;
 #elif defined(__linux)
 #endif
 }
