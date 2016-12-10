@@ -43,3 +43,8 @@ bool SeUnViewShareMemory(void *pvBuf)
 #elif defined(__linux)
 #endif
 }
+
+int SeGetShareMemoryErrorID()
+{
+	return SeErrno();
+}

@@ -31,6 +31,8 @@ void *SeViewShareMemory(HANDLE kHandle);
 
 bool SeUnViewShareMemory(void *pvBuf);
 
+int SeGetShareMemoryErrorID();
+
 #ifdef	__cplusplus
 }
 #endif
