@@ -61,7 +61,7 @@ void *SeViewShareMemory(HANDLE kHandle)
 	char *shmadd;
 
 	shmadd = (char*)shmat(kHandle, 0, !SHM_RDONLY);
-	if(shmadd == -1) { return 0; }
+	if(shmadd == (char*)-1) { return 0; }
 	return (void*)shmadd;
 #endif
 }
