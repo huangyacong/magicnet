@@ -111,7 +111,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 	
 	assert(iHeaderSize >= 0);
 	assert((int)sizeof(acHeader) >= iHeaderSize);
-	if(*riBufLen <= 0) return false;
+	if(*riBufLen <= 0 || (int)sizeof(acHeader) < iHeaderSize) return false;
 	if(pkNetStream->iSize < iHeaderSize) return false;
 	
 	// test header len
@@ -205,7 +205,7 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 	
 	assert(iHeaderSize >= 0);
 	assert((int)sizeof(acHeader) >= iHeaderSize);
-	if(iBufLen < 0) return false;
+	if(iBufLen < 0 || (int)sizeof(acHeader) < iHeaderSize) return false;
 
 	bRet = iHeaderSize == 0 ? true : pkSetHeaderLenFun((unsigned char *)acHeader, (int)sizeof(acHeader) < iHeaderSize ? -1 : iHeaderSize, iBufLen);
 	if(!bRet) return false;
