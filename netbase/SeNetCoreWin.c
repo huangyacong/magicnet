@@ -840,7 +840,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			CreateIoCompletionPort((HANDLE)socket, pkNetCore->kHandle, 0, 0);
 			*riLen = 0;
 			pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
-			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); }
+			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); pcBuf[*riLen] = '\0'; }
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 			SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
@@ -886,6 +886,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		bOK = SeNetSreamRead(&pkNetSocket->kRecvNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, riLen);
 		if(!bOK) { continue; }
 		
+		pcBuf[*riLen] = '\0';
 		*rkHSocket = pkNetSocket->kHSocket;
 		*riEventSocket = SENETCORE_EVENT_SOCKET_RECV_DATA;
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
