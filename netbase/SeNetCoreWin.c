@@ -125,11 +125,11 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 {
 	pkNetCore->iWaitTime = NET_CORE_WAIT_TIME;
 	SeNetBaseInit();
+	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeListInit(&pkNetCore->kList);
 	SeListInit(&pkNetCore->kListenList);
 	SeAddLogLV(&pkNetCore->kLog, iLogLV);
 	pkNetCore->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
 }
 
