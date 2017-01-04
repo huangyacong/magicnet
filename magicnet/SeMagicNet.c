@@ -578,6 +578,7 @@ bool SeMagicNetCSendClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, co
 {
 	struct SECOMMONDATA *pkComData;
 
+	if(iLen < 0) { return false; }
 	pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcSendBuf;
 	pkComData->iProco = SVR_TO_MAGICNET_SENDTO_CLIENT;
 	pkComData->kData.kHSocket = kHSocket;
@@ -648,6 +649,7 @@ bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, 
 {
 	struct SECOMMONDATA *pkComData;
 
+	if (iLen < 0) { return false; }
 	pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcSendBuf;
 	pkComData->iProco = SVR_TO_MAGICNET_SENDTO_SVR;
 	memset(pkComData->kData.acName, 0, (int)sizeof(pkComData->kData.acName));
