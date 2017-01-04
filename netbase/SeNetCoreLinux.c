@@ -227,16 +227,11 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, char* pcBuf, i
 	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
 	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return false;
 	pkSendNetStream = &pkNetSocket->kSendNetStream;
-
-	if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize))
-	{
-		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket);
-		return false;
-	}
-
+	if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize)) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket); return false; }
 	bRet = SeNetSreamWrite(pkSendNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkSetHeaderLenFun, iHeaderLen, pcBuf, iSize);
 	if(bRet) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
-	else { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] send data ERROR.socket=%llx", kHSocket); }
+	else { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] send data ERROR.socket=%llx.size=%d", kHSocket, iSize); }
+
 	return bRet;
 }
 
