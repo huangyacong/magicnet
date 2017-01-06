@@ -41,6 +41,8 @@ void SeFinLog(struct SELOG *pkLog)
 
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *argv, ...)
 {
+	bool bPrint;
+	bool bWrite;
 	int writelen;
 	int maxlen;
 	va_list argptr;
@@ -120,11 +122,6 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 
-	if(SeHasLogLV(pkLog, LT_PRINT))
-	{
-		printf("%s%s", !SeHasLogLV(pkLog, LT_NOHEAD) ? acHeadr : "", pkLog->actext);
-	}
-
 	if(SeHasLogLV(pkLog, LT_SPLIT))
 	{
 		if(tt_now.tm_year != pkLog->ttDate.tm_year || tt_now.tm_mon != pkLog->ttDate.tm_mon || tt_now.tm_mday != pkLog->ttDate.tm_mday)
@@ -137,17 +134,24 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		}
 	}
 
+	bWrite = true;
+	bPrint = SeHasLogLV(pkLog, LT_PRINT);
+
 	if(pkLog->pkLogContextFunc)
 	{
-		pkLog->pkLogContextFunc(acHeadr, pkLog->actext);
+		pkLog->pkLogContextFunc(acHeadr, pkLog->actext, iLogLv, &bPrint, &bWrite);
+	}
+
+	if(SeHasLogLV(pkLog, LT_PRINT) && bPrint)
+	{
+		printf("%s%s", !SeHasLogLV(pkLog, LT_NOHEAD) ? acHeadr : "", pkLog->actext);
+	}
+
+	if(!pkLog->pFile || !bWrite)
+	{
 		return;
 	}
 
-	if(!pkLog->pFile)
-	{
-		return;
-	}
-	
 	if(!SeHasLogLV(pkLog, LT_NOHEAD))
 	{
 		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);

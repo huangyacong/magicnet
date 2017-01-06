@@ -21,7 +21,7 @@ extern "C" {
 #define LT_NOHEAD	(1<<7)   // not print header
 #define LT_PRINT	(1<<8)   // print log to screen
 
-typedef void (*SELOGCONTEXT)(const char* pcHeader, const char* pcContext);
+typedef void (*SELOGCONTEXT)(const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite);
 
 struct SELOG
 {
