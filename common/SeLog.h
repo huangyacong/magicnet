@@ -12,14 +12,14 @@ extern "C" {
 #include <stdlib.h>
 
 #define LT_SPLIT	(1<<0)   // log split by diff day
-#define LT_ERROR	(1<<1)   // error
-#define LT_WARNING	(1<<2)   // warning
-#define LT_INFO		(1<<3)   // info
-#define LT_DEBUG	(1<<4)   // debug
-#define LT_CRITICAL (1<<5)   // CRITICAL
-#define LT_SOCKET	(1<<6)   // socket
-#define LT_NOHEAD	(1<<7)   // not print header
-#define LT_PRINT	(1<<8)   // print log to screen
+#define LT_PRINT	(1<<1)   // print log to screen
+#define LT_ERROR	(1<<2)   // error
+#define LT_WARNING	(1<<3)   // warning
+#define LT_INFO		(1<<4)   // info
+#define LT_DEBUG	(1<<5)   // debug
+#define LT_CRITICAL (1<<6)   // CRITICAL
+#define LT_SOCKET	(1<<7)   // socket
+#define LT_NOHEAD	(1<<8)   // not print header
 
 typedef void (*SELOGCONTEXT)(const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite);
 

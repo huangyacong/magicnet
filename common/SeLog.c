@@ -51,7 +51,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	time_t my_time = SeTimeTime();
 	memcpy(&tt_now, localtime(&my_time), sizeof(tt_now));
 
-	if(!SeHasLogLV(pkLog, iLogLv))
+	if(!SeHasLogLV(pkLog, iLogLv) || iLogLv == LT_SPLIT || iLogLv == LT_PRINT)
 	{
 		return;
 	}
