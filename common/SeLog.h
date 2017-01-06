@@ -21,7 +21,7 @@ extern "C" {
 #define LT_SOCKET	(1<<7)   // socket
 #define LT_NOHEAD	(1<<8)   // not print header
 
-typedef void (*SELOGCONTEXT)(const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite);
+typedef void(*SELOGCONTEXT)(void *pkLogContect, const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite);
 
 struct SELOG
 {
@@ -30,6 +30,7 @@ struct SELOG
 	struct tm	ttDate;
 	char		acfname[128];
 	char		actext[1024*10];
+	void*		pkLogContect;
 	SELOGCONTEXT pkLogContextFunc;
 };
 
@@ -37,7 +38,7 @@ void SeInitLog(struct SELOG *pkLog, char *pkFileName);
 
 void SeFinLog(struct SELOG *pkLog);
 
-void SeLogSetLogContextFunc(struct SELOG *pkLog, SELOGCONTEXT pkLogContextFunc);
+void SeLogSetLogContextFunc(struct SELOG *pkLog, SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *argv, ...);
 

@@ -14,7 +14,7 @@ extern "C" {
 
 #define MAX_SVR_NAME_LEN 128
 
-typedef void (*MAGICNETENGINEGATESTAT)(char *pcSvrName, int, int);
+typedef void (*MAGICNETENGINEGATESTAT)(void *pkContext, char *pcSvrName, int, int);
 
 struct SEMAGICNETS
 {
@@ -55,6 +55,7 @@ struct SEMAGICNETC
 	unsigned short			usInPort;
 	char					*pcRecvBuf;
 	char					*pcSendBuf;
+	void					*pkContext;
 	MAGICNETENGINEGATESTAT	pkGateStatFunc;
 	unsigned long long		ullTime;
 	int						iSendNum;
@@ -66,7 +67,7 @@ bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTime
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
 
-void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc);
+void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc, void *pkContext);
 
 void SeMagicNetCSetWaitTime(struct SEMAGICNETC *pkMagicNetC, unsigned int uiWaitTime);
 

@@ -502,6 +502,7 @@ bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTime
 	pkMagicNetC->llActive = SeTimeGetTickCount();
 	pkMagicNetC->usInPort = usInPort;
 	pkMagicNetC->kHScoket = 0;
+	pkMagicNetC->pkContext = 0;
 	pkMagicNetC->pkGateStatFunc = 0;
 	pkMagicNetC->ullTime = SeTimeGetTickCount();
 	pkMagicNetC->iSendNum = 0;
@@ -519,8 +520,9 @@ void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC)
 	pkMagicNetC->kHScoket = 0;
 }
 
-void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc)
+void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc, void *pkContext)
 {
+	pkMagicNetC->pkContext = pkContext;
 	pkMagicNetC->pkGateStatFunc = pkGateStatFunc;
 }
 
@@ -685,7 +687,7 @@ void SeMagicNetCSendStat(struct SEMAGICNETC *pkMagicNetC)
 	{
 		if(pkMagicNetC->pkGateStatFunc)
 		{
-			pkMagicNetC->pkGateStatFunc(pkMagicNetC->acSvrName, kGateStat.iSend, kGateStat.iRecv);
+			pkMagicNetC->pkGateStatFunc(pkMagicNetC->pkContext, pkMagicNetC->acSvrName, kGateStat.iSend, kGateStat.iRecv);
 		}
 	}
 	else
@@ -757,7 +759,7 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 			return MAGIC_IDLE_SVR_DATA;
 		}
 		pkGateStat = (struct SEGATESTAT *)((char*)pkComData + (int)sizeof(struct SECOMMONDATA));
-		pkMagicNetC->pkGateStatFunc(pkComData->kData.acName, pkGateStat->iSend, pkGateStat->iRecv);
+		pkMagicNetC->pkGateStatFunc(pkMagicNetC->pkContext, pkComData->kData.acName, pkGateStat->iSend, pkGateStat->iRecv);
 		return MAGIC_IDLE_SVR_DATA;
 	}
 
