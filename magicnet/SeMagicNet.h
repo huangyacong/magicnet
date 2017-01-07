@@ -14,7 +14,7 @@ extern "C" {
 
 #define MAX_SVR_NAME_LEN 128
 
-typedef void (*MAGICNETENGINEGATESTAT)(void *pkContext, char *pcSvrName, int, int);
+typedef void (*MAGICNETENGINEGATESTAT)(void *pkContext, const char *pcSvrName, int, int);
 
 struct SEMAGICNETS
 {

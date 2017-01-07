@@ -149,7 +149,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 
 	if(SeHasLogLV(pkLog, LT_PRINT) && bPrint)
 	{
-		printf("%s%s", !SeHasLogLV(pkLog, LT_NOHEAD) ? acHeadr : "", pkLog->actext);
+		SePrintf(iLogLv, !SeHasLogLV(pkLog, LT_NOHEAD) ? acHeadr : "", pkLog->actext);
 	}
 
 	if(!pkLog->pFile || !bWrite)
@@ -190,4 +190,25 @@ void SeAddLogLV(struct SELOG *pkLog, int iLogLv)
 void SeClearLogLV(struct SELOG *pkLog, int iLogLv)
 {
 	pkLog->iFlag &= ~iLogLv;
+}
+
+void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
+{
+#if (defined(WIN32) || defined(_WIN32))
+	WORD wColor = 0x000F;
+	if (iLogLv == LT_ERROR)
+	{
+		wColor = 0x000C;
+	}
+	if (iLogLv == LT_WARNING)
+	{
+		wColor = FOREGROUND_GREEN;
+	}
+	if (iLogLv == LT_CRITICAL)
+	{
+		wColor = 0x000E;
+	}
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
+#endif
+	printf("%s%s", pcHeader ? pcHeader : "", pcString ? pcString : "");
 }

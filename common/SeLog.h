@@ -50,6 +50,8 @@ void SeAddLogLV(struct SELOG *pkLog, int iLogLv);
 
 void SeClearLogLV(struct SELOG *pkLog, int iLogLv);
 
+void SePrintf(int iLogLv, const char *pcHeader, const char *pcString);
+
 #ifdef	__cplusplus
 }
 #endif
