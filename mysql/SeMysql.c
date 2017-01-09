@@ -181,6 +181,7 @@ bool SeMysqlNextResult(struct SEMYSQL *pkMysql)
 
 bool SeMysqlStoreResult(struct SEMYSQL *pkMysql, struct SEMYSQLRESULT *pkMysqlResult)
 {
+	SeMysqlResultFin(pkMysqlResult);
 	pkMysqlResult->pkRes = mysql_store_result(&pkMysql->kMysql);
 	return pkMysqlResult->pkRes ? true : false;
 }
@@ -198,6 +199,7 @@ unsigned long long SeMysqlAffectedRows(struct SEMYSQL *pkMysql)
 void SeMysqlResultInit(struct SEMYSQLRESULT *pkMysqlResult)
 {
 	pkMysqlResult->pkRes = 0;
+	pkMysqlResult->kRow = 0;
 }
 
 void SeMysqlResultFin(struct SEMYSQLRESULT *pkMysqlResult)
@@ -206,6 +208,7 @@ void SeMysqlResultFin(struct SEMYSQLRESULT *pkMysqlResult)
 		mysql_free_result(pkMysqlResult->pkRes);
 	}
 	pkMysqlResult->pkRes = 0;
+	pkMysqlResult->kRow = 0;
 }
 
 bool SeMysqlResultNextRecord(struct SEMYSQLRESULT *pkMysqlResult)
