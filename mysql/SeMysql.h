@@ -37,6 +37,22 @@ struct SEMYSQL
 	char			acDBName[256];
 };
 
+/*
+[client]
+default-character-set=utf8mb4
+
+[mysql]
+default-character-set=utf8mb4
+
+[mysqld]
+character-set-server=utf8mb4
+default-storage-engine=INNODB
+collation-server = utf8mb4_unicode_ci
+init_connect='SET NAMES utf8mb4'
+
+SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_name LIKE 'collation%';
+*/
+
 bool SeMysqlLibraryInit();
 
 void SeMysqlLibraryEnd();

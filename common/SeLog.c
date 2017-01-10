@@ -209,6 +209,27 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 		wColor = 0x000E;
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
-#endif
 	printf("%s%s", pcHeader ? pcHeader : "", pcString ? pcString : "");
+#else
+	#define NONE                 "\e[0m"
+	#define RED                  "\e[1;31m"
+	#define GREEN                "\e[1;32m"
+	#define YELLOW               "\e[1;33m"
+	if (iLogLv == LT_ERROR)
+	{
+		printf(RED "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+	}
+	else if (iLogLv == LT_WARNING)
+	{
+		printf(GREEN "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+	}
+	else if (iLogLv == LT_CRITICAL)
+	{
+		printf(YELLOW "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+	}
+	else
+	{
+		printf("%s%s", pcHeader ? pcHeader : "", pcString ? pcString : "");
+	}
+#endif
 }
