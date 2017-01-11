@@ -129,46 +129,36 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 long long SeTimeDiffTime(time_t timeEnd, time_t timeBegin)
 {
 	assert(TestTimeValid() == true);
+	if(timeEnd < 0) { timeEnd = SeTimeTime(); }
+	if(timeBegin < 0) { timeBegin = SeTimeTime(); }
 	return (long long)difftime(timeEnd, timeBegin);
 }
 
 time_t SeTimeAddTime(time_t srcTime, int sec)
 {
 	assert(TestTimeValid() == true);
-	if(sizeof(time_t) != 8)
-	{
-		return srcTime;
-	}
+	if(srcTime < 0) { srcTime = SeTimeTime(); }
 	return srcTime + sec;
 }
 
 void SeTimeFormatTime(time_t srcTime, char *pOut, int len)
 {
 	assert(TestTimeValid() == true);
-	if(srcTime < 0)
-	{
-		srcTime = SeTimeTime();
-	}
+	if(srcTime < 0) { srcTime = SeTimeTime(); }
 	strftime(pOut, len, "%Y-%m-%d %H:%M:%S", localtime(&srcTime));
 }
 
 void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len)
 {
 	assert(TestTimeValid() == true);
-	if(srcTime < 0)
-	{
-		srcTime = SeTimeTime();
-	}
+	if(srcTime < 0) { srcTime = SeTimeTime(); }
 	strftime(pOut, len, "%Y-%m-%d", localtime(&srcTime));
 }
 
 void SeTimeFormatSecondTime(time_t srcTime, char *pOut, int len)
 {
 	assert(TestTimeValid() == true);
-	if(srcTime < 0)
-	{
-		srcTime = SeTimeTime();
-	}
+	if(srcTime < 0) { srcTime = SeTimeTime(); }
 	strftime(pOut, len, "%H:%M:%S", localtime(&srcTime));
 }
 
@@ -198,14 +188,8 @@ bool SeIsSameDay(time_t iTimeA, time_t iTimeB)
 	struct tm B;
 
 	assert(TestTimeValid() == true);
-
-	if (iTimeA < 0 || iTimeB < 0)
-	{
-		return false;
-	}
-
+	if (iTimeA < 0 || iTimeB < 0) { return false; }
 	memcpy(&A, localtime(&iTimeA), sizeof(A));
 	memcpy(&B, localtime(&iTimeB), sizeof(B));
-
 	return A.tm_mday == B.tm_mday;
 }
