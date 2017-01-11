@@ -195,35 +195,69 @@ void SeClearLogLV(struct SELOG *pkLog, int iLogLv)
 void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 {
 #if (defined(WIN32) || defined(_WIN32))
+
+#if defined(SECOLOR)
 	WORD wColor = 0x000F;
-	if (iLogLv == LT_ERROR)
+	if(iLogLv == LT_ERROR)
 	{
 		wColor = 0x000C;
 	}
-	if (iLogLv == LT_WARNING)
+	if(iLogLv == LT_WARNING)
 	{
 		wColor = FOREGROUND_GREEN;
 	}
-	if (iLogLv == LT_CRITICAL)
+	if(iLogLv == LT_CRITICAL)
 	{
 		wColor = 0x000E;
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
+#endif
+
+#if ((defined(SENOPRINT) && defined(SEPRINTIM)) || !defined(SENOPRINT))
+
+#if defined(SEPRINTIM)
+	if(iLogLv != LT_ERROR && iLogLv != LT_WARNING && iLogLv != LT_CRITICAL)
+	{
+		return;
+	}
+#endif
+
 	printf("%s%s", pcHeader ? pcHeader : "", pcString ? pcString : "");
+
+#endif
+
 #else
+
+#if defined(SECOLOR)
 	#define NONE                 "\e[0m"
 	#define RED                  "\e[1;31m"
 	#define GREEN                "\e[1;32m"
 	#define YELLOW               "\e[1;33m"
-	if (iLogLv == LT_ERROR)
+#else
+	#define NONE                 ""
+	#define RED                  ""
+	#define GREEN                ""
+	#define YELLOW               ""
+#endif
+
+#if ((defined(SENOPRINT) && defined(SEPRINTIM)) || !defined(SENOPRINT))
+
+#if defined(SEPRINTIM)
+	if(iLogLv != LT_ERROR && iLogLv != LT_WARNING && iLogLv != LT_CRITICAL)
+	{
+		return;
+	}
+#endif
+
+	if(iLogLv == LT_ERROR)
 	{
 		printf(RED "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
-	else if (iLogLv == LT_WARNING)
+	else if(iLogLv == LT_WARNING)
 	{
 		printf(GREEN "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
-	else if (iLogLv == LT_CRITICAL)
+	else if(iLogLv == LT_CRITICAL)
 	{
 		printf(YELLOW "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
@@ -231,5 +265,8 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 	{
 		printf("%s%s", pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
+
+#endif
+
 #endif
 }
