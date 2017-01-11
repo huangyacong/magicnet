@@ -15,6 +15,8 @@ extern "C" {
 
 #if defined(__linux)
 
+#include<sys/mman.h>
+
 #define SE_CONTAINING_RECORD(ptr, type, member) ((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
 #define SE_ALIGN(x) __attribute__((__aligned__((x))))
 
@@ -37,7 +39,9 @@ long long SeAToLongLong(char *pcString);
 
 int SeAToInt(char *pcString);
 
-void * SeMallocMem(size_t size);
+bool SeLockMem();
+
+void *SeMallocMem(size_t size);
 
 void SeFreeMem(void* pvPtr);
 

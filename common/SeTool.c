@@ -121,7 +121,15 @@ int SeAToInt(char *pcString)
 	return atoi(pcString);
 }
 
-void * SeMallocMem(size_t size)
+bool SeLockMem()
+{
+#if defined(__linux)
+	return mlockall(MCL_CURRENT|MCL_FUTURE) == 0 ? true : false;
+#endif
+	return true;
+}
+
+void *SeMallocMem(size_t size)
 {
 #if defined(__linux)
 	return memalign(SEALIGNMENT, size);
