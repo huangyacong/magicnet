@@ -45,6 +45,7 @@ default-character-set=utf8mb4
 default-character-set=utf8mb4
 
 [mysqld]
+max_allowed_packet = 4M
 character-set-server=utf8mb4
 default-storage-engine=INNODB
 collation-server = utf8mb4_unicode_ci
