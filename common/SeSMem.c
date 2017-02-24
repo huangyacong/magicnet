@@ -1,4 +1,4 @@
-#include "SeShareMemory.h"
+#include "SeSMem.h"
 
 HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 {
