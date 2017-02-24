@@ -8,7 +8,7 @@
 int main()
 {
 	struct SEMAGICNETS kTest;
-	SeMagicNetSInit(&kTest, "gate.log", 1000 * 30, 100, 8888, 8887);
+	SeMagicNetSInit(&kTest, "gate.log", 1000 * 30, 100, true, 8888, 8887);
 	while (1) { SeMagicNetSProcess(&kTest); }
 	SeMagicNetSFin(&kTest);
 	return 0;
