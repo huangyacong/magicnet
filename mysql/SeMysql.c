@@ -34,10 +34,10 @@ void SeMysqlLibraryEnd()
 void SeMysqlInit(struct SEMYSQL *pkMysql, const char* pcHost, unsigned int uiPort, const char* pcDBName, const char* pcUser, const char* pcPasswd)
 {
 	pkMysql->uiPort = uiPort;
-	SeStrNcpy(pkMysql->acHost, 256, pcHost);
-	SeStrNcpy(pkMysql->acUser, 256, pcUser);
-	SeStrNcpy(pkMysql->acPasswd, 256, pcPasswd);
-	SeStrNcpy(pkMysql->acDBName, 256, pcDBName);
+	SeStrNcpy(pkMysql->acHost, (int)sizeof(pkMysql->acHost), pcHost);
+	SeStrNcpy(pkMysql->acUser, (int)sizeof(pkMysql->acUser), pcUser);
+	SeStrNcpy(pkMysql->acPasswd, (int)sizeof(pkMysql->acPasswd), pcPasswd);
+	SeStrNcpy(pkMysql->acDBName, (int)sizeof(pkMysql->acDBName), pcDBName);
 }
 
 void SeMysqlFin(struct SEMYSQL *pkMysql)

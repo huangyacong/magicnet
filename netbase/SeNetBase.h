@@ -70,7 +70,7 @@ extern "C" {
 
 typedef	unsigned long long HSOCKET;
 
-HSOCKET SeGetHSocket(unsigned short usCounter,unsigned short usIndex,SOCKET kSocket);
+HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, SOCKET kSocket);
 
 unsigned short SeGetIndexByHScoket(HSOCKET kHSocket);
 
@@ -92,7 +92,7 @@ int SeBind(SOCKET kSocket, const struct sockaddr *pkAddr);
 
 int SeListen(SOCKET kSocket, int iCount);
 
-int SeSelect(SOCKET kSocket, fd_set* pkReadFD, fd_set* pkWriteFD,fd_set* pkErrFD); // 不支持集合操作
+int SeSelect(SOCKET kSocket, fd_set* pkReadFD, fd_set* pkWriteFD, fd_set* pkErrFD); // 不支持集合操作
 
 int SeErrno(void);
 
@@ -128,7 +128,7 @@ int SeSetReuseAddr(SOCKET kSocket);
 
 int SeSetExclusiveAddruse(SOCKET kSocket);
 
-int SeSetNoBlock(SOCKET kSocket,bool bBlock /*= true*/);
+int SeSetNoBlock(SOCKET kSocket, bool bBlock /*= true*/);
 
 int SeNetBaseInit(void);
 

@@ -1,7 +1,7 @@
 #include "SeNetBase.h"
 #include "SeTool.h"
 
-HSOCKET SeGetHSocket(unsigned short usCounter,unsigned short usIndex,SOCKET kSocket)
+HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, SOCKET kSocket)
 {
 	return (HSOCKET)(((HSOCKET)((unsigned int)usCounter<<16|(unsigned int)usIndex))<<32|((HSOCKET)kSocket));
 }
@@ -38,16 +38,11 @@ SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr)
 
 int SeCloseSocket(SOCKET kSocket)
 {
-	#ifdef __linux
-
+#ifdef __linux
 	int iRet = close(kSocket);
-
-	#else
-
+#else
 	int iRet = closesocket(kSocket);
-
-	#endif
-
+#endif
 	return iRet;
 }
 
@@ -59,16 +54,11 @@ int SeConnect(SOCKET kSocket, const struct sockaddr *pkAddr)
 
 int SeShutDown(SOCKET kSocket)
 {
-	#ifdef __linux
-
+#ifdef __linux
 	int iHow = SHUT_RDWR;
-
-	#else
-
+#else
 	int iHow = SD_BOTH;
-
-	#endif
-
+#endif
 	return shutdown(kSocket, iHow);
 }
 
@@ -83,7 +73,7 @@ int SeListen(SOCKET kSocket, int iCount)
 	return listen(kSocket, iCount);
 }
 
-int SeSelect(SOCKET kSocket, fd_set* pkReadFD, fd_set* pkWriteFD,fd_set* pkErrFD)
+int SeSelect(SOCKET kSocket, fd_set* pkReadFD, fd_set* pkWriteFD, fd_set* pkErrFD)
 {
 	struct timeval kTimeval = {0, 0};
 
@@ -112,16 +102,11 @@ int SeSelect(SOCKET kSocket, fd_set* pkReadFD, fd_set* pkWriteFD,fd_set* pkErrFD
 
 int SeErrno(void)
 {
-	#ifdef __linux
-
+#ifdef __linux
 	int iRet = errno;
-
-	#else
-
+#else
 	int iRet = WSAGetLastError();
-
-	#endif
-
+#endif
 	return iRet;
 }
 
@@ -159,16 +144,11 @@ void SeFdClr(SOCKET kSocket, fd_set* pkFD)
 
 int SeIoCtl(SOCKET kSocket, long lCmd, unsigned long *pulArgp)
 {
-	#ifdef __linux
-
+#ifdef __linux
 	int iRet = ioctl(kSocket, lCmd, pulArgp);
-
-	#else
-
+#else
 	int iRet = ioctlsocket(kSocket, lCmd, pulArgp);
-
-	#endif
-
+#endif
 	return iRet;	
 }
 
@@ -210,18 +190,14 @@ void SeSetSockAddr(struct sockaddr *pkAddr, const char *pcIP, unsigned short usP
 
 void SeErrStr(int iErrno, char *pcMsg, unsigned long ulSize)
 {
-	#ifdef __linux
-
+#ifdef __linux
 	strerror_r(iErrno, pcMsg, ulSize);
-
-	#elif (defined(_WIN32) || defined(WIN32))
-
+#elif (defined(_WIN32) || defined(WIN32))
 	LPVOID lpMessageBuf;
 	unsigned long ulLen = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, iErrno, MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT), (LPTSTR) &lpMessageBuf, 0, NULL);
 	SeStrNcpy(pcMsg, (int)ulSize, (char*)lpMessageBuf);
 	LocalFree(lpMessageBuf);
-
-	#endif
+#endif
 }
 
 int SeSetReuseAddr(SOCKET kSocket)
@@ -232,12 +208,12 @@ int SeSetReuseAddr(SOCKET kSocket)
 
 int SeSetExclusiveAddruse(SOCKET kSocket)
 {
-	#ifdef __linux
+#ifdef __linux
 	return 0;
-	#elif (defined(_WIN32) || defined(WIN32))
+#elif (defined(_WIN32) || defined(WIN32))
 	int value = 1;
 	return SeSetSockOpt(kSocket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&value, sizeof(value));
-	#endif
+#endif
 }
 
 int SeSetNoBlock(SOCKET kSocket,bool bBlock)
@@ -250,32 +226,24 @@ int SeSetNoBlock(SOCKET kSocket,bool bBlock)
 
 int SeNetBaseInit(void)
 {
-	#if (defined(_WIN32) || defined(WIN32))
-
+#if (defined(_WIN32) || defined(WIN32))
 	WSADATA WSAData;
 	int iRet = WSAStartup(0x202, &WSAData);
-
 	if(iRet != 0|| WSAData.wVersion != 0x202)
 	{
 		SeNetBaseEnd();
 		return -1;
 	}
-
-	#elif defined(__linux)
-
+#elif defined(__linux)
 	assert(EAGAIN == EWOULDBLOCK);
-
-	#endif
-
+#endif
 	assert(sizeof(HSOCKET) == 8);
 	return 0;
 }
 
 void SeNetBaseEnd(void)
 {
-	#if (defined(_WIN32) || defined(WIN32))
-
+#if (defined(_WIN32) || defined(WIN32))
 	WSACleanup();
-
-	#endif
+#endif
 }
