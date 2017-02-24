@@ -53,7 +53,7 @@ struct REGSVRNODE
 // send
 bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
-	// 大头
+	// 大端
 	/*
 	if(iheaderlen == 2)
 	{
@@ -64,7 +64,7 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 	}
 	*/
 
-	// 小头
+	// 小端
 	if(iheaderlen == 2)
 	{
 		if(ilen < 0 || ilen > 0xFFFF) { return false; }
@@ -73,10 +73,10 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 		return true;
 	}
 
-	// 小头
+	// 小端
 	if(iheaderlen == 4)
 	{
-		if(ilen < 0 || ilen > 1024*1024) { return false; }
+		if(ilen < 0 || ilen > 1024*1024*3) { return false; }
 		// 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。
 		pcHeader[3] = ((ilen & 0xFF000000) >> 24);
 		pcHeader[2] = ((ilen & 0x00FF0000) >> 16);
@@ -91,7 +91,7 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 // recv
 bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 {
-	// 大头
+	// 大端
 	/*
 	if(iheaderlen == 2)
 	{
@@ -101,7 +101,7 @@ bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 	}
 	*/
 
-	// 小头
+	// 小端
 	if(iheaderlen == 2)
 	{
 		*ilen = (unsigned short)(pcHeader[1] << 8 | pcHeader[0]);
@@ -109,12 +109,12 @@ bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 		return true;
 	}
 
-	// 小头
+	// 小端
 	if(iheaderlen == 4)
 	{
 		// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
 		*ilen = (int)((pcHeader[0] & 0xFF) | ((pcHeader[1] << 8) & 0xFF00) | ((pcHeader[2] << 16) & 0xFF0000) | ((pcHeader[3] << 24) & 0xFF000000));
-		if(*ilen < 0 || *ilen > 1024*1024) { return false; }
+		if(*ilen < 0 || *ilen > 1024*1024*3) { return false; }
 		return true;
 	}
 
@@ -199,7 +199,7 @@ void SeFreeRegSvrNode(struct SELIST *pkRegSvrList)
 	}
 }
 
-bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort, int iLogLV)
+bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, bool bBigHeader, unsigned short usOutPort, unsigned short usInPort, int iLogLV)
 {
 	SeNetCoreInit(&pkMagicNetS->kNetCore, pcLogName, iTimeOut, usMax, iLogLV);
 	SeListInit(&pkMagicNetS->kRegSvrList);
@@ -212,7 +212,7 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTime
 	pkMagicNetS->iSendNum = 0;
 	pkMagicNetS->iRecvNum = 0;
 
-	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, 2, &SeGetHeader, &SeSetHeader);
+	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "0.0.0.0", usOutPort, bBigHeader ? 4 : 2, &SeGetHeader, &SeSetHeader);
 	if(pkMagicNetS->kHScoketOut <= 0) { return false; }
 	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usInPort, 4, &SeGetHeader, &SeSetHeader);
 	if(pkMagicNetS->kHScoketIn <= 0) { return false; }

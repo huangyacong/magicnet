@@ -29,7 +29,7 @@ struct SEMAGICNETS
 	int						iRecvNum;
 };
 
-bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort, int iLogLV);
+bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, bool bBigHeader, unsigned short usOutPort, unsigned short usInPort, int iLogLV);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
