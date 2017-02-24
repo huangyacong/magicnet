@@ -1,5 +1,5 @@
-#ifndef __SE_SHAREMEMORY_H__
-#define __SE_SHAREMEMORY_H__
+#ifndef __SE_S_MEM_H__
+#define __SE_S_MEM_H__
 
 #ifdef	__cplusplus
 extern "C" {
