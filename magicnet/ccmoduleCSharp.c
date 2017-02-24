@@ -5,7 +5,7 @@ static struct SEMAGICNETC kMagicNetSvr;
 
 bool GateInit(char *pcLogName, int iTimeOut, unsigned short usMax, unsigned short usOutPort, unsigned short usInPort, int iLogLV)
 {
-	return SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, usOutPort, usInPort, iLogLV);
+	return SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, false, usOutPort, usInPort, iLogLV);
 }
 
 void GateFin()
