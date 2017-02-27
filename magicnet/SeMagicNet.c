@@ -54,7 +54,7 @@ struct REGSVRNODE
 bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
 	// 大端
-	/*
+	
 	if(iheaderlen == 2)
 	{
 		if(ilen < 0 || ilen > 0xFFFF) { return false; }
@@ -62,16 +62,16 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 		pcHeader[1] = ilen & 0xff;
 		return true;
 	}
-	*/
+	
 
 	// 小端
-	if(iheaderlen == 2)
+	/*if(iheaderlen == 2)
 	{
 		if(ilen < 0 || ilen > 0xFFFF) { return false; }
 		pcHeader[0] = ilen & 0xFF;
 		pcHeader[1] = (ilen >> 8) & 0xFF;
 		return true;
-	}
+	}*/
 
 	// 小端
 	if(iheaderlen == 4)
@@ -92,22 +92,20 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 {
 	// 大端
-	/*
 	if(iheaderlen == 2)
 	{
 		*ilen = (unsigned short)(pcHeader[0] << 8 | pcHeader[1]);
 		if(*ilen < 0 || *ilen > 0xFFFF) { return false; }
 		return true;
 	}
-	*/
 
 	// 小端
-	if(iheaderlen == 2)
+	/*if(iheaderlen == 2)
 	{
 		*ilen = (unsigned short)(pcHeader[1] << 8 | pcHeader[0]);
 		if(*ilen < 0 || *ilen > 0xFFFF) { return false; }
 		return true;
-	}
+	}*/
 
 	// 小端
 	if(iheaderlen == 4)
