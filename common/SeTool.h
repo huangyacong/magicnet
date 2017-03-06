@@ -29,15 +29,15 @@ extern "C" {
 
 #endif
 
-bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar);
+bool SeCHStrStr(const char* pcDstChar, const char* pcSrcChar);
 
-void SeStrNcpy(char* pcDstChar,int iDstLen,const char* pcSrcChar);
+void SeStrNcpy(char* pcDstChar, int iDstLen, const char* pcSrcChar);
 
-unsigned int SeStr2Hash(const char *pcStr,int iLen);
+unsigned int SeStr2Hash(const char *pcStr, int iLen);
 
-long long SeAToLongLong(char *pcString);
+long long SeAToLongLong(const char *pcString);
 
-int SeAToInt(char *pcString);
+int SeAToInt(const char *pcString);
 
 bool SeLockMem();
 

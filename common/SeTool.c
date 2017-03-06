@@ -25,7 +25,7 @@ unsigned int SeRandNum(unsigned int start, unsigned int end)
 	return start + SeRand() % (end - start);
 }
 
-bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
+bool SeCHStrStr(const char* pcDstChar, const char* pcSrcChar)
 {
 	int iLen = 0;
 	int iDstIndex = 0;
@@ -74,7 +74,7 @@ bool SeCHStrStr(const char* pcDstChar,const char* pcSrcChar)
 	return false;
 }
 
-void SeStrNcpy(char* pcDstChar,int iDstLen,const char* pcSrcChar)
+void SeStrNcpy(char* pcDstChar, int iDstLen, const char* pcSrcChar)
 {
 	assert(iDstLen > 1);
 	assert(pcDstChar != pcSrcChar);
@@ -92,7 +92,7 @@ void SeStrNcpy(char* pcDstChar,int iDstLen,const char* pcSrcChar)
 	pcDstChar[iDstLen - 1] = '\0';
 }
 
-unsigned int SeStr2Hash(const char *pcStr,int iLen)
+unsigned int SeStr2Hash(const char *pcStr, int iLen)
 {
 	unsigned int i = 0;
 	unsigned int uiResult = iLen;
@@ -107,7 +107,7 @@ unsigned int SeStr2Hash(const char *pcStr,int iLen)
 	return uiResult;
 }
 
-long long SeAToLongLong(char *pcString)
+long long SeAToLongLong(const char *pcString)
 {
 #if defined(__linux)
 	return atoll(pcString);
@@ -116,7 +116,7 @@ long long SeAToLongLong(char *pcString)
 #endif
 }
 
-int SeAToInt(char *pcString)
+int SeAToInt(const char *pcString)
 {
 	return atoi(pcString);
 }
