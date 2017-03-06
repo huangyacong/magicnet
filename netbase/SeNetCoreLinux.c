@@ -562,6 +562,12 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	*rSSize = 0;
 	*rRSize = 0;
 
+	if (*riLen <= 0 || *riLen < SENETCORE_SOCKET_RECV_BUF_LEN)
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[RECV Buf] Recv Buf too small.len=%d", *riLen);
+		return false;
+	}
+
 	pkConstNetSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
 	if(pkConstNetSocket)
 	{
