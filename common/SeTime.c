@@ -19,7 +19,9 @@ time_t SeTimeTime()
 
 int SeGetTimeZone()
 {
+	int time_zone;
 	time_t time_utc;
+	struct tm tm_gmt;
 	struct tm tm_local;
 
 	assert(TestTimeValid() == true);
@@ -30,16 +32,10 @@ int SeGetTimeZone()
 	// Get the local time
 	tm_local = *localtime(&time_utc);
 
-	time_t time_local;
-	struct tm tm_gmt;
-
-	// Change tm to time_t
-	time_local = mktime(&tm_local);
-
 	// Change it to GMT tm
 	tm_gmt = *gmtime(&time_utc);
 
-	int time_zone = tm_local.tm_hour - tm_gmt.tm_hour;
+	time_zone = tm_local.tm_hour - tm_gmt.tm_hour;
 	if (time_zone < -12) {
 		time_zone += 24;
 	} else if (time_zone > 12) {
@@ -176,9 +172,10 @@ unsigned long long SeTimeGetTickCount()
 #if (defined(_WIN32) || defined(WIN32))
 	unsigned long long ulTime = GetTickCount64();
 #elif defined(__linux)
+	unsigned long long ulTime;
 	struct timespec kCurrentTime = {0, 0};
 	clock_gettime(CLOCK_MONOTONIC, &kCurrentTime);
-	unsigned long long ulTime = kCurrentTime.tv_sec * 1000 + kCurrentTime.tv_nsec/(1000 * 1000);
+	ulTime = kCurrentTime.tv_sec * 1000 + kCurrentTime.tv_nsec/(1000 * 1000);
 #endif
 	return ulTime;
 }

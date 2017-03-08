@@ -81,15 +81,41 @@ void SeStrNcpy(char* pcDstChar, int iDstLen, const char* pcSrcChar)
 
 	if (iDstLen <= 1)
 	{
+		pcDstChar[iDstLen - 1] = '\0';
 		return;
 	}
 
 	if(pcDstChar == pcSrcChar)
 	{
+		pcDstChar[iDstLen - 1] = '\0';
 		return;
 	}
 	strncpy(pcDstChar,pcSrcChar,iDstLen);
 	pcDstChar[iDstLen - 1] = '\0';
+}
+
+int SeCopyData(char *dst, int iDstlen, const char *src, int iSrclen)
+{
+	assert(iSrclen >= 0);
+	assert(iDstlen >= 0);
+
+	if(iSrclen <= 0 || iDstlen <= 0)
+	{
+		return 0;
+	}
+
+	if(iDstlen > iSrclen)
+	{
+		memcpy(dst, src, iSrclen);
+		return iSrclen;
+	}
+	else
+	{
+		memcpy(dst, src, iDstlen);
+		return iDstlen;
+	}
+
+	return 0;
 }
 
 unsigned int SeStr2Hash(const char *pcStr, int iLen)

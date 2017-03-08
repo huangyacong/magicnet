@@ -67,26 +67,14 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	writelen = vsnprintf(pkLog->actext, maxlen - 3, argv, argptr);
 	va_end(argptr);
 
-	if(writelen <= 0)
+	if(writelen <= 0 || writelen > (maxlen - 3))
 	{
 		return;
 	}
 
-#if defined(__linux)
-	if(writelen <= (maxlen - 3))
-	{
-		pkLog->actext[writelen + 0] = '\n';
-		pkLog->actext[writelen + 1] = '\0';
-		pkLog->actext[writelen + 2] = '\0';
-	}
-#elif (defined(_WIN32) || defined(WIN32))
-	if (writelen <= (maxlen - 3))
-	{
-		pkLog->actext[writelen + 0] = '\r';
-		pkLog->actext[writelen + 1] = '\n';
-		pkLog->actext[writelen + 2] = '\0';
-	}
-#endif
+	pkLog->actext[writelen + 0] = '\0';
+	pkLog->actext[writelen + 1] = '\0';
+	pkLog->actext[writelen + 2] = '\0';
 
 	if(iLogLv == LT_ERROR)
 	{
@@ -162,6 +150,16 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
 	}
 
+#if defined(__linux)
+	pkLog->actext[writelen + 0] = '\n';
+	pkLog->actext[writelen + 1] = '\0';
+	pkLog->actext[writelen + 2] = '\0';
+#elif (defined(_WIN32) || defined(WIN32))
+	pkLog->actext[writelen + 0] = '\r';
+	pkLog->actext[writelen + 1] = '\n';
+	pkLog->actext[writelen + 2] = '\0';
+#endif
+
 	fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
 
 	if(bFlushToDisk)
@@ -222,19 +220,19 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 	}
 #endif
 
-	printf("%s%s", pcHeader ? pcHeader : "", pcString ? pcString : "");
+	printf("%s%s\n", pcHeader ? pcHeader : "", pcString ? pcString : "");
 
 #endif
 
 #else
 
 #if defined(SECOLOR)
-	#define NONE                 "\e[0m"
+	#define NONE                 "\e[0m\n"
 	#define RED                  "\e[1;31m"
 	#define GREEN                "\e[1;32m"
 	#define YELLOW               "\e[1;33m"
 #else
-	#define NONE                 ""
+	#define NONE                 "\n"
 	#define RED                  ""
 	#define GREEN                ""
 	#define YELLOW               ""
@@ -251,19 +249,19 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 
 	if(iLogLv == LT_ERROR)
 	{
-		printf(RED "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+		printf(RED"%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
 	else if(iLogLv == LT_WARNING)
 	{
-		printf(GREEN "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+		printf(GREEN"%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
 	else if(iLogLv == LT_CRITICAL)
 	{
-		printf(YELLOW "%s%s" NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+		printf(YELLOW"%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
 	else
 	{
-		printf("%s%s", pcHeader ? pcHeader : "", pcString ? pcString : "");
+		printf("%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
 	}
 
 #endif
