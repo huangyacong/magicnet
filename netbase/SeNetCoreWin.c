@@ -600,6 +600,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	int							iErrorno;
 	HSOCKET						kHSocket;
 	struct linger				so_linger;
+	char						acLocalIP[128];
 	struct ListenSocket			*pkListenSocket;
 	struct SESOCKET				*pkNetSocketAccept;
 
@@ -692,8 +693,9 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	pkNetSocketAccept->usStatus = SOCKET_STATUS_CONNECTED;
 	pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
 	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
+	SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr));
 	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client, ip=%s port=%d localsvrip=%s localsvrport=%d", \
-		inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr), ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
+		inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
 }
 
 void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, const struct IODATA *pkIOData, DWORD dwLen)

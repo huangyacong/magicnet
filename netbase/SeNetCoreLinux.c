@@ -384,6 +384,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	int iErrorno;
 	SOCKET kSocket;
 	HSOCKET kHSocket;
+	char acLocalIP[128];
 	struct linger so_linger;
 	struct sockaddr ksockaddr;
 	struct SESOCKET *pkNetSocketAccept;
@@ -453,8 +454,9 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
 		memcpy(&pkNetSocketAccept->kRemoteAddr, &ksockaddr, sizeof(struct sockaddr));
+		SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr));
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client, ip=%s port=%d localsvrip=%s localsvrport=%d socket=%llx", \
-			inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr), ntohs(pkNetSocketListen->kRemoteAddr.sin_port), kHSocket);
+			inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port), kHSocket);
 	}
 }
 
@@ -672,7 +674,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		kHSocket = (HSOCKET)pkEvent->data.u64;
 		bError = (pkEvent->events & EPOLLRDHUP) || (pkEvent->events &  EPOLLERR) || (pkEvent->events &  EPOLLHUP);
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-		if(!pkNetSocket) { /*SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket not found");*/ continue; }
+		if(!pkNetSocket) { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket not found.socket=%llx", kHSocket); continue; }
 		if(pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET) { SeNetCoreListenSocket(pkNetCore, pkNetSocket); }
 		else if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError); }
 		else if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET) { SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError); }
