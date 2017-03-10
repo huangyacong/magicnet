@@ -176,7 +176,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	
 	iResult = SeConnect(socket, &kAddr);
 	iErrorno = SeErrno();
-	if(iResult != 0 && iErrorno != SE_EINPROGRESS)
+	if(iResult != 0 && iErrorno != SE_EINPROGRESS && iErrorno != SE_EINTR)
 	{
 		SeCloseSocket(socket);
 		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
@@ -189,6 +189,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	{
 		memcpy(&pkNetSocket->kRemoteAddr, &kAddr, sizeof(struct sockaddr));
 		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
+		pkNetSocket->llTime = SeTimeGetTickCount();
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] ConnectEx to svr, ip=%s port=%d socket=%llx", inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr), ntohs(pkNetSocket->kRemoteAddr.sin_port), kHSocket);
 		return kHSocket; 
@@ -382,6 +383,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocketListen)
 {
 	int iErrorno;
+	char *pcAddrIP;
 	SOCKET kSocket;
 	HSOCKET kHSocket;
 	char acLocalIP[128];
@@ -451,10 +453,12 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		
 		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		pkNetSocketAccept->usStatus = SOCKET_STATUS_CONNECTED;
+		pkNetSocketAccept->llTime = SeTimeGetTickCount();
 		pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
 		memcpy(&pkNetSocketAccept->kRemoteAddr, &ksockaddr, sizeof(struct sockaddr));
-		SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr));
+		pcAddrIP = inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr);
+		SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), pcAddrIP ? pcAddrIP : "");
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client, ip=%s port=%d localsvrip=%s localsvrport=%d socket=%llx", \
 			inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port), kHSocket);
 	}
@@ -482,6 +486,7 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			if(iErrorno == 0)
 			{
 				pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
+				pkNetSocket->llTime = SeTimeGetTickCount();
 				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
 				SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreClientSocket] connect ok.socket=%llx", pkNetSocket->kHSocket);
@@ -600,6 +605,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); pcBuf[*riLen] = '\0'; }
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
+			pkNetSocket->llTime = SeTimeGetTickCount();
 			return true;
 		}
 		

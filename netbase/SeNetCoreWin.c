@@ -600,6 +600,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	int							iErrorno;
 	HSOCKET						kHSocket;
 	struct linger				so_linger;
+	char						*pcAddrIP;
 	char						acLocalIP[128];
 	struct ListenSocket			*pkListenSocket;
 	struct SESOCKET				*pkNetSocketAccept;
@@ -691,9 +692,11 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	memcpy(&pkNetSocketAccept->kRemoteAddr, remote_addr, sizeof(struct sockaddr_in));
 	pkNetSocketAccept->usStatus = SOCKET_STATUS_CONNECTED;
+	pkNetSocketAccept->llTime = SeTimeGetTickCount();
 	pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
 	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
-	SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr));
+	pcAddrIP = inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr);
+	SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), pcAddrIP ? pcAddrIP : "");
 	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client, ip=%s port=%d localsvrip=%s localsvrport=%d", \
 		inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
 }
@@ -791,6 +794,7 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		if(bConnectOK)
 		{
 			pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
+			pkNetSocket->llTime = SeTimeGetTickCount();
 			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 		}
 		else
@@ -848,6 +852,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); pcBuf[*riLen] = '\0'; }
 			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
 			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
+			pkNetSocket->llTime = SeTimeGetTickCount();
 			SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
 			SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 			SeNetCoreRecvBuf(pkNetCore, pkNetSocket);

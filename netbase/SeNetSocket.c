@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #define MAX_BUF_LEN 1024*4
+#define MAX_CONNECT_TIME_OUT 5*1000
 
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
@@ -89,7 +90,11 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 	int i;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	for(i = 0; i < pkNetSocketMgr->iMax; i++) SeNetSocketMgrEnd(pkNetSocketMgr, &pkNetSocketMgr->pkSeSocket[i]);
+	for(i = 0; i < pkNetSocketMgr->iMax; i++)
+	{
+		SeNetSocketMgrEnd(pkNetSocketMgr, &pkNetSocketMgr->pkSeSocket[i]);
+	}
+
 	pkNetStreamNode = SeNetSreamHeadPop(pkNetSocketMgr->pkNetStreamIdle);
 	while(pkNetStreamNode) {SeFreeMem(pkNetStreamNode);pkNetStreamNode = SeNetSreamHeadPop(pkNetSocketMgr->pkNetStreamIdle);}
 
@@ -111,8 +116,8 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 {
 	int iCounter;
 	unsigned short usIndex;
-	struct SEHASHNODE *pkHashNode;
 	struct SESOCKET *pkNetSocket;
+	struct SEHASHNODE *pkHashNode;
 	
 	pkNetSocketMgr->iCounter++;
 	iCounter = pkNetSocketMgr->iCounter;
@@ -262,12 +267,17 @@ const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 	struct SEHASHNODE *pkHashNode;
 	unsigned long long llTimeOut;
 
-	llTimeOut = pkNetSocketMgr->llTimeOut;
-
 	pkHashNode = SeHashGetHead(pkNetSocketMgr->pkActiveMainList);
-	if(!pkHashNode) { return 0; }
+	if(!pkHashNode)
+	{
+		return 0;
+	}
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
+	SeHashMoveToEnd(pkNetSocketMgr->pkActiveMainList, &pkNetSocket->kMainNode);
+
+	llTimeOut = pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? MAX_CONNECT_TIME_OUT : pkNetSocketMgr->llTimeOut;
 	if((pkNetSocket->llTime + llTimeOut) > SeTimeGetTickCount()) { return 0; }
+
 	return pkNetSocket;
 }
 
