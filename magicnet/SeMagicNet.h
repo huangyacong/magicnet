@@ -35,6 +35,8 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
 void SeMagicNetSSetWaitTime(struct SEMAGICNETS *pkMagicNetS, unsigned int uiWaitTime);
 
+void SeMagicNetSSetLogContextFunc(struct SEMAGICNETS *pkMagicNetS, SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
+
 void SeMagicNetSProcess(struct SEMAGICNETS *pkMagicNetS);
 
 enum MAGIC_STATE
@@ -66,6 +68,8 @@ struct SEMAGICNETC
 bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort, int iLogLV);
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
+
+void SeMagicNetCSetLogContextFunc(struct SEMAGICNETC *pkMagicNetC, SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 
 void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc, void *pkContext);
 

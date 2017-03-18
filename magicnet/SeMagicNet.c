@@ -54,7 +54,6 @@ struct REGSVRNODE
 bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
 	// ´ó¶Ë
-	
 	if(iheaderlen == 2)
 	{
 		if(ilen < 0 || ilen > 0xFFFF) { return false; }
@@ -62,7 +61,6 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 		pcHeader[1] = ilen & 0xff;
 		return true;
 	}
-	
 
 	// Ð¡¶Ë
 	/*if(iheaderlen == 2)
@@ -231,6 +229,11 @@ void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS)
 void SeMagicNetSSetWaitTime(struct SEMAGICNETS *pkMagicNetS, unsigned int uiWaitTime)
 {
 	SeNetCoreSetWaitTime(&pkMagicNetS->kNetCore, uiWaitTime);
+}
+
+void SeMagicNetSSetLogContextFunc(struct SEMAGICNETS *pkMagicNetS, SELOGCONTEXT pkLogContextFunc, void *pkLogContect)
+{
+	SeLogSetLogContextFunc(&pkMagicNetS->kNetCore.kLog, pkLogContextFunc, pkLogContect);
 }
 
 void SeMagicNetSSendActive(struct SEMAGICNETS *pkMagicNetS)
@@ -516,6 +519,11 @@ void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC)
 	SeFreeMem(pkMagicNetC->pcSendBuf);
 	SeNetCoreFin(&pkMagicNetC->kNetCore);
 	pkMagicNetC->kHScoket = 0;
+}
+
+void SeMagicNetCSetLogContextFunc(struct SEMAGICNETC *pkMagicNetC, SELOGCONTEXT pkLogContextFunc, void *pkLogContect)
+{
+	SeLogSetLogContextFunc(&pkMagicNetC->kNetCore.kLog, pkLogContextFunc, pkLogContect);
 }
 
 void SeMagicNetCSetGateStatFunc(struct SEMAGICNETC *pkMagicNetC, MAGICNETENGINEGATESTAT	pkGateStatFunc, void *pkContext)
