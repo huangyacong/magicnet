@@ -26,6 +26,7 @@ enum SENETCORE_EVENT_SOCKET
 
 #define SENETCORE_SOCKET_BACKLOG 256
 #define SENETCORE_SOCKET_RECV_BUF_LEN 1024
+#define SENETCORE_SOCKET_RS_BUF_LEN 1024*1024*1024
 
 struct SENETCORE
 {
@@ -47,6 +48,8 @@ struct SENETCORE
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax, int iLogLV);
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore);
+
+void SeNetCoreSetLogContextFunc(struct SENETCORE *pkNetCore, SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 
 void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, unsigned int uiWaitTime);
 
