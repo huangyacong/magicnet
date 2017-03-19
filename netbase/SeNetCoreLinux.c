@@ -367,8 +367,8 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		else
 		{
 			pkNetStreamNode->usReadPos += iLen;
-			if(pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos <= 0) { SeNetSreamHeadAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
-			else { SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] send buf leave some data,now send again.socket=%llx", pkNetSocket->kHSocket); SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); break; }
+			if(pkNetStreamNode->usWritePos <= pkNetStreamNode->usReadPos) { assert(pkNetStreamNode->usWritePos == pkNetStreamNode->usReadPos); SeNetSreamHeadAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
+			else { SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] send buf leave some data,now send again.socket=%llx", pkNetSocket->kHSocket); SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); }
 		}
 	}
 
