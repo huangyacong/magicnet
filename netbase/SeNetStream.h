@@ -30,6 +30,12 @@ struct SENETSTREAM
 	long long			llFlag;
 };
 
+struct SENETSTREAMBUF
+{
+	const char			*pcBuf;
+	int					iBufLen;
+};
+
 
 
 typedef bool (*SEGETHEADERLENFUN)(const unsigned char*, const int, int*);
@@ -63,6 +69,8 @@ bool SeNetSreamCanWrite(struct SENETSTREAM *pkNetStream, SESETHEADERLENFUN pkSet
 bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize, char *pcBuf, int *riBufLen);
 
 bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, const char *pcBuf, int iBufLen);
+
+bool SeNetSreamWriteExtend(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, const struct SENETSTREAMBUF *pkBufList, int iNum);
 
 #ifdef	__cplusplus
 }

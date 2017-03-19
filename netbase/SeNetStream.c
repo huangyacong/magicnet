@@ -304,3 +304,37 @@ bool SeNetSreamWrite(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetS
 	return true;
 }
 
+bool SeNetSreamWriteExtend(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetStreamIdle, SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, const struct SENETSTREAMBUF *pkBufList, int iNum)
+{
+	int i;
+	bool bRet;
+	int iBufLen;
+	char acHeader[64];
+
+	assert(iHeaderSize >= 0);
+	assert((int)sizeof(acHeader) >= iHeaderSize);
+	if(!pkBufList || iNum <= 0) return false;
+
+	iBufLen = 0;
+	for(i = 0; i < iNum; i++)
+	{
+		if(!pkBufList[i].pcBuf) return false;
+		if(pkBufList[i].iBufLen < 0) return false;
+		iBufLen += pkBufList[i].iBufLen;
+	}
+
+	if(iBufLen < 0 || iHeaderSize < 0 || (int)sizeof(acHeader) < iHeaderSize) return false;
+
+	bRet = iHeaderSize <= 0 ? true : pkSetHeaderLenFun((unsigned char *)acHeader, iHeaderSize, iBufLen);
+	if(!bRet) return false;
+
+	if(!SeNetSreamWriteLen(pkNetStream, pkNetStreamIdle, acHeader, iHeaderSize)) return false;
+
+	for(i = 0; i < iNum; i++)
+	{
+		if(!SeNetSreamWriteLen(pkNetStream, pkNetStreamIdle, pkBufList[i].pcBuf, pkBufList[i].iBufLen)) return false;
+	}
+
+	return true;
+}
+
