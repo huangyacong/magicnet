@@ -14,7 +14,7 @@ PyObject *MagicNetGateInit(PyObject *module, PyObject* args)
 	if(!PyArg_ParseTuple(args, "siHHHi", &pcLogName, &iTimeOut, &usMax, &usOutPort, &usInPort, &iLogLV))
 	return NULL;
 
-	bResult = SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, false, usOutPort, usInPort, iLogLV);
+	bResult = SeMagicNetSInit(&kMagicNetGate, pcLogName, iTimeOut, usMax, false, "0.0.0.0", usOutPort, usInPort, iLogLV);
 	return Py_BuildValue("O", bResult == true ? Py_True : Py_False);
 }
 

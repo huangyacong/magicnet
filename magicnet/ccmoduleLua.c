@@ -20,7 +20,7 @@ static int MagicNetGateInit(lua_State *L)
 	usInPort = (unsigned short)luaL_checkinteger(L, 5);
 	iLogLV = (int)luaL_checkinteger(L, 6);
 
-	bResult = SeMagicNetSInit(&kMagicNetGate, (char*)pcLogName, iTimeOut, usMax, false, usOutPort, usInPort, iLogLV);
+	bResult = SeMagicNetSInit(&kMagicNetGate, (char*)pcLogName, iTimeOut, usMax, false, "0.0.0.0", usOutPort, usInPort, iLogLV);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
