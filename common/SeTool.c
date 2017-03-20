@@ -79,15 +79,20 @@ void SeStrNcpy(char* pcDstChar, int iDstLen, const char* pcSrcChar)
 	assert(iDstLen > 1);
 	assert(pcDstChar != pcSrcChar);
 
+	if (iDstLen <= 0)
+	{
+		return;
+	}
+
 	if (iDstLen <= 1)
 	{
-		pcDstChar[iDstLen - 1] = '\0';
+		pcDstChar[0] = '\0';
 		return;
 	}
 
 	if(pcDstChar == pcSrcChar)
 	{
-		pcDstChar[iDstLen - 1] = '\0';
+		pcDstChar[0] = '\0';
 		return;
 	}
 	strncpy(pcDstChar,pcSrcChar,iDstLen);

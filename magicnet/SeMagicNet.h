@@ -79,15 +79,15 @@ bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName);
 
 bool SeMagicNetCSendClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, const char *pcBuf, int iLen);
 
+bool SeMagicNetCSendClientExtend(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, const struct SENETSTREAMBUF *pkBufList, int iNum);
+
 void SeMagicNetCBindClientToSvr(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, const char *pcSvrName);
 
 void SeMagicNetCCloseClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket);
 
 bool SeMagicNetCSendSvr(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, const char *pcBuf, int iLen);
 
-char *SePacketData(struct SEMAGICNETC *pkMagicNetC, bool bToClient, const char *pcSvrName, HSOCKET kHSocket, int iLen, int *riBegin);
-
-bool SeMagicNetCSendPacket(struct SEMAGICNETC *pkMagicNetC, const char *pcBuf, int iLen);
+bool SeMagicNetCSendSvrExtend(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName, const struct SENETSTREAMBUF *pkBufList, int iNum);
 
 enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char **pcBuf, int *riBufLen);
 
