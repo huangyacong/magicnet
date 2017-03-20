@@ -278,8 +278,8 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 		*riBufLen = -1;
 		if(!SeNetSreamReadLen(pkNetStream, pkNetStreamIdle, acHeader, iHeaderSize)) return false;
 		if(!pkGetHeaderLenFun((const unsigned char *)acHeader, iHeaderSize, &(*riBufLen))) return false;
-		if(!SeNetSreamReadLen(pkNetStream, pkNetStreamIdle, pcBuf, *riBufLen)) return false;
 		assert(*riBufLen >= 0);
+		if(!SeNetSreamReadLen(pkNetStream, pkNetStreamIdle, pcBuf, *riBufLen)) return false;
 	}
 
 	return true;
