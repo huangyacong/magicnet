@@ -2,8 +2,6 @@
 
 #if defined(__linux)
 
-#define SENETCORE_MAX_SOCKET_BUF_LEN 1024*1024*4
-
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, unsigned short usMax, int iLogLV)
 {
 	pkNetCore->iWaitTime = NET_CORE_WAIT_TIME;
@@ -12,7 +10,6 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, int iTimeOut, u
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeAddLogLV(&pkNetCore->kLog, iLogLV);
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, iTimeOut, usMax);
-	pkNetCore->pcBuf = (char*)SeMallocMem(SENETCORE_MAX_SOCKET_BUF_LEN);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -21,7 +18,6 @@ void SeNetCoreFin(struct SENETCORE *pkNetCore)
 	SeFinLog(&pkNetCore->kLog);
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeNetBaseEnd();
-	SeFreeMem(pkNetCore->pcBuf);
 }
 
 void SeNetCoreSetLogContextFunc(struct SENETCORE *pkNetCore, SELOGCONTEXT pkLogContextFunc, void *pkLogContect)
@@ -316,33 +312,67 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	int iLen;
-	bool bOk;
+	bool bPop;
 	bool bRecv;
 	int iErrorno;
-	SOCKET socket;
-
-	int	iHeaderLen;
-	struct SENETSTREAM *pkRecvNetStream;
-	SESETHEADERLENFUN pkSetHeaderLenFun;
+	struct SENETSTREAMNODE *pkNetStreamNode;
 	
-	iHeaderLen = pkNetSocket->iHeaderLen;
-	pkSetHeaderLenFun = pkNetSocket->pkSetHeaderLenFun;
-	pkRecvNetStream = &pkNetSocket->kRecvNetStream;
-
+	bPop = false;
 	bRecv = false;
-	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 
 	while(true)
 	{
-		iLen = SeRecv(socket, pkNetCore->pcBuf, SENETCORE_MAX_SOCKET_BUF_LEN, 0);
+		if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, 0))
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] no more memcahce.socket=%llx", pkNetSocket->kHSocket);
+			return false;
+		}
+
+		pkNetStreamNode = SeNetSreamTailPop(&pkNetSocket->kRecvNetStream);
+		if(pkNetStreamNode)
+		{
+			bPop = true;
+			if(pkNetStreamNode->usMaxLen <= pkNetStreamNode->usWritePos)
+			{
+				SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode);
+				pkNetStreamNode = 0;
+				bPop = false;
+			}
+		}
+
+		if(!pkNetStreamNode)
+		{
+			pkNetStreamNode = SeNetSreamTailPop(pkNetCore->kSocketMgr.pkNetStreamIdle);
+			if(pkNetStreamNode) { SeNetSreamNodeZero(pkNetStreamNode); }
+		}
+
+		if(!pkNetStreamNode)
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] no more ilde memcahce.socket=%llx", pkNetSocket->kHSocket);
+			return false;
+		}
+
+		if(pkNetStreamNode->usMaxLen <= pkNetStreamNode->usWritePos)
+		{
+			SeNetSreamTailAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode);
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] usMaxLen <= usWritePos.socket=%llx", pkNetSocket->kHSocket);
+			return false;
+		}
+		
+		iLen = SeRecv(SeGetSocketByHScoket(pkNetSocket->kHSocket), pkNetStreamNode->pkBuf + pkNetStreamNode->usWritePos, pkNetStreamNode->usMaxLen - pkNetStreamNode->usWritePos, 0);
+
 		if(iLen == 0)
 		{
+			if(bPop) { SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode); }
+			else { SeNetSreamTailAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreRecvBuf] socket is close by client.socket=%llx", pkNetSocket->kHSocket);
 			return false;
 		}
 		else if(iLen < 0)
 		{
 			iErrorno = SeErrno();
+			if(bPop) { SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode); }
+			else { SeNetSreamTailAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
 			if(iErrorno == SE_EINTR) continue;
 			else if(iErrorno == SE_EWOULDBLOCK) { break; }
 			else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreRecvBuf] socket recv error.socket=%llx", pkNetSocket->kHSocket); return false; }
@@ -350,13 +380,8 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		else
 		{
 			bRecv = true;
-			if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iLen))
-			{
-				SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] no more memcahce.socket=%llx", pkNetSocket->kHSocket);
-				return false;
-			}
-			bOk = SeNetSreamWrite(pkRecvNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkSetHeaderLenFun, 0, pkNetCore->pcBuf, iLen);
-			if(!bOk) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] recv data ERROR.socket=%llx", pkNetSocket->kHSocket); return false; }
+			pkNetStreamNode->usWritePos += iLen;
+			SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode);
 		}
 	}
 

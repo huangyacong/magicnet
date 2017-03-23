@@ -222,6 +222,11 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 
 	printf("%s%s\n", pcHeader ? pcHeader : "", pcString ? pcString : "");
 
+#if defined(SECOLOR)
+	wColor = 0x000F;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
+#endif
+
 #endif
 
 #else

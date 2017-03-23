@@ -36,7 +36,6 @@ struct SENETCORE
 	struct SESOCKETMGR		kSocketMgr;
 #if defined(__linux)
 	struct epoll_event		akEvents[SENETCORE_SOCKET_BACKLOG];
-	char					*pcBuf;
 #elif (defined(_WIN32) || defined(WIN32))
 	struct SELIST			kList;
 	struct SELIST			kListenList;
