@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define MAX_BUF_LEN 1024*4
+#define MAX_BUF_LEN 3904
 #define MAX_CONNECT_TIME_OUT 5*1000
 
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
