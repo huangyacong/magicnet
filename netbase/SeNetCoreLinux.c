@@ -561,6 +561,7 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
 	{
 		bOK = true;
+		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
 
 		if(bWrite == true)
 		{
@@ -571,7 +572,6 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			{
 				pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
 				pkNetSocket->llTime = SeTimeGetTickCount();
-				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
 				SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreClientSocket] connect ok.socket=%llx", pkNetSocket->kHSocket);
 				return;
@@ -582,13 +582,15 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		if(bError == true || bOK == false)
 		{
 			pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
-			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
 			SeCloseSocket(socket);
 			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SeNetCoreClientSocket] connect failed.socket=%llx", pkNetSocket->kHSocket);
 			return;
 		}
-		
+
+		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
+		SeCloseSocket(socket);
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);		
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SeNetCoreClientSocket] connect status error.socket=%llx", pkNetSocket->kHSocket);
 
 		// no call here?
