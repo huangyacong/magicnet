@@ -52,6 +52,7 @@ struct SE_ALIGN(64) SESOCKET
 	char					acBindSvrName[128];
 	long long				llFlag;//user flag
 	unsigned long long		llTime;
+	unsigned long long		llActiveTimeOut;
 	SEGETHEADERLENFUN		pkGetHeaderLenFun;
 	SESETHEADERLENFUN		pkSetHeaderLenFun;
 
@@ -62,11 +63,10 @@ struct SE_ALIGN(64) SESOCKET
 };
 
 // 64 ¶ÔÆë
-struct SESOCKETMGR
+struct SE_ALIGN(64) SESOCKETMGR
 {
 	int						iMax;
 	int						iCounter;
-	unsigned long long		llTimeOut;
 	struct SEHASH			*pkMainList;
 	struct SEHASH			*pkActiveMainList;
 	struct SEHASH			*pkSendList;
@@ -75,7 +75,7 @@ struct SESOCKETMGR
 	struct SESOCKET			*pkSeSocket;
 };
 
-void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, int iTimeOut, unsigned short usMax);
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax);
 
 void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr);
 

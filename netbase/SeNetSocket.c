@@ -22,6 +22,7 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->llTime = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
+	pkNetSocket->llActiveTimeOut = 0;
 	memset(pkNetSocket->acBindSvrName, 0, sizeof(pkNetSocket->acBindSvrName));
 }
 
@@ -36,13 +37,12 @@ void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
 	SeNetSreamInit(&pkNetSocket->kRecvNetStream);
 }
 
-void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, int iTimeOut, unsigned short usMax)
+void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax)
 {
 	int i;
 
 	assert(usMax > 0);
 	pkNetSocketMgr->iCounter = 0;
-	pkNetSocketMgr->llTimeOut = iTimeOut;
 	pkNetSocketMgr->iMax = usMax;
 	pkNetSocketMgr->pkMainList = (struct SEHASH*)SeMallocMem(sizeof(struct SEHASH));
 	pkNetSocketMgr->pkActiveMainList = (struct SEHASH*)SeMallocMem(sizeof(struct SEHASH));
@@ -279,7 +279,7 @@ const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
 	SeHashMoveToEnd(pkNetSocketMgr->pkActiveMainList, &pkNetSocket->kMainNode);
 
-	llTimeOut = pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? MAX_CONNECT_TIME_OUT : pkNetSocketMgr->llTimeOut;
+	llTimeOut = pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? MAX_CONNECT_TIME_OUT : pkNetSocket->llActiveTimeOut;
 	if((pkNetSocket->llTime + llTimeOut) > SeTimeGetTickCount()) { return 0; }
 
 	return pkNetSocket;

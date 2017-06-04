@@ -59,6 +59,7 @@ struct SEMAGICNETC
 	char					*pcSendBuf;
 	void					*pkContext;
 	MAGICNETENGINEGATESTAT	pkGateStatFunc;
+	int						iTimeOut;
 	unsigned long long		ullTime;
 	int						iSendNum;
 	int						iRecvNum;
