@@ -8,7 +8,6 @@
 #include <stdlib.h>
 
 #define MAX_BUF_LEN 3904
-#define MAX_CONNECT_TIME_OUT 5*1000
 
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
@@ -22,7 +21,8 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->llTime = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
-	pkNetSocket->llActiveTimeOut = 0;
+	pkNetSocket->iConnectTimeOut = 5*1000;
+	pkNetSocket->iActiveTimeOut = 0;
 	memset(pkNetSocket->acBindSvrName, 0, sizeof(pkNetSocket->acBindSvrName));
 }
 
@@ -279,7 +279,7 @@ const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
 	SeHashMoveToEnd(pkNetSocketMgr->pkActiveMainList, &pkNetSocket->kMainNode);
 
-	llTimeOut = pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? MAX_CONNECT_TIME_OUT : pkNetSocket->llActiveTimeOut;
+	llTimeOut = pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? pkNetSocket->iConnectTimeOut : pkNetSocket->iActiveTimeOut;
 	if((pkNetSocket->llTime + llTimeOut) > SeTimeGetTickCount()) { return 0; }
 
 	return pkNetSocket;

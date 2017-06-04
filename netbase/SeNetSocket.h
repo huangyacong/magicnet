@@ -52,7 +52,8 @@ struct SE_ALIGN(64) SESOCKET
 	char					acBindSvrName[128];
 	long long				llFlag;//user flag
 	unsigned long long		llTime;
-	unsigned long long		llActiveTimeOut;
+	int						iConnectTimeOut;
+	int						iActiveTimeOut;
 	SEGETHEADERLENFUN		pkGetHeaderLenFun;
 	SESETHEADERLENFUN		pkSetHeaderLenFun;
 

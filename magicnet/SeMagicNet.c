@@ -558,7 +558,7 @@ bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName)
 
 	if(pkMagicNetC->kHScoket > 0) { return true; }
 	pkMagicNetC->llActive = SeTimeGetTickCount();
-	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", pkMagicNetC->usInPort, 4, pkMagicNetC->iTimeOut, &SeGetHeader, &SeSetHeader);
+	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", pkMagicNetC->usInPort, 4, pkMagicNetC->iTimeOut, 5*1000, &SeGetHeader, &SeSetHeader);
 	if(pkMagicNetC->kHScoket <= 0) { return false; }
 
 	while(true)
