@@ -301,6 +301,7 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	}
 	else
 	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "SeNetCoreDisconnect Failed. OrgStatus=%d Atatus=%d socket=%llx", usOrgStatu, pkNetSocket->usStatus, kHSocket);
 		return;
 	}
 
