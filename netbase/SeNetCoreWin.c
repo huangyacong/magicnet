@@ -8,9 +8,9 @@
 #define OP_TYPE_CONNECT 4
 
 #if defined(IO_DATA_LEN)
-#define MAX_IO_DATA_LEN 1024*512
+#define MAX_IO_DATA_LEN 1024*512 - 256
 #else
-#define MAX_IO_DATA_LEN 1024*32
+#define MAX_IO_DATA_LEN 1024*32 - 256
 #endif
 
 struct IODATA
@@ -42,6 +42,7 @@ struct IODATA* SeNewIOData(struct SENETCORE *pkNetCore)
 	pkIOData = (struct IODATA*)SeMallocMem(sizeof(struct IODATA));
 	if(!pkIOData) { return 0; }
 	memset(pkIOData, 0, sizeof(struct IODATA));
+	assert((int)sizeof(pkIOData->acData) > (int)sizeof(struct sockaddr_in)*2);
 	SeListInitNode(&pkIOData->kNode);
 	return pkIOData;
 }
@@ -741,8 +742,8 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
 	pcAddrIP = inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr);
 	SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), pcAddrIP ? pcAddrIP : "");
-	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client, ip=%s port=%d localsvrip=%s localsvrport=%d", \
-		inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
+	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client hscoket=%llx, ip=%s port=%d localsvrip=%s localsvrport=%d", \
+		kHSocket, inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
 }
 
 void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, const struct IODATA *pkIOData, DWORD dwLen)
