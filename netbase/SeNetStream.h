@@ -14,11 +14,11 @@ extern "C" {
 struct SENETSTREAMNODE
 {
 	struct SENODE		kNode;
-	char				*pkBuf;
 	unsigned short		usMaxLen;
 	unsigned short		usReadPos;
 	unsigned short		usWritePos;
 	unsigned short		usStreamFlag;
+	char				*pkBuf;
 };
 
 // 32 size

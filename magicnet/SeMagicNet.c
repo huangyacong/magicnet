@@ -542,51 +542,6 @@ void SeMagicNetCSetWaitTime(struct SEMAGICNETC *pkMagicNetC, unsigned int uiWait
 	SeNetCoreSetWaitTime(&pkMagicNetC->kNetCore, uiWaitTime);
 }
 
-bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName)
-{
-	int riLen;
-	int rSSize;
-	int rRSize;
-	int riEvent;
-	bool result;
-	HSOCKET rkHSocket;
-	HSOCKET rkListenHSocket;
-	struct SECOMMONDATA *pkComData;
-
-	assert((int)strlen(pcSvrName) > 0);
-	assert(MAX_SVR_NAME_LEN > (int)strlen(pcSvrName));
-
-	if(pkMagicNetC->kHScoket > 0) { return true; }
-	pkMagicNetC->llActive = SeTimeGetTickCount();
-	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", pkMagicNetC->usInPort, 4, pkMagicNetC->iTimeOut, 5*1000, &SeGetHeader, &SeSetHeader);
-	if(pkMagicNetC->kHScoket <= 0) { return false; }
-
-	while(true)
-	{
-		riLen = MAX_RECV_BUF_LEN;
-		result = SeNetCoreRead(&pkMagicNetC->kNetCore,
-			&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetC->pcRecvBuf, &riLen, &rSSize, &rRSize);
-		if(!result) { continue; }
-		if(riEvent == SENETCORE_EVENT_SOCKET_IDLE) { continue; }
-		assert(rkHSocket == pkMagicNetC->kHScoket);
-
-		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
-		{
-			pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcRecvBuf;
-			pkComData->iProco = SVR_TO_MAGICNET_REG_SVR;
-			memset(pkComData->kData.acName, 0, (int)sizeof(pkComData->kData.acName));
-			SeStrNcpy(pkComData->kData.acName, (int)sizeof(pkComData->kData.acName), pcSvrName);
-			SeStrNcpy(pkMagicNetC->acSvrName, sizeof(pkMagicNetC->acSvrName), pcSvrName);
-			pkComData->iBufLen = 0;
-			if(!SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (const char*)pkComData, (int)sizeof(struct SECOMMONDATA))) { return false; }
-			return true;
-		}
-
-		if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED || riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; return false; }
-	}
-	return false;
-}
-
 bool SeMagicNetCSendClient(struct SEMAGICNETC *pkMagicNetC, HSOCKET kHSocket, const char *pcBuf, int iLen)
 {
 	struct SECOMMONDATA *pkComData;
@@ -747,6 +702,51 @@ void SeMagicNetCSendStat(struct SEMAGICNETC *pkMagicNetC)
 	pkMagicNetC->iRecvNum = 0;
 	pkMagicNetC->iSendNum = 0;
 	pkMagicNetC->ullTime = ullTime;
+}
+
+bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName)
+{
+	int riLen;
+	int rSSize;
+	int rRSize;
+	int riEvent;
+	bool result;
+	HSOCKET rkHSocket;
+	HSOCKET rkListenHSocket;
+	struct SECOMMONDATA *pkComData;
+
+	assert((int)strlen(pcSvrName) > 0);
+	assert(MAX_SVR_NAME_LEN > (int)strlen(pcSvrName));
+
+	if (pkMagicNetC->kHScoket > 0) { return true; }
+	pkMagicNetC->llActive = SeTimeGetTickCount();
+	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", pkMagicNetC->usInPort, 4, pkMagicNetC->iTimeOut, 5 * 1000, &SeGetHeader, &SeSetHeader);
+	if (pkMagicNetC->kHScoket <= 0) { return false; }
+
+	while (true)
+	{
+		riLen = MAX_RECV_BUF_LEN;
+		result = SeNetCoreRead(&pkMagicNetC->kNetCore,
+			&riEvent, &rkListenHSocket, &rkHSocket, pkMagicNetC->pcRecvBuf, &riLen, &rSSize, &rRSize);
+		if (!result) { continue; }
+		if (riEvent == SENETCORE_EVENT_SOCKET_IDLE) { continue; }
+		assert(rkHSocket == pkMagicNetC->kHScoket);
+
+		if (riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
+		{
+			pkComData = (struct SECOMMONDATA *)pkMagicNetC->pcRecvBuf;
+			pkComData->iProco = SVR_TO_MAGICNET_REG_SVR;
+			memset(pkComData->kData.acName, 0, (int)sizeof(pkComData->kData.acName));
+			SeStrNcpy(pkComData->kData.acName, (int)sizeof(pkComData->kData.acName), pcSvrName);
+			SeStrNcpy(pkMagicNetC->acSvrName, sizeof(pkMagicNetC->acSvrName), pcSvrName);
+			pkComData->iBufLen = 0;
+			if (!SeNetCoreSend(&pkMagicNetC->kNetCore, pkMagicNetC->kHScoket, (const char*)pkComData, (int)sizeof(struct SECOMMONDATA))) { return false; }
+			return true;
+		}
+
+		if (riEvent == SENETCORE_EVENT_SOCKET_CONNECT_FAILED || riEvent == SENETCORE_EVENT_SOCKET_DISCONNECT) { pkMagicNetC->kHScoket = 0; return false; }
+	}
+	return false;
 }
 
 enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRecvHSocket, char **pcBuf, int *riBufLen)

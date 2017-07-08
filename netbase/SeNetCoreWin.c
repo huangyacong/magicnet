@@ -742,7 +742,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
 	pcAddrIP = inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr);
 	SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), pcAddrIP ? pcAddrIP : "");
-	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client hscoket=%llx, ip=%s port=%d localsvrip=%s localsvrport=%d", \
+	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client hsocket=%llx, ip=%s port=%d localsvrip=%s localsvrport=%d", \
 		kHSocket, inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
 }
 
@@ -879,6 +879,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			SeNetCoreDisconnect(pkNetCore, pkConstNetSocket->kHSocket);
 		}
 	}
+	pkConstNetSocket = 0;
 
 	do
 	{
@@ -940,7 +941,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) { continue; }
 		if(!SeNetSreamCanRead(&pkNetSocket->kRecvNetStream, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen)) { continue; }
 		bOK = SeNetSreamRead(&pkNetSocket->kRecvNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, riLen);
-		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[READ DATA] Read Data Error. socket=%llx", pkConstNetSocket->kHSocket); continue; }
+		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[READ DATA] Read Data Error. socket=%llx", pkNetSocket->kHSocket); continue; }
 		
 		pcBuf[*riLen] = '\0';
 		*rkHSocket = pkNetSocket->kHSocket;
