@@ -841,10 +841,12 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
 			pkNetSocket->llTime = SeTimeGetTickCount();
 			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreClientSocket] connect ok. ip=%s port=%d socket=%llx", inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr), ntohs(pkNetSocket->kRemoteAddr.sin_port), pkNetSocket->kHSocket);
 		}
 		else
 		{
 			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SeNetCoreClientSocket] connect failed. ip=%s port=%d socket=%llx", inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr), ntohs(pkNetSocket->kRemoteAddr.sin_port), pkNetSocket->kHSocket);
 		}
 
 		return;
