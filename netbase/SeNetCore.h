@@ -30,16 +30,19 @@ enum SENETCORE_EVENT_SOCKET
 
 struct SENETCORE
 {
-	int						iWaitTime;
-	HANDLE					kHandle;
-	struct SELOG			kLog;
-	struct SESOCKETMGR		kSocketMgr;
 #if defined(__linux)
 	struct epoll_event		akEvents[SENETCORE_SOCKET_BACKLOG];
+	char					acFlag[48];
+	int						iTag;
 #elif (defined(_WIN32) || defined(WIN32))
 	struct SELIST			kList;
 	struct SELIST			kListenList;
 #endif
+	int						iWaitTime;
+	int						iFlag;
+	HANDLE					kHandle;
+	struct SESOCKETMGR		kSocketMgr;
+	struct SELOG			kLog;
 };
 
 #define NET_CORE_WAIT_TIME 0

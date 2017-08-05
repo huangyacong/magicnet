@@ -9,8 +9,8 @@ extern "C" {
 #include "SeList.h"
 #include <stdbool.h>
 
-// 64 ¶ÔÆëËü
-struct SE_ALIGN(64) SEHASHNODE
+// 40 size
+struct SEHASHNODE
 {
 	struct SENODE main;
 	struct SENODE list;

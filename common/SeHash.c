@@ -22,8 +22,18 @@ int tableCapability(int size)
 	
 	assert((i&(i - 1)) == 0);
 	assert((iMax&(iMax - 1)) == 0);
-	if (size >= iMax) return iMax;
-	while(1) { if(i >= size) { return i; } i *= 2; }
+	if (size >= iMax)
+	{
+		return iMax;
+	}
+	while(1)
+	{
+		if(i >= size)
+		{
+			return i;
+		}
+		i *= 2;
+	}
 }
 
 void SeHashInit(struct SEHASH *root, int max)
@@ -83,14 +93,23 @@ struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
 	pkMain = &root->pkMain[hashid];
 
 	pkNode = pkMain->head;
-	if(!pkNode) return 0;
+	if (!pkNode)
+	{
+		return 0;
+	}
 	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, main);
-	if(pkHashNode->id == id) return pkHashNode;
+	if (pkHashNode->id == id)
+	{
+		return pkHashNode;
+	}
 	pkNode = pkNode->next;
 	while(pkNode)
 	{
 		pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, main);
-		if(pkHashNode->id == id) return pkHashNode;
+		if (pkHashNode->id == id)
+		{
+			return pkHashNode;
+		}
 		pkNode = pkNode->next;
 	}
 	return 0;
@@ -102,9 +121,11 @@ struct SEHASHNODE *SeHashGetHead(struct SEHASH *root)
 	struct SEHASHNODE *pkHashNode;
 
 	pkNode = root->list.head;
-	if(!pkNode) return 0;
+	if (!pkNode)
+	{
+		return 0;
+	}
 	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, list);
-
 	return pkHashNode;
 }
 
@@ -130,7 +151,10 @@ struct SEHASHNODE *SeHashPop(struct SEHASH *root)
 	struct SEHASHNODE *pkHashNode;
 
 	pkNode = SeListHeadPop(&root->list);
-	if(!pkNode) return 0;
+	if (!pkNode)
+	{
+		return 0;
+	}
 	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, list);
 
 	hashid = pkHashNode->id&(root->max - 1);

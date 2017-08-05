@@ -36,12 +36,21 @@ enum EVENT_SOCKET
 	WRITE_EVENT_SOCKET = (1<<2)
 };
 
-struct SE_ALIGN(64) SESOCKET
+struct SESOCKET
 {
+	// 64
 	struct SEHASHNODE		kMainNode;
-	struct SEHASHNODE		kSendNode;
-	struct SEHASHNODE		kRecvNode;
+	char					acTagA[24];
 
+	// 64
+	struct SEHASHNODE		kSendNode;
+	char					acTagB[24];
+
+	// 64
+	struct SEHASHNODE		kRecvNode;
+	char					acTagC[24];
+
+	// 64
 	HSOCKET					kHSocket;
 	HSOCKET					kBelongListenHSocket;
 	unsigned short			usStatus;
@@ -49,31 +58,41 @@ struct SE_ALIGN(64) SESOCKET
 	int						iHeaderLen;
 	int						iTypeSocket;
 	int						iEventSocket;
-	char					acBindSvrName[128];
-	long long				llFlag;//user flag
-	unsigned long long		llTime;
 	int						iConnectTimeOut;
 	int						iActiveTimeOut;
+	unsigned long long		llTime;
 	SEGETHEADERLENFUN		pkGetHeaderLenFun;
 	SESETHEADERLENFUN		pkSetHeaderLenFun;
 
+	// 64
 	struct SENETSTREAM		kSendNetStream;
 	struct SENETSTREAM		kRecvNetStream;
 
+	// 64
 	struct sockaddr_in		kRemoteAddr;
+	char					acFlag[48];
+
+	// 128
+	char					acBindSvrName[128];
 };
 
 // 64 ¶ÔÆë
-struct SE_ALIGN(64) SESOCKETMGR
+struct SESOCKETMGR
 {
-	int						iMax;
-	int						iCounter;
-	struct SEHASH			*pkMainList;
-	struct SEHASH			*pkActiveMainList;
-	struct SEHASH			*pkSendList;
-	struct SEHASH			*pkRecvList;
-	struct SENETSTREAM		*pkNetStreamIdle;
+	// 64
+	struct SEHASH			kMainList;
+	struct SEHASH			kActiveMainList;
+
+	// 64
+	long long				llMax;
+	long long				llCounter;
+	long long				llFlag;
 	struct SESOCKET			*pkSeSocket;
+	struct SENETSTREAM		kNetStreamIdle;
+
+	// 64
+	struct SEHASH			kSendList;
+	struct SEHASH			kRecvList;
 };
 
 void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax);
@@ -92,8 +111,6 @@ void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struc
 struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSocketMgr, bool bSendOrRecv);
 
 bool SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int iHeaderLen, int iBufLen);
-
-void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket);
 
 const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr);
 

@@ -23,15 +23,29 @@ extern "C" {
 
 typedef void(*SELOGCONTEXT)(void *pkLogContect, const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite);
 
+struct LogTime
+{
+	int m_iHear;
+	int m_iMon;
+	int m_iDay;
+	int m_iHour;
+	int iTagA;
+	int iTagB;
+	int iTagC;
+	int iTagD;
+};
+
 struct SELOG
 {
 	int			iFlag;
-	FILE*		pFile;
-	struct tm	ttDate;
-	char		acfname[128];
-	char		actext[1024*10];
+	int			iTag;
 	void*		pkLogContect;
 	SELOGCONTEXT pkLogContextFunc;
+	FILE*		pFile;
+	struct LogTime ttDate;
+
+	char		acfname[128];
+	char		actext[1024*10];
 };
 
 void SeInitLog(struct SELOG *pkLog, char *pkFileName);

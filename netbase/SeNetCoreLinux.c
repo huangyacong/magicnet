@@ -2,14 +2,19 @@
 
 #if defined(__linux)
 
+bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
+bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
+
 void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax, int iLogLV)
 {
-	pkNetCore->iWaitTime = NET_CORE_WAIT_TIME;
 	SeNetBaseInit();
+	pkNetCore->iTag = 0;
+	pkNetCore->iWaitTime = NET_CORE_WAIT_TIME;
+	pkNetCore->iFlag = 0;
 	pkNetCore->kHandle = epoll_create(usMax);
+	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeAddLogLV(&pkNetCore->kLog, iLogLV);
-	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
@@ -101,7 +106,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		iErrorno = SeErrno();
 		SeCloseSocket(socket);
 		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
-		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] epoll_ctl ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[TCP LISTEN] epoll_ctl ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
 
@@ -204,7 +209,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		iErrorno = SeErrno();
 		SeCloseSocket(socket);
 		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
-		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] epoll_ctl ERROR, errno=%d IP=%s port=%d socket=%llx", iErrorno, pcIP, usPort, kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[TCP CLIENT] epoll_ctl ERROR, errno=%d IP=%s port=%d socket=%llx", iErrorno, pcIP, usPort, kHSocket);
 		return 0;
 	}
 	
@@ -224,19 +229,53 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 	struct SENETSTREAM *pkSendNetStream;
 	SESETHEADERLENFUN pkSetHeaderLenFun;
 	
-	if(iSize < 0) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d", kHSocket, iSize); return false; }
+	if (iSize < 0) 
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d", kHSocket, iSize);
+		return false;
+	}
+
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	if(!pkNetSocket) return false;
+	if (!pkNetSocket)
+	{
+		return false;
+	}
+
 	iHeaderLen = pkNetSocket->iHeaderLen;
 	pkSetHeaderLenFun = pkNetSocket->pkSetHeaderLenFun;
-	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
-	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return false;
 	pkSendNetStream = &pkNetSocket->kSendNetStream;
-	if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize)) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket); return false; }
-	if(!SeNetSreamCanWrite(&pkNetSocket->kSendNetStream, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, iSize)) { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR.socket=%llx.size=%d", kHSocket, iSize); return false; }
-	bRet = SeNetSreamWrite(pkSendNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkSetHeaderLenFun, iHeaderLen, pcBuf, iSize);
-	if(bRet) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
-	else { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Now Close The Socket=%llx.Size=%d", kHSocket, iSize); SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
+
+	if (pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) 
+	{
+		return false;
+	}
+	if (pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT)
+	{
+		return false;
+	}
+
+	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize))
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket);
+		return false;
+	}
+	if (!SeNetSreamCanWrite(&pkNetSocket->kSendNetStream, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, iSize))
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR.socket=%llx.size=%d", kHSocket, iSize);
+		return false;
+	}
+	bRet = SeNetSreamWrite(pkSendNetStream, &(pkNetCore->kSocketMgr.kNetStreamIdle), pkSetHeaderLenFun, iHeaderLen, pcBuf, iSize);
+	if (!bRet)
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Now Close The Socket=%llx.Size=%d", kHSocket, iSize);
+		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+		return false;
+	}
+	if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
+	{
+		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+		return false;
+	}
 
 	return bRet;
 }
@@ -251,57 +290,121 @@ bool SeNetCoreSendExtend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const st
 	struct SENETSTREAM *pkSendNetStream;
 	SESETHEADERLENFUN pkSetHeaderLenFun;
 
-	if(!pkBufList || iNum <= 0) return false;
+	if (!pkBufList || iNum <= 0)
+	{
+		return false;
+	}
 
 	iSize = 0;
-	for(i = 0; i < iNum; i++)
+	for (i = 0; i < iNum; i++)
 	{
-		if(!pkBufList[i].pcBuf) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Buf Is NULL. Socket=%llx.", kHSocket); return false; }
-		if(pkBufList[i].iBufLen < 0) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Len Is Error. Socket=%llx.", kHSocket); return false; }
+		if (!pkBufList[i].pcBuf)
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Buf Is NULL. Socket=%llx.", kHSocket);
+			return false;
+		}
+		if (pkBufList[i].iBufLen < 0)
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Len Is Error. Socket=%llx.", kHSocket);
+			return false;
+		}
 		iSize += pkBufList[i].iBufLen;
 	}
 	
-	if(iSize < 0) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d", kHSocket, iSize); return false; }
+	if (iSize < 0)
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d", kHSocket, iSize);
+		return false;
+	}
+
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	if(!pkNetSocket) return false;
+	if (!pkNetSocket)
+	{
+		return false;
+	}
+
 	iHeaderLen = pkNetSocket->iHeaderLen;
 	pkSetHeaderLenFun = pkNetSocket->pkSetHeaderLenFun;
-	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return false;
-	if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) return false;
 	pkSendNetStream = &pkNetSocket->kSendNetStream;
-	if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize)) { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket); return false; }
-	if(!SeNetSreamCanWrite(&pkNetSocket->kSendNetStream, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, iSize)) { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR.socket=%llx.size=%d", kHSocket, iSize); return false; }
-	bRet = SeNetSreamWriteExtend(pkSendNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkSetHeaderLenFun, iHeaderLen, pkBufList, iNum);
-	if(bRet) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true); }
-	else { SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Now Close The Socket=%llx.Size=%d", kHSocket, iSize); SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); }
+
+	if (pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET)
+	{
+		return false;
+	}
+	if (pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT)
+	{
+		return false;
+	}
+	
+	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize))
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket);
+		return false;
+	}
+	if (!SeNetSreamCanWrite(&pkNetSocket->kSendNetStream, pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, iSize))
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR.socket=%llx.size=%d", kHSocket, iSize);
+		return false;
+	}
+	bRet = SeNetSreamWriteExtend(pkSendNetStream, &(pkNetCore->kSocketMgr.kNetStreamIdle), pkSetHeaderLenFun, iHeaderLen, pkBufList, iNum);
+	if (!bRet)
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Now Close The Socket=%llx.Size=%d", kHSocket, iSize);
+		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+		return false;
+	}
+	if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
+	{
+		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+		return false;
+	}
 
 	return bRet;
 }
 
 void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 {
+	bool bOK;
 	SOCKET socket;
 	struct epoll_event kEvent;
 	unsigned short usOrgStatus;
 	struct SESOCKET *pkNetSocket;
 
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-	if(!pkNetSocket) return;
-	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) return;
+	if(!pkNetSocket)
+	{
+		return;
+	}
+	if(pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET)
+	{
+		return;
+	}
 
+	bOK = false;
 	usOrgStatus = pkNetSocket->usStatus;
 
-	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
+	switch (pkNetSocket->usStatus)
 	{
-		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
+		case SOCKET_STATUS_CONNECTING:
+		{
+			pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED_FAILED;
+			break;
+		}
+		case SOCKET_STATUS_ACTIVECONNECT:
+		{
+			pkNetSocket->usStatus = SOCKET_STATUS_DISCONNECT;
+			break;
+		}
+		default:
+		{
+			bOK = true;
+			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "SeNetCoreDisconnect Failed. OrgStatus=%d Atatus=%d socket=%llx", usOrgStatus, pkNetSocket->usStatus, kHSocket);
+			break;
+		}
 	}
-	else if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+
+	if (bOK)
 	{
-		pkNetSocket->usStatus = SOCKET_STATUS_DISCONNECT;
-	}
-	else
-	{
-		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "SeNetCoreDisconnect Failed. OrgStatus=%d Atatus=%d socket=%llx", usOrgStatus, pkNetSocket->usStatus, kHSocket);
 		return;
 	}
 
@@ -317,12 +420,10 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	int iLen;
 	bool bPop;
-	bool bRecv;
 	int iErrorno;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 	
 	bPop = false;
-	bRecv = false;
 
 	while(true)
 	{
@@ -346,8 +447,11 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 
 		if(!pkNetStreamNode)
 		{
-			pkNetStreamNode = SeNetSreamTailPop(pkNetCore->kSocketMgr.pkNetStreamIdle);
-			if(pkNetStreamNode) { SeNetSreamNodeZero(pkNetStreamNode); }
+			pkNetStreamNode = SeNetSreamHeadPop(&(pkNetCore->kSocketMgr.kNetStreamIdle));
+			if(pkNetStreamNode)
+			{
+				SeNetSreamNodeZero(pkNetStreamNode);
+			}
 		}
 
 		if(!pkNetStreamNode)
@@ -358,7 +462,14 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 
 		if(pkNetStreamNode->usMaxLen <= pkNetStreamNode->usWritePos)
 		{
-			SeNetSreamTailAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode);
+			if(bPop)
+			{
+				SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode);
+			}
+			else
+			{
+				SeNetSreamHeadAdd(&(pkNetCore->kSocketMgr.kNetStreamIdle), pkNetStreamNode);
+			}
 			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] usMaxLen <= usWritePos.socket=%llx", pkNetSocket->kHSocket);
 			return false;
 		}
@@ -367,29 +478,49 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 
 		if(iLen == 0)
 		{
-			if(bPop) { SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode); }
-			else { SeNetSreamTailAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
+			if(bPop)
+			{
+				SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode);
+			}
+			else
+			{
+				SeNetSreamHeadAdd(&(pkNetCore->kSocketMgr.kNetStreamIdle), pkNetStreamNode);
+			}
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreRecvBuf] socket is close by client.socket=%llx", pkNetSocket->kHSocket);
 			return false;
 		}
 		else if(iLen < 0)
 		{
 			iErrorno = SeErrno();
-			if(bPop) { SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode); }
-			else { SeNetSreamTailAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
-			if(iErrorno == SE_EINTR) continue;
-			else if(iErrorno == SE_EWOULDBLOCK) { break; }
-			else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreRecvBuf] socket recv error.socket=%llx", pkNetSocket->kHSocket); return false; }
+			if(bPop)
+			{
+				SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode);
+			}
+			else
+			{
+				SeNetSreamHeadAdd(&(pkNetCore->kSocketMgr.kNetStreamIdle), pkNetStreamNode);
+			}
+			if(iErrorno == SE_EINTR)
+			{
+				continue;
+			}
+			else if(iErrorno == SE_EWOULDBLOCK)
+			{
+				break;
+			}
+			else 
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreRecvBuf] socket recv error.socket=%llx", pkNetSocket->kHSocket);
+				return false;
+			}
 		}
 		else
 		{
-			bRecv = true;
+			pkNetSocket->llTime = SeTimeGetTickCount();
 			pkNetStreamNode->usWritePos += iLen;
 			SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode);
 		}
 	}
-
-	if(bRecv) { SeNetSocketMgrActive(&pkNetCore->kSocketMgr, pkNetSocket); }
 
 	if(SeGetNetSreamLen(&pkNetSocket->kRecvNetStream) >= SENETCORE_SOCKET_RS_BUF_LEN) 
 	{
@@ -403,19 +534,24 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	int iLen;
-	int iCount;
 	int iErrorno;
-	SOCKET socket;
 	struct epoll_event kEvent;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
+	if (!SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
+	{
+		return true;
+	}
 
 	while(true)
 	{
 		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
-		if(!pkNetStreamNode) { break; }
-		iLen = SeSend(socket, pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos, MSG_NOSIGNAL);
+		if(!pkNetStreamNode)
+		{
+			break;
+		}
+
+		iLen = SeSend(SeGetSocketByHScoket(pkNetSocket->kHSocket), pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos, MSG_NOSIGNAL);
 		if(iLen == 0)
 		{
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket is close by client.socket=%llx", pkNetSocket->kHSocket);
@@ -426,36 +562,53 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		{
 			iErrorno = SeErrno();
 			SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
-			if(iErrorno == SE_EINTR) continue;
-			else if(iErrorno == SE_EWOULDBLOCK) { break; }
-			else { SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket send error.socket=%llx", pkNetSocket->kHSocket); return false;}
+			if(iErrorno == SE_EINTR)
+			{
+				continue;
+			}
+			else if(iErrorno == SE_EWOULDBLOCK) 
+			{
+				break;
+			}
+			else 
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket send error.socket=%llx", pkNetSocket->kHSocket);
+				return false;
+			}
 		}
 		else
 		{
 			pkNetStreamNode->usReadPos += iLen;
-			if(pkNetStreamNode->usWritePos <= pkNetStreamNode->usReadPos) { assert(pkNetStreamNode->usWritePos == pkNetStreamNode->usReadPos); SeNetSreamHeadAdd(pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetStreamNode); }
-			else { SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] send buf leave some data,now send again.socket=%llx", pkNetSocket->kHSocket); SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode); }
+			if(pkNetStreamNode->usWritePos <= pkNetStreamNode->usReadPos)
+			{
+				assert(pkNetStreamNode->usWritePos == pkNetStreamNode->usReadPos);
+				SeNetSreamTailAdd(&(pkNetCore->kSocketMgr.kNetStreamIdle), pkNetStreamNode);
+			}
+			else
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "[SEND DATA] send buf leave some data,now send again.socket=%llx", pkNetSocket->kHSocket);
+				SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
+			}
 		}
 	}
 
-	iCount = SeNetSreamCount(&pkNetSocket->kSendNetStream);
-
-	if(iCount <= 0 && SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
+	if (SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0)
 	{
 		SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
-		kEvent.data.u64 = pkNetSocket->kHSocket;
-		kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
-	}
-	else if(iCount > 0 && !SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
-	{
-		SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);
-		kEvent.data.u64 = pkNetSocket->kHSocket;
-		kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-		epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, socket, &kEvent);
+		if (!SeNetSocketMgrHasEvent(pkNetSocket, READ_EVENT_SOCKET))
+		{
+			SeNetSocketMgrAddEvent(pkNetSocket, READ_EVENT_SOCKET);
+			kEvent.data.u64 = pkNetSocket->kHSocket;
+			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
+			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent) != 0)
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "SeNetCoreSendBuf epoll_ctl failed.socket=%llx", pkNetSocket->kHSocket);
+				return false;
+			}
+		}
 	}
 
-	if(SeGetNetSreamLen(&pkNetSocket->kSendNetStream) >= SENETCORE_SOCKET_RS_BUF_LEN)
+	if (SeGetNetSreamLen(&pkNetSocket->kSendNetStream) >= SENETCORE_SOCKET_RS_BUF_LEN)
 	{
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SEND MORE BUF] SendBuf Too More And Close It.socket=%llx.size>%d", pkNetSocket->kHSocket, SENETCORE_SOCKET_RS_BUF_LEN);
 		return false;
@@ -473,7 +626,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	char acLocalIP[128];
 	struct linger so_linger;
 	struct sockaddr ksockaddr;
-	struct SESOCKET *pkNetSocketAccept;
+	struct SESOCKET *pkNetSocket;
 	
 	while(true)
 	{
@@ -535,17 +688,51 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			continue;
 		}
 		
-		pkNetSocketAccept = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-		pkNetSocketAccept->usStatus = SOCKET_STATUS_CONNECTED;
-		pkNetSocketAccept->iActiveTimeOut = pkNetSocketListen->iActiveTimeOut;
-		pkNetSocketAccept->llTime = SeTimeGetTickCount();
-		pkNetSocketAccept->kBelongListenHSocket = pkNetSocketListen->kHSocket;
-		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocketAccept, true);
-		memcpy(&pkNetSocketAccept->kRemoteAddr, &ksockaddr, sizeof(struct sockaddr));
+		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
+		pkNetSocket->iActiveTimeOut = pkNetSocketListen->iActiveTimeOut;
+		pkNetSocket->llTime = SeTimeGetTickCount();
+		pkNetSocket->kBelongListenHSocket = pkNetSocketListen->kHSocket;
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+		memcpy(&pkNetSocket->kRemoteAddr, &ksockaddr, sizeof(struct sockaddr));
 		pcAddrIP = inet_ntoa(pkNetSocketListen->kRemoteAddr.sin_addr);
 		SeStrNcpy(acLocalIP, (int)sizeof(acLocalIP), pcAddrIP ? pcAddrIP : "");
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client hsocket=%llx, ip=%s port=%d localsvrip=%s localsvrport=%d", \
-			kHSocket, inet_ntoa(pkNetSocketAccept->kRemoteAddr.sin_addr), ntohs(pkNetSocketAccept->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
+			kHSocket, inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr), ntohs(pkNetSocket->kRemoteAddr.sin_port), acLocalIP, ntohs(pkNetSocketListen->kRemoteAddr.sin_port));
+	}
+}
+
+void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, bool bRead, bool bWrite, bool bError)
+{
+	bool bOK;
+
+	if(bError == true)
+	{
+		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SeNetCoreAcceptSocket] accept error.socket=%llx", pkNetSocket->kHSocket);
+		return;
+	}
+
+	if(bRead == true)
+	{
+		bOK = SeNetCoreRecvBuf(pkNetCore, pkNetSocket);
+		if(!bOK)
+		{
+			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+			return;
+		}
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+	}
+
+	if(bWrite == true)
+	{
+		SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);;
+		bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
+		if(!bOK)
+		{
+			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+			return;
+		}
 	}
 }
 
@@ -599,56 +786,14 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		return;
 	}
 
-	if(bError == true)
-	{
-		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SeNetCoreClientSocket] connect throw error.socket=%llx", pkNetSocket->kHSocket);
-		return;
-	}
-
-	if(bRead == true)
-	{
-		bOK = SeNetCoreRecvBuf(pkNetCore, pkNetSocket);
-		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
-		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
-	}
-
-	if(bWrite == true)
-	{
-		bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
-		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
-	}
-}
-
-void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket, bool bRead, bool bWrite, bool bError)
-{
-	bool bOK;
-
-	if(bError == true)
-	{
-		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[SeNetCoreAcceptSocket] accept error.socket=%llx", pkNetSocket->kHSocket);
-		return;
-	}
-
-	if(bRead == true)
-	{
-		bOK = SeNetCoreRecvBuf(pkNetCore, pkNetSocket);
-		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
-		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
-	}
-
-	if(bWrite == true)
-	{
-		bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
-		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); return; }
-	}
+	SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError);
 }
 
 bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize)
 {
 	bool bOK;
 	char *pcAddrIP;
+	int iTimeOut;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 	const struct SESOCKET *pkConstNetSocket;
@@ -665,7 +810,8 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	pkConstNetSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
 	if(pkConstNetSocket)
 	{
-		if(pkConstNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkConstNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+		iTimeOut = pkConstNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? pkConstNetSocket->iConnectTimeOut : pkConstNetSocket->iActiveTimeOut;
+		if((pkConstNetSocket->llTime + iTimeOut) <= SeTimeGetTickCount() && (pkConstNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkConstNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT))
 		{
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TIME OUT] Socket time out.socket=%llx", pkConstNetSocket->kHSocket);
 			SeNetCoreDisconnect(pkNetCore, pkConstNetSocket->kHSocket);
@@ -675,65 +821,96 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 
 	do
 	{
+		bOK = false;
 		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, true);
-		if(!pkNetSocket) { break; }
+		if(!pkNetSocket)
+		{
+			break;
+		}
 
 		*rkHSocket = pkNetSocket->kHSocket;
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
-		
-		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
-		{
-			SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
-			SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
-			kEvent.data.u64 = pkNetSocket->kHSocket;
-			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-			epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent);
-			*riLen = 0;
-			pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
-			if(pcAddrIP) { strcpy(pcBuf, pcAddrIP); *riLen = (int)strlen(pcAddrIP); pcBuf[*riLen] = '\0'; }
-			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
-			pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
-			pkNetSocket->llTime = SeTimeGetTickCount();
-			return true;
-		}
-		
-		if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED_FAILED)
-		{
-			assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET);
-			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
-			*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT_FAILED;
-			return true;
-		}
 
-		if(pkNetSocket->usStatus == SOCKET_STATUS_DISCONNECT)
+		switch (pkNetSocket->usStatus)
 		{
-			pkNetSocket->usStatus = SOCKET_STATUS_COMM_IDLE;
-			*riEventSocket = SENETCORE_EVENT_SOCKET_DISCONNECT;
-			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+			case SOCKET_STATUS_CONNECTED:
+			{
+				*riLen = 0;
+				*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT;
+				pcAddrIP = inet_ntoa(pkNetSocket->kRemoteAddr.sin_addr);
+				if(pcAddrIP)
+				{
+					strcpy(pcBuf, pcAddrIP);
+					*riLen = (int)strlen(pcAddrIP);
+					pcBuf[*riLen] = '\0';
+				}
+
+				kEvent.data.u64 = pkNetSocket->kHSocket;
+				kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
+				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent);
+				pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
+				pkNetSocket->llTime = SeTimeGetTickCount();
+				SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
+				SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);
+				bOK = true;
+				break;
+			}
+			case SOCKET_STATUS_CONNECTED_FAILED:
+			{
+				assert(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET);
+				SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
+				*riEventSocket = SENETCORE_EVENT_SOCKET_CONNECT_FAILED;
+				bOK = true;
+				break;
+			}
+			case SOCKET_STATUS_DISCONNECT:
+			{
+				pkNetSocket->usStatus = SOCKET_STATUS_COMM_IDLE;
+				*riEventSocket = SENETCORE_EVENT_SOCKET_DISCONNECT;
+				SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+				bOK = true;
+				break;
+			}
+			case SOCKET_STATUS_COMM_IDLE:
+			{
+				SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
+				break;
+			}
+			default:
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_WARNING, true, "SeNetCoreProcess State Error. socket=%llx", pkNetSocket->kHSocket);
+				break;
+			}
+		}
+		if(bOK)
+		{
 			return true;
-		}
-
-		if(pkNetSocket->usStatus == SOCKET_STATUS_COMM_IDLE)
-		{
-			SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
-			continue;
-		}
-
-		if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT && SeNetSreamCount(&pkNetSocket->kSendNetStream) > 0)
-		{
-			bOK = SeNetCoreSendBuf(pkNetCore, pkNetSocket);
-			if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); continue; }
 		}
 	}while(true);
-	
+
 	do
 	{
 		pkNetSocket = SeNetSocketMgrPopSendOrRecvOutList(&pkNetCore->kSocketMgr, false);
-		if(!pkNetSocket) { break; }
-		if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT) { continue; }
-		if(!SeNetSreamCanRead(&pkNetSocket->kRecvNetStream, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen)) { continue; }
-		bOK = SeNetSreamRead(&pkNetSocket->kRecvNetStream, pkNetCore->kSocketMgr.pkNetStreamIdle, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, riLen);
-		if(!bOK) { SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[READ DATA] Read Data Error. socket=%llx", pkNetSocket->kHSocket); continue; }
+		if(!pkNetSocket)
+		{
+			break;
+		}
+		
+		if(pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT)
+		{
+			continue;
+		}
+		
+		if(!SeNetSreamCanRead(&pkNetSocket->kRecvNetStream, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen))
+		{
+			continue; 
+		}
+		bOK = SeNetSreamRead(&pkNetSocket->kRecvNetStream, &(pkNetCore->kSocketMgr.kNetStreamIdle), pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, riLen);
+		if(!bOK)
+		{
+			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket); SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[READ DATA] Read Data Error. socket=%llx", pkNetSocket->kHSocket);
+			continue;
+		}
 		
 		pcBuf[*riLen] = '\0';
 		*rkHSocket = pkNetSocket->kHSocket;
@@ -741,7 +918,12 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
 		*rSSize = SeNetSreamCount(&pkNetSocket->kSendNetStream);
 		*rRSize = SeNetSreamCount(&pkNetSocket->kRecvNetStream);
-		if(SeNetSreamCount(&pkNetSocket->kRecvNetStream) > 0) { SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false); }
+
+		if(SeNetSreamCount(&pkNetSocket->kRecvNetStream) > 0)
+		{
+			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+		}
+
 		return true;
 	}while(true);
 
@@ -757,7 +939,11 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	struct epoll_event *pkEvent;
 	struct SESOCKET *pkNetSocket;
 
-	memset(pkNetCore->akEvents, 0, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event));
+	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize))
+	{
+		return true;
+	}
+
 	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), pkNetCore->iWaitTime);
 	bWork = iNum > 0 ? true : false;
 
@@ -768,15 +954,58 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		bWrite =pkEvent->events & EPOLLOUT;
 		kHSocket = (HSOCKET)pkEvent->data.u64;
 		bError = (pkEvent->events & EPOLLRDHUP) || (pkEvent->events &  EPOLLERR) || (pkEvent->events &  EPOLLHUP);
+
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
-		if(!pkNetSocket) { SeLogWrite(&pkNetCore->kLog, LT_CRITICAL, true, "[EPOLL WAIT] socket not found.socket=%llx", kHSocket); continue; }
-		if(pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET) { SeNetCoreListenSocket(pkNetCore, pkNetSocket); }
-		else if(pkNetSocket->iTypeSocket == CLIENT_TCP_TYPE_SOCKET) { SeNetCoreClientSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError); }
-		else if(pkNetSocket->iTypeSocket == ACCEPT_TCP_TYPE_SOCKET) { SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError); }
-		else { SeLogWrite(&pkNetCore->kLog, LT_CRITICAL, true, "[EPOLL WAIT] SeNetCoreRead Error. typesocket=%d status=%d socket=%llx.", pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket); }
+		if(!pkNetSocket)
+		{
+			SeLogWrite(&pkNetCore->kLog, LT_CRITICAL, true, "[EPOLL WAIT] socket not found.socket=%llx", kHSocket);
+			continue;
+		}
+
+		switch (pkNetSocket->iTypeSocket)
+		{
+			case LISTEN_TCP_TYPE_SOCKET:
+			{
+				if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+				{
+					SeNetCoreListenSocket(pkNetCore, pkNetSocket);
+				}
+				break;
+			}
+			case CLIENT_TCP_TYPE_SOCKET:
+			{
+				if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
+				{
+					SeNetCoreClientSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError);
+				}
+				break;
+			}
+			case ACCEPT_TCP_TYPE_SOCKET:
+			{
+				if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
+				{
+					SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError);
+				}
+				break;
+			}
+			default:
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_CRITICAL, true, "[EPOLL WAIT] SeNetCoreRead Error. typesocket=%d status=%d socket=%llx.", pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket);
+				break;
+			}
+		}
 	}
 
-	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize)) { return true; }
+	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize))
+	{
+		return true;
+	}
+
+	// 还有事情做
+	if (SeHashGetHead(&(pkNetCore->kSocketMgr.kRecvList)))
+	{
+		bWork = true;
+	}
 	
 	*riEvent = SENETCORE_EVENT_SOCKET_IDLE;
 	return !bWork;

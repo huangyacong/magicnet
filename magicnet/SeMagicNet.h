@@ -20,13 +20,13 @@ struct SEMAGICNETS
 {
 	HSOCKET					kHScoketIn;
 	HSOCKET					kHScoketOut;
-	struct SENETCORE		kNetCore;
 	struct SELIST			kRegSvrList;
 	char					*pcRecvBuf;
 	char					*pcSendBuf;
 	unsigned long long		ullTime;
 	int						iSendNum;
 	int						iRecvNum;
+	struct SENETCORE		kNetCore;
 };
 
 bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, bool bBigHeader, const char *pcOutIP, unsigned short usOutPort, unsigned short usInPort, int iLogLV);
@@ -53,17 +53,18 @@ struct SEMAGICNETC
 {
 	HSOCKET					kHScoket;
 	unsigned long long		llActive;
-	struct SENETCORE		kNetCore;
-	unsigned short			usInPort;
-	char					*pcRecvBuf;
-	char					*pcSendBuf;
 	void					*pkContext;
 	MAGICNETENGINEGATESTAT	pkGateStatFunc;
-	int						iTimeOut;
 	unsigned long long		ullTime;
+	char					*pcRecvBuf;
+	char					*pcSendBuf;
+	int						iInPort;
+	int						iTimeOut;
 	int						iSendNum;
 	int						iRecvNum;
+	char					acTag[56];
 	char					acSvrName[MAX_SVR_NAME_LEN];
+	struct SENETCORE		kNetCore;
 };
 
 bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort, int iLogLV);

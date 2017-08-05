@@ -5,6 +5,14 @@
 #include <time.h>
 #include <string.h>
 
+void SetLogTime(struct LogTime *pkDate, struct tm *pkTM)
+{
+	pkDate->m_iHear = pkTM->tm_year;
+	pkDate->m_iMon = pkTM->tm_mon;
+	pkDate->m_iDay = pkTM->tm_mday;
+	pkDate->m_iHour = pkTM->tm_hour;
+}
+
 FILE * newFile(const char *pkFileName, int year, int mon, int day)
 {
 	char fname[2048] = "";
@@ -15,15 +23,16 @@ FILE * newFile(const char *pkFileName, int year, int mon, int day)
 void SeInitLog(struct SELOG *pkLog, char *pkFileName)
 {
 	time_t my_time = SeTimeTime();
+	struct tm kTM = *localtime(&my_time);
 
 	pkLog->iFlag = 0;
+	pkLog->iTag = 0;
 	pkLog->pkLogContect = 0;
 	pkLog->pkLogContextFunc = 0;
-	memcpy(&pkLog->ttDate, localtime(&my_time), sizeof(pkLog->ttDate));
+	SetLogTime(&pkLog->ttDate, &kTM);
 	SeStrNcpy(pkLog->acfname, sizeof(pkLog->acfname), pkFileName);
+	pkLog->pFile = newFile(pkLog->acfname, pkLog->ttDate.m_iHear + 1900, pkLog->ttDate.m_iMon + 1, pkLog->ttDate.m_iDay);
 	memset(pkLog->actext, 0, sizeof(pkLog->actext));
-	
-	pkLog->pFile = newFile(pkLog->acfname, pkLog->ttDate.tm_year + 1900, pkLog->ttDate.tm_mon + 1, pkLog->ttDate.tm_mday);
 }
 
 void SeLogSetLogContextFunc(struct SELOG *pkLog, SELOGCONTEXT pkLogContextFunc, void *pkLogContect)
@@ -38,6 +47,7 @@ void SeFinLog(struct SELOG *pkLog)
 	{
 		fclose(pkLog->pFile);
 		pkLog->iFlag = 0;
+		pkLog->iTag = 0;
 		pkLog->pFile = 0;
 		pkLog->pkLogContect = 0;
 		pkLog->pkLogContextFunc = 0;
@@ -51,10 +61,9 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	int writelen;
 	int maxlen;
 	va_list argptr;
-	struct tm tt_now;
 	char acHeadr[128] = {0};
 	time_t my_time = SeTimeTime();
-	memcpy(&tt_now, localtime(&my_time), sizeof(tt_now));
+	struct tm tt_now = *localtime(&my_time);
 
 	if(!SeHasLogLV(pkLog, iLogLv) || iLogLv == LT_SPLIT || iLogLv == LT_PRINT)
 	{
@@ -117,13 +126,11 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 
 	if(SeHasLogLV(pkLog, LT_SPLIT))
 	{
-		if(tt_now.tm_year != pkLog->ttDate.tm_year || tt_now.tm_mon != pkLog->ttDate.tm_mon || tt_now.tm_mday != pkLog->ttDate.tm_mday)
+		if(tt_now.tm_year != pkLog->ttDate.m_iHear || tt_now.tm_mon != pkLog->ttDate.m_iMon || tt_now.tm_mday != pkLog->ttDate.m_iDay)
 		{
 			if (pkLog->pFile) { fflush(pkLog->pFile); fclose(pkLog->pFile); pkLog->pFile = 0; }
-			pkLog->ttDate.tm_year = tt_now.tm_year;
-			pkLog->ttDate.tm_mon = tt_now.tm_mon;
-			pkLog->ttDate.tm_mday = tt_now.tm_mday;
-			pkLog->pFile = newFile(pkLog->acfname, pkLog->ttDate.tm_year + 1900, pkLog->ttDate.tm_mon + 1, pkLog->ttDate.tm_mday);
+			SetLogTime(&pkLog->ttDate, &tt_now);
+			pkLog->pFile = newFile(pkLog->acfname, pkLog->ttDate.m_iHear + 1900, pkLog->ttDate.m_iMon + 1, pkLog->ttDate.m_iDay);
 		}
 	}
 

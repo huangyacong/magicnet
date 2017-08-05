@@ -17,13 +17,11 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->iHeaderLen = 0;
 	pkNetSocket->iTypeSocket = 0;
 	pkNetSocket->iEventSocket = 0;
-	pkNetSocket->llFlag = 0;
 	pkNetSocket->llTime = 0;
 	pkNetSocket->pkGetHeaderLenFun = 0;
 	pkNetSocket->pkSetHeaderLenFun = 0;
 	pkNetSocket->iConnectTimeOut = 5*1000;
 	pkNetSocket->iActiveTimeOut = 0;
-	memset(pkNetSocket->acBindSvrName, 0, sizeof(pkNetSocket->acBindSvrName));
 }
 
 void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
@@ -42,25 +40,21 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax
 	int i;
 
 	assert(usMax > 0);
-	pkNetSocketMgr->iCounter = 0;
-	pkNetSocketMgr->iMax = usMax;
-	pkNetSocketMgr->pkMainList = (struct SEHASH*)SeMallocMem(sizeof(struct SEHASH));
-	pkNetSocketMgr->pkActiveMainList = (struct SEHASH*)SeMallocMem(sizeof(struct SEHASH));
-	pkNetSocketMgr->pkSendList = (struct SEHASH*)SeMallocMem(sizeof(struct SEHASH));
-	pkNetSocketMgr->pkRecvList = (struct SEHASH*)SeMallocMem(sizeof(struct SEHASH));
-	pkNetSocketMgr->pkNetStreamIdle = (struct SENETSTREAM*)SeMallocMem(sizeof(struct SENETSTREAM));
-	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)SeMallocMem(sizeof(struct SESOCKET)*pkNetSocketMgr->iMax);
-	SeNetSreamInit(pkNetSocketMgr->pkNetStreamIdle);
-	SeHashInit(pkNetSocketMgr->pkMainList, pkNetSocketMgr->iMax);
-	SeHashInit(pkNetSocketMgr->pkActiveMainList, pkNetSocketMgr->iMax);
-	SeHashInit(pkNetSocketMgr->pkSendList, pkNetSocketMgr->iMax);
-	SeHashInit(pkNetSocketMgr->pkRecvList, pkNetSocketMgr->iMax);
+	pkNetSocketMgr->llCounter = 0;
+	pkNetSocketMgr->llMax = usMax;
+	pkNetSocketMgr->llFlag = 0;
+	pkNetSocketMgr->pkSeSocket = (struct SESOCKET *)SeMallocMem(sizeof(struct SESOCKET)*(int)(pkNetSocketMgr->llMax));
+	SeNetSreamInit(&(pkNetSocketMgr->kNetStreamIdle));
+	SeHashInit(&(pkNetSocketMgr->kMainList), (int)(pkNetSocketMgr->llMax));
+	SeHashInit(&(pkNetSocketMgr->kActiveMainList), (int)(pkNetSocketMgr->llMax));
+	SeHashInit(&(pkNetSocketMgr->kSendList), (int)(pkNetSocketMgr->llMax));
+	SeHashInit(&(pkNetSocketMgr->kRecvList), (int)(pkNetSocketMgr->llMax));
 
-	for(i = 0; i < pkNetSocketMgr->iMax; i++)
+	for (i = 0; i < (int)(pkNetSocketMgr->llMax); i++)
 	{
 		SeNetSocketInit(&pkNetSocketMgr->pkSeSocket[i], (unsigned short)i);
 		SeNetSocketReset(&pkNetSocketMgr->pkSeSocket[i]);
-		SeHashAdd(pkNetSocketMgr->pkMainList, pkNetSocketMgr->pkSeSocket[i].usIndex, &((pkNetSocketMgr->pkSeSocket[i]).kMainNode));
+		SeHashAdd(&(pkNetSocketMgr->kMainList), pkNetSocketMgr->pkSeSocket[i].usIndex, &((pkNetSocketMgr->pkSeSocket[i]).kMainNode));
 	}
 }
 
@@ -72,7 +66,7 @@ void SeNetSocketMgrEnd(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNe
 	while(pkNetStreamNode)
 	{
 		SeNetSreamNodeZero(pkNetStreamNode);
-		SeNetSreamHeadAdd(pkNetSocketMgr->pkNetStreamIdle, pkNetStreamNode);
+		SeNetSreamHeadAdd(&(pkNetSocketMgr->kNetStreamIdle), pkNetStreamNode);
 		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
 	}
 
@@ -80,7 +74,7 @@ void SeNetSocketMgrEnd(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNe
 	while(pkNetStreamNode)
 	{
 		SeNetSreamNodeZero(pkNetStreamNode);
-		SeNetSreamHeadAdd(pkNetSocketMgr->pkNetStreamIdle, pkNetStreamNode);
+		SeNetSreamHeadAdd(&(pkNetSocketMgr->kNetStreamIdle), pkNetStreamNode);
 		pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kRecvNetStream);
 	}
 }
@@ -90,28 +84,23 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 	int i;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	for(i = 0; i < pkNetSocketMgr->iMax; i++)
+	for (i = 0; i < (int)(pkNetSocketMgr->llMax); i++)
 	{
 		SeNetSocketMgrEnd(pkNetSocketMgr, &pkNetSocketMgr->pkSeSocket[i]);
 	}
 
-	pkNetStreamNode = SeNetSreamHeadPop(pkNetSocketMgr->pkNetStreamIdle);
+	pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->kNetStreamIdle));
 	while(pkNetStreamNode)
 	{
 		SeFreeMem(pkNetStreamNode);
-		pkNetStreamNode = SeNetSreamHeadPop(pkNetSocketMgr->pkNetStreamIdle);
+		pkNetStreamNode = SeNetSreamHeadPop(&(pkNetSocketMgr->kNetStreamIdle));
 	}
 
-	SeHashFin(pkNetSocketMgr->pkMainList);
-	SeHashFin(pkNetSocketMgr->pkActiveMainList);
-	SeHashFin(pkNetSocketMgr->pkSendList);
-	SeHashFin(pkNetSocketMgr->pkRecvList);
+	SeHashFin(&(pkNetSocketMgr->kMainList));
+	SeHashFin(&(pkNetSocketMgr->kActiveMainList));
+	SeHashFin(&(pkNetSocketMgr->kSendList));
+	SeHashFin(&(pkNetSocketMgr->kRecvList));
 	
-	SeFreeMem(pkNetSocketMgr->pkMainList);
-	SeFreeMem(pkNetSocketMgr->pkActiveMainList);
-	SeFreeMem(pkNetSocketMgr->pkSendList);
-	SeFreeMem(pkNetSocketMgr->pkRecvList);
-	SeFreeMem(pkNetSocketMgr->pkNetStreamIdle);
 	SeFreeMem(pkNetSocketMgr->pkSeSocket);
 }
 
@@ -123,12 +112,15 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 	struct SESOCKET *pkNetSocket;
 	struct SEHASHNODE *pkHashNode;
 	
-	pkNetSocketMgr->iCounter++;
-	iCounter = pkNetSocketMgr->iCounter;
+	pkNetSocketMgr->llCounter++;
+	iCounter = (int)pkNetSocketMgr->llCounter;
 
 	assert(socket > 0);
-	pkHashNode = SeHashPop(pkNetSocketMgr->pkMainList);
-	if(!pkHashNode) return 0;
+	pkHashNode = SeHashPop(&(pkNetSocketMgr->kMainList));
+	if (!pkHashNode)
+	{
+		return 0;
+	}
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
 	usIndex = pkNetSocket->usIndex;
 
@@ -142,7 +134,9 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 	pkNetSocket->pkSetHeaderLenFun = pkSetHeaderLenFun;
 
 	if(iTypeSocket == CLIENT_TCP_TYPE_SOCKET || iTypeSocket == ACCEPT_TCP_TYPE_SOCKET ) 
-	{ SeHashAdd(pkNetSocketMgr->pkActiveMainList, usIndex, &pkNetSocket->kMainNode); }
+	{
+		SeHashAdd(&(pkNetSocketMgr->kActiveMainList), usIndex, &pkNetSocket->kMainNode);
+	}
 
 	return pkNetSocket->kHSocket;
 }
@@ -155,11 +149,20 @@ struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET k
 	
 	usIndex = SeGetIndexByHScoket(kHSocket);
 	assert(usIndex >= 0 && usIndex < pkNetSocketMgr->iMax);
-	if(usIndex < 0 || usIndex >= pkNetSocketMgr->iMax) return 0;
-	pkHashNode = SeHashGet(pkNetSocketMgr->pkMainList, usIndex);
-	if(pkHashNode) return 0;
+	if (usIndex < 0 || usIndex >= (int)pkNetSocketMgr->llMax)
+	{
+		return 0;
+	}
+	pkHashNode = SeHashGet(&(pkNetSocketMgr->kMainList), usIndex);
+	if (pkHashNode)
+	{
+		return 0;
+	}
 	pkNetSocket = &pkNetSocketMgr->pkSeSocket[usIndex];
-	if(kHSocket != pkNetSocket->kHSocket) return 0;
+	if (kHSocket != pkNetSocket->kHSocket)
+	{
+		return 0;
+	}
 	return pkNetSocket;
 }
 
@@ -170,18 +173,32 @@ void SeNetSocketMgrDel(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET kHSocket)
 	struct SEHASHNODE *pkHashNode;
 	
 	pkNetSocket = SeNetSocketMgrGet(pkNetSocketMgr, kHSocket);
-	if(!pkNetSocket) return;
+	if (!pkNetSocket)
+	{
+		return;
+	}
 	SeNetSocketReset(pkNetSocket);
 	usIndex = pkNetSocket->usIndex;
 	SeNetSocketMgrEnd(pkNetSocketMgr, pkNetSocket);
 
-	pkHashNode = SeHashGet(pkNetSocketMgr->pkSendList, usIndex);
-	if(pkHashNode) { assert(&pkNetSocket->kSendNode == pkHashNode); SeHashRemove(pkNetSocketMgr->pkSendList, pkHashNode); }
-	pkHashNode = SeHashGet(pkNetSocketMgr->pkRecvList, usIndex);
-	if(pkHashNode) { assert(&pkNetSocket->kRecvNode == pkHashNode); SeHashRemove(pkNetSocketMgr->pkRecvList, pkHashNode); }
+	pkHashNode = SeHashGet(&(pkNetSocketMgr->kSendList), usIndex);
+	if (pkHashNode)
+	{
+		assert(&pkNetSocket->kSendNode == pkHashNode);
+		SeHashRemove(&(pkNetSocketMgr->kSendList), pkHashNode);
+	}
+	pkHashNode = SeHashGet(&(pkNetSocketMgr->kRecvList), usIndex);
+	if (pkHashNode)
+	{
+		assert(&pkNetSocket->kRecvNode == pkHashNode);
+		SeHashRemove(&(pkNetSocketMgr->kRecvList), pkHashNode);
+	}
 	
-	if(SeHashGet(pkNetSocketMgr->pkActiveMainList, usIndex)) { SeHashRemove(pkNetSocketMgr->pkActiveMainList, &pkNetSocket->kMainNode); }
-	SeHashAdd(pkNetSocketMgr->pkMainList, usIndex, &pkNetSocket->kMainNode);
+	if (SeHashGet(&(pkNetSocketMgr->kActiveMainList), usIndex))
+	{
+		SeHashRemove(&(pkNetSocketMgr->kActiveMainList), &pkNetSocket->kMainNode);
+	}
+	SeHashAdd(&(pkNetSocketMgr->kMainList), usIndex, &pkNetSocket->kMainNode);
 }
 
 void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket, bool bSendOrRecv)
@@ -193,13 +210,19 @@ void SeNetSocketMgrAddSendOrRecvInList(struct SESOCKETMGR *pkNetSocketMgr, struc
 
 	if(bSendOrRecv == true)
 	{
-		pkNetSocketTmp = SeHashGet(pkNetSocketMgr->pkSendList, usIndex);
-		if(!pkNetSocketTmp) SeHashAdd(pkNetSocketMgr->pkSendList, usIndex, &pkNetSocket->kSendNode);
+		pkNetSocketTmp = SeHashGet(&(pkNetSocketMgr->kSendList), usIndex);
+		if (!pkNetSocketTmp)
+		{
+			SeHashAdd(&(pkNetSocketMgr->kSendList), usIndex, &pkNetSocket->kSendNode);
+		}
 	}
 	else
 	{
-		pkNetSocketTmp = SeHashGet(pkNetSocketMgr->pkRecvList, usIndex);
-		if(!pkNetSocketTmp)SeHashAdd(pkNetSocketMgr->pkRecvList, usIndex, &pkNetSocket->kRecvNode);
+		pkNetSocketTmp = SeHashGet(&(pkNetSocketMgr->kRecvList), usIndex);
+		if (!pkNetSocketTmp)
+		{
+			SeHashAdd(&(pkNetSocketMgr->kRecvList), usIndex, &pkNetSocket->kRecvNode);
+		}
 	}
 }
 
@@ -210,15 +233,21 @@ struct SESOCKET *SeNetSocketMgrPopSendOrRecvOutList(struct SESOCKETMGR *pkNetSoc
 
 	if(bSendOrRecv == true)
 	{
-		pkNetSocketTmp = SeHashPop(pkNetSocketMgr->pkSendList);
-		if(!pkNetSocketTmp) return 0;
+		pkNetSocketTmp = SeHashPop(&(pkNetSocketMgr->kSendList));
+		if (!pkNetSocketTmp)
+		{
+			return 0;
+		}
 		pkNetSocket = SE_CONTAINING_RECORD(pkNetSocketTmp, struct SESOCKET, kSendNode);
 		return pkNetSocket;
 	}
 	else
 	{
-		pkNetSocketTmp = SeHashPop(pkNetSocketMgr->pkRecvList);
-		if(!pkNetSocketTmp) return 0;
+		pkNetSocketTmp = SeHashPop(&(pkNetSocketMgr->kRecvList));
+		if (!pkNetSocketTmp)
+		{
+			return 0;
+		}
 		pkNetSocket = SE_CONTAINING_RECORD(pkNetSocketTmp, struct SESOCKET, kRecvNode);
 		return pkNetSocket;
 	}
@@ -241,46 +270,42 @@ bool SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	iNode = MAX_BUF_LEN - (int)(sizeof(struct SENETSTREAMNODE) + iHeaderLen);
 	iCount = ((iBufLen + (iNode - 1))/iNode)*2;
 	
-	if(SeNetSreamCount(pkNetSocketMgr->pkNetStreamIdle) >= iCount) return true;
+	if (SeNetSreamCount(&(pkNetSocketMgr->kNetStreamIdle)) >= iCount)
+	{
+		return true;
+	}
 
 	for(i = 0; i < iCount; i++)
 	{
 		pcBuf = (char *)SeMallocMem(MAX_BUF_LEN);
 		assert(pcBuf);
-		if(!pcBuf) { return false; }
+		if(!pcBuf)
+		{
+			return false;
+		}
 		pkNetStreamNode = SeNetSreamNodeFormat(pcBuf, MAX_BUF_LEN);
+		if (!pkNetStreamNode)
+		{
+			return false;
+		}
 		SeNetSreamNodeZero(pkNetStreamNode);
-		SeNetSreamHeadAdd(pkNetSocketMgr->pkNetStreamIdle, pkNetStreamNode);
+		SeNetSreamHeadAdd(&(pkNetSocketMgr->kNetStreamIdle), pkNetStreamNode);
 	}
 	return true;
-}
-
-void SeNetSocketMgrActive(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket)
-{
-	unsigned short usIndex;
-	
-	usIndex = pkNetSocket->usIndex;
-	pkNetSocket->llTime = SeTimeGetTickCount();
-	if(!SeHashGet(pkNetSocketMgr->pkActiveMainList, usIndex)) { return; }
-	SeHashMoveToEnd(pkNetSocketMgr->pkActiveMainList, &pkNetSocket->kMainNode);
 }
 
 const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 {
 	struct SESOCKET *pkNetSocket;
 	struct SEHASHNODE *pkHashNode;
-	unsigned long long llTimeOut;
 
-	pkHashNode = SeHashGetHead(pkNetSocketMgr->pkActiveMainList);
+	pkHashNode = SeHashGetHead(&(pkNetSocketMgr->kActiveMainList));
 	if(!pkHashNode)
 	{
 		return 0;
 	}
 	pkNetSocket = SE_CONTAINING_RECORD(pkHashNode, struct SESOCKET, kMainNode);
-	SeHashMoveToEnd(pkNetSocketMgr->pkActiveMainList, &pkNetSocket->kMainNode);
-
-	llTimeOut = pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? pkNetSocket->iConnectTimeOut : pkNetSocket->iActiveTimeOut;
-	if((pkNetSocket->llTime + llTimeOut) > SeTimeGetTickCount()) { return 0; }
+	SeHashMoveToEnd(&(pkNetSocketMgr->kActiveMainList), &pkNetSocket->kMainNode);
 
 	return pkNetSocket;
 }
