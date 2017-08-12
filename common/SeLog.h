@@ -38,7 +38,7 @@ struct LogTime
 struct SELOG
 {
 	int			iFlag;
-	int			iTag;
+	int			iLockContextFunc;
 	void*		pkLogContect;
 	SELOGCONTEXT pkLogContextFunc;
 	FILE*		pFile;

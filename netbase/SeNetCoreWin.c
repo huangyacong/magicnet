@@ -477,9 +477,9 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 	bool bRet;
 	struct SESOCKET *pkNetSocket;
 	
-	if(iSize < 0)
+	if (iSize < 0 || !pcBuf)
 	{
-		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d", kHSocket, iSize);
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d pkBuf is %s", kHSocket, iSize, pcBuf ? "true" : "false");
 		return false;
 	}
 
@@ -496,6 +496,10 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 	if (pkNetSocket->usStatus != SOCKET_STATUS_ACTIVECONNECT)
 	{
 		return false;
+	}
+	if(!SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
+	{
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 	}
 	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, iSize))
 	{
@@ -514,12 +518,7 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
 		return false;
 	}
-	if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
-	{
-		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-		return false;
-	}
-
+	
 	return bRet;
 }
 
@@ -571,6 +570,10 @@ bool SeNetCoreSendExtend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const st
 	{
 		return false;
 	}
+	if(!SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
+	{
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+	}
 	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, iSize))
 	{
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.%llx", kHSocket);
@@ -588,12 +591,7 @@ bool SeNetCoreSendExtend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const st
 		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
 		return false;
 	}
-	if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
-	{
-		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-		return false;
-	}
-
+	
 	return bRet;
 }
 
@@ -1083,6 +1081,15 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			case SOCKET_STATUS_COMM_IDLE:
 			{
 				SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
+				break;
+			}
+
+			case SOCKET_STATUS_ACTIVECONNECT:
+			{
+				if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
+				{
+					SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+				}
 				break;
 			}
 

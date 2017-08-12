@@ -224,14 +224,11 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pcBuf, int iSize)
 {
 	bool bRet;
-	int iHeaderLen;
 	struct SESOCKET *pkNetSocket;
-	struct SENETSTREAM *pkSendNetStream;
-	SESETHEADERLENFUN pkSetHeaderLenFun;
 	
-	if (iSize < 0) 
+	if (iSize < 0 || !pcBuf) 
 	{
-		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d", kHSocket, iSize);
+		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error. Socket=%llx.Size=%d pkBuf is %s", kHSocket, iSize, pcBuf ? "true" : "false");
 		return false;
 	}
 
@@ -240,10 +237,6 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 	{
 		return false;
 	}
-
-	iHeaderLen = pkNetSocket->iHeaderLen;
-	pkSetHeaderLenFun = pkNetSocket->pkSetHeaderLenFun;
-	pkSendNetStream = &pkNetSocket->kSendNetStream;
 
 	if (pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET) 
 	{
@@ -254,7 +247,12 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 		return false;
 	}
 
-	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize))
+	if (SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
+	{
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+	}
+
+	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, iSize))
 	{
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket);
 		return false;
@@ -264,19 +262,14 @@ bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pc
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR.socket=%llx.size=%d", kHSocket, iSize);
 		return false;
 	}
-	bRet = SeNetSreamWrite(pkSendNetStream, &(pkNetCore->kSocketMgr.kNetStreamIdle), pkSetHeaderLenFun, iHeaderLen, pcBuf, iSize);
+	bRet = SeNetSreamWrite(&pkNetSocket->kSendNetStream, &(pkNetCore->kSocketMgr.kNetStreamIdle), pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, pcBuf, iSize);
 	if (!bRet)
 	{
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Now Close The Socket=%llx.Size=%d", kHSocket, iSize);
 		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
 		return false;
 	}
-	if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
-	{
-		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-		return false;
-	}
-
+	
 	return bRet;
 }
 
@@ -285,10 +278,7 @@ bool SeNetCoreSendExtend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const st
 	int i;
 	bool bRet;
 	int iSize;
-	int iHeaderLen;
 	struct SESOCKET *pkNetSocket;
-	struct SENETSTREAM *pkSendNetStream;
-	SESETHEADERLENFUN pkSetHeaderLenFun;
 
 	if (!pkBufList || iNum <= 0)
 	{
@@ -323,10 +313,6 @@ bool SeNetCoreSendExtend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const st
 		return false;
 	}
 
-	iHeaderLen = pkNetSocket->iHeaderLen;
-	pkSetHeaderLenFun = pkNetSocket->pkSetHeaderLenFun;
-	pkSendNetStream = &pkNetSocket->kSendNetStream;
-
 	if (pkNetSocket->iTypeSocket != CLIENT_TCP_TYPE_SOCKET && pkNetSocket->iTypeSocket != ACCEPT_TCP_TYPE_SOCKET)
 	{
 		return false;
@@ -335,8 +321,13 @@ bool SeNetCoreSendExtend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const st
 	{
 		return false;
 	}
+
+	if (SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_SOCKET))
+	{
+		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
+	}
 	
-	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, iHeaderLen, iSize))
+	if (!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, iSize))
 	{
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] no more memcahce.socket=%llx", kHSocket);
 		return false;
@@ -346,19 +337,14 @@ bool SeNetCoreSendExtend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const st
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[CORE SEND] send data ERROR.socket=%llx.size=%d", kHSocket, iSize);
 		return false;
 	}
-	bRet = SeNetSreamWriteExtend(pkSendNetStream, &(pkNetCore->kSocketMgr.kNetStreamIdle), pkSetHeaderLenFun, iHeaderLen, pkBufList, iNum);
+	bRet = SeNetSreamWriteExtend(&pkNetSocket->kSendNetStream, &(pkNetCore->kSocketMgr.kNetStreamIdle), pkNetSocket->pkSetHeaderLenFun, pkNetSocket->iHeaderLen, pkBufList, iNum);
 	if (!bRet)
 	{
 		SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE SEND] Send Data Error, Now Close The Socket=%llx.Size=%d", kHSocket, iSize);
 		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
 		return false;
 	}
-	if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
-	{
-		SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
-		return false;
-	}
-
+	
 	return bRet;
 }
 
@@ -422,8 +408,6 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	bool bPop;
 	int iErrorno;
 	struct SENETSTREAMNODE *pkNetStreamNode;
-	
-	bPop = false;
 
 	while(true)
 	{
@@ -432,7 +416,8 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 			SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[CORE RECV] no more memcahce.socket=%llx", pkNetSocket->kHSocket);
 			return false;
 		}
-
+		
+		bPop = false;
 		pkNetStreamNode = SeNetSreamTailPop(&pkNetSocket->kRecvNetStream);
 		if(pkNetStreamNode)
 		{
@@ -874,6 +859,14 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			case SOCKET_STATUS_COMM_IDLE:
 			{
 				SeNetSocketMgrDel(&pkNetCore->kSocketMgr, pkNetSocket->kHSocket);
+				break;
+			}
+			case SOCKET_STATUS_ACTIVECONNECT:
+			{
+				if (!SeNetCoreSendBuf(pkNetCore, pkNetSocket))
+				{
+					SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
+				}
 				break;
 			}
 			default:

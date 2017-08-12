@@ -26,7 +26,7 @@ void SeInitLog(struct SELOG *pkLog, char *pkFileName)
 	struct tm kTM = *localtime(&my_time);
 
 	pkLog->iFlag = 0;
-	pkLog->iTag = 0;
+	pkLog->iLockContextFunc = 0;
 	pkLog->pkLogContect = 0;
 	pkLog->pkLogContextFunc = 0;
 	SetLogTime(&pkLog->ttDate, &kTM);
@@ -47,7 +47,7 @@ void SeFinLog(struct SELOG *pkLog)
 	{
 		fclose(pkLog->pFile);
 		pkLog->iFlag = 0;
-		pkLog->iTag = 0;
+		pkLog->iLockContextFunc = 0;
 		pkLog->pFile = 0;
 		pkLog->pkLogContect = 0;
 		pkLog->pkLogContextFunc = 0;
@@ -65,7 +65,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	time_t my_time = SeTimeTime();
 	struct tm tt_now = *localtime(&my_time);
 
-	if(!SeHasLogLV(pkLog, iLogLv) || iLogLv == LT_SPLIT || iLogLv == LT_PRINT)
+	if(!SeHasLogLV(pkLog, iLogLv) || iLogLv == LT_SPLIT || iLogLv == LT_PRINT || pkLog->iLockContextFunc == 1/*lock the callback function*/)
 	{
 		return;
 	}
@@ -137,9 +137,11 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	bWrite = true;
 	bPrint = SeHasLogLV(pkLog, LT_PRINT);
 
-	if(pkLog->pkLogContextFunc)
+	if(pkLog->pkLogContextFunc && pkLog->iLockContextFunc == 0)
 	{
+		pkLog->iLockContextFunc = 1;
 		pkLog->pkLogContextFunc(pkLog->pkLogContect, acHeadr, pkLog->actext, iLogLv, &bPrint, &bWrite);
+		pkLog->iLockContextFunc = 0;
 	}
 
 	if(SeHasLogLV(pkLog, LT_PRINT) && bPrint)

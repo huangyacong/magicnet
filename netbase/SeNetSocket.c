@@ -148,7 +148,7 @@ struct SESOCKET *SeNetSocketMgrGet(struct SESOCKETMGR *pkNetSocketMgr, HSOCKET k
 	struct SEHASHNODE *pkHashNode;
 	
 	usIndex = SeGetIndexByHScoket(kHSocket);
-	assert(usIndex >= 0 && usIndex < pkNetSocketMgr->iMax);
+	assert(usIndex >= 0 && usIndex < pkNetSocketMgr->llMax);
 	if (usIndex < 0 || usIndex >= (int)pkNetSocketMgr->llMax)
 	{
 		return 0;

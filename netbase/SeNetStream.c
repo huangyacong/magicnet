@@ -240,6 +240,35 @@ bool SeNetSreamReadLen(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNe
 	return (iBufLen == iCopyPos);
 }
 
+bool SeNetSreamCreateHeader(SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, int iWriteLen, char *pcHeader, int *riHeaderLen)
+{
+	assert(pkSetHeaderLenFun);
+	assert(iHeaderSize >= 0);
+	assert(pcHeader);
+	assert(*riHeaderLen >= iHeaderSize);
+	assert(iWriteLen >= 0);
+
+	if (!pkSetHeaderLenFun || iHeaderSize < 0 || iWriteLen < 0 || !pcHeader || *riHeaderLen <= 0 || *riHeaderLen < iHeaderSize)
+	{
+		return false;
+	}
+
+	if (iHeaderSize <= 0)
+	{
+		*riHeaderLen = 0;
+		return true;
+	}
+
+	if (!pkSetHeaderLenFun((unsigned char *)pcHeader, iHeaderSize, iWriteLen))
+	{
+		return false;
+	}
+
+	*riHeaderLen = iHeaderSize;
+	assert(*riHeaderLen > 0);
+	return true;
+}
+
 bool SeNetSreamCanRead(struct SENETSTREAM *pkNetStream, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize)
 {
 	int iLen;
