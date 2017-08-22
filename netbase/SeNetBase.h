@@ -64,7 +64,7 @@ extern "C" {
 	#define SE_EINTR                WSAEINTR
 	#define SE_INVALID_SOCKET       INVALID_SOCKET
 	#define SE_SOCKET_ERROR         SOCKET_ERROR
-	#define SE_INVALID_HANDLE       NULL
+	#define SE_INVALID_HANDLE       INVALID_HANDLE_VALUE
 
 #endif
 
