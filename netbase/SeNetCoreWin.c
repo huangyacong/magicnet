@@ -143,7 +143,7 @@ void SeFreeListenSocket(struct SENETCORE *pkNetCore)
 	}
 }
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax, int iLogLV)
+void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV)
 {
 	SeNetBaseInit();
 	SeListInit(&pkNetCore->kList);

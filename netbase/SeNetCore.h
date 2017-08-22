@@ -47,7 +47,7 @@ struct SENETCORE
 
 #define NET_CORE_WAIT_TIME 0
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax, int iLogLV);
+void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV);
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore);
 

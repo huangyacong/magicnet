@@ -29,7 +29,7 @@ struct SEMAGICNETS
 	struct SENETCORE		kNetCore;
 };
 
-bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, char *pcLogName, int iTimeOut, unsigned short usMax, bool bBigHeader, const char *pcOutIP, unsigned short usOutPort, unsigned short usInPort, int iLogLV);
+bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, const char *pcLogName, int iTimeOut, unsigned short usMax, bool bBigHeader, const char *pcOutIP, unsigned short usOutPort, unsigned short usInPort, int iLogLV);
 
 void SeMagicNetSFin(struct SEMAGICNETS *pkMagicNetS);
 
@@ -67,7 +67,7 @@ struct SEMAGICNETC
 	struct SENETCORE		kNetCore;
 };
 
-bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, char *pcLogName, int iTimeOut, unsigned short usInPort, int iLogLV);
+bool SeMagicNetCInit(struct SEMAGICNETC *pkMagicNetC, const char *pcLogName, int iTimeOut, unsigned short usInPort, int iLogLV);
 
 void SeMagicNetCFin(struct SEMAGICNETC *pkMagicNetC);
 

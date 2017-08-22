@@ -20,7 +20,7 @@ FILE * newFile(const char *pkFileName, int year, int mon, int day)
 	return fopen(fname, "a");
 }
 
-void SeInitLog(struct SELOG *pkLog, char *pkFileName)
+void SeInitLog(struct SELOG *pkLog, const char *pkFileName)
 {
 	time_t my_time = SeTimeTime();
 	struct tm kTM = *localtime(&my_time);

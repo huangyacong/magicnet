@@ -48,7 +48,7 @@ struct SELOG
 	char		actext[1024*10];
 };
 
-void SeInitLog(struct SELOG *pkLog, char *pkFileName);
+void SeInitLog(struct SELOG *pkLog, const char *pkFileName);
 
 void SeFinLog(struct SELOG *pkLog);
 

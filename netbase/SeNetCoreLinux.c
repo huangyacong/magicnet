@@ -5,7 +5,7 @@
 bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
 bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, char *pcLogName, unsigned short usMax, int iLogLV)
+void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV)
 {
 	SeNetBaseInit();
 	pkNetCore->iTag = 0;
@@ -406,9 +406,11 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 {
 	int iLen;
 	bool bPop;
+	bool bRecv;
 	int iErrorno;
 	struct SENETSTREAMNODE *pkNetStreamNode;
-
+	
+	bRecv = false;
 	while(true)
 	{
 		if(!SeNetSocketMgrUpdateNetStreamIdle(&pkNetCore->kSocketMgr, pkNetSocket->iHeaderLen, 0))
@@ -501,10 +503,15 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		}
 		else
 		{
-			pkNetSocket->llTime = SeTimeGetTickCount();
+			bRecv = true;
 			pkNetStreamNode->usWritePos += iLen;
 			SeNetSreamTailAdd(&pkNetSocket->kRecvNetStream, pkNetStreamNode);
 		}
+	}
+
+	if (bRecv)
+	{
+		pkNetSocket->llTime = SeTimeGetTickCount();
 	}
 
 	if(SeGetNetSreamLen(&pkNetSocket->kRecvNetStream) >= SENETCORE_SOCKET_RS_BUF_LEN) 
