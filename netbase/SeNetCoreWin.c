@@ -408,26 +408,26 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	}
 	
 	LPFN_CONNECTEX ConnectEx;
-    GUID guidConnectEx = WSAID_CONNECTEX;
-    if(SOCKET_ERROR == WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
+	GUID guidConnectEx = WSAID_CONNECTEX;
+	if (SE_SOCKET_ERROR == WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
 						&guidConnectEx, sizeof(guidConnectEx), &ConnectEx, sizeof(ConnectEx), &dwBytes, NULL, NULL))
-    {
+	{
 		iErrorno = SeErrno();
 		SeCloseSocket(socket);
 		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] get ConnectEx failed, errno=%d", iErrorno);
 		return 0;
-    }
+	}
 
 	SeSetSockAddr(&local, "0.0.0.0", 0);
-    if(SOCKET_ERROR == SeBind(socket, &local))
-    {
-        iErrorno = SeErrno();
+	if (SE_SOCKET_ERROR == SeBind(socket, &local))
+	{
+		iErrorno = SeErrno();
 		SeCloseSocket(socket);
 		SeNetSocketMgrDel(&pkNetCore->kSocketMgr, kHSocket);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeBind failed, errno=%d", iErrorno);
 		return 0;
-    }
+	}
 	if(!CreateIoCompletionPort((HANDLE)socket, pkNetCore->kHandle, 0, 0))
 	{
 		iErrorno = SeErrno();
