@@ -18,7 +18,7 @@ extern "C" {
 #include <sched.h>
 
 // compile the code with -lrt and -lpthread
-#define	THREADHANDLE        pthread_t
+#define	THREADHANDLE		pthread_t
 
 #elif (defined(_WIN32) || defined(WIN32))
 
@@ -29,7 +29,7 @@ extern "C" {
 #include <windows.h>
 #include <process.h>
 
-#define	THREADHANDLE        uintptr_t
+#define	THREADHANDLE		uintptr_t
 
 #endif
 

@@ -241,15 +241,15 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 #else
 
 #if defined(SECOLOR)
-	#define NONE                 "\e[0m\n"
-	#define RED                  "\e[1;31m"
-	#define GREEN                "\e[1;32m"
-	#define YELLOW               "\e[1;33m"
+	#define NONE				"\e[0m\n"
+	#define RED					"\e[1;31m"
+	#define GREEN				"\e[1;32m"
+	#define YELLOW				"\e[1;33m"
 #else
-	#define NONE                 "\n"
-	#define RED                  ""
-	#define GREEN                ""
-	#define YELLOW               ""
+	#define NONE				"\n"
+	#define RED					""
+	#define GREEN 				""
+	#define YELLOW				""
 #endif
 
 #if ((defined(SENOPRINT) && defined(SEPRINTIM)) || !defined(SENOPRINT))

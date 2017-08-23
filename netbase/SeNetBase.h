@@ -34,16 +34,16 @@ extern "C" {
 	#include <arpa/inet.h>
 	#include <sys/poll.h>
 
-	#define SOCKET                  int
-	#define SOCK_LEN                socklen_t
-	#define HANDLE                  int
+	#define SOCKET					int
+	#define SOCK_LEN				socklen_t
+	#define HANDLE 					int
 
-	#define SE_EWOULDBLOCK          EAGAIN
-	#define SE_EINPROGRESS          EINPROGRESS
-	#define SE_EINTR                EINTR
-	#define SE_INVALID_SOCKET       -1
-	#define SE_SOCKET_ERROR         -1
-	#define SE_INVALID_HANDLE       -1
+	#define SE_EWOULDBLOCK			EAGAIN
+	#define SE_EINPROGRESS			EINPROGRESS
+	#define SE_EINTR				EINTR
+	#define SE_INVALID_SOCKET		-1
+	#define SE_SOCKET_ERROR			-1
+	#define SE_INVALID_HANDLE		-1
 
 #elif (defined(_WIN32) || defined(WIN32))
 	
@@ -57,14 +57,14 @@ extern "C" {
 		#pragma comment(lib, "ws2_32.lib")
 	#endif
 
-	#define SOCK_LEN                int
+	#define SOCK_LEN				int
 
-	#define SE_EWOULDBLOCK          WSAEWOULDBLOCK
-	#define SE_EINPROGRESS          WSAEINPROGRESS
-	#define SE_EINTR                WSAEINTR
-	#define SE_INVALID_SOCKET       INVALID_SOCKET
-	#define SE_SOCKET_ERROR         SOCKET_ERROR
-	#define SE_INVALID_HANDLE       INVALID_HANDLE_VALUE
+	#define SE_EWOULDBLOCK			WSAEWOULDBLOCK
+	#define SE_EINPROGRESS			WSAEINPROGRESS
+	#define SE_EINTR				WSAEINTR
+	#define SE_INVALID_SOCKET		INVALID_SOCKET
+	#define SE_SOCKET_ERROR			SOCKET_ERROR
+	#define SE_INVALID_HANDLE		INVALID_HANDLE_VALUE
 
 #endif
 
