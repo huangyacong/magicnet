@@ -15,8 +15,8 @@ void SetLogTime(struct LogTime *pkDate, struct tm *pkTM)
 
 FILE * newFile(const char *pkFileName, int year, int mon, int day)
 {
-	char fname[2048] = "";
-	sprintf(fname, "%s%04d%02d%02d.log", pkFileName, year, mon, day);
+	char fname[512] = "";
+	SeSnprintf(fname, (int)sizeof(fname), "%s%04d%02d%02d.log", pkFileName, year, mon, day);
 	return fopen(fname, "a");
 }
 
@@ -87,32 +87,32 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 
 	if(iLogLv == LT_ERROR)
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [ERROR] ", tt_now.tm_year + 1900, 
+		SeSnprintf(acHeadr, (int)sizeof(acHeadr), "%04d-%02d-%02d %02d:%02d:%02d [ERROR] ", tt_now.tm_year + 1900,
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_WARNING)
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [WARNING] ", tt_now.tm_year + 1900, 
+		SeSnprintf(acHeadr, (int)sizeof(acHeadr), "%04d-%02d-%02d %02d:%02d:%02d [WARNING] ", tt_now.tm_year + 1900,
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_INFO)
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [INFO] ", tt_now.tm_year + 1900, 
+		SeSnprintf(acHeadr, (int)sizeof(acHeadr), "%04d-%02d-%02d %02d:%02d:%02d [INFO] ", tt_now.tm_year + 1900,
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_DEBUG)
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [DEBUG] ", tt_now.tm_year + 1900, 
+		SeSnprintf(acHeadr, (int)sizeof(acHeadr), "%04d-%02d-%02d %02d:%02d:%02d [DEBUG] ", tt_now.tm_year + 1900,
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_CRITICAL)
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [CRITICAL] ", tt_now.tm_year + 1900, 
+		SeSnprintf(acHeadr, (int)sizeof(acHeadr), "%04d-%02d-%02d %02d:%02d:%02d [CRITICAL] ", tt_now.tm_year + 1900,
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_SOCKET)
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d [SOCKET] ", tt_now.tm_year + 1900, 
+		SeSnprintf(acHeadr, (int)sizeof(acHeadr), "%04d-%02d-%02d %02d:%02d:%02d [SOCKET] ", tt_now.tm_year + 1900,
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 	else if(iLogLv == LT_NOHEAD)
@@ -120,7 +120,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	}
 	else
 	{
-		sprintf(acHeadr, "%04d-%02d-%02d %02d:%02d:%02d ", tt_now.tm_year + 1900, 
+		SeSnprintf(acHeadr, (int)sizeof(acHeadr), "%04d-%02d-%02d %02d:%02d:%02d ", tt_now.tm_year + 1900,
 			tt_now.tm_mon + 1, tt_now.tm_mday, tt_now.tm_hour, tt_now.tm_min, tt_now.tm_sec);
 	}
 

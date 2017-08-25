@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <stdarg.h>
 
 #define SEALIGNMENT 64
 
@@ -150,6 +151,32 @@ long long SeAToLongLong(const char *pcString)
 int SeAToInt(const char *pcString)
 {
 	return atoi(pcString);
+}
+
+bool SeSnprintf(char *pcStr, int iSize, const char *format, ...)
+{
+	int writelen;
+	va_list argptr;
+
+	if (!pcStr || iSize <= 1)
+	{
+		return false;
+	}
+
+	pcStr[0] = '\0';
+
+	va_start(argptr, format);
+	writelen = vsnprintf(pcStr, iSize - 1, format, argptr);
+	va_end(argptr);
+
+	if (writelen < 0 || writelen > (iSize - 1))
+	{
+		pcStr[0] = '\0';
+		return false;
+	}
+
+	pcStr[iSize - 1] = '\0';
+	return true;
 }
 
 bool SeLockMem()

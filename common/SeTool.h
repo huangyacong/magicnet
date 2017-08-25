@@ -41,6 +41,8 @@ long long SeAToLongLong(const char *pcString);
 
 int SeAToInt(const char *pcString);
 
+bool SeSnprintf(char *pcStr, int iSize, const char *format, ...);
+
 bool SeLockMem();
 
 void *SeMallocMem(size_t size);

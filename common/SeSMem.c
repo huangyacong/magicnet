@@ -1,4 +1,5 @@
 #include "SeSMem.h"
+#include "SeTool.h"
 
 HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 {
@@ -7,7 +8,7 @@ HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 #if (defined(WIN32) || defined(_WIN32))
 	HANDLE kHandle;
 	
-	sprintf(acName, "Global\\%s", pcName);
+	SeSnprintf(acName, (int)sizeof(acName), "Global\\%s", pcName);
 	kHandle = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, ullSize>>32, ullSize<<32>>32, acName);
 	if(kHandle != SE_INVALID_HANDLE)
 	{
@@ -21,7 +22,7 @@ HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 #elif defined(__linux)
 	key_t kKey;
 
-	sprintf(acName, "%s", pcName);
+	SeSnprintf(acName, (int)sizeof(acName), "%s", pcName);
 	kKey = ftok(acName, 1);
 	if(kKey == -1) { return SE_INVALID_HANDLE; }
 	return shmget(kKey, ullSize, IPC_CREAT|IPC_EXCL|0666);
@@ -33,11 +34,11 @@ HANDLE SeOpenShareMemory(const char *pcName)
 	char acName[128];
 
 #if (defined(WIN32) || defined(_WIN32))
-	sprintf(acName, "Global\\%s", pcName);
+	SeSnprintf(acName, (int)sizeof(acName), "Global\\%s", pcName);
 	return OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, acName);
 #elif defined(__linux)
 	key_t kKey;
-	sprintf(acName, "%s", pcName);
+	SeSnprintf(acName, (int)sizeof(acName), "%s", pcName);
 	kKey = ftok(acName, 1);
 	if(kKey == -1) { return SE_INVALID_HANDLE; }
 	return shmget(kKey, 0, 0);
