@@ -1182,7 +1182,10 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 					if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
 					{
 						SeNetCoreListenSocket(pkNetCore, pkNetSocket, pkIOData->kSocket, pkIOData);
+						break;
 					}
+					SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[EPOLL WAIT] LISTEN_TCP_TYPE_SOCKET state Error. typesocket=%d status=%d socket=%llx. OPType=%d OPocket=%llx", \
+						pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket, pkIOData->iOPType, pkIOData->kHScoket);
 					break;
 				}
 				case CLIENT_TCP_TYPE_SOCKET:
@@ -1190,7 +1193,10 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 					if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
 					{
 						SeNetCoreClientSocket(pkNetCore, pkNetSocket, pkIOData, dwLen, bResult);
+						break;
 					}
+					SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[EPOLL WAIT] CLIENT_TCP_TYPE_SOCKET state Error. typesocket=%d status=%d socket=%llx. OPType=%d OPocket=%llx", \
+						pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket, pkIOData->iOPType, pkIOData->kHScoket);
 					break;
 				}
 				case ACCEPT_TCP_TYPE_SOCKET:
@@ -1198,12 +1204,15 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 					if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
 					{
 						SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, pkIOData, dwLen);
+						break;
 					}
+					SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[EPOLL WAIT] ACCEPT_TCP_TYPE_SOCKET state Error. typesocket=%d status=%d socket=%llx. OPType=%d OPocket=%llx", \
+						pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket, pkIOData->iOPType, pkIOData->kHScoket);
 					break;
 				}
 				default:
 				{
-					SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] SeNetCoreRead Error. typesocket=%d status=%d socket=%llx. OPType=%d OPocket=%llx", \
+					SeLogWrite(&pkNetCore->kLog, LT_ERROR, true, "[EPOLL WAIT] SeNetCoreRead Error. typesocket=%d status=%d socket=%llx. OPType=%d OPocket=%llx", \
 						pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket, pkIOData->iOPType, pkIOData->kHScoket);
 					break;
 				}

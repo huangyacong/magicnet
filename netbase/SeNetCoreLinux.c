@@ -970,7 +970,9 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 				if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
 				{
 					SeNetCoreListenSocket(pkNetCore, pkNetSocket);
+					break;
 				}
+				SeLogWrite(&pkNetCore->kLog, LT_CRITICAL, true, "[EPOLL WAIT] LISTEN_TCP_TYPE_SOCKET state Error. typesocket=%d status=%d socket=%llx.", pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket);
 				break;
 			}
 			case CLIENT_TCP_TYPE_SOCKET:
@@ -978,7 +980,9 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 				if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
 				{
 					SeNetCoreClientSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError);
+					break;
 				}
+				SeLogWrite(&pkNetCore->kLog, LT_CRITICAL, true, "[EPOLL WAIT] CLIENT_TCP_TYPE_SOCKET state Error. typesocket=%d status=%d socket=%llx.", pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket);
 				break;
 			}
 			case ACCEPT_TCP_TYPE_SOCKET:
@@ -986,7 +990,9 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 				if (pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT)
 				{
 					SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError);
+					break;
 				}
+				SeLogWrite(&pkNetCore->kLog, LT_CRITICAL, true, "[EPOLL WAIT] ACCEPT_TCP_TYPE_SOCKET state Error. typesocket=%d status=%d socket=%llx.", pkNetSocket->iTypeSocket, pkNetSocket->usStatus, pkNetSocket->kHSocket);
 				break;
 			}
 			default:
