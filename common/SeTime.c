@@ -36,9 +36,13 @@ int SeGetTimeZone()
 	tm_gmt = *gmtime(&time_utc);
 
 	time_zone = tm_local.tm_hour - tm_gmt.tm_hour;
-	if (time_zone < -12) {
+
+	if (time_zone < -12)
+	{
 		time_zone += 24;
-	} else if (time_zone > 12) {
+	} 
+	else if (time_zone > 12)
+	{
 		time_zone -= 24;
 	}
 
@@ -59,28 +63,37 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 		return time(NULL);
 	}
 	
-	for(uiBegin = 0; uiBegin < uiLen; uiBegin++) {
+	for(uiBegin = 0; uiBegin < uiLen; uiBegin++)
+	{
 		// -
-		if(uiBegin == 4 || uiBegin == 7) {
-			if((char)pcTimeChar[uiBegin] != 45) {
+		if(uiBegin == 4 || uiBegin == 7)
+		{
+			if((char)pcTimeChar[uiBegin] != 45)
+			{
 				return time(NULL);
 			}
 		}
 		// space
-		else if(uiBegin == 10) {
-			if((char)pcTimeChar[uiBegin] != 32) {
+		else if(uiBegin == 10)
+		{
+			if((char)pcTimeChar[uiBegin] != 32)
+			{
 				return time(NULL);
 			}
 		}
 		// :
-		else if(uiBegin == 13 || uiBegin == 16) {
-			if((char)pcTimeChar[uiBegin] != 58) {
+		else if(uiBegin == 13 || uiBegin == 16)
+		{
+			if((char)pcTimeChar[uiBegin] != 58)
+			{
 				return time(NULL);
 			}
 		}
 		// number(0-9)
-		else {
-			if((char)pcTimeChar[uiBegin] < 48 || (char)pcTimeChar[uiBegin] > 57) {
+		else
+		{
+			if((char)pcTimeChar[uiBegin] < 48 || (char)pcTimeChar[uiBegin] > 57)
+			{
 				return time(NULL);
 			}
 		}
@@ -93,22 +106,28 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	iMin = atoi(pcTimeChar + 14);
 	iSec = atoi(pcTimeChar + 17);
 	
-	if(iYear < 1971 || iYear > 9999) {
+	if(iYear < 1971 || iYear > 9999)
+	{
 		return time(NULL);
 	}
-	if(iMon < 1 || iMon > 12) {
+	if(iMon < 1 || iMon > 12)
+	{
 		return time(NULL);
 	}
-	if(iDay < 1 || iDay > 31) {
+	if(iDay < 1 || iDay > 31)
+	{
 		return time(NULL);
 	}
-	if(iHour < 0 || iHour > 24) {
+	if(iHour < 0 || iHour > 24)
+	{
 		return time(NULL);
 	}
-	if(iMin < 0 || iMin > 60) {
+	if(iMin < 0 || iMin > 60)
+	{
 		return time(NULL);
 	}
-	if(iSec < 0 || iSec > 60) {
+	if(iSec < 0 || iSec > 60)
+	{
 		return time(NULL);
 	}
 	
@@ -125,36 +144,54 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 long long SeTimeDiffTime(time_t timeEnd, time_t timeBegin)
 {
 	assert(TestTimeValid() == true);
-	if(timeEnd < 0) { timeEnd = SeTimeTime(); }
-	if(timeBegin < 0) { timeBegin = SeTimeTime(); }
+	if(timeEnd < 0)
+	{
+		timeEnd = SeTimeTime();
+	}
+	if(timeBegin < 0)
+	{ 
+		timeBegin = SeTimeTime();
+	}
 	return (long long)difftime(timeEnd, timeBegin);
 }
 
 time_t SeTimeAddTime(time_t srcTime, int sec)
 {
 	assert(TestTimeValid() == true);
-	if(srcTime < 0) { srcTime = SeTimeTime(); }
+	if(srcTime < 0)
+	{
+		srcTime = SeTimeTime();
+	}
 	return srcTime + sec;
 }
 
 void SeTimeFormatTime(time_t srcTime, char *pOut, int len)
 {
 	assert(TestTimeValid() == true);
-	if(srcTime < 0) { srcTime = SeTimeTime(); }
+	if(srcTime < 0)
+	{
+		srcTime = SeTimeTime();
+	}
 	strftime(pOut, len, "%Y-%m-%d %H:%M:%S", localtime(&srcTime));
 }
 
 void SeTimeFormatDayTime(time_t srcTime, char *pOut, int len)
 {
 	assert(TestTimeValid() == true);
-	if(srcTime < 0) { srcTime = SeTimeTime(); }
+	if(srcTime < 0)
+	{
+		srcTime = SeTimeTime();
+	}
 	strftime(pOut, len, "%Y-%m-%d", localtime(&srcTime));
 }
 
 void SeTimeFormatSecondTime(time_t srcTime, char *pOut, int len)
 {
 	assert(TestTimeValid() == true);
-	if(srcTime < 0) { srcTime = SeTimeTime(); }
+	if(srcTime < 0)
+	{
+		srcTime = SeTimeTime();
+	}
 	strftime(pOut, len, "%H:%M:%S", localtime(&srcTime));
 }
 

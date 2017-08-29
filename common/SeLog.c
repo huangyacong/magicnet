@@ -1,5 +1,6 @@
 #include "SeLog.h"
 #include "SeTool.h"
+#include "SeTime.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
@@ -222,10 +223,19 @@ void SeClearLogLV(struct SELOG *pkLog, int iLogLv)
 
 void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 {
+	char acTime[32];
 
+	if (!pcHeader)
+	{
+		// format to '9999-02-31 23:00:59', len == 19
+		SeTimeFormatTime(SeTimeTime(), acTime, (int)sizeof(acTime));
+		acTime[19] = ' ';
+		acTime[20] = '\0';
+	}
+	
 #ifndef SECOLOR
 
-	printf("%s%s\n", pcHeader ? pcHeader : "", pcString ? pcString : "");
+	printf("%s%s\n", pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 	
 #elif (defined(WIN32) || defined(_WIN32))
 
@@ -239,25 +249,25 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 		case LT_ERROR:
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), RED);
-			printf("%s%s\n", pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf("%s%s\n", pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		case LT_WARNING:
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), GREEN);
-			printf("%s%s\n", pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf("%s%s\n", pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		case LT_CRITICAL:
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), YELLOW);
-			printf("%s%s\n", pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf("%s%s\n", pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		default:
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), NONE);
-			printf("%s%s\n", pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf("%s%s\n", pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 	}
@@ -273,22 +283,22 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 	{
 		case LT_ERROR:
 		{
-			printf(RED"%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf(RED"%s%s"NONE, pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		case LT_WARNING:
 		{
-			printf(GREEN"%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf(GREEN"%s%s"NONE, pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		case LT_CRITICAL:
 		{
-			printf(YELLOW"%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf(YELLOW"%s%s"NONE, pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		default:
 		{
-			printf("%s%s"NONE, pcHeader ? pcHeader : "", pcString ? pcString : "");
+			printf("%s%s"NONE, pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 	}
