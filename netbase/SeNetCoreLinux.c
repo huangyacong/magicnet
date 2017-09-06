@@ -788,7 +788,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 	int iTimeOut;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
-	const struct SESOCKET *pkConstNetSocket;
+	struct SESOCKET *pkConstNetSocket;
 
 	*rSSize = 0;
 	*rRSize = 0;
@@ -805,7 +805,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		iTimeOut = pkConstNetSocket->usStatus == SOCKET_STATUS_CONNECTING ? pkConstNetSocket->iConnectTimeOut : pkConstNetSocket->iActiveTimeOut;
 		if((pkConstNetSocket->llTime + iTimeOut) <= SeTimeGetTickCount() && (pkConstNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkConstNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT))
 		{
-			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TIME OUT] Socket time out.socket=0x%llx", pkConstNetSocket->kHSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TIME OUT] Socket time out. RecvData count=%d socket=0x%llx", SeNetSreamCount(&pkConstNetSocket->kRecvNetStream), pkConstNetSocket->kHSocket);
 			SeNetCoreDisconnect(pkNetCore, pkConstNetSocket->kHSocket);
 		}
 	}

@@ -294,7 +294,7 @@ bool SeNetSocketMgrUpdateNetStreamIdle(struct SESOCKETMGR *pkNetSocketMgr, int i
 	return true;
 }
 
-const struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
+struct SESOCKET *SeNetSocketMgrTimeOut(struct SESOCKETMGR *pkNetSocketMgr)
 {
 	struct SESOCKET *pkNetSocket;
 	struct SEHASHNODE *pkHashNode;
