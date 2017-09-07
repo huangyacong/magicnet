@@ -69,8 +69,8 @@ struct SESOCKET
 	struct SENETSTREAM		kRecvNetStream;
 
 	// 64
-	struct sockaddr_in		kRemoteAddr;
-	char					acFlag[48];
+	char					acIPAddr[60];
+	int						iIPPort;
 
 	// 128
 	char					acBindSvrName[128];

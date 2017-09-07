@@ -22,6 +22,8 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->pkSetHeaderLenFun = 0;
 	pkNetSocket->iConnectTimeOut = 5*1000;
 	pkNetSocket->iActiveTimeOut = 0;
+	pkNetSocket->acIPAddr[0] = '\0';
+	pkNetSocket->iIPPort = 0;
 }
 
 void SeNetSocketInit(struct SESOCKET *pkNetSocket, unsigned short usIndex)
