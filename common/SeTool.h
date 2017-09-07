@@ -41,6 +41,10 @@ long long SeAToLongLong(const char *pcString);
 
 int SeAToInt(const char *pcString);
 
+/*
+short [%d] unsigned short [%u] int [%d] unsigned int [%u] long [%ld] unsigned long [%lu] long long [%lld] unsigned long long [%llu] float [%f] double [%f]
+please see http://en.cppreference.com/w/cpp/io/c/vfprintf or man vsnprintf
+*/
 bool SeSnprintf(char *pcStr, int iSize, const char *format, ...);
 
 bool SeLockMem();
