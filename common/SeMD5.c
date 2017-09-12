@@ -3,8 +3,8 @@
 
 typedef struct 
 {
-	unsigned long int state[4];
-	unsigned long int count[2];
+	unsigned int state[4];
+	unsigned int count[2];
 	unsigned char buffer[64];
 } IMD5_CTX;
 
@@ -48,28 +48,28 @@ FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
 Rotation is separate from addition to prevent recomputation.
 */
 #define FF(a, b, c, d, x, s, ac) { \
- (a) += F ((b), (c), (d)) + (x) + (unsigned long int)(ac); \
+ (a) += F ((b), (c), (d)) + (x) + (unsigned int)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
 
 #define GG(a, b, c, d, x, s, ac) { \
- (a) += G ((b), (c), (d)) + (x) + (unsigned long int)(ac); \
+ (a) += G ((b), (c), (d)) + (x) + (unsigned int)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
 #define HH(a, b, c, d, x, s, ac) { \
- (a) += H ((b), (c), (d)) + (x) + (unsigned long int)(ac); \
+ (a) += H ((b), (c), (d)) + (x) + (unsigned int)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
 #define II(a, b, c, d, x, s, ac) { \
- (a) += I ((b), (c), (d)) + (x) + (unsigned long int)(ac); \
+ (a) += I ((b), (c), (d)) + (x) + (unsigned int)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
 
-void Encode(unsigned char *output, unsigned long int *input, unsigned int len)
+void Encode(unsigned char *output, unsigned int *input, unsigned int len)
 {
 	unsigned int i = 0;
 	unsigned int j = 0;
@@ -83,18 +83,18 @@ void Encode(unsigned char *output, unsigned long int *input, unsigned int len)
 	}
 }
 
-void Decode(unsigned long int *output, unsigned char *input, unsigned int len)
+void Decode(unsigned int *output, const unsigned char *input, unsigned int len)
 {
 	unsigned int i = 0;
 	unsigned int j = 0;
 
 	for(i = 0, j = 0; j < len; i++, j += 4)
 	{
-		output[i] = ((unsigned long int)input[j]) | (((unsigned long int)input[j+1]) << 8) | (((unsigned long int)input[j+2]) << 16) | (((unsigned long int)input[j+3]) << 24);
+		output[i] = ((unsigned int)input[j]) | (((unsigned int)input[j+1]) << 8) | (((unsigned int)input[j+2]) << 16) | (((unsigned int)input[j+3]) << 24);
 	}
 }
 
-void MD5_memcpy(POINTER output, POINTER input, unsigned int len)
+void MD5_memcpy(POINTER output, const POINTER input, unsigned int len)
 {
 	unsigned int i = 0;
 	for(i = 0; i < len; i++)
@@ -112,9 +112,9 @@ void MD5_memset(POINTER output,int value,unsigned int len)
 	}
 }
 
-void MD5Transform(unsigned long int state[4], unsigned char block[64])
+void MD5Transform(unsigned int state[4], const unsigned char block[64])
 {
-	unsigned long int a = state[0], b = state[1], c = state[2], d = state[3], x[16];
+	unsigned int a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
 	Decode (x, block, 64);
 
@@ -214,7 +214,7 @@ void IMD5Init(IMD5_CTX *context)
 	 operation, processing another message block, and updating the
 	 context.
 */
-void IMD5Update(IMD5_CTX *context, unsigned char *input, unsigned int inputLen)
+void IMD5Update(IMD5_CTX *context, const unsigned char *input, unsigned int inputLen)
 {
 	  unsigned int i, index, partLen;
 
@@ -222,11 +222,11 @@ void IMD5Update(IMD5_CTX *context, unsigned char *input, unsigned int inputLen)
 	  index = (unsigned int)((context->count[0] >> 3) & 0x3F);
 
 	  /* Update number of bits */
-	  if ( (context->count[0] += ((unsigned long int)inputLen << 3))
-	       < ((unsigned long int)inputLen << 3))
+	  if ( (context->count[0] += ((unsigned int)inputLen << 3))
+	       < ((unsigned int)inputLen << 3))
 		context->count[1]++;
 
-	  context->count[1] += ((unsigned long int)inputLen >> 29);
+	  context->count[1] += ((unsigned int)inputLen >> 29);
 	  partLen = 64 - index;
 
 	  /*
@@ -282,7 +282,7 @@ void IMD5Final(unsigned char digest[16], IMD5_CTX *context)
 	MD5_memset ((POINTER)context, 0, sizeof (*context));
 }
 
-void SeMD5(unsigned char result[33], char* pcBuffer, unsigned int uiLen)
+void SeMD5(char *pcOut, const char* pcBuffer, unsigned int uiLen)
 {	
 	int p = 0;
 	int i = 0;
@@ -290,13 +290,13 @@ void SeMD5(unsigned char result[33], char* pcBuffer, unsigned int uiLen)
 	unsigned char acBuf[16];
 
 	IMD5Init(&kMD5);
-	IMD5Update(&kMD5,(unsigned char*)pcBuffer,uiLen);
+	IMD5Update(&kMD5, (const unsigned char*)pcBuffer, uiLen);
 	IMD5Final(acBuf,&kMD5);
 
 	for(i=0; i<16; i++)
 	{
-		sprintf((char*)&result[p],"%02x",acBuf[i]);
+		sprintf((char*)&pcOut[p], "%02x", acBuf[i]);
 		p += 2;
 	}	
-	result[32] = '\0';
+	pcOut[32] = '\0';
 }

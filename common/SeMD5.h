@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-void SeMD5(unsigned char result[33], char* pcBuffer, unsigned int uiLen);
+// pcOut len == 33, include '\0'
+void SeMD5(char *pcOut, const char* pcBuffer, unsigned int uiLen);
 
 #ifdef	__cplusplus
 }
