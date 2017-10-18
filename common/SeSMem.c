@@ -10,7 +10,7 @@ HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 	
 	SeSnprintf(acName, (int)sizeof(acName), "Global\\%s", pcName);
 	kHandle = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, ullSize>>32, ullSize<<32>>32, acName);
-	if(kHandle != SE_INVALID_HANDLE)
+	if(kHandle != NULL)
 	{
 		if(SeGetShareMemoryErrorID() == ERROR_ALREADY_EXISTS)
 		{
@@ -34,8 +34,11 @@ HANDLE SeOpenShareMemory(const char *pcName)
 	char acName[128];
 
 #if (defined(WIN32) || defined(_WIN32))
+	HANDLE kResult = SE_INVALID_HANDLE;
 	SeSnprintf(acName, (int)sizeof(acName), "Global\\%s", pcName);
-	return OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, acName);
+	kResult = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, acName);
+	kResult = kResult == NULL ? SE_INVALID_HANDLE : kResult;
+	return kResult;
 #elif defined(__linux)
 	key_t kKey;
 	SeSnprintf(acName, (int)sizeof(acName), "%s", pcName);
