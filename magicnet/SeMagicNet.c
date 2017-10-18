@@ -59,13 +59,13 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 		{
 			pcHeader[0] = ilen & 0xFF;
 			pcHeader[1] = (ilen >> 8) & 0xFF;
-			return ilen < 0 || ilen > 0xFFFF ? false : true;
+			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
 		}
 		/*case 2:// 大端
 		{
 			pcHeader[0] = (ilen >> 8) & 0xff;
 			pcHeader[1] = ilen & 0xff;
-			return ilen < 0 || ilen > 0xFFFF ? false : true;
+			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
 		}*/
 		case 4:// 小端
 		{
@@ -74,7 +74,7 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 			pcHeader[2] = ((ilen & 0x00FF0000) >> 16);
 			pcHeader[1] = ((ilen & 0x0000FF00) >> 8);
 			pcHeader[0] = ((ilen & 0x000000FF));
-			return ilen < 0 || ilen > 1024 * 1024 * 3 ? false : true;
+			return (ilen < 0 || ilen > 1024 * 1024 * 3) ? false : true;
 		}
 		default:
 		{
@@ -93,18 +93,18 @@ bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 		case 2:// 小端
 		{
 			*ilen = (unsigned short)(pcHeader[1] << 8 | pcHeader[0]);
-			return *ilen < 0 || *ilen > 0xFFFF ? false : true;
+			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
 		}
 		/*case 2:// 大端
 		{
 			*ilen = (unsigned short)(pcHeader[0] << 8 | pcHeader[1]);
-			return *ilen < 0 || *ilen > 0xFFFF ? false : true;
+			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
 		}*/
 		case 4:// 小端
 		{
 			// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
 			*ilen = (int)((pcHeader[0] & 0xFF) | ((pcHeader[1] << 8) & 0xFF00) | ((pcHeader[2] << 16) & 0xFF0000) | ((pcHeader[3] << 24) & 0xFF000000));
-			return *ilen < 0 || *ilen > 1024 * 1024 * 3 ? false : true;
+			return (*ilen < 0 || *ilen > 1024 * 1024 * 3) ? false : true;
 		}
 		default:
 		{
