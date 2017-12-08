@@ -7,25 +7,6 @@
 
 #define SEALIGNMENT 64
 
-static unsigned int next = 1;
-
-// rand [0,UINT_MAX)
-unsigned int SeRand(void)
-{
-	next = next * 1103515245 + 12345;
-	return next;
-}
-
-void SeSrand(unsigned int seed)
-{
-	next = seed;
-}
-// rand [start,end)
-unsigned int SeRandNum(unsigned int start, unsigned int end)
-{
-	return start + SeRand() % (end - start);
-}
-
 bool SeCHStrStr(const char* pcDstChar, const char* pcSrcChar)
 {
 	int iLen = 0;

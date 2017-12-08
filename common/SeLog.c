@@ -6,42 +6,33 @@
 #include <time.h>
 #include <string.h>
 
-void SetLogTime(struct LogTime *pkDate, const struct tm *pkTM)
+bool IsDiffDay(const struct SeTime *pkDate, const struct SeTime *pkTMTime)
 {
-	pkDate->m_iHear = pkTM->tm_year;
-	pkDate->m_iMon = pkTM->tm_mon;
-	pkDate->m_iDay = pkTM->tm_mday;
-	pkDate->m_iHour = pkTM->tm_hour;
+	return (pkTMTime->iYear != pkDate->iYear || pkTMTime->iMon != pkDate->iMon || pkTMTime->iDay != pkDate->iDay) ? true : false;
 }
 
-bool IsDiffDay(const struct LogTime *pkDate, const struct tm *pkTMTime)
+void SetHeaderString(char *pcHeader, int iHeaderLen, const char *pcLTString, const struct SeTime *pkTMTime)
 {
-	return (pkTMTime->tm_year != pkDate->m_iHear || pkTMTime->tm_mon != pkDate->m_iMon || pkTMTime->tm_mday != pkDate->m_iDay) ? true : false;
+	SeSnprintf(pcHeader, iHeaderLen, "%04d-%02d-%02d %02d:%02d:%02d%s", pkTMTime->iYear,
+		pkTMTime->iMon, pkTMTime->iDay, pkTMTime->iHour, pkTMTime->iMin, pkTMTime->iSec, pcLTString);
 }
 
-void SetHeaderString(char *pcHeader, int iHeaderLen, const char *pcLTString, const struct tm *pkTMTime)
-{
-	SeSnprintf(pcHeader, iHeaderLen, "%04d-%02d-%02d %02d:%02d:%02d%s", pkTMTime->tm_year + 1900,
-		pkTMTime->tm_mon + 1, pkTMTime->tm_mday, pkTMTime->tm_hour, pkTMTime->tm_min, pkTMTime->tm_sec, pcLTString);
-}
-
-FILE * newFile(const char *pkFileName, const struct LogTime *pkLogTime)
+FILE * newFile(const char *pkFileName, const struct SeTime *pkLogTime)
 {
 	char fname[512] = "";
-	SeSnprintf(fname, (int)sizeof(fname), "%s%04d%02d%02d.log", pkFileName, pkLogTime->m_iHear + 1900, pkLogTime->m_iMon + 1, pkLogTime->m_iDay);
+	SeSnprintf(fname, (int)sizeof(fname), "%s%04d%02d%02d.log", pkFileName, pkLogTime->iYear, pkLogTime->iMon, pkLogTime->iDay);
 	return fopen(fname, "a");
 }
 
 void SeInitLog(struct SELOG *pkLog, const char *pkFileName)
 {
 	time_t my_time = SeTimeTime();
-	struct tm kTM = *localtime(&my_time);
 
 	pkLog->iFlag = 0;
 	pkLog->iLockContextFunc = 0;
 	pkLog->pkLogContect = 0;
 	pkLog->pkLogContextFunc = 0;
-	SetLogTime(&pkLog->ttDate, &kTM);
+	pkLog->ttDate = SeGetTime(my_time);
 	SeStrNcpy(pkLog->acfname, sizeof(pkLog->acfname), pkFileName);
 	pkLog->pFile = newFile(pkLog->acfname, &pkLog->ttDate);
 	memset(pkLog->actext, 0, sizeof(pkLog->actext));
@@ -75,7 +66,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	va_list argptr;
 	char acHeadr[128] = {0};
 	time_t my_time = SeTimeTime();
-	struct tm tt_now = *localtime(&my_time);
+	struct SeTime tt_now = SeGetTime(my_time);
 
 	if (!SeHasLogLV(pkLog, iLogLv) || iLogLv == LT_SPLIT || iLogLv == LT_PRINT || pkLog->iLockContextFunc == 1/*lock the callback function*/)
 	{
@@ -165,7 +156,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 				fclose(pkLog->pFile);
 				pkLog->pFile = 0;
 			}
-			SetLogTime(&pkLog->ttDate, &tt_now);
+			pkLog->ttDate = tt_now;
 			pkLog->pFile = newFile(pkLog->acfname, &pkLog->ttDate);
 		}
 	}

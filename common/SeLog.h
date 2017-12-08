@@ -22,32 +22,19 @@ extern "C" {
 #define LT_CRITICAL (1<<7)	// CRITICAL
 #define LT_SOCKET	(1<<8)	// socket
 
-
 typedef void(*SELOGCONTEXT)(void *pkLogContect, const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite);
-
-struct LogTime
-{
-	int m_iHear;
-	int m_iMon;
-	int m_iDay;
-	int m_iHour;
-	int iTagA;
-	int iTagB;
-	int iTagC;
-	int iTagD;
-};
 
 struct SELOG
 {
-	int			iFlag;
-	int			iLockContextFunc;
-	void*		pkLogContect;
-	SELOGCONTEXT pkLogContextFunc;
-	FILE*		pFile;
-	struct LogTime ttDate;
+	int				iFlag;
+	int				iLockContextFunc;
+	void*			pkLogContect;
+	SELOGCONTEXT	pkLogContextFunc;
+	FILE*			pFile;
+	struct SeTime	ttDate;
 
-	char		acfname[128];
-	char		actext[1024*10];
+	char			acfname[128];
+	char			actext[1024*10];
 };
 
 void SeInitLog(struct SELOG *pkLog, const char *pkFileName);

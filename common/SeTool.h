@@ -53,12 +53,6 @@ void *SeMallocMem(size_t size);
 
 void SeFreeMem(void* pvPtr);
 
-unsigned int SeRand(void);
-
-void SeSrand(unsigned int seed);
-
-unsigned int SeRandNum(unsigned int start, unsigned int end);
-
 #ifdef	__cplusplus
 }
 #endif

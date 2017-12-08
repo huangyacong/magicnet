@@ -49,6 +49,25 @@ int SeGetTimeZone()
 	return time_zone;
 }
 
+struct SeTime SeGetTime(time_t kTime)
+{
+	struct tm tt_now;
+	struct SeTime kSeTime;
+
+	kTime = kTime < 0 ? SeTimeTime() : kTime;
+	tt_now = *localtime(&kTime);
+
+	kSeTime.iSec = tt_now.tm_sec;
+	kSeTime.iMin = tt_now.tm_min;
+	kSeTime.iHour = tt_now.tm_hour;
+	kSeTime.iDay = tt_now.tm_mday;
+	kSeTime.iMon = tt_now.tm_mon + 1;
+	kSeTime.iYear = tt_now.tm_year + 1900;
+	kSeTime.iWDay = (enum SE_WEEK)(tt_now.tm_wday + 1);
+	kSeTime.iYDay = tt_now.tm_yday;
+	return kSeTime;
+}
+
 time_t SeTimeStringToTime(const char* pcTimeChar)
 {
 	struct tm tb;
@@ -226,4 +245,16 @@ bool SeIsSameDay(time_t iTimeA, time_t iTimeB)
 	memcpy(&A, localtime(&iTimeA), sizeof(A));
 	memcpy(&B, localtime(&iTimeB), sizeof(B));
 	return A.tm_mday == B.tm_mday;
+}
+
+bool SeIsSameDate(time_t iTimeA, time_t iTimeB)
+{
+	struct tm A;
+	struct tm B;
+
+	assert(TestTimeValid() == true);
+	if (iTimeA < 0 || iTimeB < 0) { return false; }
+	memcpy(&A, localtime(&iTimeA), sizeof(A));
+	memcpy(&B, localtime(&iTimeB), sizeof(B));
+	return ((A.tm_year == B.tm_year) && (A.tm_mon == B.tm_mon) && (A.tm_mday == B.tm_mday));
 }
