@@ -156,6 +156,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	tb.tm_hour = iHour;
 	tb.tm_min = iMin;
 	tb.tm_sec = iSec;
+	tb.tm_isdst = -1;
 	
 	return mktime(&tb);
 }
