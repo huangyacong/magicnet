@@ -122,6 +122,12 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		}
 		case LT_NOHEAD:
 		{
+			SetHeaderString(acHeadr, (int)sizeof(acHeadr), " ", &tt_now);
+			break;
+		}
+		case LT_RESERROR:
+		{
+			SetHeaderString(acHeadr, (int)sizeof(acHeadr), " [RESERROR] ", &tt_now);
 			break;
 		}
 		default:
@@ -166,7 +172,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		return;
 	}
 
-	if (!SeHasLogLV(pkLog, LT_NOHEAD))
+	if (iLogLv != LT_NOHEAD)
 	{
 		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
 	}
@@ -244,12 +250,14 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 			break;
 		}
 		case LT_WARNING:
+		case LT_NOHEAD:
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), GREEN);
 			printf("%s%s\n", pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		case LT_CRITICAL:
+		case LT_RESERROR:
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), YELLOW);
 			printf("%s%s\n", pcHeader ? pcHeader : acTime, pcString ? pcString : "");
@@ -278,11 +286,13 @@ void SePrintf(int iLogLv, const char *pcHeader, const char *pcString)
 			break;
 		}
 		case LT_WARNING:
+		case LT_NOHEAD:
 		{
 			printf(GREEN"%s%s"NONE, pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;
 		}
 		case LT_CRITICAL:
+		case LT_RESERROR:
 		{
 			printf(YELLOW"%s%s"NONE, pcHeader ? pcHeader : acTime, pcString ? pcString : "");
 			break;

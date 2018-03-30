@@ -21,6 +21,7 @@ extern "C" {
 #define LT_DEBUG	(1<<6)	// debug
 #define LT_CRITICAL (1<<7)	// CRITICAL
 #define LT_SOCKET	(1<<8)	// socket
+#define LT_RESERROR (1<<9)	// Res Error
 
 typedef void(*SELOGCONTEXT)(void *pkLogContect, const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite);
 

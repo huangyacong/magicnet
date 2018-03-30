@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 bool TestTimeValid()
 {
 	return sizeof(time_t) == 8;
@@ -149,7 +148,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	{
 		return time(NULL);
 	}
-	
+
 	tb.tm_year = iYear - 1900;
 	tb.tm_mon = iMon - 1;
 	tb.tm_mday = iDay;
@@ -157,7 +156,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	tb.tm_min = iMin;
 	tb.tm_sec = iSec;
 	tb.tm_isdst = -1;
-	
+
 	return mktime(&tb);
 }
 
