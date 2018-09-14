@@ -19,9 +19,9 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned 
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
 {
+	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeCloseHandle(pkNetCore->kHandle);
 	SeFinLog(&pkNetCore->kLog);
-	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeNetBaseEnd();
 }
 
