@@ -62,7 +62,19 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax
 
 void SeNetSocketMgrEnd(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket)
 {
+	SOCKET socket;
 	struct SENETSTREAMNODE *pkNetStreamNode;
+
+	if (pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET)
+	{
+		socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
+		SeShutDown(socket);
+	}
+	else if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
+	{
+		socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
+		SeCloseSocket(socket);
+	}
 
 	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
 	while(pkNetStreamNode)
