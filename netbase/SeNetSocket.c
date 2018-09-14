@@ -69,6 +69,7 @@ void SeNetSocketMgrEnd(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNe
 	{
 		socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
 		SeShutDown(socket);
+		SeCloseSocket(socket);
 	}
 	else if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
 	{
