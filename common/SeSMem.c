@@ -22,9 +22,16 @@ HANDLE SeCreateShareMemory(const char *pcName, unsigned long long ullSize)
 #elif defined(__linux)
 	key_t kKey;
 
+	/*
 	SeSnprintf(acName, (int)sizeof(acName), "%s", pcName);
 	kKey = ftok(acName, 1);
 	if(kKey == -1) { return SE_INVALID_HANDLE; }
+	return shmget(kKey, ullSize, IPC_CREAT|IPC_EXCL|0666);
+	*/
+
+	SeSnprintf(acName, (int)sizeof(acName), "%s", pcName);
+	kKey = (key_t)SeAToInt(acName);
+	if(kKey <= 0) { return SE_INVALID_HANDLE; }
 	return shmget(kKey, ullSize, IPC_CREAT|IPC_EXCL|0666);
 #endif
 }
@@ -41,9 +48,15 @@ HANDLE SeOpenShareMemory(const char *pcName)
 	return kResult;
 #elif defined(__linux)
 	key_t kKey;
+
+	/*
 	SeSnprintf(acName, (int)sizeof(acName), "%s", pcName);
 	kKey = ftok(acName, 1);
-	if(kKey == -1) { return SE_INVALID_HANDLE; }
+	*/
+
+	SeSnprintf(acName, (int)sizeof(acName), "%s", pcName);
+	kKey = (key_t)SeAToInt(acName);
+	if (kKey <= 0) { return SE_INVALID_HANDLE; }
 	return shmget(kKey, 0, 0);
 #endif
 }

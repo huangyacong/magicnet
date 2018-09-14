@@ -149,7 +149,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 
 	if (bPrint)
 	{
-		SePrintf(iLogLv, !SeHasLogLV(pkLog, LT_NOHEAD) ? acHeadr : "", pkLog->actext);
+		SePrintf(iLogLv, acHeadr, pkLog->actext);
 	}
 
 	if (SeHasLogLV(pkLog, LT_SPLIT))

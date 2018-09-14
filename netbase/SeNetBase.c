@@ -206,6 +206,16 @@ int SeSetReuseAddr(SOCKET kSocket)
 	return SeSetSockOpt(kSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&value, sizeof(value));
 }
 
+int SeSetReusePort(SOCKET kSocket)
+{
+#ifdef __linux
+	unsigned long value = 1;
+	return SeSetSockOpt(kSocket, SOL_SOCKET, SO_REUSEPORT, (char*)&value, sizeof(value));
+#elif (defined(_WIN32) || defined(WIN32))
+	return 0;
+#endif
+}
+
 int SeSetExclusiveAddruse(SOCKET kSocket)
 {
 #ifdef __linux

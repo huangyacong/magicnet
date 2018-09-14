@@ -126,6 +126,8 @@ void SeErrStr(int iErrno, char *pcMsg, unsigned long ulSize);
 
 int SeSetReuseAddr(SOCKET kSocket);
 
+int SeSetReusePort(SOCKET kSocket);
+
 int SeSetExclusiveAddruse(SOCKET kSocket);
 
 int SeSetNoBlock(SOCKET kSocket, bool bBlock /*= true*/);

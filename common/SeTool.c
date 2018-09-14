@@ -134,6 +134,11 @@ int SeAToInt(const char *pcString)
 	return atoi(pcString);
 }
 
+double SeAToDouble(const char *pcString)
+{
+	return atof(pcString);
+}
+
 bool SeSnprintf(char *pcStr, int iSize, const char *format, ...)
 {
 	int writelen;
