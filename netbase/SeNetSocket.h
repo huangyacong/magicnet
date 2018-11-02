@@ -48,7 +48,8 @@ struct SESOCKET
 
 	// 64
 	struct SEHASHNODE		kRecvNode;
-	char					acTagC[24];
+	char					acTagC[20];
+	int						iNoDelay;
 
 	// 64
 	HSOCKET					kHSocket;

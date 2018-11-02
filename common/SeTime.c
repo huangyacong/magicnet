@@ -67,6 +67,91 @@ struct SeTime SeGetTime(time_t kTime)
 	return kSeTime;
 }
 
+bool SeTimeCheckStringTime(const char* pcTimeChar)
+{
+	unsigned int uiLen = 0, uiBegin = 0;
+	int iYear = 0, iMon = 0, iDay = 0, iHour = 0, iMin = 0, iSec = 0;
+
+	if (!pcTimeChar)
+		return false;
+	assert(TestTimeValid() == true);
+	uiLen = (unsigned int)strlen(pcTimeChar);
+
+	if (uiLen != 19) {
+		return false;
+	}
+
+	for (uiBegin = 0; uiBegin < uiLen; uiBegin++)
+	{
+		// -
+		if (uiBegin == 4 || uiBegin == 7)
+		{
+			if ((char)pcTimeChar[uiBegin] != 45)
+			{
+				return false;
+			}
+		}
+		// space
+		else if (uiBegin == 10)
+		{
+			if ((char)pcTimeChar[uiBegin] != 32)
+			{
+				return false;
+			}
+		}
+		// :
+		else if (uiBegin == 13 || uiBegin == 16)
+		{
+			if ((char)pcTimeChar[uiBegin] != 58)
+			{
+				return false;
+			}
+		}
+		// number(0-9)
+		else
+		{
+			if ((char)pcTimeChar[uiBegin] < 48 || (char)pcTimeChar[uiBegin] > 57)
+			{
+				return false;
+			}
+		}
+	}
+
+	iYear = atoi(pcTimeChar);
+	iMon = atoi(pcTimeChar + 5);
+	iDay = atoi(pcTimeChar + 8);
+	iHour = atoi(pcTimeChar + 11);
+	iMin = atoi(pcTimeChar + 14);
+	iSec = atoi(pcTimeChar + 17);
+
+	if (iYear < 1971 || iYear > 9999)
+	{
+		return false;
+	}
+	if (iMon < 1 || iMon > 12)
+	{
+		return false;
+	}
+	if (iDay < 1 || iDay > 31)
+	{
+		return false;
+	}
+	if (iHour < 0 || iHour > 24)
+	{
+		return false;
+	}
+	if (iMin < 0 || iMin > 60)
+	{
+		return false;
+	}
+	if (iSec < 0 || iSec > 60)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 time_t SeTimeStringToTime(const char* pcTimeChar)
 {
 	struct tm tb;

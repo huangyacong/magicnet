@@ -226,13 +226,13 @@ bool SeMagicNetSInit(struct SEMAGICNETS *pkMagicNetS, const char *pcLogName, int
 	pkMagicNetS->iRecvNum = 0;
 	SeNetCoreInit(&pkMagicNetS->kNetCore, pcLogName, usMax, iLogLV);
 
-	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, pcOutIP, usOutPort, bBigHeader ? 4 : 2, iTimeOut, &SeGetHeader, &SeSetHeader);
+	pkMagicNetS->kHScoketOut = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, false, pcOutIP, usOutPort, bBigHeader ? 4 : 2, true, iTimeOut, &SeGetHeader, &SeSetHeader);
 	if(pkMagicNetS->kHScoketOut <= 0)
 	{
 		return false;
 	}
 
-	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, "127.0.0.1", usInPort, 4, iTimeOut, &SeGetHeader, &SeSetHeader);
+	pkMagicNetS->kHScoketIn = SeNetCoreTCPListen(&pkMagicNetS->kNetCore, false, "127.0.0.1", usInPort, 4, true, iTimeOut, &SeGetHeader, &SeSetHeader);
 	if(pkMagicNetS->kHScoketIn <= 0)
 	{
 		return false;
@@ -909,7 +909,7 @@ bool SeMagicNetCReg(struct SEMAGICNETC *pkMagicNetC, const char *pcSvrName)
 	}
 
 	pkMagicNetC->llActive = SeTimeGetTickCount();
-	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", (unsigned short)pkMagicNetC->iInPort, 4, pkMagicNetC->iTimeOut, 5 * 1000, &SeGetHeader, &SeSetHeader);
+	pkMagicNetC->kHScoket = SeNetCoreTCPClient(&pkMagicNetC->kNetCore, "127.0.0.1", (unsigned short)pkMagicNetC->iInPort, 4, true, pkMagicNetC->iTimeOut, 5 * 1000, &SeGetHeader, &SeSetHeader);
 	if (pkMagicNetC->kHScoket <= 0)
 	{
 		return false;

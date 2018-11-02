@@ -11,6 +11,7 @@
 
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
+	pkNetSocket->iNoDelay = 0;
 	pkNetSocket->kHSocket = SeGetHSocket(0, 0, 0);
 	pkNetSocket->kBelongListenHSocket = SeGetHSocket(0, 0, 0);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
@@ -74,6 +75,7 @@ void SeNetSocketMgrEnd(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNe
 	else if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
 	{
 		socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
+		SeShutDown(socket);
 		SeCloseSocket(socket);
 	}
 

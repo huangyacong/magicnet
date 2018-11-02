@@ -77,6 +77,7 @@ struct SeTime SeGetTime(time_t kTime);
 // convert string time to time_t, pcTimeChar format to '9999-02-31 23:00:59'
 // if pcTimeChar error,return nowtime
 time_t SeTimeStringToTime(const char* pcTimeChar);
+bool SeTimeCheckStringTime(const char* pcTimeChar);
 
 // return sec
 long long SeTimeDiffTime(time_t timeEnd, time_t timeBegin);
