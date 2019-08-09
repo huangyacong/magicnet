@@ -3,6 +3,7 @@
 SeServer::SeServer() : IServer()
 {
 	m_bInit = false;
+	m_pkSeNetEngine = NULL;
 }
 
 SeServer::~SeServer()

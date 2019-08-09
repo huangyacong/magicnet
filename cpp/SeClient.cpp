@@ -10,6 +10,7 @@ SeClient::SeClient() : IClient()
 {
 	m_bInit = false;
 	m_iPingTimeDelay = 1000 * 2;
+	m_pkSeNetEngine = NULL;
 }
 
 SeClient::~SeClient()
