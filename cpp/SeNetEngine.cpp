@@ -239,9 +239,11 @@ void SeNetEngine::StartEngine()
 {
 	while(m_bInit && !m_bStop) 
 	{ 
+		unsigned long long ullNow = SeTimeGetTickCount();
+		
 		OnIdleUpdate();
-		Update(SeTimeGetTickCount());
-		Stat(SeTimeGetTickCount());
+		Update(ullNow);
+		Stat(ullNow);
 		Run(); 
 	}
 }
