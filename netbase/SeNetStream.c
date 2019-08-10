@@ -37,7 +37,7 @@ void SeNetSreamNodeZero(struct SENETSTREAMNODE *pkNetStreamNode)
 
 int SeNetSreamCount(struct SENETSTREAM *pkNetStream)
 {
-	return (int)pkNetStream->iCount;
+	return pkNetStream->iCount;
 }
 
 int SeGetNetSreamLen(struct SENETSTREAM *pkNetStream)
