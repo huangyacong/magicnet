@@ -31,10 +31,10 @@ private:
 private:
 	bool m_bInit;
 	bool m_bReusePort;
-	int m_iSvrPort;
-	int m_iTimeOut;
 	bool m_bNoDelay;
 	bool m_bBigHeader;
+	int m_iSvrPort;
+	int m_iTimeOut;
 	char m_acSvrIP[16];
 protected:
 	SeNetEngine* m_pkSeNetEngine;
