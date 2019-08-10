@@ -17,6 +17,7 @@ SeClient::SeClient() : IClient()
 SeClient::~SeClient()
 {
 	m_bInit = false;
+	m_pkSeNetEngine = NULL;
 }
 
 void SeClient::SetNoDelay(bool bNoDelay)

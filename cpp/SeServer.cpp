@@ -11,6 +11,7 @@ SeServer::SeServer() : IServer()
 SeServer::~SeServer()
 {
 	m_bInit = false;
+	m_pkSeNetEngine = NULL;
 }
 
 void SeServer::SetReusePort()
