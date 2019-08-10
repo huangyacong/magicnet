@@ -15,7 +15,8 @@ bool SeFastSql::ExecuteSql(SeLogEngine *pkLog, SeSql* pkSql, const char *pcQuery
 	bool bRet = pkSql->ExecuteSql(pcQuerySql, ulLen);
 	if(!bRet)
 	{
-		LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] ExecuteSql Failed. funcname=%s errormsg=%s.sql=%s", FuncName, pkSql->GetErrorStr(), pcQuerySql);
+		LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] ExecuteSql Failed. funcname=%s errormsg=%s.", FuncName, pkSql->GetErrorStr());
+		LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] ExecuteSql Failed. funcname=%s sql=%s", FuncName, pcQuerySql);
 	}
 	if(bRet)
 	{
@@ -29,7 +30,8 @@ bool SeFastSql::ExecuteSql(SeLogEngine *pkLog, SeSql* pkSql, const char *pcQuery
 
 		if(!pkSql->TryConnect())
 		{
-			LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] dbsvr connect error. funcname=%s errormsg=%s.sql=%s", FuncName, pkSql->GetErrorStr(), pcQuerySql);
+			LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] dbsvr connect error. funcname=%s errormsg=%s", FuncName, pkSql->GetErrorStr());
+			LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] dbsvr connect error. funcname=%s sql=%s", FuncName, pcQuerySql);
 			return false;
 		}
 
@@ -37,7 +39,8 @@ bool SeFastSql::ExecuteSql(SeLogEngine *pkLog, SeSql* pkSql, const char *pcQuery
 
 		if(!pkSql->ExecuteSql(pcQuerySql, ulLen))
 		{
-			LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] ExecuteSql Failed. funcname=%s errormsg=%s.sql=%s", FuncName, pkSql->GetErrorStr(), pcQuerySql);
+			LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] ExecuteSql Failed. funcname=%s errormsg=%s", FuncName, pkSql->GetErrorStr());
+			LOGENGINE_LOG((*pkLog), LT_ERROR, "[SQL] ExecuteSql Failed. funcname=%s sql=%s", FuncName, pcQuerySql);
 			return false;
 		}
 
