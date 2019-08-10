@@ -766,7 +766,10 @@ void SeNetCoreAcceptSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 			SeNetCoreDisconnect(pkNetCore, pkNetSocket->kHSocket);
 			return;
 		}
-		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+		if(SeNetSreamCanRead(&pkNetSocket->kRecvNetStream, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen))
+		{
+			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+		}
 	}
 
 	if(bWrite == true)
@@ -969,7 +972,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		*rSSize = SeNetSreamCount(&pkNetSocket->kSendNetStream);
 		*rRSize = SeNetSreamCount(&pkNetSocket->kRecvNetStream);
 
-		if(SeNetSreamCount(&pkNetSocket->kRecvNetStream) > 0)
+		if(SeNetSreamCanRead(&pkNetSocket->kRecvNetStream, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen))
 		{
 			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
 		}
