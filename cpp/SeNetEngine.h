@@ -11,7 +11,7 @@ class SeNetEngine;
 class IClient
 {
 public:
-	IClient() { m_bUsed = false; m_bOnConnect = false; m_pkSeNetEngine = NULL;  m_ullUpdateTime = SeTimeGetTickCount(); }
+	IClient() { m_bUsed = false; m_bOnConnect = false;  m_ullUpdateTime = SeTimeGetTickCount(); }
 	virtual ~IClient() {}
 public:
 	virtual bool IsUsed() { return m_bUsed; }
@@ -24,7 +24,6 @@ public:
 private:
 	bool m_bUsed;
 	bool m_bOnConnect;
-	SeNetEngine *m_pkSeNetEngine;
 	unsigned long long m_ullUpdateTime;
 	friend class SeNetEngine;
 };

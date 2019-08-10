@@ -90,7 +90,6 @@ HSOCKET SeNetEngine::AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigne
 
 	pkIClient->m_bUsed = true;
 	m_kClient[kHSocket] = pkIClient;
-	m_kClient[kHSocket]->m_pkSeNetEngine = this;
 	AddClientToList(pkIClient);
 	return kHSocket;
 }
@@ -292,7 +291,6 @@ void SeNetEngine::Run()
 			m_kClient.erase(itrClient);
 			pkIClient->m_bUsed = false;
 			pkIClient->m_bOnConnect = false;
-			pkIClient->m_pkSeNetEngine = NULL;
 			pkIClient->OnConnectFailed();
 		}
 		return;
@@ -339,7 +337,6 @@ void SeNetEngine::Run()
 			m_kClient.erase(itrClient);
 			pkIClient->m_bUsed = false;
 			pkIClient->m_bOnConnect = false;
-			pkIClient->m_pkSeNetEngine = NULL;
 			pkIClient->OnDisConnect();
 			return;
 		}
