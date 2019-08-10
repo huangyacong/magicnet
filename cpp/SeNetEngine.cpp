@@ -70,7 +70,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, bool bReusePort, const char *
 	return kHSocket > 0 ? true : false;
 }
 
-HSOCKET SeNetEngine::AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader)
+HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader)
 {
 	if(!m_bInit) 
 	{ 
