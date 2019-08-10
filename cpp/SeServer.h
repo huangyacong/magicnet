@@ -11,6 +11,8 @@ public:
 	SeServer();
 	virtual ~SeServer();
 public:
+	virtual void SetReusePort();
+	virtual void SetNoDelay(bool bNoDelay);
 	virtual void Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iTimeOut, bool bBigHeader);
 	virtual bool Listen();
 	virtual void DisConnect(HSOCKET kHSocket);
@@ -28,8 +30,10 @@ private:
 	void OnUpdate();
 private:
 	bool m_bInit;
+	bool m_bReusePort;
 	int m_iSvrPort;
 	int m_iTimeOut;
+	bool m_bNoDelay;
 	bool m_bBigHeader;
 	char m_acSvrIP[16];
 protected:

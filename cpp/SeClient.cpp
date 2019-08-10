@@ -9,13 +9,19 @@ const int iReConnectCount = 10;
 SeClient::SeClient() : IClient()
 {
 	m_bInit = false;
-	m_iPingTimeDelay = 1000 * 2;
+	m_bNoDelay = false;
 	m_pkSeNetEngine = NULL;
+	m_iPingTimeDelay = 1000 * 2;
 }
 
 SeClient::~SeClient()
 {
 	m_bInit = false;
+}
+
+void SeClient::SetNoDelay(bool bNoDelay)
+{
+	m_bNoDelay = bNoDelay;
 }
 
 void SeClient::Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iTimeOut, int iConnectTimeOut, bool bBigHeader)
@@ -60,7 +66,7 @@ void SeClient::Connect()
 	}
 
 	m_ullReConnectTime = ullNowTime;
-	m_kHSocket = m_pkSeNetEngine->AddTCPConnect(this, m_acSvrIP, m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bBigHeader);
+	m_kHSocket = m_pkSeNetEngine->AddTCPConnect(this, m_acSvrIP, m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bNoDelay, m_bBigHeader);
 
 	if(m_kHSocket == 0) 
 	{ 

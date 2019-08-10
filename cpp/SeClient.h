@@ -11,6 +11,7 @@ public:
 	SeClient();
 	virtual ~SeClient();
 public:
+	virtual void SetNoDelay(bool bNoDelay);
 	virtual void Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iTimeOut, int iConnectTimeOut, bool bBigHeader);
 	virtual void Connect();
 	virtual void DisConnect();
@@ -42,6 +43,7 @@ private:
 	bool m_bBigHeader;
 	int m_iConnectTimeOut;
 private:
+	bool m_bNoDelay;
 	int m_iPingTimeDelay;
 	unsigned long long m_ullTime;
 private:
