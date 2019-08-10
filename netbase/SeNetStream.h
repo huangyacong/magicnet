@@ -26,8 +26,8 @@ struct SENETSTREAM
 {
 	struct SELIST		kList;
 	int					iCount;
-	int					iSize;
-	long long			llFlag;
+	int					iFlag;
+	long long			llSize;
 };
 
 struct SENETSTREAMBUF
@@ -52,7 +52,7 @@ void SeNetSreamNodeZero(struct SENETSTREAMNODE *pkNetStreamNode);
 
 int SeNetSreamCount(struct SENETSTREAM *pkNetStream);
 
-int SeGetNetSreamLen(struct SENETSTREAM *pkNetStream);
+long long SeGetNetSreamLen(struct SENETSTREAM *pkNetStream);
 
 
 

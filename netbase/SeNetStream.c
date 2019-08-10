@@ -2,9 +2,9 @@
 
 void SeNetSreamInit(struct SENETSTREAM *pkNetStream)
 {
-	pkNetStream->iSize = 0;
+	pkNetStream->llSize = 0;
 	pkNetStream->iCount = 0;
-	pkNetStream->llFlag = 0;
+	pkNetStream->iFlag = 0;
 	SeListInit(&pkNetStream->kList);
 }
 
@@ -40,10 +40,10 @@ int SeNetSreamCount(struct SENETSTREAM *pkNetStream)
 	return pkNetStream->iCount;
 }
 
-int SeGetNetSreamLen(struct SENETSTREAM *pkNetStream)
+long long SeGetNetSreamLen(struct SENETSTREAM *pkNetStream)
 {
-	assert(pkNetStream->iSize >= 0);
-	return pkNetStream->iSize;
+	assert(pkNetStream->llSize >= 0);
+	return pkNetStream->llSize;
 }
 
 struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
@@ -60,7 +60,7 @@ struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
 	iLeaveLen = pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos;
 	assert(iLeaveLen >= 0);
-	pkNetStream->iSize -= iLeaveLen;
+	pkNetStream->llSize -= iLeaveLen;
 	pkNetStream->iCount--;
 	return pkNetStreamNode;
 }
@@ -72,7 +72,7 @@ void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *
 	SeListHeadAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
 	iLeaveLen = pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos;
 	assert(iLeaveLen >= 0);
-	pkNetStream->iSize += iLeaveLen;
+	pkNetStream->llSize += iLeaveLen;
 	pkNetStream->iCount++;
 }
 
@@ -82,7 +82,7 @@ void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *
 	SeListTailAdd(&pkNetStream->kList, &pkNetStreamNode->kNode);
 	iLeaveLen = pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos;
 	assert(iLeaveLen >= 0);
-	pkNetStream->iSize += iLeaveLen;
+	pkNetStream->llSize += iLeaveLen;
 	pkNetStream->iCount++;
 }
 
@@ -100,7 +100,7 @@ struct SENETSTREAMNODE *SeNetSreamTailPop(struct SENETSTREAM *pkNetStream)
 	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
 	iLeaveLen = pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos;
 	assert(iLeaveLen >= 0);
-	pkNetStream->iSize -= iLeaveLen;
+	pkNetStream->llSize -= iLeaveLen;
 	pkNetStream->iCount--;
 	return pkNetStreamNode;
 }
@@ -194,7 +194,7 @@ bool SeNetSreamReadLen(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNe
 	int iCopyPos;
 	struct SENETSTREAMNODE *pkNetStreamNode;
 
-	if(!pcBuf || iBufLen < 0 || pkNetStream->iSize < iBufLen)
+	if(!pcBuf || iBufLen < 0 || pkNetStream->llSize < (long long)iBufLen)
 	{
 		assert(pcBuf);
 		assert(iBufLen >= 0);
@@ -283,7 +283,7 @@ bool SeNetSreamCanRead(struct SENETSTREAM *pkNetStream, SEGETHEADERLENFUN pkGetH
 	{
 		return false;
 	}
-	if (pkNetStream->iSize < iHeaderSize || pkNetStream->iSize <= 0)
+	if (pkNetStream->llSize < (long long)iHeaderSize || pkNetStream->llSize <= 0)
 	{
 		return false;
 	}
@@ -327,7 +327,7 @@ bool SeNetSreamCanRead(struct SENETSTREAM *pkNetStream, SEGETHEADERLENFUN pkGetH
 	{
 		return false;
 	}
-	if (pkNetStream->iSize < (iHeaderSize + iLen))
+	if (pkNetStream->llSize < (long long)(iHeaderSize + iLen))
 	{
 		return false;
 	}
@@ -363,7 +363,7 @@ bool SeNetSreamRead(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNetSt
 
 	if(iHeaderSize <= 0)
 	{
-		*riBufLen = pkNetStream->iSize >= *riBufLen ? *riBufLen : pkNetStream->iSize;
+		*riBufLen = pkNetStream->llSize >= (long long)*riBufLen ? *riBufLen : (int)pkNetStream->llSize;
 		if (!SeNetSreamReadLen(pkNetStream, pkNetStreamIdle, pcBuf, *riBufLen))
 		{
 			return false;
