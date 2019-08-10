@@ -558,12 +558,6 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		pkNetSocket->llTime = SeTimeGetTickCount();
 	}
 
-	if(SeGetNetSreamLen(&pkNetSocket->kRecvNetStream) >= SENETCORE_SOCKET_RS_BUF_LEN) 
-	{
-		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[RECV MORE BUF] RecvBuf Too More And Close It.socket=0x%llx.size>%d", pkNetSocket->kHSocket, SENETCORE_SOCKET_RS_BUF_LEN);
-		return false;
-	}
-
 	return true;
 }
 
@@ -643,12 +637,6 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 				return false;
 			}
 		}
-	}
-
-	if (SeGetNetSreamLen(&pkNetSocket->kSendNetStream) >= SENETCORE_SOCKET_RS_BUF_LEN)
-	{
-		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SEND MORE BUF] SendBuf Too More And Close It.socket=0x%llx.size>%d", pkNetSocket->kHSocket, SENETCORE_SOCKET_RS_BUF_LEN);
-		return false;
 	}
 
 	return true;
