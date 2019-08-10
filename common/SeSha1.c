@@ -158,7 +158,7 @@ void SeSHA1(const char* pcText, size_t sz, char* pcOut)
 		sprintf((char*)&pcOut[p], "%02x", digest[i]);
 		p += 2;
 	}
-	pcOut[SHA1_DIGEST_SIZE*2 - 1] = '\0';
+	pcOut[SHA1_DIGEST_SIZE*2] = '\0';
 }
 
 #define BLOCKSIZE 64
@@ -210,6 +210,6 @@ void SeMacSHA1(const char* pcKey, size_t key_sz, const char* pcText, size_t text
 		sprintf((char*)&pcOut[p], "%02x", digest1[i]);
 		p += 2;
 	}
-	pcOut[SHA1_DIGEST_SIZE*2 - 1] = '\0';
+	pcOut[SHA1_DIGEST_SIZE*2] = '\0';
 }
 
