@@ -9,7 +9,7 @@ bool TryConnect(struct SEMYSQL *pkMysql)
 		return false;
 	}
 	
-	ret = (mysql_real_connect(&pkMysql->kMysql,pkMysql->acHost, pkMysql->acUser, pkMysql->acPasswd, pkMysql->acDBName, pkMysql->uiPort, NULL,CLIENT_COMPRESS) ? true : false);
+	ret = (mysql_real_connect(&pkMysql->kMysql,pkMysql->acHost, pkMysql->acUser, pkMysql->acPasswd, pkMysql->acDBName, pkMysql->uiPort, NULL, 0) ? true : false);
 	return ret;
 }
 
