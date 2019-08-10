@@ -1,7 +1,4 @@
 #include "SeSha1.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
  
 typedef struct {
 	uint32_t state[5];
@@ -157,7 +154,7 @@ void SeSHA1(const char* pcText, size_t sz, char* pcOut)
 	sat_SHA1_Final(&ctx, digest);
 	
 	p = 0;
-	for(i=0; i<SHA1_DIGEST_SIZE; i++){
+	for(int i=0; i<SHA1_DIGEST_SIZE; i++){
 		sprintf((char*)&pcOut[p], "%02x", digest[i]);
 		p += 2;
 	}
@@ -209,7 +206,7 @@ void SeMacSHA1(const char* pcKey, size_t key_sz, const char* pcText, size_t text
 	sat_SHA1_Final(&ctx1, digest1);
 
 	p = 0;
-	for(i=0; i<SHA1_DIGEST_SIZE; i++){
+	for(int i=0; i<SHA1_DIGEST_SIZE; i++){
 		sprintf((char*)&pcOut[p], "%02x", digest1[i]);
 		p += 2;
 	}

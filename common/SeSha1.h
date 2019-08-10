@@ -1,6 +1,10 @@
 #ifndef __SE_SHA1_H__
 #define __SE_SHA1_H__
 
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
