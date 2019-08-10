@@ -11,7 +11,7 @@ class SeNetEngine;
 class IClient
 {
 public:
-	IClient() { m_bUsed = false; m_bOnConnect = false; m_ullUpdateTime = SeTimeGetTickCount(); }
+	IClient() { m_bUsed = false; m_bOnConnect = false; m_pkSeNetEngine = NULL;  m_ullUpdateTime = SeTimeGetTickCount(); }
 	virtual ~IClient() {}
 public:
 	virtual bool IsUsed() { return m_bUsed; }
@@ -24,6 +24,7 @@ public:
 private:
 	bool m_bUsed;
 	bool m_bOnConnect;
+	SeNetEngine *m_pkSeNetEngine;
 	unsigned long long m_ullUpdateTime;
 	friend class SeNetEngine;
 };
@@ -54,8 +55,8 @@ public:
 	virtual ~SeNetEngine();
 public:
 	virtual bool Init(const char *pcLogName, int iLogLV, unsigned short usMax);
-	virtual bool AddTCPListen(IServer* pkIServer, const char *pcIP, unsigned short usPort, int iTimeOut, bool bBigHeader);
-	virtual HSOCKET AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bBigHeader);
+	virtual bool AddTCPListen(IServer* pkIServer, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader);
+	virtual HSOCKET AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader);
 public:
 	virtual char *GetSendBuf(int &riLen);
 	virtual bool SendEngineData(HSOCKET kHSocket, const char* pcBuf, int iSize);
@@ -69,6 +70,7 @@ public:
 	virtual void SetUpdateDelayTime(unsigned int uiUpdateDelayTime);
 	virtual void SetLogContext(SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 public:
+	virtual void OnIdleUpdate() = 0;
 	virtual void OnUpdate() = 0;
 	virtual void OnPrintStat(int iSendNum, unsigned long long ullSendSpeed, int iRecvNum, unsigned long long ullRecvSpeed) = 0;
 private:
@@ -108,6 +110,8 @@ private:
 	MsgIDStat	m_kMsgIDStat;
 	unsigned int m_uiStatDelayTime;
 	unsigned long long m_ullStatTime;
+	unsigned int m_uiWaitTime;
+	friend class IClient;
 };
 
 #endif

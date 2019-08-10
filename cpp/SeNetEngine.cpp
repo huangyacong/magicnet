@@ -12,6 +12,7 @@ SeNetEngine::SeNetEngine()
 	m_ullStatTime = SeTimeGetTickCount();
 	m_uiUpdateDelayTime = 200;
 	m_uiStatDelayTime = 1000;
+	m_uiWaitTime = 0;
 	memset(&m_kMsgIDStat, 0, (int)sizeof(m_kMsgIDStat));
 }
 
@@ -46,7 +47,7 @@ bool SeNetEngine::Init(const char *pcLogName, int iLogLV, unsigned short usMax)
 	return true;
 }
 
-bool SeNetEngine::AddTCPListen(IServer* pkIServer, const char *pcIP, unsigned short usPort, int iTimeOut, bool bBigHeader)
+bool SeNetEngine::AddTCPListen(IServer* pkIServer, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader)
 {
 	if(!m_bInit) 
 	{ 
@@ -58,7 +59,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, const char *pcIP, unsigned sh
 		return false; 
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, pcIP, usPort, bBigHeader ? 4 : 2, iTimeOut, SeGetHeader, SeSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
 	if (kHSocket > 0) 
 	{ 
 		m_kListen[kHSocket] = pkIServer; 
@@ -69,7 +70,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, const char *pcIP, unsigned sh
 	return kHSocket > 0 ? true : false;
 }
 
-HSOCKET SeNetEngine::AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bBigHeader)
+HSOCKET SeNetEngine::AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader)
 {
 	if(!m_bInit) 
 	{ 
@@ -81,7 +82,7 @@ HSOCKET SeNetEngine::AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigne
 		return 0;
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, pcIP, usPort, bBigHeader ? 4 : 2, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
 	if(kHSocket <= 0) 
 	{ 
 		return 0; 
@@ -89,6 +90,7 @@ HSOCKET SeNetEngine::AddTCPConnect(IClient* pkIClient, const char *pcIP, unsigne
 
 	pkIClient->m_bUsed = true;
 	m_kClient[kHSocket] = pkIClient;
+	m_kClient[kHSocket]->m_pkSeNetEngine = this;
 	AddClientToList(pkIClient);
 	return kHSocket;
 }
@@ -100,6 +102,7 @@ void SeNetEngine::SetWaitTime(unsigned int uiWaitTime)
 		return; 
 	}
 
+	m_uiWaitTime = uiWaitTime;
 	SeNetCoreSetWaitTime(&m_kNetEngine, uiWaitTime);
 }
 
@@ -237,6 +240,9 @@ void SeNetEngine::StartEngine()
 {
 	while(m_bInit && !m_bStop) 
 	{ 
+		OnIdleUpdate();
+		Update(SeTimeGetTickCount());
+		Stat(SeTimeGetTickCount());
 		Run(); 
 	}
 }
@@ -254,17 +260,11 @@ void SeNetEngine::Run()
 	int rRSize;
 	HSOCKET rkHSocket;
 	HSOCKET rkListenHSocket;
-	unsigned long long ullNowTime;
 
-	ullNowTime = SeTimeGetTickCount();
-
-	if(!m_bInit) 
-	{ 
-		return; 
+	if (!m_bInit)
+	{
+		return;
 	}
-
-	Update(ullNowTime);
-	Stat(ullNowTime);
 
 	iLen = NET_ENGINE_MAX_LEN;
 	if(!SeNetCoreRead(&m_kNetEngine, &riEvent, &rkListenHSocket, &rkHSocket, m_pkRecvBuf, &iLen, &rSSize, &rRSize))  
@@ -274,7 +274,8 @@ void SeNetEngine::Run()
 
 	if (riEvent == SENETCORE_EVENT_SOCKET_IDLE) 
 	{ 
-		SeTimeSleep(1);
+		if (m_uiWaitTime <= 0)
+			SeTimeSleep(1);
 		return; 
 	}
 
@@ -291,6 +292,7 @@ void SeNetEngine::Run()
 			m_kClient.erase(itrClient);
 			pkIClient->m_bUsed = false;
 			pkIClient->m_bOnConnect = false;
+			pkIClient->m_pkSeNetEngine = NULL;
 			pkIClient->OnConnectFailed();
 		}
 		return;
@@ -337,6 +339,7 @@ void SeNetEngine::Run()
 			m_kClient.erase(itrClient);
 			pkIClient->m_bUsed = false;
 			pkIClient->m_bOnConnect = false;
+			pkIClient->m_pkSeNetEngine = NULL;
 			pkIClient->OnDisConnect();
 			return;
 		}
@@ -444,18 +447,18 @@ bool SeNetEngine::SeSetHeader(unsigned char* pcHeader, const int iheaderlen, con
 {
 	switch (iheaderlen)
 	{
-		case 2:// 小端
+		/*case 2:// 小端
 		{
 			pcHeader[0] = ilen & 0xFF;
 			pcHeader[1] = (ilen >> 8) & 0xFF;
 			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-		}
-		/*case 2:// 大端
+		}*/
+		case 2:// 大端
 		{
 			pcHeader[0] = (ilen >> 8) & 0xff;
 			pcHeader[1] = ilen & 0xff;
 			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-		}*/
+		}
 		case 4:// 小端
 		{
 			// 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。
@@ -478,16 +481,16 @@ bool SeNetEngine::SeGetHeader(const unsigned char* pcHeader, const int iheaderle
 {
 	switch (iheaderlen)
 	{
-		case 2:// 小端
+		/*case 2:// 小端
 		{
 			*ilen = (unsigned short)(pcHeader[1] << 8 | pcHeader[0]);
 			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
-		}
-		/*case 2:// 大端
+		}*/
+		case 2:// 大端
 		{
 			*ilen = (unsigned short)(pcHeader[0] << 8 | pcHeader[1]);
 			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
-		}*/
+		}
 		case 4:// 小端
 		{
 			// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
