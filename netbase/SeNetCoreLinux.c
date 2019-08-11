@@ -621,7 +621,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 			}
 			else
 			{
-				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SEND DATA] send buf leave some data,now send again.socket=0x%llx", pkNetSocket->kHSocket);
+				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SEND DATA] send buf leave some data,now send again.iLen=%d socket=0x%llx", iLen, pkNetSocket->kHSocket);
 				SeNetSreamHeadAdd(&pkNetSocket->kSendNetStream, pkNetStreamNode);
 			}
 		}
