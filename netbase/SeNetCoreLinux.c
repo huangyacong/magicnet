@@ -632,7 +632,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 		if(!SeNetSocketMgrHasEvent(pkNetSocket, READ_EVENT_SOCKET))
 		{
-			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket block epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
+			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket open EPOLLOUT epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
 			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent) != 0)
@@ -650,7 +650,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 		{
 			if(SeNetSocketMgrHasEvent(pkNetSocket, READ_EVENT_SOCKET))
 			{
-				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket noblock epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
+				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket close EPOLLOUT epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
 				kEvent.data.u64 = pkNetSocket->kHSocket;
 				kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
 				if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent) != 0)
