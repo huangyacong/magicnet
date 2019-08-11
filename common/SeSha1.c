@@ -145,7 +145,7 @@ void sat_SHA1_Final(SHA1_CTX* context, uint8_t digest[SHA1_DIGEST_SIZE])
 
 void SeSHA1(const char* pcText, size_t sz, char* pcOut)
 {
-	int p;
+	int p, i;
 	uint8_t digest[SHA1_DIGEST_SIZE];
 	SHA1_CTX ctx;
 
@@ -154,7 +154,7 @@ void SeSHA1(const char* pcText, size_t sz, char* pcOut)
 	sat_SHA1_Final(&ctx, digest);
 	
 	p = 0;
-	for(int i=0; i<SHA1_DIGEST_SIZE; i++){
+	for(i=0; i<SHA1_DIGEST_SIZE; i++){
 		sprintf((char*)&pcOut[p], "%02x", digest[i]);
 		p += 2;
 	}
@@ -173,7 +173,7 @@ void xor_key(uint8_t key[BLOCKSIZE], uint32_t xor)
 
 void SeMacSHA1(const char* pcKey, size_t key_sz, const char* pcText, size_t text_sz, char* pcOut) 
 {
-	int p;
+	int p, i;
 	const uint8_t * key = (const uint8_t *)pcKey;
 	const uint8_t * text = (const uint8_t *)pcText;
 	SHA1_CTX ctx1, ctx2;
@@ -206,7 +206,7 @@ void SeMacSHA1(const char* pcKey, size_t key_sz, const char* pcText, size_t text
 	sat_SHA1_Final(&ctx1, digest1);
 
 	p = 0;
-	for(int i=0; i<SHA1_DIGEST_SIZE; i++){
+	for(i=0; i<SHA1_DIGEST_SIZE; i++){
 		sprintf((char*)&pcOut[p], "%02x", digest1[i]);
 		p += 2;
 	}
