@@ -44,7 +44,7 @@ struct SENETCORE
 	struct SELOG			kLog;
 };
 
-#define NET_CORE_WAIT_TIME 0
+#define NET_CORE_WAIT_TIME 1
 
 void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV);
 
