@@ -12,6 +12,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "math.h"
 #include "SeTool.h"
 
 int tableCapability(int size)
@@ -58,7 +59,7 @@ void SeHashAdd(struct SEHASH *root, int id, struct SEHASHNODE *node)
 	
 	assert(id >= 0);
 	node->id = id;
-	hashid = id % root->max;
+	hashid = abs(id % root->max);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 	SeListTailAdd(pkMain, &node->main);
@@ -73,7 +74,7 @@ struct SEHASHNODE *SeHashGet(struct SEHASH *root, int id)
 	struct SEHASHNODE *pkHashNode;
 	
 	assert(id >= 0);
-	hashid = id % root->max;
+	hashid = abs(id % root->max);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 
@@ -119,7 +120,7 @@ struct SEHASHNODE *SeHashRemove(struct SEHASH *root, struct SEHASHNODE *node)
 	int hashid;
 	struct SELIST *pkMain;
 
-	hashid = node->id % root->max;
+	hashid = abs(node->id % root->max);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 
@@ -142,7 +143,7 @@ struct SEHASHNODE *SeHashPop(struct SEHASH *root)
 	}
 	pkHashNode = SE_CONTAINING_RECORD(pkNode, struct SEHASHNODE, list);
 
-	hashid = pkHashNode->id % root->max;
+	hashid = abs(pkHashNode->id % root->max);
 	assert(hashid >= 0 && hashid < root->max);
 	pkMain = &root->pkMain[hashid];
 	SeListRemove(pkMain, &pkHashNode->main);
