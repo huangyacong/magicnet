@@ -982,6 +982,11 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[READ DATA] Read Data Error. socket=0x%llx", pkNetSocket->kHSocket);
 			continue;
 		}
+
+		if(SeNetSreamCanRead(&pkNetSocket->kRecvNetStream, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen))
+		{
+			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
+		}
 		
 		pcBuf[*riLen] = '\0';
 		*rkHSocket = pkNetSocket->kHSocket;
@@ -989,11 +994,6 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		*rkListenHSocket = pkNetSocket->kBelongListenHSocket;
 		*rSSize = SeNetSreamCount(&pkNetSocket->kSendNetStream);
 		*rRSize = SeNetSreamCount(&pkNetSocket->kRecvNetStream);
-
-		if(SeNetSreamCanRead(&pkNetSocket->kRecvNetStream, pkNetSocket->pkGetHeaderLenFun, pkNetSocket->iHeaderLen))
-		{
-			SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, false);
-		}
 
 		return true;
 	}while(true);
