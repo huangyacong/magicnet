@@ -5,8 +5,6 @@
 #include <malloc.h>
 #include <stdarg.h>
 
-#define SEALIGNMENT 64
-
 bool SeCHStrStr(const char* pcDstChar, const char* pcSrcChar)
 {
 	int iLen = 0;

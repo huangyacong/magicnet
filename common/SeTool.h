@@ -29,6 +29,10 @@ extern "C" {
 
 #endif
 
+#define SEALIGNMENT 16
+
+#define SE_OFFSET(type, member) ((unsigned long)(&((type *)0)->member))
+
 bool SeCHStrStr(const char* pcDstChar, const char* pcSrcChar);
 
 void SeStrNcpy(char* pcDstChar, int iDstLen, const char* pcSrcChar);
