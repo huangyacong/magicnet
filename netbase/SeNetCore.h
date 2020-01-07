@@ -24,6 +24,7 @@ enum SENETCORE_EVENT_SOCKET
 	SENETCORE_EVENT_SOCKET_RECV_DATA = 4
 };
 
+#define NET_CORE_WAIT_TIME 1
 #define SENETCORE_SOCKET_BACKLOG 256
 #define SENETCORE_SOCKET_RECV_BUF_LEN 1024
 
@@ -43,8 +44,6 @@ struct SENETCORE
 	struct SESOCKETMGR		kSocketMgr;
 	struct SELOG			kLog;
 };
-
-#define NET_CORE_WAIT_TIME 1
 
 void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV);
 
