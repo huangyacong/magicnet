@@ -5,6 +5,42 @@
 bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
 bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
 
+HSOCKET SeGetTimerID()
+{
+	return SeGetHSocket(0, 0, 0);
+}
+
+bool SeTimerRoutine(struct SENETCORE *pkNetCore)
+{
+	uint64_t exp = 0;
+	return read(pkNetCore->kTimerHandle, &exp, sizeof(exp)) == sizeof(exp);
+}
+
+void SeCreateTimer(struct SENETCORE *pkNetCore, int iMillSec)
+{
+	struct epoll_event ev;
+	static struct itimerspec timeValue;
+
+	pkNetCore->kTimerHandle = timerfd_create(CLOCK_MONOTONIC, EFD_NONBLOCK | EFD_CLOEXEC);
+
+	timeValue.it_value.tv_sec = 1;
+	timeValue.it_value.tv_nsec = 0;
+
+	timeValue.it_interval.tv_sec = iMillSec / 1000;
+	timeValue.it_interval.tv_nsec = abs(timeValue.it_interval.tv_sec * 1000 - iMillSec) * 1000 * 1000;
+
+	timerfd_settime(pkNetCore->kTimerHandle, 0, &timeValue, NULL);
+
+	ev.events = EPOLLIN;
+	ev.data.u64 = SeGetTimerID();
+	epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, pkNetCore->kTimerHandle, &ev);
+}
+
+void SeDeleteTimer(struct SENETCORE *pkNetCore)
+{
+	SeCloseHandle(pkNetCore->kTimerHandle);
+}
+
 void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV)
 {
 	SeNetBaseInit();
@@ -12,13 +48,17 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned 
 	pkNetCore->iWaitTime = NET_CORE_WAIT_TIME;
 	pkNetCore->iFlag = 0;
 	pkNetCore->kHandle = epoll_create(usMax);
+	pkNetCore->kTimerHandle = SE_INVALID_HANDLE;
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeAddLogLV(&pkNetCore->kLog, iLogLV);
+	SeCreateTimer(pkNetCore, NET_CORE_TIMEER_MILL_SEC);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
 {
+	SeDeleteTimer(pkNetCore);
+	pkNetCore->kTimerHandle = SE_INVALID_HANDLE;
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeCloseHandle(pkNetCore->kHandle);
 	SeFinLog(&pkNetCore->kLog);
@@ -1004,6 +1044,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize)
 {
 	bool bWork;
+	bool bHasaTimer;
 	int i, iNum;
 	HSOCKET kHSocket;
 	bool bRead, bWrite, bError;
@@ -1015,6 +1056,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		return true;
 	}
 
+	bHasaTimer = false;
 	iNum = epoll_wait(pkNetCore->kHandle, pkNetCore->akEvents, sizeof(pkNetCore->akEvents)/sizeof(struct epoll_event), pkNetCore->iWaitTime);
 	bWork = iNum > 0 ? true : false;
 
@@ -1025,6 +1067,12 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		bWrite =pkEvent->events & EPOLLOUT;
 		kHSocket = (HSOCKET)pkEvent->data.u64;
 		bError = (pkEvent->events & EPOLLRDHUP) || (pkEvent->events &  EPOLLERR) || (pkEvent->events &  EPOLLHUP);
+
+		if(SeGetTimerID() == kHSocket)
+		{
+			bHasaTimer = SeTimerRoutine(pkNetCore);
+			continue;
+		}
 
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 		if(!pkNetSocket)
@@ -1071,6 +1119,12 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 				break;
 			}
 		}
+	}
+
+	if(bHasaTimer)
+	{
+		*riEvent = SENETCORE_EVENT_SOCKET_TIMER;
+		return true;
 	}
 
 	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize))

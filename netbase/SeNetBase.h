@@ -34,6 +34,7 @@ extern "C" {
 	#include <arpa/inet.h>
 	#include <sys/poll.h>
 	#include <sys/timerfd.h>
+	#include <sys/eventfd.h>
 
 	#define SOCKET					int
 	#define SOCK_LEN				socklen_t

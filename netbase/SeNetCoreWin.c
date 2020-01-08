@@ -143,6 +143,25 @@ void SeFreeListenSocket(struct SENETCORE *pkNetCore)
 	}
 }
 
+VOID CALLBACK SeTimerRoutine(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+{
+	HANDLE kHandle = *(HANDLE*)lpParameter;
+	PostQueuedCompletionStatus(kHandle, 0, 0, NULL);
+}
+
+void SeCreateTimer(struct SENETCORE *pkNetCore, int iMillSec)
+{
+	assert(pkNetCore->kTimerHandle == NULL);
+	assert(pkNetCore->kHandle != NULL);
+	CreateTimerQueueTimer(&pkNetCore->kTimerHandle, NULL, SeTimerRoutine, &pkNetCore->kHandle, 2000, iMillSec, WT_EXECUTEDEFAULT);
+}
+
+void SeDeleteTimer(struct SENETCORE *pkNetCore)
+{
+	assert(pkNetCore->kTimerHandle != NULL);
+	DeleteTimerQueueTimer(NULL, pkNetCore->kTimerHandle, SE_INVALID_HANDLE);
+}
+
 void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV)
 {
 	SeNetBaseInit();
@@ -151,13 +170,17 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned 
 	pkNetCore->iWaitTime = NET_CORE_WAIT_TIME;
 	pkNetCore->iFlag = 0;
 	pkNetCore->kHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+	pkNetCore->kTimerHandle = NULL;
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeAddLogLV(&pkNetCore->kLog, iLogLV);
+	SeCreateTimer(pkNetCore, NET_CORE_TIMEER_MILL_SEC);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)
 {
+	SeDeleteTimer(pkNetCore);
+	pkNetCore->kTimerHandle = NULL;
 	SeNetSocketMgrFin(&pkNetCore->kSocketMgr);
 	SeCloseHandle(pkNetCore->kHandle);
 	SeFinLog(&pkNetCore->kLog);
@@ -1258,6 +1281,11 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		}
 	
 		SeDelIOData(pkNetCore, pkIOData);
+	}
+	else if (bResult && !pkOverlapped)
+	{
+		*riEvent = SENETCORE_EVENT_SOCKET_TIMER;
+		return true;
 	}
 
 	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize))
