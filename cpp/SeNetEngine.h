@@ -76,7 +76,7 @@ private:
 	static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen);
 private:
 	virtual void Run();
-	virtual void Stat(unsigned long long ullNow);
+	virtual void RunStat();
 	virtual void Update(unsigned long long ullNow);
 private:
 	void AddClientToList(IClient *pkIClient);

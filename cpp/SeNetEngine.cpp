@@ -206,7 +206,7 @@ void SeNetEngine::Update(unsigned long long ullNow)
 	OnUpdate();
 }
 
-void SeNetEngine::Stat(unsigned long long ullNow)
+void SeNetEngine::RunStat()
 {
 	if (!m_bInit)
 	{ 
@@ -214,6 +214,7 @@ void SeNetEngine::Stat(unsigned long long ullNow)
 	}
 	
 	int iTime = 1;
+	unsigned long long ullNow = SeTimeGetTickCount();
 	if (m_ullStatTime + m_uiStatDelayTime > ullNow)
 	{ 
 		return; 
@@ -242,7 +243,6 @@ void SeNetEngine::StartEngine()
 		unsigned long long ullNow = SeTimeGetTickCount();
 		
 		Update(ullNow);
-		Stat(ullNow);
 		Run(); 
 	}
 }
@@ -277,6 +277,12 @@ void SeNetEngine::Run()
 		if (m_uiWaitTime <= 0)
 			SeTimeSleep(1);
 		return; 
+	}
+
+	if (riEvent == SENETCORE_EVENT_SOCKET_TIMER)
+	{
+		RunStat();
+		return;
 	}
 
 	// Á¬½ÓÊ§°Ü
