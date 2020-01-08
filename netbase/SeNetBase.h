@@ -33,6 +33,7 @@ extern "C" {
 	#include <sys/ioctl.h>
 	#include <arpa/inet.h>
 	#include <sys/poll.h>
+	#include <sys/timerfd.h>
 
 	#define SOCKET					int
 	#define SOCK_LEN				socklen_t
