@@ -69,7 +69,6 @@ public:
 	virtual void SetUpdateDelayTime(unsigned int uiUpdateDelayTime);
 	virtual void SetLogContext(SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 public:
-	virtual void OnIdleUpdate() = 0;
 	virtual void OnUpdate() = 0;
 	virtual void OnPrintStat(int iSendNum, unsigned long long ullSendSpeed, int iRecvNum, unsigned long long ullRecvSpeed) = 0;
 private:

@@ -241,7 +241,6 @@ void SeNetEngine::StartEngine()
 	{ 
 		unsigned long long ullNow = SeTimeGetTickCount();
 		
-		OnIdleUpdate();
 		Update(ullNow);
 		Stat(ullNow);
 		Run(); 
