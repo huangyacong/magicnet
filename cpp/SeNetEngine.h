@@ -11,7 +11,7 @@ class SeNetEngine;
 class IClient
 {
 public:
-	IClient() { m_bUsed = false; m_bOnConnect = false;  m_ullUpdateTime = SeTimeGetTickCount(); }
+	IClient() { m_bUsed = false; m_bOnConnect = false; }
 	virtual ~IClient() {}
 public:
 	virtual bool IsUsed() { return m_bUsed; }
@@ -24,7 +24,6 @@ public:
 private:
 	bool m_bUsed;
 	bool m_bOnConnect;
-	unsigned long long m_ullUpdateTime;
 	friend class SeNetEngine;
 };
 
@@ -32,7 +31,7 @@ class SeNetEngine;
 class IServer
 {
 public:
-	IServer() { m_bUsed = false; m_ullUpdateTime = SeTimeGetTickCount(); }
+	IServer() { m_bUsed = false; }
 	virtual ~IServer() {}
 public:
 	virtual bool IsUsed() { return m_bUsed; }
@@ -43,7 +42,6 @@ public:
 	virtual void OnUpdate() = 0;
 private:
 	bool m_bUsed;
-	unsigned long long m_ullUpdateTime;
 	friend class SeNetEngine;
 };
 
@@ -66,7 +64,6 @@ public:
 	virtual void StopEngine();
 	virtual void SetWaitTime(unsigned int uiWaitTime);
 	virtual void SetStatDelayTime(unsigned int uiStatDelayTime);
-	virtual void SetUpdateDelayTime(unsigned int uiUpdateDelayTime);
 	virtual void SetLogContext(SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 public:
 	virtual void OnUpdate() = 0;
@@ -77,20 +74,18 @@ private:
 private:
 	virtual void Run();
 	virtual void RunStat();
-	virtual void Update(unsigned long long ullNow);
+	virtual void RunUpdate();
 private:
 	void AddClientToList(IClient *pkIClient);
 	void DelClientToList(IClient *pkIClient);
 	void AddListenToList(IServer *pkIServer);
-	void DelListenToList(IServer *pkIServer);
 private:
 	char* m_pkRecvBuf;
 	char* m_pkSendBuf;
 private:
 	bool m_bStop;
 	bool m_bInit;
-	unsigned long long m_kullTime;
-	unsigned int m_uiUpdateDelayTime;
+	unsigned int m_uiWaitTime;
 private:
 	SENETCORE m_kNetEngine;
 	list<IClient*> m_kClientList;
@@ -108,7 +103,6 @@ private:
 	MsgIDStat	m_kMsgIDStat;
 	unsigned int m_uiStatDelayTime;
 	unsigned long long m_ullStatTime;
-	unsigned int m_uiWaitTime;
 	friend class IClient;
 };
 

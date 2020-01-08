@@ -8,9 +8,7 @@ SeNetEngine::SeNetEngine()
 	m_bInit = false;
 	m_pkRecvBuf = 0;
 	m_pkSendBuf = 0;
-	m_kullTime = SeTimeGetTickCount();
 	m_ullStatTime = SeTimeGetTickCount();
-	m_uiUpdateDelayTime = 200;
 	m_uiStatDelayTime = 1000;
 	m_uiWaitTime = 0;
 	memset(&m_kMsgIDStat, 0, (int)sizeof(m_kMsgIDStat));
@@ -115,16 +113,6 @@ void SeNetEngine::SetStatDelayTime(unsigned int uiStatDelayTime)
 	m_uiStatDelayTime = uiStatDelayTime;
 }
 
-void SeNetEngine::SetUpdateDelayTime(unsigned int uiUpdateDelayTime)
-{
-	if(!m_bInit)
-	{ 
-		return; 
-	}
-
-	m_uiUpdateDelayTime = uiUpdateDelayTime;
-}
-
 void SeNetEngine::SetLogContext(SELOGCONTEXT pkLogContextFunc, void *pkLogContect)
 {
 	SeNetCoreSetLogContextFunc(&m_kNetEngine, pkLogContextFunc, pkLogContect);
@@ -152,58 +140,24 @@ void SeNetEngine::AddListenToList(IServer *pkIServer)
 	m_kListenList.push_back(pkIServer);
 }
 
-void SeNetEngine::DelListenToList(IServer *pkIServer)
-{
-	for (list<IServer*>::iterator itr = m_kListenList.begin(); itr != m_kListenList.end(); itr++)
-	{
-		if ((*itr) == pkIServer)
-		{
-			m_kListenList.erase(itr);
-			break;
-		}
-	}
-}
-
-void SeNetEngine::Update(unsigned long long ullNow)
+void SeNetEngine::RunUpdate()
 {
 	if(!m_bInit) 
 	{ 
 		return; 
 	}
 
-	list<IClient*>::iterator itrClient = m_kClientList.begin();
-	if (itrClient != m_kClientList.end())
+	for (list<IClient*>::iterator itrClient = m_kClientList.begin(); itrClient != m_kClientList.end(); itrClient++)
 	{
 		IClient* pkIClient = (*itrClient);
-		if (pkIClient->m_bOnConnect && pkIClient->m_ullUpdateTime + m_uiUpdateDelayTime < ullNow)
-		{
-			pkIClient->m_ullUpdateTime = ullNow;
-			pkIClient->OnUpdate();
-		}
-		DelClientToList(pkIClient);
-		AddClientToList(pkIClient);
+		pkIClient->OnUpdate();
 	}
 
-	list<IServer*>::iterator itrListen = m_kListenList.begin();
-	if (itrListen != m_kListenList.end())
+	for (list<IServer*>::iterator itrListen = m_kListenList.begin(); itrListen != m_kListenList.end(); itrListen)
 	{
 		IServer* pkIServer = (*itrListen);
-		if (pkIServer->m_ullUpdateTime + m_uiUpdateDelayTime < ullNow)
-		{
-			pkIServer->m_ullUpdateTime = ullNow;
-			pkIServer->OnUpdate();
-		}
-		DelListenToList(pkIServer);
-		AddListenToList(pkIServer);
+		pkIServer->OnUpdate();
 	}
-
-	if (m_kullTime + m_uiUpdateDelayTime > ullNow)
-	{
-		return;
-	}
-	m_kullTime = ullNow;
-
-	OnUpdate();
 }
 
 void SeNetEngine::RunStat()
@@ -239,10 +193,7 @@ void SeNetEngine::RunStat()
 void SeNetEngine::StartEngine()
 {
 	while(m_bInit && !m_bStop) 
-	{ 
-		unsigned long long ullNow = SeTimeGetTickCount();
-		
-		Update(ullNow);
+	{
 		Run(); 
 	}
 }
@@ -282,6 +233,8 @@ void SeNetEngine::Run()
 	if (riEvent == SENETCORE_EVENT_SOCKET_TIMER)
 	{
 		RunStat();
+		RunUpdate();
+		OnUpdate();
 		return;
 	}
 
