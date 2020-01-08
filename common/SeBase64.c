@@ -75,6 +75,8 @@ unsigned int SeBase64Encode(const unsigned char *in, unsigned int inlen, char *o
 
 	s = 0;
 	l = 0;
+
+	i = j = 0;
 	for (i = j = 0; i < inlen; i++) {
 		c = in[i];
 
@@ -123,6 +125,7 @@ unsigned int SeBase64Decode(const char *in, unsigned int inlen, unsigned char *o
 		return 0;
 	}
 
+	i = j = 0;
 	for (i = j = 0; i < inlen; i++) {
 		if (in[i] == BASE64_PAD) {
 			break;
