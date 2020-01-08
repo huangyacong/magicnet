@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #define BASE64_ENCODE_OUT_SIZE(s) ((unsigned int)((((s) + 2) / 3) * 4 + 1))
-#define BASE64_DECODE_OUT_SIZE(s) ((unsigned int)(((s + 3) / 4) * 3))
+#define BASE64_DECODE_OUT_SIZE(s) ((unsigned int)((((s) + 3) / 4) * 3) + 1)
 
 /*
  * out is double in len
