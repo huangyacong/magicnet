@@ -1070,7 +1070,14 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 
 		if(SeGetTimerID() == kHSocket)
 		{
-			bHasaTimer = SeTimerRoutine(pkNetCore);
+			if(!SeTimerRoutine(pkNetCore))
+			{
+				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[EPOLL WAIT] socket timer read failed.");
+			}
+			else
+			{
+				bHasaTimer = true;
+			}
 			continue;
 		}
 
