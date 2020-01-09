@@ -27,7 +27,6 @@ enum SENETCORE_EVENT_SOCKET
 
 #define NET_CORE_WAIT_TIME -1
 #define SENETCORE_SOCKET_BACKLOG 256
-#define NET_CORE_TIMEER_MILL_SEC 1
 #define SENETCORE_SOCKET_RECV_BUF_LEN 1024
 
 struct SENETCORE
@@ -48,7 +47,7 @@ struct SENETCORE
 	struct SELOG			kLog;
 };
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV);
+void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iTimerCnt, int iLogLV);
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore);
 

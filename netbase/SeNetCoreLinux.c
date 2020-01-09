@@ -41,7 +41,7 @@ void SeDeleteTimer(struct SENETCORE *pkNetCore)
 	SeCloseHandle(pkNetCore->kTimerHandle);
 }
 
-void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iLogLV)
+void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned short usMax, int iTimerCnt, int iLogLV)
 {
 	SeNetBaseInit();
 	pkNetCore->iTag = 0;
@@ -52,7 +52,7 @@ void SeNetCoreInit(struct SENETCORE *pkNetCore, const char *pcLogName, unsigned 
 	SeNetSocketMgrInit(&pkNetCore->kSocketMgr, usMax);
 	SeInitLog(&pkNetCore->kLog, pcLogName);
 	SeAddLogLV(&pkNetCore->kLog, iLogLV);
-	SeCreateTimer(pkNetCore, NET_CORE_TIMEER_MILL_SEC);
+	SeCreateTimer(pkNetCore, iTimerCnt);
 }
 
 void SeNetCoreFin(struct SENETCORE *pkNetCore)

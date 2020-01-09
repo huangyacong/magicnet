@@ -31,7 +31,7 @@ SeNetEngine::~SeNetEngine()
 	m_kListenList.clear();
 }
 
-bool SeNetEngine::Init(const char *pcLogName, int iLogLV, unsigned short usMax)
+bool SeNetEngine::Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt)
 {
 	if(m_bInit) 
 	{ 
@@ -39,7 +39,7 @@ bool SeNetEngine::Init(const char *pcLogName, int iLogLV, unsigned short usMax)
 	}
 
 	m_bInit = true;
-	SeNetCoreInit(&m_kNetEngine, pcLogName, usMax, iLogLV);
+	SeNetCoreInit(&m_kNetEngine, pcLogName, usMax, iTimerCnt, iLogLV);
 	m_pkRecvBuf = (char*)SeMallocMem(NET_ENGINE_MAX_LEN);
 	m_pkSendBuf = (char*)SeMallocMem(NET_ENGINE_MAX_LEN);
 	return true;
