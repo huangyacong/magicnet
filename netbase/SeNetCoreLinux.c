@@ -1051,6 +1051,9 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	struct epoll_event *pkEvent;
 	struct SESOCKET *pkNetSocket;
 
+	*rkListenHSocket = 0;
+	*rkHSocket = 0;
+
 	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize))
 	{
 		return true;

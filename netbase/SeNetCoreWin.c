@@ -1220,6 +1220,9 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	bWork = false;
 	pkOverlapped = NULL;
 
+	*rkListenHSocket = 0;
+	*rkHSocket = 0;
+
 	SeSetAcceptSocket(pkNetCore);
 
 	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize))
