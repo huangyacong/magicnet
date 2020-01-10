@@ -145,7 +145,12 @@ void SeFreeListenSocket(struct SENETCORE *pkNetCore)
 
 VOID CALLBACK SeTimerRoutine(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
 {
-	HANDLE kHandle = *(HANDLE*)lpParameter;
+	static HANDLE kHandle = NULL;// one thread call it
+	if (kHandle == NULL)
+	{
+		kHandle = *(HANDLE*)lpParameter;
+	}
+	 
 	PostQueuedCompletionStatus(kHandle, 0, 0, NULL);
 }
 
