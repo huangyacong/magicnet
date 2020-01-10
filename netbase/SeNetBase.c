@@ -3,6 +3,7 @@
 
 HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, SOCKET kSocket)
 {
+	usCounter = usCounter % 32767;// must be 0 ~~ 32767, lua int limit
 	return (HSOCKET)(((HSOCKET)((unsigned int)usCounter<<16|(unsigned int)usIndex))<<32|((HSOCKET)kSocket));
 }
 
