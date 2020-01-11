@@ -76,8 +76,6 @@ HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, SOCKET kS
 
 unsigned short SeGetIndexByHScoket(HSOCKET kHSocket);
 
-SOCKET SeGetSocketByHScoket(HSOCKET kHSocket);
-
 void SeCloseHandle(HANDLE kHandle);
 
 SOCKET SeSocket(int iType /*= SOCK_STREAM*/);

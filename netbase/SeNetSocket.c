@@ -12,6 +12,7 @@
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
 	pkNetSocket->iNoDelay = 0;
+	pkNetSocket->kSocketFd.kSocket = 0;
 	pkNetSocket->kHSocket = SeGetHSocket(0, 0, 0);
 	pkNetSocket->kBelongListenHSocket = SeGetHSocket(0, 0, 0);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
@@ -63,21 +64,7 @@ void SeNetSocketMgrInit(struct SESOCKETMGR *pkNetSocketMgr, unsigned short usMax
 
 void SeNetSocketMgrEnd(struct SESOCKETMGR *pkNetSocketMgr, struct SESOCKET *pkNetSocket)
 {
-	SOCKET socket;
 	struct SENETSTREAMNODE *pkNetStreamNode;
-
-	if (pkNetSocket->iTypeSocket == LISTEN_TCP_TYPE_SOCKET)
-	{
-		socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
-		SeShutDown(socket);
-		SeCloseSocket(socket);
-	}
-	else if(pkNetSocket->usStatus == SOCKET_STATUS_ACTIVECONNECT || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING || pkNetSocket->usStatus == SOCKET_STATUS_CONNECTED)
-	{
-		socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
-		SeShutDown(socket);
-		SeCloseSocket(socket);
-	}
 
 	pkNetStreamNode = SeNetSreamHeadPop(&pkNetSocket->kSendNetStream);
 	while(pkNetStreamNode)
@@ -142,6 +129,7 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 	usIndex = pkNetSocket->usIndex;
 
 	SeNetSocketReset(pkNetSocket);
+	pkNetSocket->kSocketFd.kSocket = socket;
 	pkNetSocket->kHSocket = SeGetHSocket((unsigned short)iCounter, usIndex, socket);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = iHeaderLen;

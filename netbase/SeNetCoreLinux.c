@@ -477,7 +477,7 @@ void SeNetCoreDisconnect(struct SENETCORE *pkNetCore, HSOCKET kHSocket)
 	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "SeNetCoreDisconnect. OrgStatus=%d Atatus=%d SendCount=%d RecvCount=%d socket=0x%llx port=%d", \
 		usOrgStatus, pkNetSocket->usStatus, SeNetSreamCount(&pkNetSocket->kSendNetStream), SeNetSreamCount(&pkNetSocket->kRecvNetStream), kHSocket, pkNetSocket->iIPPort);
 
-	socket = SeGetSocketByHScoket(kHSocket);
+	socket = pkNetSocket->kSocketFd.kSocket;
 	epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_DEL, socket, &kEvent);
 	SeShutDown(socket);
 	SeCloseSocket(socket);
@@ -543,7 +543,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 			return false;
 		}
 		
-		iLen = SeRecv(SeGetSocketByHScoket(pkNetSocket->kHSocket), pkNetStreamNode->pkBuf + pkNetStreamNode->usWritePos, pkNetStreamNode->usMaxLen - pkNetStreamNode->usWritePos, 0);
+		iLen = SeRecv(pkNetSocket->kSocketFd.kSocket, pkNetStreamNode->pkBuf + pkNetStreamNode->usWritePos, pkNetStreamNode->usMaxLen - pkNetStreamNode->usWritePos, 0);
 
 		if(iLen == 0)
 		{
@@ -623,7 +623,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 			break;
 		}
 
-		iLen = SeSend(SeGetSocketByHScoket(pkNetSocket->kHSocket), pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos, MSG_NOSIGNAL);
+		iLen = SeSend(pkNetSocket->kSocketFd.kSocket, pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos, MSG_NOSIGNAL);
 		if(iLen == 0)
 		{
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket is close by client.socket=0x%llx", pkNetSocket->kHSocket);
@@ -675,7 +675,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket open EPOLLOUT epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
 			kEvent.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent) != 0)
+			if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, pkNetSocket->kSocketFd.kSocket, &kEvent) != 0)
 			{
 				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "SeNetCoreSendBuf epoll_ctl failed.socket=0x%llx", pkNetSocket->kHSocket);
 				return false;
@@ -693,7 +693,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket close EPOLLOUT epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
 				kEvent.data.u64 = pkNetSocket->kHSocket;
 				kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-				if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent) != 0)
+				if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_MOD, pkNetSocket->kSocketFd.kSocket, &kEvent) != 0)
 				{
 					SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "SeNetCoreSendBuf epoll_ctl failed.socket=0x%llx", pkNetSocket->kHSocket);
 					return false;
@@ -724,7 +724,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	
 	while(true)
 	{
-		kSocket = SeAccept(SeGetSocketByHScoket(pkNetSocketListen->kHSocket), &ksockaddr);
+		kSocket = SeAccept(pkNetSocketListen->kSocketFd.kSocket, &ksockaddr);
 		if(kSocket == SE_INVALID_SOCKET)
 		{
 			iErrorno = SeErrno();
@@ -850,7 +850,7 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	SOCKET socket;
 	struct epoll_event kEvent;
 
-	socket = SeGetSocketByHScoket(pkNetSocket->kHSocket);
+	socket = pkNetSocket->kSocketFd.kSocket;
 
 	if(pkNetSocket->usStatus == SOCKET_STATUS_CONNECTING)
 	{
@@ -949,7 +949,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 				pcBuf[*riLen] = '\0';
 				kEvent.data.u64 = pkNetSocket->kHSocket;
 				kEvent.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLHUP | EPOLLET;
-				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, SeGetSocketByHScoket(pkNetSocket->kHSocket), &kEvent);
+				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, pkNetSocket->kSocketFd.kSocket, &kEvent);
 				pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 				pkNetSocket->llTime = SeTimeGetTickCount();
 				SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);

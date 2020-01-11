@@ -14,11 +14,6 @@ unsigned short SeGetIndexByHScoket(HSOCKET kHSocket)
 	return (unsigned short)(((kHSocket>>32)<<16|0)>>16);
 }
 
-SOCKET SeGetSocketByHScoket(HSOCKET kHSocket)
-{
-	return ((SOCKET)((kHSocket<<32|0)>>32));
-}
-
 void SeCloseHandle(HANDLE kHandle)
 {
 #ifdef __linux

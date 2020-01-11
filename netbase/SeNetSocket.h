@@ -36,6 +36,12 @@ enum EVENT_SOCKET
 	WRITE_EVENT_SOCKET = (1<<2)
 };
 
+union SOCKET_FD
+{
+	SOCKET					kSocket;
+	unsigned long long		llTag;
+};
+
 struct SESOCKET
 {
 	// 64
@@ -48,8 +54,9 @@ struct SESOCKET
 
 	// 64
 	struct SEHASHNODE		kRecvNode;
-	char					acTagC[20];
+	char					acTagC[12];
 	int						iNoDelay;
+	union SOCKET_FD			kSocketFd;
 
 	// 64
 	HSOCKET					kHSocket;
