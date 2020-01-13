@@ -19,7 +19,7 @@ long long SeTimer::GetTimeOutId(unsigned long long llNowTime)
 	}
 
 	std::map<unsigned long long, std::list<long long> >::iterator itr = m_kTimerMgr.begin();
-	if (itr->first < llNowTime)
+	if (itr->first > llNowTime)
 	{
 		return 0;
 	}
@@ -40,7 +40,7 @@ long long SeTimer::SetTimer(int iDelayTtimeMillSec)
 	m_llIdCount++;
 	m_llIdCount = m_llIdCount == 0 ? (m_llIdCount + 1) : m_llIdCount;
 	
-	unsigned long long ullTime = SeTimeGetTickCount() + iDelayTtimeMillSec*1000;
+	unsigned long long ullTime = SeTimeGetTickCount() + iDelayTtimeMillSec;
 	if (m_kTimerMgr.find(ullTime) == m_kTimerMgr.end())
 	{
 		m_kTimerMgr[ullTime] = std::list<long long>();
