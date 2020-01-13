@@ -153,7 +153,7 @@ void SeNetEngine::RunUpdate()
 		pkIClient->OnUpdate();
 	}
 
-	for (list<IServer*>::iterator itrListen = m_kListenList.begin(); itrListen != m_kListenList.end(); itrListen)
+	for (list<IServer*>::iterator itrListen = m_kListenList.begin(); itrListen != m_kListenList.end(); itrListen++)
 	{
 		IServer* pkIServer = (*itrListen);
 		pkIServer->OnUpdate();
