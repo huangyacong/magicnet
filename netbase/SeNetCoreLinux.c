@@ -1051,8 +1051,8 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	struct epoll_event *pkEvent;
 	struct SESOCKET *pkNetSocket;
 
-	*rkListenHSocket = 0;
 	*rkHSocket = 0;
+	*rkListenHSocket = 0;
 
 	if(SeNetCoreProcess(pkNetCore, riEvent, rkListenHSocket, rkHSocket, pcBuf, riLen, rSSize, rRSize))
 	{
@@ -1133,6 +1133,8 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 
 	if(bHasaTimer)
 	{
+		*rkHSocket = 0;
+		*rkListenHSocket = 0;
 		*riEvent = SENETCORE_EVENT_SOCKET_TIMER;
 		return true;
 	}
@@ -1148,6 +1150,8 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		bWork = true;
 	}
 	
+	*rkHSocket = 0;
+	*rkListenHSocket = 0;
 	*riEvent = SENETCORE_EVENT_SOCKET_IDLE;
 	return !bWork;
 }
