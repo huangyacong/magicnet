@@ -6,6 +6,8 @@
 #include <time.h>
 #include <string.h>
 
+#define SELOG_MAX_FILE_LEN 1024 * 1024 * 10
+
 bool IsDiffDay(const struct SeTime *pkDate, const struct SeTime *pkTMTime)
 {
 	return (pkTMTime->iYear != pkDate->iYear || pkTMTime->iMon != pkDate->iMon || pkTMTime->iDay != pkDate->iDay) ? true : false;
@@ -35,7 +37,7 @@ void SeInitLog(struct SELOG *pkLog, const char *pkFileName)
 	pkLog->ttDate = SeGetTime(my_time);
 	SeStrNcpy(pkLog->acfname, sizeof(pkLog->acfname), pkFileName);
 	pkLog->pFile = newFile(pkLog->acfname, &pkLog->ttDate);
-	memset(pkLog->actext, 0, sizeof(pkLog->actext));
+	pkLog->pctext = (char*)SeMallocMem(SELOG_MAX_FILE_LEN);
 }
 
 void SeLogSetLogContextFunc(struct SELOG *pkLog, SELOGCONTEXT pkLogContextFunc, void *pkLogContect)
@@ -55,6 +57,11 @@ void SeFinLog(struct SELOG *pkLog)
 		pkLog->pkLogContect = 0;
 		pkLog->pkLogContextFunc = 0;
 	}
+	if (pkLog->pctext)
+	{
+		SeFreeMem(pkLog->pctext);
+	}
+	pkLog->pctext = 0;
 }
 
 void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *argv, ...)
@@ -73,10 +80,10 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		return;
 	}
 
-	maxlen = (int)sizeof(pkLog->actext);
+	maxlen = (int)SELOG_MAX_FILE_LEN - 1;
 
 	va_start(argptr, argv);
-	writelen = vsnprintf(pkLog->actext, maxlen - 3, argv, argptr);
+	writelen = vsnprintf(pkLog->pctext, maxlen - 3, argv, argptr);
 	va_end(argptr);
 
 	if (writelen <= 0 || writelen > (maxlen - 3))
@@ -84,9 +91,9 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		return;
 	}
 
-	pkLog->actext[writelen + 0] = '\0';
-	pkLog->actext[writelen + 1] = '\0';
-	pkLog->actext[writelen + 2] = '\0';
+	pkLog->pctext[writelen + 0] = '\0';
+	pkLog->pctext[writelen + 1] = '\0';
+	pkLog->pctext[writelen + 2] = '\0';
 
 	switch (iLogLv)
 	{
@@ -143,13 +150,13 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	if (pkLog->pkLogContextFunc && pkLog->iLockContextFunc == 0)
 	{
 		pkLog->iLockContextFunc = 1;
-		pkLog->pkLogContextFunc(pkLog->pkLogContect, acHeadr, pkLog->actext, iLogLv, &bPrint, &bWrite);
+		pkLog->pkLogContextFunc(pkLog->pkLogContect, acHeadr, pkLog->pctext, iLogLv, &bPrint, &bWrite);
 		pkLog->iLockContextFunc = 0;
 	}
 
 	if (bPrint)
 	{
-		SePrintf(iLogLv, acHeadr, pkLog->actext);
+		SePrintf(iLogLv, acHeadr, pkLog->pctext);
 	}
 
 	if (SeHasLogLV(pkLog, LT_SPLIT))
@@ -178,16 +185,16 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	}
 
 #if defined(__linux)
-	pkLog->actext[writelen + 0] = '\n';
-	pkLog->actext[writelen + 1] = '\0';
-	pkLog->actext[writelen + 2] = '\0';
+	pkLog->pctext[writelen + 0] = '\n';
+	pkLog->pctext[writelen + 1] = '\0';
+	pkLog->pctext[writelen + 2] = '\0';
 #elif (defined(_WIN32) || defined(WIN32))
-	pkLog->actext[writelen + 0] = '\r';
-	pkLog->actext[writelen + 1] = '\n';
-	pkLog->actext[writelen + 2] = '\0';
+	pkLog->pctext[writelen + 0] = '\r';
+	pkLog->pctext[writelen + 1] = '\n';
+	pkLog->pctext[writelen + 2] = '\0';
 #endif
 
-	fwrite(pkLog->actext, 1, strlen(pkLog->actext), pkLog->pFile);
+	fwrite(pkLog->pctext, 1, strlen(pkLog->pctext), pkLog->pFile);
 
 	if (bFlushToDisk)
 	{

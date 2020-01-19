@@ -35,7 +35,7 @@ struct SELOG
 	struct SeTime	ttDate;
 
 	char			acfname[128];
-	char			actext[1024*10];
+	char			*pctext;
 };
 
 void SeInitLog(struct SELOG *pkLog, const char *pkFileName);
