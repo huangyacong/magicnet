@@ -80,7 +80,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		return;
 	}
 
-	maxlen = (int)SELOG_MAX_FILE_LEN - 1;
+	maxlen = SELOG_MAX_FILE_LEN - 1;
 
 	va_start(argptr, argv);
 	writelen = vsnprintf(pkLog->pctext, maxlen - 3, argv, argptr);
@@ -194,7 +194,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	pkLog->pctext[writelen + 2] = '\0';
 #endif
 
-	fwrite(pkLog->pctext, 1, strlen(pkLog->pctext), pkLog->pFile);
+	fwrite(pkLog->pctext, 1, writelen + 2, pkLog->pFile);
 
 	if (bFlushToDisk)
 	{
