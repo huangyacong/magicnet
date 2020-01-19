@@ -228,7 +228,7 @@ bool SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, HSOCKET kListenHSocket, SOCK
 		return false;
 	}
 	
-	socket = SeSocket(SOCK_STREAM);
+	socket = SeSocket(AF_INET, SOCK_STREAM);
 	if(socket == SE_INVALID_SOCKET)
 	{
 		iErrorno = SeErrno();
@@ -299,6 +299,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const c
 	int backlog;
 	int iErrorno;
 	SOCKET socket;
+	SOCK_LEN iLen;
 	HSOCKET kHSocket;
 	struct sockaddr kAddr;
 	struct linger so_linger;
@@ -306,7 +307,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const c
 	struct SESOCKET *pkNetSocket;
 	
 	SeSetSockAddr(&kAddr, pcIP, usPort);
-	socket = SeSocket(SOCK_STREAM);
+	socket = SeSocket(AF_INET, SOCK_STREAM);
 	if(socket == SE_INVALID_SOCKET)
 	{
 		iErrorno = SeErrno();
@@ -361,7 +362,8 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const c
 			return 0;
 		}
 	}
-	if(SeBind(socket, &kAddr) != 0)
+	iLen = sizeof(struct sockaddr);
+	if (SeBind(socket, &kAddr, iLen) != 0)
 	{
 		iErrorno = SeErrno();
 		SeShutDown(socket);
@@ -407,6 +409,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 {
 	int iErrorno;
 	SOCKET socket;
+	SOCK_LEN iLen;
 	HSOCKET kHSocket;
 	DWORD dwSend,dwBytes;
 	struct sockaddr kAddr;
@@ -417,7 +420,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	struct SESOCKET *pkNetSocket;
 	
 	SeSetSockAddr(&kAddr, pcIP, usPort);
-	socket = SeSocket(SOCK_STREAM);
+	socket = SeSocket(AF_INET, SOCK_STREAM);
 	if(socket == SE_INVALID_SOCKET)
 	{
 		iErrorno = SeErrno();
@@ -487,8 +490,9 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 
+	iLen = sizeof(struct sockaddr);
 	SeSetSockAddr(&local, "0.0.0.0", 0);
-	if (SE_SOCKET_ERROR == SeBind(socket, &local))
+	if (SE_SOCKET_ERROR == SeBind(socket, &local, iLen))
 	{
 		iErrorno = SeErrno();
 		SeShutDown(socket);

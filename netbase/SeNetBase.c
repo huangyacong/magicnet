@@ -23,15 +23,14 @@ void SeCloseHandle(HANDLE kHandle)
 #endif
 }
 
-SOCKET SeSocket(int iType)
+SOCKET SeSocket(int domain, int iType)
 {
-	return socket(AF_INET, iType, (iType == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP));
+	return socket(domain, iType, (iType == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP));
 }
 
-SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr)
+SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr, SOCK_LEN *riLen)
 {
-	SOCK_LEN kLen = sizeof(struct sockaddr);
-	return accept(kSocket, pkAddr, &kLen);
+	return accept(kSocket, pkAddr, riLen);
 }
 
 int SeCloseSocket(SOCKET kSocket)
@@ -44,9 +43,8 @@ int SeCloseSocket(SOCKET kSocket)
 	return iRet;
 }
 
-int SeConnect(SOCKET kSocket, const struct sockaddr *pkAddr)
+int SeConnect(SOCKET kSocket, const struct sockaddr *pkAddr, SOCK_LEN kLen)
 {
-	SOCK_LEN kLen = sizeof(struct sockaddr);
 	return connect(kSocket, pkAddr, kLen);
 }
 
@@ -60,10 +58,9 @@ int SeShutDown(SOCKET kSocket)
 	return shutdown(kSocket, iHow);
 }
 
-int SeBind(SOCKET kSocket, const struct sockaddr *pkAddr)
+int SeBind(SOCKET kSocket, const struct sockaddr *pkAddr, SOCK_LEN iLen)
 {
-	SOCK_LEN kLen = sizeof(struct sockaddr);
-	return bind(kSocket, pkAddr, kLen);
+	return bind(kSocket, pkAddr, iLen);
 }
 
 int SeListen(SOCKET kSocket, int iCount)

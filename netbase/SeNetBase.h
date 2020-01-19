@@ -35,6 +35,7 @@ extern "C" {
 	#include <sys/poll.h>
 	#include <sys/timerfd.h>
 	#include <sys/eventfd.h>
+	#include <sys/un.h>
 
 	#define SOCKET					int
 	#define SOCK_LEN				socklen_t
@@ -78,17 +79,17 @@ unsigned short SeGetIndexByHScoket(HSOCKET kHSocket);
 
 void SeCloseHandle(HANDLE kHandle);
 
-SOCKET SeSocket(int iType /*= SOCK_STREAM*/);
+SOCKET SeSocket(int domain /*=AF_INET,AF_UNIX*/, int iType /*= SOCK_STREAM*/);
 
-SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr);
+SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr, SOCK_LEN *riLen);
 
 int SeCloseSocket(SOCKET kSocket);
 
-int SeConnect(SOCKET kSocket, const struct sockaddr *pkAddr);
+int SeConnect(SOCKET kSocket, const struct sockaddr *pkAddr, SOCK_LEN kLen);
 
 int SeShutDown(SOCKET kSocket);
 
-int SeBind(SOCKET kSocket, const struct sockaddr *pkAddr);
+int SeBind(SOCKET kSocket, const struct sockaddr *pkAddr, SOCK_LEN iLen);
 
 int SeListen(SOCKET kSocket, int iCount);
 
