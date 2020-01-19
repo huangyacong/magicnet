@@ -32,21 +32,55 @@ long long SeTimer::GetTimeOutId(unsigned long long llNowTime)
 		m_kTimerMgr.erase(itr);
 	}
 
+	m_kTimerIdList.erase(llTimerId);
 	return llTimerId;
 }
 
 long long SeTimer::SetTimer(int iDelayTtimeMillSec)
 {
 	m_llIdCount++;
-	m_llIdCount = m_llIdCount == 0 ? (m_llIdCount + 1) : m_llIdCount;
+	long long llTimerId = m_llIdCount == 0 ? (m_llIdCount + 1) : m_llIdCount;
 	
 	unsigned long long ullTime = SeTimeGetTickCount() + iDelayTtimeMillSec;
 	if (m_kTimerMgr.find(ullTime) == m_kTimerMgr.end())
 	{
 		m_kTimerMgr[ullTime] = std::list<long long>();
 	}
-	m_kTimerMgr[ullTime].push_back(m_llIdCount);
-	return m_llIdCount;
+	m_kTimerIdList[llTimerId] = ullTime;
+	m_kTimerMgr[ullTime].push_back(llTimerId);
+	return llTimerId;
 }
+
+void SeTimer::DelTimer(long long llTimerId)
+{
+	if (m_kTimerIdList.find(llTimerId) == m_kTimerIdList.end())
+	{
+		return;
+	}
+
+	unsigned long long ullTime = m_kTimerIdList[llTimerId];
+	m_kTimerIdList.erase(llTimerId);
+
+	std::map<unsigned long long, std::list<long long> >::iterator itr = m_kTimerMgr.find(ullTime);
+	if (itr == m_kTimerMgr.end())
+	{
+		return;
+	}
+
+	for (std::list<long long>::iterator itrID = itr->second.begin(); itrID != itr->second.end(); itrID++)
+	{
+		if (*itrID == llTimerId)
+		{
+			itr->second.erase(itrID);
+			break;
+		}
+	}
+
+	if (itr->second.empty())
+	{
+		m_kTimerMgr.erase(itr);
+	}
+}
+
 
 

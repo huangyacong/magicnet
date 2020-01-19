@@ -36,7 +36,7 @@ void SeClient::Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iT
 
 	m_bInit = true;
 	m_kHSocket = 0;
-	SeStrNcpy(m_acSvrIP, (int)sizeof(m_acSvrIP), IP);
+	m_acSvrIP = string(IP);
 	m_iSvrPort = Port;
 	m_ullTime = ullNowTime;
 	m_ullReConnectTime = ullNowTime;
@@ -67,7 +67,7 @@ void SeClient::Connect()
 	}
 
 	m_ullReConnectTime = ullNowTime;
-	m_kHSocket = m_pkSeNetEngine->AddTCPClient(this, m_acSvrIP, m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bNoDelay, m_bBigHeader);
+	m_kHSocket = m_pkSeNetEngine->AddTCPClient(this, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bNoDelay, m_bBigHeader);
 
 	if(m_kHSocket == 0) 
 	{ 

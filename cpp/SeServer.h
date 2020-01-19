@@ -35,7 +35,7 @@ private:
 	bool m_bBigHeader;
 	int m_iSvrPort;
 	int m_iTimeOut;
-	char m_acSvrIP[16];
+	string m_acSvrIP;
 protected:
 	SeNetEngine* m_pkSeNetEngine;
 };

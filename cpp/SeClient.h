@@ -50,7 +50,7 @@ private:
 	int m_iReConnectNum;
 	unsigned long long m_ullReConnectTime;
 private:
-	char m_acSvrIP[16];
+	string m_acSvrIP;
 protected:
 	SeNetEngine* m_pkSeNetEngine;
 };

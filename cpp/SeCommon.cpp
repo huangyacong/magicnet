@@ -47,7 +47,7 @@ string SeUnsignedLongLongToA(unsigned long long ullLongLong)
 
 string SeTimeToString(time_t kTime)
 {
-	char acNowStr[20] = { 0 };
+	char acNowStr[256] = { 0 };
 	SeTimeFormatTime(kTime, acNowStr, (int)(sizeof(acNowStr) / sizeof(char)));
 	return string(acNowStr);
 }

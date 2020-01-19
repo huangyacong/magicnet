@@ -33,7 +33,7 @@ void SeServer::Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iT
 
 	m_bInit = true;
 	m_iSvrPort = Port;
-	SeStrNcpy(m_acSvrIP, (int)sizeof(m_acSvrIP), IP);
+	m_acSvrIP = string(IP);
 	m_pkSeNetEngine = pkSeNetEngine;
 	m_iTimeOut = iTimeOut;
 	m_bBigHeader = bBigHeader;
@@ -46,7 +46,7 @@ bool SeServer::Listen()
 		return false;
 	}
 
-	return m_pkSeNetEngine->AddTCPListen(this, m_bReusePort, m_acSvrIP, m_iSvrPort, m_iTimeOut, m_bNoDelay, m_bBigHeader);
+	return m_pkSeNetEngine->AddTCPListen(this, m_bReusePort, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_bNoDelay, m_bBigHeader);
 }
 
 void SeServer::DisConnect(HSOCKET kHSocket)
