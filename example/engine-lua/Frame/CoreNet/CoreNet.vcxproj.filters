@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{37b8e66d-81a9-4ee5-9f52-e2cf03711cfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\CoreSrc">
+      <UniqueIdentifier>{c03ce8ca-8efd-412a-8720-f83a88539c13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\NetEngine">
+      <UniqueIdentifier>{12c58a8f-3995-4cba-8d98-6ca123321ac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\CoreSrc\common">
+      <UniqueIdentifier>{3fa6b11b-adb9-4125-a742-3525b5cf9f59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\CoreSrc\mysql">
+      <UniqueIdentifier>{0e1a081e-25a5-42a4-a892-6068dd839e72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\CoreSrc\netbase">
+      <UniqueIdentifier>{abb38383-1075-45f5-b5c5-e335f95d87f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ccmodule">
+      <UniqueIdentifier>{04fd61e1-9137-44a1-8a88-7ba46d79cdbc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\NetEngine\SeClient.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeCrashDump.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeFastSql.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeLock.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeLogEngine.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeNetEngine.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeServer.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeSql.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeCrc32.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeCrypt.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeHash.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeList.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeLog.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeMD5.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeMutex.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeSMem.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeThread.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeTime.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeTool.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\mysql\SeMysql.c">
+      <Filter>src\CoreSrc\mysql</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetBase.c">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetCoreLinux.c">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetCoreWin.c">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetSocket.c">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetStream.c">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeBase64.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeSha1.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeCommon.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeTimer.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="ccmoduleLua.cpp">
+      <Filter>ccmodule</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\NetEngine\SeClient.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeCrashDump.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeFastSql.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeLock.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeLogEngine.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeNetEngine.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeServer.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeSql.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeCrc32.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeCrypt.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeHash.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeList.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeLog.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeMD5.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeMutex.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeSMem.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeThread.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeTime.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeTool.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\mysql\SeMysql.h">
+      <Filter>src\CoreSrc\mysql</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetBase.h">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetCore.h">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetSocket.h">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetStream.h">
+      <Filter>src\CoreSrc\netbase</Filter>
+    </ClInclude>
+    <ClInclude Include="ccmoduleLua.h">
+      <Filter>ccmodule</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeBase64.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeSha1.h">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeCommon.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeTimer.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
