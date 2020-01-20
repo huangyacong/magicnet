@@ -75,9 +75,10 @@ void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, unsigned int uiWaitTime)
 	pkNetCore->iWaitTime = uiWaitTime;
 }
 
-HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const char *pcIP, unsigned short usPort,\
+HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort,\
 	int iHeaderLen, bool bNoDelay, int iTimeOut, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun)
 {
+	int domain;
 	int backlog;
 	int iErrorno;
 	SOCKET socket;
@@ -86,11 +87,10 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const c
 	struct sockaddr kAddr;
 	struct linger so_linger;
 	struct epoll_event kEvent;
-	struct sockaddr_in *pkAddrIn;
 	struct SESOCKET *pkNetSocket;
 	
-	SeSetSockAddr(&kAddr, pcIP, usPort);
-	socket = SeSocket(AF_INET, SOCK_STREAM);
+	domain = iDomain;
+	socket = SeSocket(domain, SOCK_STREAM);
 	if(socket == SE_INVALID_SOCKET)
 	{
 		iErrorno = SeErrno();
@@ -135,6 +135,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const c
 		}
 	}
 	iLen = sizeof(struct sockaddr);
+	SeSetSockAddr(domain, &kAddr, pcIP, usPort);
 	if(SeBind(socket, &kAddr, iLen) != 0)
 	{
 		iErrorno = SeErrno();
@@ -176,19 +177,19 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const c
 
 	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SocketMgr listen ok, IP=%s port=%d", pcIP, usPort);
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+	pkNetSocket->iDomain = domain;
 	pkNetSocket->iNoDelay = bNoDelay ? 1 : 0;
 	pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 	pkNetSocket->iActiveTimeOut = iTimeOut;
-	pkAddrIn = (struct sockaddr_in*)&kAddr;
-	SeStrNcpy(pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), inet_ntoa(pkAddrIn->sin_addr));
-	pkNetSocket->iIPPort = ntohs(pkAddrIn->sin_port);
+	SeSetAddrToBuf(domain, &kAddr, pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), &pkNetSocket->iIPPort);
 
 	return kHSocket;
 }
 
-HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort,\
+HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, int iDomain, const char *pcIP, unsigned short usPort,\
 	int iHeaderLen, bool bNoDelay, int iTimeOut, int iConnectTimeOut, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun)
 {
+	int domain;
 	int iResult;
 	int iErrorno;
 	SOCKET socket;
@@ -197,11 +198,10 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	struct sockaddr kAddr;
 	struct linger so_linger;
 	struct epoll_event kEvent;
-	struct sockaddr_in* pkAddrIn;
 	struct SESOCKET *pkNetSocket;
 	
-	SeSetSockAddr(&kAddr, pcIP, usPort);
-	socket = SeSocket(AF_INET, SOCK_STREAM);
+	domain = iDomain;
+	socket = SeSocket(domain, SOCK_STREAM);
 	if(socket == SE_INVALID_SOCKET)
 	{
 		iErrorno = SeErrno();
@@ -258,8 +258,10 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+	pkNetSocket->iDomain = domain;
 	
 	kLen = sizeof(struct sockaddr);
+	SeSetSockAddr(domain, &kAddr, pcIP, usPort);
 	iResult = SeConnect(socket, &kAddr, kLen);
 	iErrorno = SeErrno();
 	if(iResult != 0 && iErrorno != SE_EINPROGRESS && iErrorno != SE_EINTR)
@@ -272,14 +274,11 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 		return 0;
 	}
 
-	pkAddrIn = (struct sockaddr_in*)&kAddr;
-
 	if(iResult == 0)
 	{
 		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
 		pkNetSocket->llTime = SeTimeGetTickCount();
-		SeStrNcpy(pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), inet_ntoa(pkAddrIn->sin_addr));
-		pkNetSocket->iIPPort = ntohs(pkAddrIn->sin_port);
+		SeSetAddrToBuf(domain, &kAddr, pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), &pkNetSocket->iIPPort);
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] ConnectEx to svr, ip=%s port=%d socket=0x%llx", pkNetSocket->acIPAddr, pkNetSocket->iIPPort, kHSocket);
 		return kHSocket; 
@@ -301,8 +300,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsign
 	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
 	pkNetSocket->iActiveTimeOut = iTimeOut;
 	pkNetSocket->iConnectTimeOut = iConnectTimeOut;
-	SeStrNcpy(pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), inet_ntoa(pkAddrIn->sin_addr));
-	pkNetSocket->iIPPort = ntohs(pkAddrIn->sin_port);
+	SeSetAddrToBuf(domain, &kAddr, pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), &pkNetSocket->iIPPort);
 	SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] ConnectEx to svr, ip=%s port=%d socket=0x%llx", pkNetSocket->acIPAddr, pkNetSocket->iIPPort, kHSocket);
 	return kHSocket;
 }
@@ -726,7 +724,6 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	HSOCKET kHSocket;
 	struct linger so_linger;
 	struct sockaddr ksockaddr;
-	struct sockaddr_in* pkAddrIn;
 	struct SESOCKET *pkNetSocket;
 	
 	while(true)
@@ -799,13 +796,12 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 		}
 		
 		pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
+		pkNetSocket->iDomain = pkNetSocketListen->iDomain;
 		pkNetSocket->usStatus = SOCKET_STATUS_CONNECTED;
 		pkNetSocket->iActiveTimeOut = pkNetSocketListen->iActiveTimeOut;
 		pkNetSocket->llTime = SeTimeGetTickCount();
 		pkNetSocket->kBelongListenHSocket = pkNetSocketListen->kHSocket;
-		pkAddrIn = (struct sockaddr_in*)&ksockaddr;
-		SeStrNcpy(pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), inet_ntoa(pkAddrIn->sin_addr));
-		pkNetSocket->iIPPort = ntohs(pkAddrIn->sin_port);
+		SeSetAddrToBuf(pkNetSocket->iDomain, &ksockaddr, pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), &pkNetSocket->iIPPort);
 		SeNetSocketMgrAddSendOrRecvInList(&pkNetCore->kSocketMgr, pkNetSocket, true);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] Accept client hsocket=0x%llx, ip=%s port=%d localsvrip=%s localsvrport=%d", \
 			kHSocket, pkNetSocket->acIPAddr, pkNetSocket->iIPPort, pkNetSocketListen->acIPAddr, pkNetSocketListen->iIPPort);

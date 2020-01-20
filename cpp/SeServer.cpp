@@ -3,6 +3,7 @@
 SeServer::SeServer() : IServer()
 {
 	m_bInit = false;
+	m_iDomain = 0;
 	m_bNoDelay = false;
 	m_bReusePort = false;
 	m_pkSeNetEngine = NULL;
@@ -24,7 +25,7 @@ void SeServer::SetNoDelay(bool bNoDelay)
 	m_bNoDelay = bNoDelay;
 }
 
-void SeServer::Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iTimeOut, bool bBigHeader)
+void SeServer::Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, int Port, int iTimeOut, bool bBigHeader)
 {
 	if(m_bInit) 
 	{ 
@@ -32,6 +33,7 @@ void SeServer::Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iT
 	}
 
 	m_bInit = true;
+	m_iDomain = iDomain;
 	m_iSvrPort = Port;
 	m_acSvrIP = string(IP);
 	m_pkSeNetEngine = pkSeNetEngine;
@@ -46,7 +48,7 @@ bool SeServer::Listen()
 		return false;
 	}
 
-	return m_pkSeNetEngine->AddTCPListen(this, m_bReusePort, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_bNoDelay, m_bBigHeader);
+	return m_pkSeNetEngine->AddTCPListen(this, m_iDomain, m_bReusePort, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_bNoDelay, m_bBigHeader);
 }
 
 void SeServer::DisConnect(HSOCKET kHSocket)

@@ -9,6 +9,7 @@ const int iReConnectCount = 10;
 SeClient::SeClient() : IClient()
 {
 	m_bInit = false;
+	m_iDomain = 0;
 	m_bNoDelay = false;
 	m_pkSeNetEngine = NULL;
 	m_iPingTimeDelay = 1000 * 2;
@@ -25,7 +26,7 @@ void SeClient::SetNoDelay(bool bNoDelay)
 	m_bNoDelay = bNoDelay;
 }
 
-void SeClient::Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iTimeOut, int iConnectTimeOut, bool bBigHeader)
+void SeClient::Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, int Port, int iTimeOut, int iConnectTimeOut, bool bBigHeader)
 {
 	if(m_bInit) 
 	{ 
@@ -35,6 +36,7 @@ void SeClient::Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iT
 	unsigned long long ullNowTime = SeTimeGetTickCount();
 
 	m_bInit = true;
+	m_iDomain = iDomain;
 	m_kHSocket = 0;
 	m_acSvrIP = string(IP);
 	m_iSvrPort = Port;
@@ -67,7 +69,7 @@ void SeClient::Connect()
 	}
 
 	m_ullReConnectTime = ullNowTime;
-	m_kHSocket = m_pkSeNetEngine->AddTCPClient(this, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bNoDelay, m_bBigHeader);
+	m_kHSocket = m_pkSeNetEngine->AddTCPClient(this, m_iDomain, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bNoDelay, m_bBigHeader);
 
 	if(m_kHSocket == 0) 
 	{ 

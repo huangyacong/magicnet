@@ -45,7 +45,7 @@ bool SeNetEngine::Init(const char *pcLogName, int iLogLV, unsigned short usMax, 
 	return true;
 }
 
-bool SeNetEngine::AddTCPListen(IServer* pkIServer, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader)
+bool SeNetEngine::AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader)
 {
 	if(!m_bInit) 
 	{ 
@@ -57,7 +57,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, bool bReusePort, const char *
 		return false; 
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, iDomain, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
 	if (kHSocket > 0) 
 	{ 
 		m_kListen[kHSocket] = pkIServer; 
@@ -68,7 +68,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, bool bReusePort, const char *
 	return kHSocket > 0 ? true : false;
 }
 
-HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader)
+HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, int iDomain, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader)
 {
 	if(!m_bInit) 
 	{ 
@@ -80,7 +80,7 @@ HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, const char *pcIP, unsigned
 		return 0;
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, iDomain, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
 	if(kHSocket <= 0) 
 	{ 
 		return 0; 

@@ -54,7 +54,8 @@ struct SESOCKET
 
 	// 64
 	struct SEHASHNODE		kRecvNode;
-	char					acTagC[12];
+	char					acTagC[8];
+	int						iDomain;
 	int						iNoDelay;
 	union SOCKET_FD			kSocketFd;
 

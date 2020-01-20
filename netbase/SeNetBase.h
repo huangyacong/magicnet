@@ -37,6 +37,9 @@ extern "C" {
 	#include <sys/eventfd.h>
 	#include <sys/un.h>
 
+	#define SE_DOMAIN_INET			AF_INET
+	#define SE_DOMAIN_UNIX			AF_UNIX
+
 	#define SOCKET					int
 	#define SOCK_LEN				socklen_t
 	#define HANDLE 					int
@@ -60,6 +63,9 @@ extern "C" {
 		#pragma comment(lib, "ws2_32.lib")
 	#endif
 
+	#define SE_DOMAIN_INET			AF_INET
+	#define SE_DOMAIN_UNIX			AF_INET
+
 	#define SOCK_LEN				int
 
 	#define SE_EWOULDBLOCK			WSAEWOULDBLOCK
@@ -73,13 +79,13 @@ extern "C" {
 
 typedef	unsigned long long HSOCKET;
 
-HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, SOCKET kSocket);
+HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, unsigned int iSocket);
 
 unsigned short SeGetIndexByHScoket(HSOCKET kHSocket);
 
 void SeCloseHandle(HANDLE kHandle);
 
-SOCKET SeSocket(int domain /*=AF_INET,AF_UNIX*/, int iType /*= SOCK_STREAM*/);
+SOCKET SeSocket(int domain /*=SE_DOMAIN_INET,SE_DOMAIN_UNIX*/, int iType /*= SOCK_STREAM*/);
 
 SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr, SOCK_LEN *riLen);
 
@@ -121,7 +127,9 @@ int SeGetSockName(SOCKET kSocket, struct sockaddr *pkAddr);
 
 int SeGetPeerName(SOCKET kSocket, struct sockaddr *pkAddr);
 
-void SeSetSockAddr(struct sockaddr *pkAddr, const char *pcIP, unsigned short usPort);
+void SeSetSockAddr(int iDoMain, void *pkAddr, const char *pcIP, unsigned short usPort);
+
+void SeSetAddrToBuf(int iDoMain, void *pkAddr, char* pcIpBuf, int iLen, int* piPort);
 
 void SeErrStr(int iErrno, char *pcMsg, unsigned long ulSize);
 

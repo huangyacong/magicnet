@@ -1,11 +1,11 @@
 #include "SeNetBase.h"
 #include "SeTool.h"
 
-HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, SOCKET kSocket)
+HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, unsigned int iSocket)
 {
 	HSOCKET ret;
 
-	ret = (HSOCKET)(((HSOCKET)((unsigned int)usCounter << 16 | (unsigned int)usIndex)) << 32 | ((HSOCKET)kSocket));
+	ret = (HSOCKET)(((HSOCKET)((unsigned int)usCounter << 16 | (unsigned int)usIndex)) << 32 | ((HSOCKET)iSocket));
 	return (ret & 0x7FFFFFFFFFFFFFFF);
 }
 
@@ -175,12 +175,33 @@ int SeGetPeerName(SOCKET kSocket, struct sockaddr *pkAddr)
 	return getpeername(kSocket, pkAddr, &kLen);
 }
 
-void SeSetSockAddr(struct sockaddr *pkAddr, const char *pcIP, unsigned short usPort)
+void SeSetSockAddr(int iDoMain, void *pkAddr, const char *pcIP, unsigned short usPort)
 {
-	struct sockaddr_in *pkAddrIn = (struct sockaddr_in*)pkAddr;
-	pkAddrIn->sin_family = AF_INET;
-	pkAddrIn->sin_addr.s_addr = inet_addr(pcIP);
-	pkAddrIn->sin_port = htons(usPort);
+	struct sockaddr_in *pkAddrIn;
+
+	if (iDoMain == SE_DOMAIN_INET)
+	{
+		pkAddrIn = (struct sockaddr_in*)pkAddr;
+		pkAddrIn->sin_family = iDoMain;
+		pkAddrIn->sin_addr.s_addr = inet_addr(pcIP);
+		pkAddrIn->sin_port = htons(usPort);
+		return;
+	}
+	assert(true);
+}
+
+void SeSetAddrToBuf(int iDoMain, void *pkAddr, char* pcIpBuf, int iLen, int* piPort)
+{
+	struct sockaddr_in *pkAddrIn;
+
+	if (iDoMain == SE_DOMAIN_INET)
+	{
+		pkAddrIn = (struct sockaddr_in*)pkAddr;
+		SeStrNcpy(pcIpBuf, iLen, inet_ntoa(pkAddrIn->sin_addr));
+		*piPort = ntohs(pkAddrIn->sin_port);
+		return;
+	}
+	assert(true);
 }
 
 void SeErrStr(int iErrno, char *pcMsg, unsigned long ulSize)

@@ -12,7 +12,7 @@ public:
 	virtual ~SeClient();
 public:
 	virtual void SetNoDelay(bool bNoDelay);
-	virtual void Init(SeNetEngine* pkSeNetEngine, const char* IP, int Port, int iTimeOut, int iConnectTimeOut, bool bBigHeader);
+	virtual void Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, int Port, int iTimeOut, int iConnectTimeOut, bool bBigHeader);
 	virtual void Connect();
 	virtual void DisConnect();
 	virtual bool IsConnect();
@@ -36,6 +36,7 @@ private:
 	void OnUpdate();
 private:
 	bool m_bInit;
+	int m_iDomain;
 	HSOCKET m_kHSocket;
 private:
 	int m_iSvrPort;

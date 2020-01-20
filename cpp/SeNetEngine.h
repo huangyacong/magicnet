@@ -52,8 +52,8 @@ public:
 	virtual ~SeNetEngine();
 public:
 	virtual bool Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt);
-	virtual bool AddTCPListen(IServer* pkIServer, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader);
-	virtual HSOCKET AddTCPClient(IClient* pkIClient, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader);
+	virtual bool AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader);
+	virtual HSOCKET AddTCPClient(IClient* pkIClient, int iDomain, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader);
 public:
 	virtual char *GetSendBuf(int &riLen);
 	virtual bool SendEngineData(HSOCKET kHSocket, const char* pcBuf, int iSize);

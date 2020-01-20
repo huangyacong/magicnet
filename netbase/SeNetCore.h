@@ -55,9 +55,9 @@ void SeNetCoreSetLogContextFunc(struct SENETCORE *pkNetCore, SELOGCONTEXT pkLogC
 
 void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, unsigned int uiWaitTime);
 
-HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, bool bReusePort, const char *pcIP, unsigned short usPort, int iHeaderLen, bool bNoDelay, int iTimeOut, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
+HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iHeaderLen, bool bNoDelay, int iTimeOut, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
 
-HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, const char *pcIP, unsigned short usPort, int iHeaderLen, bool bNoDelay, int iTimeOut, int iConnectTimeOut, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
+HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, int iDomain, const char *pcIP, unsigned short usPort, int iHeaderLen, bool bNoDelay, int iTimeOut, int iConnectTimeOut, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
 
 bool SeNetCoreSend(struct SENETCORE *pkNetCore, HSOCKET kHSocket, const char* pcBuf, int iSize);
 
