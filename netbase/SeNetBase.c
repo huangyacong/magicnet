@@ -25,7 +25,11 @@ void SeCloseHandle(HANDLE kHandle)
 
 SOCKET SeSocket(int domain, int iType)
 {
+#ifdef __linux
+	return socket(domain, iType, domain == SE_DOMAIN_UNIX ? 0 : (iType == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP));
+#else
 	return socket(domain, iType, (iType == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP));
+#endif
 }
 
 SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr, SOCK_LEN *riLen)
@@ -179,6 +183,9 @@ void SeSetSockAddr(int iDoMain, void *pkAddr, const char *pcIP, unsigned short u
 {
 	struct sockaddr_in *pkAddrIn;
 
+#ifdef __linux
+	struct sockaddr_un *pkUn;
+
 	if (iDoMain == SE_DOMAIN_INET)
 	{
 		pkAddrIn = (struct sockaddr_in*)pkAddr;
@@ -187,12 +194,35 @@ void SeSetSockAddr(int iDoMain, void *pkAddr, const char *pcIP, unsigned short u
 		pkAddrIn->sin_port = htons(usPort);
 		return;
 	}
+
+	if (iDoMain == SE_DOMAIN_UNIX)
+	{
+		pkUn = (struct sockaddr_un*)pkAddr;
+		pkUn->sun_family  = iDoMain;
+		SeStrNcpy(pkUn->sun_path, (int)sizeof(struct sockaddr_un), pcIP);
+		return;
+	}
+
+#elif (defined(_WIN32) || defined(WIN32))
+	if (iDoMain == SE_DOMAIN_INET || iDoMain == SE_DOMAIN_UNIX)
+	{
+		pkAddrIn = (struct sockaddr_in*)pkAddr;
+		pkAddrIn->sin_family = iDoMain;
+		pkAddrIn->sin_addr.s_addr = inet_addr(pcIP);
+		pkAddrIn->sin_port = htons(usPort);
+		return;
+	}
+#endif
+
 	assert(true);
 }
 
 void SeSetAddrToBuf(int iDoMain, void *pkAddr, char* pcIpBuf, int iLen, int* piPort)
 {
 	struct sockaddr_in *pkAddrIn;
+
+#ifdef __linux
+	struct sockaddr_un *pkUn;
 
 	if (iDoMain == SE_DOMAIN_INET)
 	{
@@ -201,6 +231,24 @@ void SeSetAddrToBuf(int iDoMain, void *pkAddr, char* pcIpBuf, int iLen, int* piP
 		*piPort = ntohs(pkAddrIn->sin_port);
 		return;
 	}
+
+	if (iDoMain == SE_DOMAIN_UNIX)
+	{
+		pkUn = (struct sockaddr_un*)pkAddr;
+		SeStrNcpy(pcIpBuf, iLen, pkUn->sun_path);
+		*piPort = 0;
+		return;
+	}
+
+#elif (defined(_WIN32) || defined(WIN32))
+	if (iDoMain == SE_DOMAIN_INET || iDoMain == SE_DOMAIN_UNIX)
+	{
+		pkAddrIn = (struct sockaddr_in*)pkAddr;
+		SeStrNcpy(pcIpBuf, iLen, inet_ntoa(pkAddrIn->sin_addr));
+		*piPort = ntohs(pkAddrIn->sin_port);
+		return;
+	}
+#endif
 	assert(true);
 }
 

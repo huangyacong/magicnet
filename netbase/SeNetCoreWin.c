@@ -544,6 +544,7 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, int iDomain, const char 
 	pkNetSocket = SeNetSocketMgrGet(&pkNetCore->kSocketMgr, kHSocket);
 	pkNetSocket->iDomain = domain;
 	pkNetSocket->usStatus = SOCKET_STATUS_CONNECTING;
+	pkNetSocket->llTime = SeTimeGetTickCount();
 	pkNetSocket->iActiveTimeOut = iTimeOut;
 	pkNetSocket->iConnectTimeOut = iConnectTimeOut;
 	SeSetAddrToBuf(pkNetSocket->iDomain, &kAddr, pkNetSocket->acIPAddr, (int)sizeof(pkNetSocket->acIPAddr), &pkNetSocket->iIPPort);
