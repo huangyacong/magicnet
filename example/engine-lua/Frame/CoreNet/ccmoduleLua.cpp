@@ -159,6 +159,7 @@ extern "C" int CoreNetFin(lua_State *L)
 
 extern "C" int CoreNetTCPListen(lua_State *L)
 {
+	int iDoMain;
 	int iTimeOut;
 	bool bNoDelay;
 	size_t seplen;
@@ -174,9 +175,10 @@ extern "C" int CoreNetTCPListen(lua_State *L)
 	usPort = (unsigned short)luaL_checkinteger(L, 2);
 	iTimeOut = (int)luaL_checkinteger(L, 3);
 	bBigHeader = lua_toboolean(L, 4) == 1 ? true : false;
-	bNoDelay = lua_toboolean(L, 5) == 1 ? true : false;
+	iDoMain = (int)luaL_checkinteger(L, 5);
+	bNoDelay = lua_toboolean(L, 6) == 1 ? true : false;
 	
-	kHoscket = SeNetCoreTCPListen(&g_kNetore, false, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
+	kHoscket = SeNetCoreTCPListen(&g_kNetore, iDoMain, false, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
 
 	lua_pushinteger(L, kHoscket);
 	return 1;
@@ -184,6 +186,7 @@ extern "C" int CoreNetTCPListen(lua_State *L)
 
 extern "C" int CoreNetTCPClient(lua_State *L)
 {
+	int iDoMain;
 	int iTimeOut;
 	size_t seplen;
 	bool bNoDelay;
@@ -201,9 +204,10 @@ extern "C" int CoreNetTCPClient(lua_State *L)
 	iTimeOut = (int)luaL_checkinteger(L, 3);
 	iConnectTimeOut = (int)luaL_checkinteger(L, 4);
 	bBigHeader = lua_toboolean(L, 5) == 1 ? true : false;
-	bNoDelay = lua_toboolean(L, 6) == 1 ? true : false;
+	iDoMain = (int)luaL_checkinteger(L, 6);
+	bNoDelay = lua_toboolean(L, 7) == 1 ? true : false;
 
-	kHoscket = SeNetCoreTCPClient(&g_kNetore, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
+	kHoscket = SeNetCoreTCPClient(&g_kNetore, iDoMain, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
 
 	lua_pushinteger(L, kHoscket);
 	return 1;
@@ -426,6 +430,12 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 
 	lua_pushinteger(L, SENETCORE_EVENT_SOCKET_TIMER);
 	lua_setfield(L, -2, "SOCKET_TIMER");
+
+	lua_pushinteger(L, SE_DOMAIN_INET);
+	lua_setfield(L, -2, "DOMAIN_INET");
+
+	lua_pushinteger(L, SE_DOMAIN_UNIX);
+	lua_setfield(L, -2, "DOMAIN_UNIX");
 
 	return 1;
 }

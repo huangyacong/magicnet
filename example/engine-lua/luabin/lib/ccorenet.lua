@@ -15,6 +15,10 @@ local svrObj = {}
 
 local globalSingleObj = {}
 
+-- socket类型 
+ccorenet.IpV4 = CoreNet.DOMAIN_INET
+ccorenet.UnixLocal = CoreNet.DOMAIN_UNIX
+
 -- iServer列表
 ccorenet.IServerList = svrObj
 

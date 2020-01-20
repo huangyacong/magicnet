@@ -91,7 +91,7 @@ end
 
 
 ccorenet.addtimer(svr_event, "timerfunc", 1, 1, 2, 3)
-local serverObj = IServer.new("serverObj", ccorenet, svr_event, "127.0.0.1", 8888, 1000*60, false, false)
+local serverObj = IServer.new("serverObj", ccorenet, svr_event, "127.0.0.1", 8888, 1000*60, false, ccorenet.IpV4, false)
 ccorenet.addGlobalObj(serverObj, serverObj:GetName())
 
 return svr_event
