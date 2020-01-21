@@ -64,7 +64,7 @@ extern "C" {
 	#endif
 
 	#define SE_DOMAIN_INET			AF_INET
-	#define SE_DOMAIN_UNIX			AF_INET
+	#define SE_DOMAIN_UNIX			AF_UNSPEC
 
 	#define SOCK_LEN				int
 
