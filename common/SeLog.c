@@ -91,9 +91,7 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		return;
 	}
 
-	pkLog->pctext[writelen + 0] = '\0';
-	pkLog->pctext[writelen + 1] = '\0';
-	pkLog->pctext[writelen + 2] = '\0';
+	pkLog->pctext[writelen] = '\0';
 
 	switch (iLogLv)
 	{
@@ -184,17 +182,8 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 		fwrite(acHeadr, 1, strlen(acHeadr), pkLog->pFile);
 	}
 
-#if defined(__linux)
-	pkLog->pctext[writelen + 0] = '\n';
-	pkLog->pctext[writelen + 1] = '\0';
-	pkLog->pctext[writelen + 2] = '\0';
+	pkLog->pctext[writelen] = '\n';
 	fwrite(pkLog->pctext, 1, writelen + 1, pkLog->pFile);
-#elif (defined(_WIN32) || defined(WIN32))
-	pkLog->pctext[writelen + 0] = '\r';
-	pkLog->pctext[writelen + 1] = '\n';
-	pkLog->pctext[writelen + 2] = '\0';
-	fwrite(pkLog->pctext, 1, writelen + 2, pkLog->pFile);
-#endif
 
 	if (bFlushToDisk)
 	{
