@@ -180,7 +180,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReuse
 	}
 
 	kEvent.data.u64 = kHSocket;
-	kEvent.events = EPOLLIN | EPOLLOUT;
+	kEvent.events = EPOLLIN;
 	if(epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, socket, &kEvent) != 0)
 	{
 		iErrorno = SeErrno();
