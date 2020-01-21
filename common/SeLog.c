@@ -188,13 +188,13 @@ void SeLogWrite(struct SELOG *pkLog, int iLogLv, bool bFlushToDisk, const char *
 	pkLog->pctext[writelen + 0] = '\n';
 	pkLog->pctext[writelen + 1] = '\0';
 	pkLog->pctext[writelen + 2] = '\0';
+	fwrite(pkLog->pctext, 1, writelen + 1, pkLog->pFile);
 #elif (defined(_WIN32) || defined(WIN32))
 	pkLog->pctext[writelen + 0] = '\r';
 	pkLog->pctext[writelen + 1] = '\n';
 	pkLog->pctext[writelen + 2] = '\0';
-#endif
-
 	fwrite(pkLog->pctext, 1, writelen + 2, pkLog->pFile);
+#endif
 
 	if (bFlushToDisk)
 	{
