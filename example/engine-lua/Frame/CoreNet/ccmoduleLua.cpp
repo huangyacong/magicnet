@@ -1,11 +1,15 @@
 #include "ccmoduleLua.h"
 #include "SeTimer.h"
 #include <math.h>
+#include <string>
+#include <map>
 
 static SeTimer g_kSeTimer;
 static char g_acBuf[1024*1024*4];
 static struct SENETCORE g_kNetore;
 static int g_iCoreWaitTime;
+
+static std::list<std::string> g_kLinkFile;
 
 // »á»°ID
 static unsigned long long g_ullSysSessionTickCount;
@@ -152,6 +156,15 @@ extern "C" int CoreNetInit(lua_State *L)
 
 extern "C" int CoreNetFin(lua_State *L)
 {
+#if defined(__linux)
+	std::list<std::string>::iterator itr = g_kLinkFile.begin();
+	for (; itr != g_kLinkFile.end(); itr++)
+	{
+		unlink((*itr).c_str());
+		SeLogWrite(&g_kNetore.kLog, LT_INFO, true, "unlink %s", (*itr).c_str());
+	}
+#endif
+	g_kLinkFile.clear();
 	SeNetCoreFin(&g_kNetore);
 	lua_pushnil(L);
 	return 1;
@@ -179,6 +192,12 @@ extern "C" int CoreNetTCPListen(lua_State *L)
 	bNoDelay = lua_toboolean(L, 6) == 1 ? true : false;
 	
 	kHoscket = SeNetCoreTCPListen(&g_kNetore, iDoMain, false, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
+
+	if (kHoscket != 0 && iDoMain == SE_DOMAIN_UNIX)
+	{
+		g_kLinkFile.push_back(std::string(pcIP));
+		SeLogWrite(&g_kNetore.kLog, LT_INFO, true, "link %s", pcIP);
+	}
 
 	lua_pushinteger(L, kHoscket);
 	return 1;
@@ -386,6 +405,19 @@ extern "C" int CoreNetGetTimeOutId(lua_State *L)
 	return 1;
 }
 
+extern "C" int CoreNetGetOS(lua_State *L)
+{
+#ifdef __linux
+	lua_pushstring(L, "Linux");
+	return 1;
+#elif (defined(_WIN32) || defined(WIN32))
+	lua_pushstring(L, "Windows");
+	return 1;
+#endif
+	lua_pushstring(L, "Unknow");
+	return 1;
+}
+
 #if (defined(_WIN32) || defined(WIN32))
 extern "C" __declspec(dllexport) int luaopen_CoreNet(lua_State *L)
 #elif defined(__linux)
@@ -411,6 +443,7 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "DelTimer", CoreNetDelTimer },
 		{ "GetTimeOutId", CoreNetGetTimeOutId }, 
 		{ "SysSessionId", CoreNetSysSessionId },
+		{ "GetOS", CoreNetGetOS },
 		{ NULL, NULL },
 	};
 

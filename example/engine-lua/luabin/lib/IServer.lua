@@ -51,7 +51,7 @@ function IServerClass:Listen()
 
 	local socket = CoreNet.TCPListen(self.cIP, self.iPort, self.iTimeOut, not self.bClinetFormat, self.iDomain, self.bNoDelay)
 	if socket == 0 then 
-		print(string.format("IServerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, cIP, iPort))
+		print(string.format("IServerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.iPort))
 		return false 
 	end
 

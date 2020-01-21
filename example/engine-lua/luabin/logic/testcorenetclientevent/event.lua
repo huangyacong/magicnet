@@ -73,7 +73,10 @@ function client_event.session_id_coroutine_timeout()
 end
 
 ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1)
-local clientObj = IClient.new("clientObj", ccorenet, client_event, "127.0.0.1", 8888, 1000*60, 5*1000, false, ccorenet.IpV4, false)
+
+local domain = ccorenet.IpV4
+local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
+local clientObj = IClient.new("clientObj", ccorenet, client_event, ip, 8888, 1000*60, 5*1000, false, domain, false)
 ccorenet.addGlobalObj(clientObj, clientObj:GetName())
 
 return client_event

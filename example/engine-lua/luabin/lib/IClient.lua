@@ -97,7 +97,7 @@ function IClientClass:Connect()
 
 	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, not self.bClinetFormat, self.iDomain, self.bNoDelay)
 	if socket == 0 then 
-		print(string.format("IClientClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, cIP, iPort))
+		print(string.format("IClientClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
 		return false 
 	end
 

@@ -42,6 +42,11 @@ function ccorenet.delGlobalObj(name)
 	globalSingleObj[name] = nil
 end
 
+-- 判断操作系统 Linux,Windows,Unknow
+function ccorenet.getOS()
+	return CoreNet.GetOS()
+end
+
 -- 初始化
 function ccorenet.init(cLogName, iMaxClientNum, iTimerCnt, bPrintLog2Screen)
 	sys_print = print
@@ -140,10 +145,13 @@ end
 
 -- 运行
 function ccorenet.start()
-	while sys_run == true do
-		local ret, err = ccoroutine.resume(ccoroutine.co_create(worker))
-		if not ret then pcall(function () print(debug.traceback(), "\n", err) end) end
-	end
+	local isOK, errMsg = pcall(function ()
+			while sys_run == true do
+				local ret, err = ccoroutine.resume(ccoroutine.co_create(worker))
+				if not ret then pcall(function () print(debug.traceback(), "\n", err) end) end
+			end
+		end)
+	if not isOK then pcall(function () print(debug.traceback(), "\n", errMsg) end) end
 end
 
 -- 停止
