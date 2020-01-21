@@ -62,7 +62,7 @@ public:
 public:
 	virtual void StartEngine();
 	virtual void StopEngine();
-	virtual void SetWaitTime(unsigned int uiWaitTime);
+	virtual void SetWaitTime(int iWaitTime);
 	virtual void SetStatDelayTime(unsigned int uiStatDelayTime);
 	virtual void SetLogContext(SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 public:
@@ -85,7 +85,7 @@ private:
 private:
 	bool m_bStop;
 	bool m_bInit;
-	unsigned int m_uiWaitTime;
+	int m_iWaitTime;
 private:
 	SENETCORE m_kNetEngine;
 	list<IClient*> m_kClientList;

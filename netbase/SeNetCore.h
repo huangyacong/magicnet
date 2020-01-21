@@ -53,7 +53,7 @@ void SeNetCoreFin(struct SENETCORE *pkNetCore);
 
 void SeNetCoreSetLogContextFunc(struct SENETCORE *pkNetCore, SELOGCONTEXT pkLogContextFunc, void *pkLogContect);
 
-void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, unsigned int uiWaitTime);
+void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, int iWaitTime);
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iHeaderLen, bool bNoDelay, int iTimeOut, SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun);
 

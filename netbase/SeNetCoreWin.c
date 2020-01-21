@@ -203,9 +203,9 @@ void SeNetCoreSetLogContextFunc(struct SENETCORE *pkNetCore, SELOGCONTEXT pkLogC
 	SeLogSetLogContextFunc(&pkNetCore->kLog, pkLogContextFunc, pkLogContect);
 }
 
-void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, unsigned int uiWaitTime)
+void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, int iWaitTime)
 {
-	pkNetCore->iWaitTime = uiWaitTime;
+	pkNetCore->iWaitTime = iWaitTime;
 }
 
 bool SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, int iDomain, HSOCKET kListenHSocket, SOCKET kSocket)

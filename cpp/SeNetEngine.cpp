@@ -10,7 +10,7 @@ SeNetEngine::SeNetEngine()
 	m_pkSendBuf = 0;
 	m_ullStatTime = SeTimeGetTickCount();
 	m_uiStatDelayTime = 1000;
-	m_uiWaitTime = 0;
+	m_iWaitTime = NET_CORE_WAIT_TIME;
 	memset(&m_kMsgIDStat, 0, (int)sizeof(m_kMsgIDStat));
 }
 
@@ -92,15 +92,15 @@ HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, int iDomain, const char *p
 	return kHSocket;
 }
 
-void SeNetEngine::SetWaitTime(unsigned int uiWaitTime)
+void SeNetEngine::SetWaitTime(int iWaitTime)
 {
 	if(!m_bInit) 
 	{ 
 		return; 
 	}
 
-	m_uiWaitTime = uiWaitTime;
-	SeNetCoreSetWaitTime(&m_kNetEngine, uiWaitTime);
+	m_iWaitTime = iWaitTime;
+	SeNetCoreSetWaitTime(&m_kNetEngine, m_iWaitTime);
 }
 
 void SeNetEngine::SetStatDelayTime(unsigned int uiStatDelayTime)
@@ -225,7 +225,7 @@ void SeNetEngine::Run()
 
 	if (riEvent == SENETCORE_EVENT_SOCKET_IDLE) 
 	{ 
-		if (m_uiWaitTime <= 0)
+		if (m_iWaitTime == 0)
 			SeTimeSleep(1);
 		return; 
 	}

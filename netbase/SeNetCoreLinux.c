@@ -70,9 +70,9 @@ void SeNetCoreSetLogContextFunc(struct SENETCORE *pkNetCore, SELOGCONTEXT pkLogC
 	SeLogSetLogContextFunc(&pkNetCore->kLog, pkLogContextFunc, pkLogContect);
 }
 
-void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, unsigned int uiWaitTime)
+void SeNetCoreSetWaitTime(struct SENETCORE *pkNetCore, int iWaitTime)
 {
-	pkNetCore->iWaitTime = uiWaitTime;
+	pkNetCore->iWaitTime = iWaitTime;
 }
 
 HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort,\
