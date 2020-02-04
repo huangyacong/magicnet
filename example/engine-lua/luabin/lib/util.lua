@@ -59,6 +59,8 @@ function util.copytable(data)
 end
 
 function util.split(str, pat)
+	assert(pat ~= "")
+	assert(type(pat) == type(""))
    	local t = {}  
    	local fpat = "(.-)" .. pat
    	local last_end = 1
