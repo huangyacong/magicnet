@@ -41,6 +41,44 @@ function util.print(root)
 	util.print_table(root)
 end
 
+local function copy_table(data)
+	local tab = {}
+	for k, v in pairs(data or {}) do
+		if type(v) ~= "table" then
+			tab[k] = v
+		else
+			tab[k] = copy_table(v)
+		end
+	end
+	return tab
+end
+
+-- table拷贝
+function util.copytable(data)
+	return copy_table(data)
+end
+
+function util.split(str, pat)
+   	local t = {}  
+   	local fpat = "(.-)" .. pat
+   	local last_end = 1
+   	local s, e, cap = str:find(fpat, 1)
+	while s do
+	 	if s ~= 1 or cap ~= "" then
+	     	table.insert(t,cap)
+	    end
+	    last_end = e+1
+	    s, e, cap = str:find(fpat, last_end)
+	end
+
+	if last_end <= #str then
+	    cap = str:sub(last_end)
+	    table.insert(t, cap)
+	end
+
+	return t
+end
+
 function util.ReadOnlyTable(t)
 	local proxy = {}
 	local mt = {
