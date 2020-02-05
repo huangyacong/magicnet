@@ -119,14 +119,14 @@ function IClientClass:SendData(proto, data)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
-function IClientClass:CallData(proto, data)
+function IClientClass:CallData(proto, data, timeout_millsec)
 	local header, contents, PTYPE, session_id = self.net_modulename.pack(self.bClinetFormat, proto, msgpack.pack(data), self.net_modulename.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
 		return false, "send failed"
 	end
-	return ccoroutine.yield_call(self.net_modulename, session_id)
+	return ccoroutine.yield_call(self.net_modulename, session_id, timeout_millsec)
 end
 
 function IClientClass:RetCallData(data)

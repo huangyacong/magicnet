@@ -80,9 +80,10 @@ function ccoroutine.session_id_coroutine_timeout(sessionId)
 	if co then coroutine_resume(co, false, "time out") end
 end
 
-function ccoroutine.yield_call(net_modulename, sessionId)
+function ccoroutine.yield_call(net_modulename, sessionId, timeout_millsec)
+	timeout_millsec = timeout_millsec or 1000 * 20
 	local retpcall, ret, data = pcall(function() 
-		local timerId = net_modulename.addtimer(ccoroutine, "session_id_coroutine_timeout", 1000 * 20, sessionId)
+		local timerId = net_modulename.addtimer(ccoroutine, "session_id_coroutine_timeout", timeout_millsec, sessionId)
 		session_id_coroutine[sessionId] = running_thread
 		local succ, msg = coroutine.yield("YIELD_CALL")
 		session_id_coroutine[sessionId] = nil
