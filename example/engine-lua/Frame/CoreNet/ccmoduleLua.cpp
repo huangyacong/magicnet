@@ -175,6 +175,7 @@ extern "C" int CoreNetTCPListen(lua_State *L)
 	int iDoMain;
 	int iTimeOut;
 	bool bNoDelay;
+	bool bReusePort;
 	size_t seplen;
 	bool bBigHeader;
 	const char *pcIP;
@@ -189,9 +190,10 @@ extern "C" int CoreNetTCPListen(lua_State *L)
 	iTimeOut = (int)luaL_checkinteger(L, 3);
 	bBigHeader = lua_toboolean(L, 4) == 1 ? true : false;
 	iDoMain = (int)luaL_checkinteger(L, 5);
-	bNoDelay = lua_toboolean(L, 6) == 1 ? true : false;
+	bReusePort = lua_toboolean(L, 6) == 1 ? true : false;
+	bNoDelay = lua_toboolean(L, 7) == 1 ? true : false;
 	
-	kHoscket = SeNetCoreTCPListen(&g_kNetore, iDoMain, false, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
+	kHoscket = SeNetCoreTCPListen(&g_kNetore, iDoMain, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
 
 	if (kHoscket != 0 && iDoMain == SE_DOMAIN_UNIX)
 	{
