@@ -59,10 +59,8 @@ function util.copytable(data)
 end
 
 function util.split(str, pat)
-	assert(pat ~= "")
-	assert(type(pat) == type(""))
    	local t = {}  
-   	local fpat = "(.-)" .. pat
+   	local fpat = "(.-)" .. ((pat == "") and "%s" or pat)
    	local last_end = 1
    	local s, e, cap = str:find(fpat, 1)
 	while s do
