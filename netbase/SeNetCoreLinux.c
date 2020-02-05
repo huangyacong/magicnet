@@ -1196,7 +1196,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 		return true;
 	}
 
-	// 还有事情做
+	// has something todo
 	if (SeHashGetHead(&(pkNetCore->kSocketMgr.kRecvList)))
 	{
 		bWork = true;
