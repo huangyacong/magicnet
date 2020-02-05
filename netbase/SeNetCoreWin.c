@@ -342,7 +342,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReuse
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP LISTEN] SeSetSockOpt ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
 	}
-	if (!bReusePort)
+	if (bReusePort)
 	{
 		if (SeSetExclusiveAddruse(socket) != 0)
 		{
