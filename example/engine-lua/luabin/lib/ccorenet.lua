@@ -170,7 +170,7 @@ ccorenet.PTYPE = {
 function ccorenet.pack(bClinetFormat, proto, data, PTYPE, session_id)
 	if not bClinetFormat then
 		session_id = session_id or 0
-		return string.pack("s16>H>j", proto, PTYPE, session_id), data, PTYPE, session_id
+		return string.pack("s64>H>j", proto, PTYPE, session_id), data, PTYPE, session_id
 	end
 	assert(PTYPE == ccorenet.PTYPE.PTYPE_COMMON)
 	return string.pack(">H", proto), data, nil, nil
@@ -179,7 +179,7 @@ end
 -- 解包
 function ccorenet.unpack(bClinetFormat, data)
 	if not bClinetFormat then
-		local proto, PTYPE, session_id, len = string.unpack("s16>H>j", data)
+		local proto, PTYPE, session_id, len = string.unpack("s64>H>j", data)
 		return proto, string.sub(data, len, string.len(data)), PTYPE, session_id
 	end
 	local proto, len = string.unpack(">H", data)
