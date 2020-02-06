@@ -1,5 +1,4 @@
-﻿local msgpack = require "msgpack53"
-local util = require "util"
+﻿local util = require "util"
 
 local ccoroutine = {}
 
@@ -88,7 +87,7 @@ function ccoroutine.yield_call(net_modulename, sessionId, timeout_millsec)
 		local succ, msg = coroutine.yield("YIELD_CALL")
 		session_id_coroutine[sessionId] = nil
 		net_modulename.deltimer(timerId)
-		return succ, (succ == true) and msgpack.unpack(msg) or msg
+		return succ, msg
 		end)
 	session_id_coroutine[sessionId] = nil
 	if not retpcall then 
