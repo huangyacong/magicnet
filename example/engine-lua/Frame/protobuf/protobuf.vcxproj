@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{11B2371F-ABF0-4159-BABF-75FF9AD15AE3}</ProjectGuid>
+    <RootNamespace>protobuf</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\luabin\luaclib\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\src\CoreSrc\common;..\src\CoreSrc\mysql;..\src\CoreSrc\mysql\dev\64\include;..\src\CoreSrc\netbase;..\src\NetEngine;..\src\PbcForLua;..\src\PbcForLua\src;..\src\PbcForLua\binding\lua53;..\..\lua-src\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LUA_BUILD_AS_DLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4146;4273;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\src\CoreSrc\mysql\dev\64\lib;..\..\luabin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libmysql.lib;lualib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>rd /s/q  "./x64"
+XCOPY /Y ..\src\PbcForLua\binding\lua53\protobuf.lua ..\..\luabin\lib\</Command>
+    </PostBuildEvent>
+    <BuildLog>
+      <Path>.\$(MSBuildProjectName).vclog</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\CoreSrc\common\SeBase64.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeCrc32.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeCrypt.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeHash.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeList.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeLog.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeMD5.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeMutex.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeSha1.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeSMem.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeThread.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeTime.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeTool.c" />
+    <ClCompile Include="..\src\CoreSrc\mysql\SeMysql.c" />
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetBase.c" />
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetCoreLinux.c" />
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetCoreWin.c" />
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetSocket.c" />
+    <ClCompile Include="..\src\CoreSrc\netbase\SeNetStream.c" />
+    <ClCompile Include="..\src\NetEngine\SeClient.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeCommon.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeCrashDump.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeFastSql.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeLock.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeLogEngine.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeNetEngine.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeServer.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeSql.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeTimer.cpp" />
+    <ClCompile Include="..\src\PbcForLua\binding\lua53\pbc-lua53.c" />
+    <ClCompile Include="..\src\PbcForLua\src\alloc.c" />
+    <ClCompile Include="..\src\PbcForLua\src\array.c" />
+    <ClCompile Include="..\src\PbcForLua\src\bootstrap.c" />
+    <ClCompile Include="..\src\PbcForLua\src\context.c" />
+    <ClCompile Include="..\src\PbcForLua\src\decode.c" />
+    <ClCompile Include="..\src\PbcForLua\src\map.c" />
+    <ClCompile Include="..\src\PbcForLua\src\pattern.c" />
+    <ClCompile Include="..\src\PbcForLua\src\proto.c" />
+    <ClCompile Include="..\src\PbcForLua\src\register.c" />
+    <ClCompile Include="..\src\PbcForLua\src\rmessage.c" />
+    <ClCompile Include="..\src\PbcForLua\src\stringpool.c" />
+    <ClCompile Include="..\src\PbcForLua\src\varint.c" />
+    <ClCompile Include="..\src\PbcForLua\src\wmessage.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\CoreSrc\common\SeBase64.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeCrc32.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeCrypt.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeHash.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeList.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeLog.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeMD5.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeMutex.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeSha1.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeSMem.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeThread.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeTime.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeTool.h" />
+    <ClInclude Include="..\src\CoreSrc\mysql\SeMysql.h" />
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetBase.h" />
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetCore.h" />
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetSocket.h" />
+    <ClInclude Include="..\src\CoreSrc\netbase\SeNetStream.h" />
+    <ClInclude Include="..\src\NetEngine\SeClient.h" />
+    <ClInclude Include="..\src\NetEngine\SeCommon.h" />
+    <ClInclude Include="..\src\NetEngine\SeCrashDump.h" />
+    <ClInclude Include="..\src\NetEngine\SeFastSql.h" />
+    <ClInclude Include="..\src\NetEngine\SeLock.h" />
+    <ClInclude Include="..\src\NetEngine\SeLogEngine.h" />
+    <ClInclude Include="..\src\NetEngine\SeNetEngine.h" />
+    <ClInclude Include="..\src\NetEngine\SeServer.h" />
+    <ClInclude Include="..\src\NetEngine\SeSql.h" />
+    <ClInclude Include="..\src\NetEngine\SeTimer.h" />
+    <ClInclude Include="..\src\PbcForLua\pbc.h" />
+    <ClInclude Include="..\src\PbcForLua\src\alloc.h" />
+    <ClInclude Include="..\src\PbcForLua\src\array.h" />
+    <ClInclude Include="..\src\PbcForLua\src\bootstrap.h" />
+    <ClInclude Include="..\src\PbcForLua\src\context.h" />
+    <ClInclude Include="..\src\PbcForLua\src\descriptor.pbc.h" />
+    <ClInclude Include="..\src\PbcForLua\src\map.h" />
+    <ClInclude Include="..\src\PbcForLua\src\pattern.h" />
+    <ClInclude Include="..\src\PbcForLua\src\proto.h" />
+    <ClInclude Include="..\src\PbcForLua\src\stringpool.h" />
+    <ClInclude Include="..\src\PbcForLua\src\varint.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

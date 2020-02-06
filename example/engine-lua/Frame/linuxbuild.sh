@@ -15,3 +15,7 @@ cd CoreTool
 rm -rf *.o
 make
 cd ..
+cd protobuf
+rm -rf *.o
+make
+cd ..
