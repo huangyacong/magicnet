@@ -106,7 +106,7 @@ function IServerClass:OnRecv(socket, data)
 		ccoroutine.resume(co, true, contents)
 		return
 	end
-	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents)
+	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents, PTYPE, session_id)
 end
 
 return util.ReadOnlyTable(IServerClass)

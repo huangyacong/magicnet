@@ -192,7 +192,7 @@ function IClientClass:OnRecv(data)
 		ccoroutine.resume(co, true, contents)
 		return
 	end
-	self.modulename[IClientNetFunc_OnRecv](self, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents)
+	self.modulename[IClientNetFunc_OnRecv](self, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents, PTYPE, session_id)
 end
 
 return util.ReadOnlyTable(IClientClass)
