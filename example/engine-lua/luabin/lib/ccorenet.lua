@@ -172,7 +172,6 @@ function ccorenet.pack(bClinetFormat, proto, data, PTYPE, session_id)
 		session_id = session_id or 0
 		return string.pack("s16>H>j", proto, PTYPE, session_id), data, PTYPE, session_id
 	end
-	assert(PTYPE == ccorenet.PTYPE.PTYPE_COMMON)
 	return string.pack(">H", proto), data, nil, nil
 end
 
