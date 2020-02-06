@@ -1,4 +1,5 @@
 ﻿local ccoroutine = require "ccoroutine"
+local net_module = require "ccorenet"
 local msgpack = require "msgpack53"
 local CoreNet = require "CoreNet"
 local util = require "util"
@@ -10,11 +11,10 @@ local IServerNetFunc_OnDisConnect = "OnDisConnect"
 
 local IServerClass = class()
 
-function IServerClass:ctor(className, net_modulename, modulename, cIP, iPort, iTimeOut, bClinetFormat, iDomain, bReusePort, bNoDelay)
+function IServerClass:ctor(className, modulename, cIP, iPort, iTimeOut, bClinetFormat, iDomain, bReusePort, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
 	self.modulename = modulename
-	self.net_modulename = net_modulename
 
 	self.cIP = cIP
 	self.iPort = iPort
@@ -57,28 +57,28 @@ function IServerClass:Listen()
 	end
 
 	self.hsocket = socket
-	self.net_modulename.IServerList[self.hsocket] = self
+	net_module.IServerList[self.hsocket] = self
 	return true 
 end
 
 function IServerClass:SendData(socket, proto, data)
-	local header, contents, PTYPE, session_id = self.net_modulename.pack(self.bClinetFormat, proto, data, self.net_modulename.PTYPE.PTYPE_COMMON, 0)
+	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, data, net_module.PTYPE.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(socket, header, contents)
 end
 
 function IServerClass:CallData(socket, proto, data, timeout_millsec)
-	local header, contents, PTYPE, session_id = self.net_modulename.pack(self.bClinetFormat, proto, msgpack.pack(data), self.net_modulename.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
+	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
 	local ret = CoreNet.TCPSend(socket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
 		return false, "send failed"
 	end
-	local succ, msg = ccoroutine.yield_call(self.net_modulename, session_id, timeout_millsec)
+	local succ, msg = ccoroutine.yield_call(net_module, session_id, timeout_millsec)
 	return succ, (succ == true) and msgpack.unpack(msg) or msg
 end
 
 function IServerClass:RetCallData(socket, data)
-	local header, contents, PTYPE, session_id = self.net_modulename.pack(self.bClinetFormat, "", msgpack.pack(data), self.net_modulename.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
+	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
 	return CoreNet.TCPSend(socket, header, contents)
 end
 
@@ -95,9 +95,9 @@ function IServerClass:OnDisConnect(socket)
 end
 
 function IServerClass:OnRecv(socket, data)
-	local proto, contents, PTYPE, session_id = self.net_modulename.unpack(self.bClinetFormat, data)
+	local proto, contents, PTYPE, session_id = net_module.unpack(self.bClinetFormat, data)
 	ccoroutine.add_session_coroutine_id(session_id)
-	if self.net_modulename.PTYPE.PTYPE_RESPONSE == PTYPE and PTYPE then
+	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE and PTYPE then
 		local co = ccoroutine.get_session_id_coroutine(session_id)
 		if not co then 
 			print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id)
@@ -106,7 +106,7 @@ function IServerClass:OnRecv(socket, data)
 		ccoroutine.resume(co, true, contents)
 		return
 	end
-	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, (self.net_modulename.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents)
+	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents)
 end
 
 return util.ReadOnlyTable(IServerClass)
