@@ -119,6 +119,7 @@ function IClientClass:SendData(proto, data)
 end
 
 function IClientClass:CallData(proto, data, timeout_millsec)
+	assert(not self.bClinetFormat)
 	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
@@ -130,6 +131,7 @@ function IClientClass:CallData(proto, data, timeout_millsec)
 end
 
 function IClientClass:RetCallData(data)
+	assert(not self.bClinetFormat)
 	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
