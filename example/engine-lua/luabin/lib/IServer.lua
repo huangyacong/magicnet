@@ -61,7 +61,7 @@ function IServerClass:Listen()
 end
 
 function IServerClass:SendData(socket, proto, data)
-	local header, contents, PTYPE, session_id = net_module.pack(proto, data, net_module.PTYPE.PTYPE_COMMON, 0)
+	local header, contents, PTYPE, session_id = net_module.pack(proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(socket, header, contents)
 end
 
@@ -96,7 +96,8 @@ end
 function IServerClass:OnRecv(socket, data)
 	local proto, contents, PTYPE, session_id = net_module.unpack(data)
 	ccoroutine.add_session_coroutine_id(session_id)
-	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE and PTYPE then
+
+	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
 		local co = ccoroutine.get_session_id_coroutine(session_id)
 		if not co then 
 			print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id)
@@ -105,7 +106,8 @@ function IServerClass:OnRecv(socket, data)
 		ccoroutine.resume(co, true, contents)
 		return
 	end
-	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents, PTYPE, session_id)
+
+	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, msgpack.unpack(contents), PTYPE, session_id)
 end
 
 return util.ReadOnlyTable(IServerClass)
