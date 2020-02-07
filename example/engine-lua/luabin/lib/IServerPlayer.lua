@@ -1,6 +1,4 @@
-﻿local ccoroutine = require "ccoroutine"
-local net_module = require "ccorenet"
-local msgpack = require "msgpack53"
+﻿local net_module = require "ccorenet"
 local CoreNet = require "CoreNet"
 local util = require "util"
 require "class"
@@ -62,8 +60,8 @@ function IServerPlayerClass:Listen()
 end
 
 function IServerPlayerClass:SendData(socket, proto, data)
-	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, data, net_module.PTYPE.PTYPE_COMMON, 0)
-	return CoreNet.TCPSend(socket, header, contents)
+	local header = string.pack(">H", proto)
+	return CoreNet.TCPSend(socket, header, data)
 end
 
 function IServerPlayerClass:DisConnect(socket)
@@ -79,18 +77,9 @@ function IServerPlayerClass:OnDisConnect(socket)
 end
 
 function IServerPlayerClass:OnRecv(socket, data)
-	local proto, contents, PTYPE, session_id = net_module.unpack(self.bClinetFormat, data)
-	ccoroutine.add_session_coroutine_id(session_id)
-	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE and PTYPE then
-		local co = ccoroutine.get_session_id_coroutine(session_id)
-		if not co then 
-			print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id)
-			return
-		end
-		ccoroutine.resume(co, true, contents)
-		return
-	end
-	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents, PTYPE, session_id)
+	local proto, len = string.unpack(">H", data)
+	local contents = string.sub(data, len, string.len(data))
+	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, contents)
 end
 
 return util.ReadOnlyTable(IServerPlayerClass)
