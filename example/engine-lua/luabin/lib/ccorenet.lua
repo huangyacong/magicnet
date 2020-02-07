@@ -180,9 +180,11 @@ end
 
 -- 消息类型
 ccorenet.PTYPE = {
-	PTYPE_COMMON = 0,	-- 普通类型
+	PTYPE_RESPONSE = 0,	-- 回应协程消息
 	PTYPE_CALL = 1,		-- 协程消息
-	PTYPE_RESPONSE = 2,	-- 回应协程消息
+	PTYPE_COMMON = 2,	-- 普通类型
+	PTYPE_REGISTER = 3,	-- 注册类型
+	PTYPE_PING = 4,		-- Ping类型
 }
 
 -- 打包

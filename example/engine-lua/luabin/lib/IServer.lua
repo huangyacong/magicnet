@@ -8,6 +8,7 @@ require "class"
 local IServerNetFunc_OnRecv = "OnRecv"
 local IServerNetFunc_OnConnect = "OnConnect"
 local IServerNetFunc_OnDisConnect = "OnDisConnect"
+local IServerNetFunc_OnRegister = "OnRegister"
 
 local IServerClass = class()
 
@@ -41,7 +42,7 @@ function IServerClass:Listen()
 		return false
 	end
 
-	local funtList = {IServerNetFunc_OnRecv, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect}
+	local funtList = {IServerNetFunc_OnRecv, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect, IServerNetFunc_OnRegister}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
 			print(string.format("IServerClass modulename=%s not has key=%s", self.modulename, funtname))
@@ -104,10 +105,16 @@ function IServerClass:OnRecv(socket, data)
 			return
 		end
 		ccoroutine.resume(co, true, contents)
-		return
+	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
+		self.modulename[IServerNetFunc_OnRecv](self, socket, proto, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
+		self.modulename[IServerNetFunc_OnRecv](self, socket, proto, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
+		self.modulename[IServerNetFunc_OnRegister](self, socket, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
+		local header, sendData = net_module.pack("", "", net_module.PTYPE.PTYPE_PING, 0)
+		CoreNet.TCPSend(socket, header, sendData)
 	end
-
-	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, msgpack.unpack(contents), PTYPE, session_id)
 end
 
 return util.ReadOnlyTable(IServerClass)

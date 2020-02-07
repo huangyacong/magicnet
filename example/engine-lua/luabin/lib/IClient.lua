@@ -6,12 +6,10 @@ local CoreNet = require "CoreNet"
 local util = require "util"
 require "class"
 
-local IClientNetFunc_OnPing = "OnPing"
 local IClientNetFunc_OnRecv = "OnRecv"
 local IClientNetFunc_OnConnect = "OnConnect"
 local IClientNetFunc_OnDisConnect = "OnDisConnect"
 local IClientNetFunc_OnConnectFailed = "OnConnectFailed"
-local IClientNetFunc_OnSendPacketAttach = "OnSendPacketAttach"
 
 -- 重连间隔时间,没次无法连接，就加上这个时间，几次之后，立马重连
 local iReConnectDelayTime = 1000
@@ -83,7 +81,7 @@ function IClientClass:Connect()
 		return false
 	end
 
-	local funtList = {IClientNetFunc_OnRecv, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnPing, IClientNetFunc_OnSendPacketAttach}
+	local funtList = {IClientNetFunc_OnRecv, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
 			print(string.format("IClientClass modulename=%s not has key=%s", self.modulename, funtname))
@@ -140,15 +138,16 @@ function IClientClass:TimeToPingPing()
 	local timeCnt = CoreTool.GetTickCount()
 	if iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
 	self.m_ullPingTIme = timeCnt
-	self.modulename[IClientNetFunc_OnPing](self)
+	local header, contents = net_module.pack("", "", net_module.PTYPE.PTYPE_PING, 0)
+	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:OnConnect(ip)
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
-	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnSendPacketAttach](self) end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+	local header, contents = net_module.pack("", msgpack.pack(self:GetName()), net_module.PTYPE.PTYPE_REGISTER, 0)
+	CoreNet.TCPSend(self.hsocket, header, contents)
 	self.modulename[IClientNetFunc_OnConnect](self, ip)
 end
 
@@ -187,10 +186,13 @@ function IClientClass:OnRecv(data)
 			return
 		end
 		ccoroutine.resume(co, true, contents)
-		return
+	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
+		self.modulename[IClientNetFunc_OnRecv](self, proto, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
+		self.modulename[IClientNetFunc_OnRecv](self, proto, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
+	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
 	end
-
-	self.modulename[IClientNetFunc_OnRecv](self, proto, msgpack.unpack(contents), PTYPE, session_id)
 end
 
 return util.ReadOnlyTable(IClientClass)

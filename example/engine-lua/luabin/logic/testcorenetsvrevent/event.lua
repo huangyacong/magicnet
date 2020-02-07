@@ -20,6 +20,10 @@ function svr_event.OnDisConnect(IServerClassObj, socket)
 	--print("disconnect", socket)
 end
 
+function svr_event.OnRegister(IServerClassObj, socket, regname)
+	print("OnRegister", socket, regname)
+end
+
 function svr_event.OnRecv(IServerClassObj, socket, proto, ret)
 	--print("recv-----------------", socket, proto, ret)
 	if "testCallData" == proto then
