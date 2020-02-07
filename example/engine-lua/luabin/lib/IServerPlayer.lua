@@ -66,24 +66,6 @@ function IServerClass:SendData(socket, proto, data)
 	return CoreNet.TCPSend(socket, header, contents)
 end
 
-function IServerClass:CallData(socket, proto, data, timeout_millsec)
-	assert(not self.bClinetFormat)
-	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
-	local ret = CoreNet.TCPSend(socket, header, contents)
-	if not ret then
-		print(debug.traceback(), "\n", "CallData failed")
-		return false, "send failed"
-	end
-	local succ, msg = ccoroutine.yield_call(net_module, session_id, timeout_millsec)
-	return succ, (succ == true) and msgpack.unpack(msg) or msg
-end
-
-function IServerClass:RetCallData(socket, data)
-	assert(not self.bClinetFormat)
-	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
-	return CoreNet.TCPSend(socket, header, contents)
-end
-
 function IServerClass:DisConnect(socket)
 	CoreNet.TCPClose(socket)
 end
