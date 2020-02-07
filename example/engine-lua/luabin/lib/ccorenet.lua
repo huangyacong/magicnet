@@ -182,10 +182,11 @@ end
 ccorenet.PTYPE = {
 	PTYPE_RESPONSE = 0,			-- 回应协程消息
 	PTYPE_CALL = 1,				-- 协程消息
-	PTYPE_COMMON = 2,			-- 普通类型
-	PTYPE_REGISTER_KEY = 3,		-- 注册Key类型
-	PTYPE_REGISTER = 4,			-- 注册类型
-	PTYPE_PING = 5,				-- Ping类型
+	PTYPE_REMOTE = 2,			-- 发送给远程目标数据类型
+	PTYPE_COMMON = 3,			-- 普通类型
+	PTYPE_REGISTER_KEY = 4,		-- 注册Key类型
+	PTYPE_REGISTER = 5,			-- 注册类型
+	PTYPE_PING = 6,				-- Ping类型
 }
 
 -- 生成token

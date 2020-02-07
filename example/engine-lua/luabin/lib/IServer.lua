@@ -9,6 +9,7 @@ require "class"
 
 local IServerNetFunc_OnRecv_Call = "OnRecvCall"
 local IServerNetFunc_OnRecv_Common = "OnRecvCommon"
+local IServerNetFunc_OnRecv_Remote = "OnRecvRemote"
 local IServerNetFunc_OnConnect = "OnConnect"
 local IServerNetFunc_OnDisConnect = "OnDisConnect"
 local IServerNetFunc_OnRegister = "OnRegister"
@@ -46,7 +47,7 @@ function IServerClass:Listen()
 		return false
 	end
 
-	local funtList = {IServerNetFunc_OnRecv_Call, IServerNetFunc_OnRecv_Common, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect, IServerNetFunc_OnRegister}
+	local funtList = {IServerNetFunc_OnRecv_Call, IServerNetFunc_OnRecv_Common, IServerNetFunc_OnRecv_Remote, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect, IServerNetFunc_OnRegister}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
 			print(string.format("IServerClass modulename=%s not has key=%s", self.modulename, funtname))
@@ -136,6 +137,9 @@ function IServerClass:OnRecv(socket, data)
 		ccoroutine.resume(co, true, contents)
 	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
 		self.modulename[IServerNetFunc_OnRecv_Call](self, socket, targetName, proto, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_REMOTE == PTYPE then
+		local remote_socket, sendData = table.unpack(msgpack.unpack(contents))
+		self.modulename[IServerNetFunc_OnRecv_Remote](self, socket, remote_socket, proto, sendData)
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
