@@ -20,9 +20,9 @@ local iReConnectCount = 10
 -- ping的时间间隔
 local iPingTimeDelay  = 1000 * 2
 
-local IClientClass = class()
+local IClientPlayerClass = class()
 
-function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, iDomain, bNoDelay)
+function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, iDomain, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
 	self.modulename = modulename
@@ -40,7 +40,7 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 end
 
-function IClientClass:del()-- 剔除各个变量
+function IClientPlayerClass:del()-- 剔除各个变量
 	assert(self.hsocket == 0)
 	
 	self.hsocket = 0
@@ -60,7 +60,7 @@ function IClientClass:del()-- 剔除各个变量
 	self.m_ullPingTIme = 0
 end
 
-function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, bNoDelay)
+function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, bNoDelay)
 	self.cIP = cIP
 	self.iPort = iPort
 	self.iTimeOut = iTimeOut
@@ -69,34 +69,34 @@ function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bCl
 	self.bNoDelay = bNoDelay
 end
 
-function IClientClass:GetName()
+function IClientPlayerClass:GetName()
 	return self.className
 end
 
-function IClientClass:Connect()
+function IClientPlayerClass:Connect()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(self.modulename) ~= type({}) then
-		print("IClientClass Listen modulename not a table")
+		print("IClientPlayerClass Listen modulename not a table")
 		return false
 	end
 
 	if not next(self.modulename) then
-		print(string.format("IClientClass modulename=%s is empty", self.modulename))
+		print(string.format("IClientPlayerClass modulename=%s is empty", self.modulename))
 		return false
 	end
 
 	local funtList = {IClientNetFunc_OnRecv, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnPing, IClientNetFunc_OnSendPacketAttach}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
-			print(string.format("IClientClass modulename=%s not has key=%s", self.modulename, funtname))
+			print(string.format("IClientPlayerClass modulename=%s not has key=%s", self.modulename, funtname))
 			return false
 		end
 	end
 
 	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, not self.bClinetFormat, self.iDomain, self.bNoDelay)
 	if socket == 0 then 
-		print(string.format("IClientClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
+		print(string.format("IClientPlayerClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
 		return false 
 	end
 
@@ -105,7 +105,7 @@ function IClientClass:Connect()
 	return true 
 end
 
-function IClientClass:TryReConnect()
+function IClientPlayerClass:TryReConnect()
 	if self.hsocket ~= 0 then return false end
 	local timeCnt = CoreTool.GetTickCount()
 	if self.m_ullReConnectTime > timeCnt then return end
@@ -113,16 +113,16 @@ function IClientClass:TryReConnect()
 	return self:Connect()
 end
 
-function IClientClass:SendData(proto, data)
+function IClientPlayerClass:SendData(proto, data)
 	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, data, net_module.PTYPE.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
-function IClientClass:DisConnect()
+function IClientPlayerClass:DisConnect()
 	CoreNet.TCPClose(self.hsocket)
 end
 
-function IClientClass:TimeToPingPing()
+function IClientPlayerClass:TimeToPingPing()
 	if self.hsocket == 0 then return end
 	local timeCnt = CoreTool.GetTickCount()
 	if iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
@@ -130,7 +130,7 @@ function IClientClass:TimeToPingPing()
 	self.modulename[IClientNetFunc_OnPing](self)
 end
 
-function IClientClass:OnConnect(ip)
+function IClientPlayerClass:OnConnect(ip)
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
@@ -139,7 +139,7 @@ function IClientClass:OnConnect(ip)
 	self.modulename[IClientNetFunc_OnConnect](self, ip)
 end
 
-function IClientClass:OnConnectFailed()
+function IClientPlayerClass:OnConnectFailed()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
@@ -151,7 +151,7 @@ function IClientClass:OnConnectFailed()
 	self.hsocket = 0
 end
 
-function IClientClass:OnDisConnect()
+function IClientPlayerClass:OnDisConnect()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime;
@@ -163,7 +163,7 @@ function IClientClass:OnDisConnect()
 	self.hsocket = 0
 end
 
-function IClientClass:OnRecv(data)
+function IClientPlayerClass:OnRecv(data)
 	local proto, contents, PTYPE, session_id = net_module.unpack(self.bClinetFormat, data)
 	ccoroutine.add_session_coroutine_id(session_id)
 	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE and PTYPE then
@@ -178,4 +178,4 @@ function IClientClass:OnRecv(data)
 	self.modulename[IClientNetFunc_OnRecv](self, proto, (net_module.PTYPE.PTYPE_CALL == PTYPE) and msgpack.unpack(contents) or contents, PTYPE, session_id)
 end
 
-return util.ReadOnlyTable(IClientClass)
+return util.ReadOnlyTable(IClientPlayerClass)
