@@ -9,7 +9,7 @@ local IServerNetFunc_OnDisConnect = "OnDisConnect"
 
 local IServerPlayerClass = class()
 
-function IServerPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, bClinetFormat, iDomain, bReusePort, bNoDelay)
+function IServerPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, bReusePort, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
 	self.modulename = modulename
@@ -17,8 +17,6 @@ function IServerPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, bC
 	self.cIP = cIP
 	self.iPort = iPort
 	self.iTimeOut = iTimeOut
-	self.bClinetFormat = bClinetFormat
-	self.iDomain = iDomain
 	self.bReusePort = bReusePort
 	self.bNoDelay = bNoDelay
 end
@@ -48,7 +46,7 @@ function IServerPlayerClass:Listen()
 		end
 	end
 
-	local socket = CoreNet.TCPListen(self.cIP, self.iPort, self.iTimeOut, not self.bClinetFormat, self.iDomain, self.bReusePort, self.bNoDelay)
+	local socket = CoreNet.TCPListen(self.cIP, self.iPort, self.iTimeOut, false, net_module.IpV4, self.bReusePort, self.bNoDelay)
 	if socket == 0 then 
 		print(string.format("IServerPlayerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.iPort))
 		return false 
