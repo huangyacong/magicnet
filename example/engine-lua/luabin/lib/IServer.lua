@@ -38,26 +38,26 @@ function IServerClass:Listen()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(self.modulename) ~= type({}) then
-		print("IServerClass Listen modulename not a table")
+		print(debug.traceback(), "\n", "IServerClass Listen modulename not a table")
 		return false
 	end
 
 	if not next(self.modulename) then
-		print(string.format("IServerClass modulename=%s is empty", self.modulename))
+		print(debug.traceback(), "\n", string.format("IServerClass modulename=%s is empty", self.modulename))
 		return false
 	end
 
 	local funtList = {IServerNetFunc_OnRecv_Call, IServerNetFunc_OnRecv_Common, IServerNetFunc_OnRecv_Remote, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect, IServerNetFunc_OnRegister}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
-			print(string.format("IServerClass modulename=%s not has key=%s", self.modulename, funtname))
+			print(debug.traceback(), "\n", string.format("IServerClass modulename=%s not has key=%s", self.modulename, funtname))
 			return false
 		end
 	end
 
 	local socket = CoreNet.TCPListen(self.cIP, self.iPort, self.iTimeOut, true, self.iDomain, self.bReusePort, self.bNoDelay)
 	if socket == 0 then 
-		print(string.format("IServerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.iPort))
+		print(debug.traceback(), "\n", string.format("IServerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.iPort))
 		return false 
 	end
 
@@ -114,17 +114,17 @@ function IServerClass:OnRecv(socket, data)
 
 	local clientSocketObj = self.client_hsocket[socket]
 	if not clientSocketObj then
-		print(string.format("IServerClass:OnRecv not find clientSocketObj=%s", socket))
+		print(debug.traceback(), "\n", string.format("IServerClass:OnRecv not find clientSocketObj=%s", socket))
 		return
 	end
 
 	if net_module.PTYPE.PTYPE_REGISTER ~= PTYPE and not clientSocketObj.resgisterName then
-		print(string.format("IServerClass:OnRecv clientSocketObj=%s please register", socket))
+		print(debug.traceback(), "\n", string.format("IServerClass:OnRecv clientSocketObj=%s please register", socket))
 		return
 	end
 
 	if net_module.PTYPE.PTYPE_REGISTER == PTYPE and clientSocketObj.resgisterName then
-		print(string.format("IServerClass:OnRecv clientSocketObj=%s register more", socket))
+		print(debug.traceback(), "\n", string.format("IServerClass:OnRecv clientSocketObj=%s register more", socket))
 		return
 	end
 

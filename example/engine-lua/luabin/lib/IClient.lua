@@ -81,31 +81,31 @@ function IClientClass:Connect()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(self.modulename) ~= type({}) then
-		print("IClientClass Listen modulename not a table")
+		print(debug.traceback(), "\n", "IClientClass Listen modulename not a table")
 		return false
 	end
 
 	if not next(self.modulename) then
-		print(string.format("IClientClass modulename=%s is empty", self.modulename))
+		print(debug.traceback(), "\n", string.format("IClientClass modulename=%s is empty", self.modulename))
 		return false
 	end
 
 	if not self[pingFuncName] then
-		print(string.format("IClientClass not has ping func=%s", pingFuncName))
+		print(debug.traceback(), "\n", string.format("IClientClass not has ping func=%s", pingFuncName))
 		return false
 	end
 
 	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
-			print(string.format("IClientClass modulename=%s not has key=%s", self.modulename, funtname))
+			print(debug.traceback(), "\n", string.format("IClientClass modulename=%s not has key=%s", self.modulename, funtname))
 			return false
 		end
 	end
 
 	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, true, self.iDomain, self.bNoDelay)
 	if socket == 0 then 
-		print(string.format("IClientClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
+		print(debug.traceback(), "\n", string.format("IClientClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
 		return false 
 	end
 

@@ -144,7 +144,7 @@ local function worker()
 		if fliter then
 			fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
 		else
-			pcall(function ()  print(string.format("ccorenet.read svrObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
+			pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read svrObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
 		end
 	elseif clientObj[recvsocket] then
 		local tcpsocketobj = clientObj[recvsocket]
@@ -152,13 +152,13 @@ local function worker()
 		if fliter then
 			fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
 		else
-			pcall(function ()  print(string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
+			pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
 		end
 	elseif CoreNet.SOCKET_TIMER == netevent then
 		frame_run()
 		timeout_run()
 	else
-		pcall(function ()  print(string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
+		pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
 	end
 end
 

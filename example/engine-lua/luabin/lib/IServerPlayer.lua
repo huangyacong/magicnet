@@ -29,26 +29,26 @@ function IServerPlayerClass:Listen()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(self.modulename) ~= type({}) then
-		print("IServerPlayerClass Listen modulename not a table")
+		print(debug.traceback(), "\n", "IServerPlayerClass Listen modulename not a table")
 		return false
 	end
 
 	if not next(self.modulename) then
-		print(string.format("IServerPlayerClass modulename=%s is empty", self.modulename))
+		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename=%s is empty", self.modulename))
 		return false
 	end
 
 	local funtList = {IServerNetFunc_OnRecv, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
-			print(string.format("IServerPlayerClass modulename=%s not has key=%s", self.modulename, funtname))
+			print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename=%s not has key=%s", self.modulename, funtname))
 			return false
 		end
 	end
 
 	local socket = CoreNet.TCPListen(self.cIP, self.iPort, self.iTimeOut, false, net_module.IpV4, self.bReusePort, self.bNoDelay)
 	if socket == 0 then 
-		print(string.format("IServerPlayerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.iPort))
+		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.iPort))
 		return false 
 	end
 
