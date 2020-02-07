@@ -45,6 +45,11 @@ function svr_event.OnRecvCommon(IServerClassObj, socket, targetName, proto, ret)
 	IServerClassObj:SendData(socket, targetName, proto, ret)
 end
 
+function svr_event.OnRecvRemote(IServerClassObj, socket, remote_socket, proto, ret)
+	print("OnRecvRemote-----------------", socket, remote_socket, proto, ret)
+	
+end
+
 function svr_event.test()
 	--reloadmodule.reloadlist({"testcorenetsvrevent/event"})
 	--print("7777777777777777777")
