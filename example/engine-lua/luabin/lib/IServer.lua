@@ -1,4 +1,5 @@
 ﻿local ccoroutine = require "ccoroutine"
+local randomutil = require "randomutil"
 local net_module = require "ccorenet"
 local msgpack = require "msgpack53"
 local CoreTool = require "CoreTool"
@@ -90,7 +91,7 @@ function IServerClass:DisConnect(socket)
 end
 
 function IServerClass:OnConnect(socket, ip)
-	self.client_hsocket[socket] = {key = tostring(CoreTool.GetTickCount()) .. tostring(socket), bResgister = false}
+	self.client_hsocket[socket] = {key = tostring(CoreTool.GetTickCount()) .. tostring(socket) .. tostring(randomutil.random_int(1, 0x7FFFFFFF)), bResgister = false}
 	local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self.client_hsocket[socket].key)), net_module.PTYPE.PTYPE_REGISTER_KEY, 0)
 	CoreNet.TCPSend(socket, header, sendData)
 	self.modulename[IServerNetFunc_OnConnect](self, socket, ip)

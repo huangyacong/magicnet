@@ -1,10 +1,9 @@
 local util = require "util"
 
-local randomutil = {}
 
-function randomutil.init_seed()
-	math.randomseed(os.time())
-end
+math.randomseed(os.time())
+
+local randomutil = {}
 
 function randomutil.random()
 	return math.random()
