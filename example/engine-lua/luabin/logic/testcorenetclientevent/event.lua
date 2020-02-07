@@ -64,9 +64,9 @@ function client_event.framefunc()
 end
 
 function client_event.session_id_coroutine_timeout()
-	ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
-	ccorenet.getGlobalObj("clientObj"):SendRemoteData(10000000, "SendRemoteData", "ip.......")
-	ccorenet.getGlobalObj("clientObj"):SendData("watchdog.", "sssssss", ip)
+	--ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
+	ccorenet.getGlobalObj("clientObj"):SendRemoteData(10000000, 199, "ip.......")
+	ccorenet.getGlobalObj("clientObj"):SendData("watchdog.", "sssssss", "asddff")
 	local oo, data = ccorenet.getGlobalObj("clientObj"):CallData("watchdog......", "testCallData", {"12345"})
 	--print(oo)
 	--if type(data) == type({}) then 

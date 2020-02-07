@@ -46,7 +46,7 @@ function svr_event.OnRecvCommon(IServerClassObj, socket, targetName, proto, ret)
 end
 
 function svr_event.OnRecvRemote(IServerClassObj, socket, remote_socket, proto, ret)
-	print("OnRecvRemote-----------------", socket, remote_socket, proto, ret)
+	print("OnRecvRemote-----------------", socket, remote_socket, type(remote_socket), proto, type(proto), ret)
 	
 end
 
