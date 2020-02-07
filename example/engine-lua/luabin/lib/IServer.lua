@@ -90,8 +90,13 @@ function IServerClass:DisConnect(socket)
 	CoreNet.TCPClose(socket)
 end
 
+function IServerClass:GetSocketRegName(socket)
+	local clientSocketObj = self.client_hsocket[socket]
+	return clientSocketObj and clientSocketObj.resgisterName or nil
+end
+
 function IServerClass:OnConnect(socket, ip)
-	self.client_hsocket[socket] = {key = tostring(CoreTool.GetTickCount()) .. tostring(socket) .. tostring(randomutil.random_int(1, 0x7FFFFFFF)), bResgister = false}
+	self.client_hsocket[socket] = {key = tostring(CoreTool.GetTickCount()) .. tostring(socket) .. tostring(randomutil.random_int(1, 0x7FFFFFFF)), resgisterName = nil}
 	local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self.client_hsocket[socket].key)), net_module.PTYPE.PTYPE_REGISTER_KEY, 0)
 	CoreNet.TCPSend(socket, header, sendData)
 	self.modulename[IServerNetFunc_OnConnect](self, socket, ip)
@@ -112,12 +117,12 @@ function IServerClass:OnRecv(socket, data)
 		return
 	end
 
-	if net_module.PTYPE.PTYPE_REGISTER ~= PTYPE and clientSocketObj.bResgister == false then
+	if net_module.PTYPE.PTYPE_REGISTER ~= PTYPE and not clientSocketObj.resgisterName then
 		print(string.format("IServerClass:OnRecv clientSocketObj=%s please register", socket))
 		return
 	end
 
-	if net_module.PTYPE.PTYPE_REGISTER == PTYPE and clientSocketObj.bResgister == true then
+	if net_module.PTYPE.PTYPE_REGISTER == PTYPE and clientSocketObj.resgisterName then
 		print(string.format("IServerClass:OnRecv clientSocketObj=%s register more", socket))
 		return
 	end
@@ -136,7 +141,7 @@ function IServerClass:OnRecv(socket, data)
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		local name, md5str = table.unpack(msgpack.unpack(contents))
 		if net_module.genToken(clientSocketObj.key, name) == md5str then
-			clientSocketObj.bResgister = true
+			clientSocketObj.resgisterName = name
 			self.modulename[IServerNetFunc_OnRegister](self, socket, name)
 			print(string.format("IServerClass:OnRecv clientSocketObj=%s register ok. name=%s md5str=%s", socket, name, md5str))
 		else
