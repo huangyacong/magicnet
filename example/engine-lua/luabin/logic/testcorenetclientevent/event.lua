@@ -10,7 +10,7 @@ local client_event = {}
 
 function client_event.OnConnect(IClientClassObj, ip)
 	--print("c_connect", IClientClassObj, ip)
-	IClientClassObj:SendData("sssssss", ip)
+	IClientClassObj:SendData("watchdog.", "sssssss", ip)
 end
 
 function client_event.OnConnectFailed(IClientClassObj)
@@ -29,15 +29,15 @@ function client_event.OnPing(IClientClassObj)
 	--print("OnPing", IClientClassObj)
 end
 
-function client_event.OnRecv(IClientClassObj, proto, data)
-	--print("c_recv", IClientClassObj, proto, data)
+function client_event.OnRecv(IClientClassObj, targetName, proto, data)
+	print("c_recv", IClientClassObj, targetName, proto, data)
 	--
 	if "testCallData" == proto then
 		IClientClassObj:RetCallData(data)
 		return
 	end
-	IClientClassObj:SendData(proto, data)
-	--print("c_recv", IClientClassObj, proto, data)
+	---IClientClassObj:SendData(targetName, proto, data)
+	print("c_recv", IClientClassObj, targetName, proto, data)
 end
 
 local timero = CoreTool.GetTickCount()
@@ -62,8 +62,8 @@ function client_event.framefunc()
 end
 
 function client_event.session_id_coroutine_timeout()
-	ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1)
-	local oo, data = ccorenet.getGlobalObj("clientObj"):CallData("testCallData", {"12345"})
+	ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
+	local oo, data = ccorenet.getGlobalObj("clientObj"):CallData("watchdog......", "testCallData", {"12345"})
 	--print(oo)
 	--if type(data) == type({}) then 
 	--	util.print(data) 
@@ -72,7 +72,7 @@ function client_event.session_id_coroutine_timeout()
 	--end
 end
 
-ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1)
+ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
 
 local domain = ccorenet.IpV4
 local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"

@@ -24,12 +24,12 @@ function svr_event.OnRegister(IServerClassObj, socket, regname)
 	print("OnRegister", socket, regname)
 end
 
-function svr_event.OnRecv(IServerClassObj, socket, proto, ret)
-	--print("recv-----------------", socket, proto, ret)
+function svr_event.OnRecv(IServerClassObj, socket, targetName, proto, ret)
+	print("recv-----------------", socket, targetName, proto, ret)
 	if "testCallData" == proto then
 		--util.print(msgpack.unpack(ret))
 		IServerClassObj:RetCallData(socket, ret)
-		local oo, data = IServerClassObj:CallData(socket, "testCallData", {"testCallData", ret})
+		--local oo, data = IServerClassObj:CallData(socket, "testCallData", {"testCallData", ret})
 		--print(oo)
 		--if type(data) == type({}) then 
 			--util.print(data) 
@@ -41,7 +41,7 @@ function svr_event.OnRecv(IServerClassObj, socket, proto, ret)
 	--local oo, data = IServerClassObj:CallData(socket, "testCallData", {"aaaaa"})
 	--util.print(table.pack(oo, data))
 
-	IServerClassObj:SendData(socket, proto, ret)
+	IServerClassObj:SendData(socket, targetName, proto, ret)
 end
 
 function svr_event.test()
@@ -81,22 +81,22 @@ end
 
 function svr_event.timerfunc(...)
 	--print("timerfunc", ...)
-	ccorenet.addtimer(svr_event, "timerfunc", 1, 1, 2, 3)
+	ccorenet.addtimer(svr_event, "timerfunc", 1000, 1, 2, 3)
 	if socketObj then
-		local oo, data = ccorenet.getGlobalObj("serverObj"):CallData(socketObj, "testCallData", {"12345"})
-		--[[
+		local oo, data = ccorenet.getGlobalObj("serverObj"):CallData(socketObj, "dddddddddddddddd", "testCallData", {"12345"})
+		
 		print(oo)
 		if type(data) == type({}) then 
 			util.print(data) 
 		else 
 			print(data) 
 		end
-		]]
+
 	end
 end
 
 
-ccorenet.addtimer(svr_event, "timerfunc", 1, 1, 2, 3)
+ccorenet.addtimer(svr_event, "timerfunc", 1000, 1, 2, 3)
 
 local bReusePort = true
 local domain = ccorenet.IpV4
