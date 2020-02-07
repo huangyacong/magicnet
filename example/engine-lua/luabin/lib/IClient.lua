@@ -122,7 +122,7 @@ function IClientClass:TryReConnect()
 end
 
 function IClientClass:SendData(proto, data)
-	local header, contents, PTYPE, session_id = net_module.pack(proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
+	local header, contents = net_module.pack(proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -138,7 +138,7 @@ function IClientClass:CallData(proto, data, timeout_millsec)
 end
 
 function IClientClass:RetCallData(data)
-	local header, contents, PTYPE, session_id = net_module.pack("", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
+	local header, contents = net_module.pack("", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
