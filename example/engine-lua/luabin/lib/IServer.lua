@@ -164,7 +164,7 @@ function IServerClass:OnRecv(socket, data)
 		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		local name, md5str = table.unpack(msgpack.unpack(contents))
-		if net_module.genToken(clientSocketObj:get_key(), name) == md5str then
+		if net_module.genToken(clientSocketObj:get_key(), name) == md5str and string.len(name) > 0 then
 			clientSocketObj:set_name(name)
 			self.modulename[IServerNetFunc_OnRegister](self, socket, name)
 			print(string.format("IServerClass:OnRecv clientSocketObj=%s register ok. name=%s md5str=%s", socket, name, md5str))
