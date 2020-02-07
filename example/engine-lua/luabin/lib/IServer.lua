@@ -14,6 +14,25 @@ local IServerNetFunc_OnConnect = "OnConnect"
 local IServerNetFunc_OnDisConnect = "OnDisConnect"
 local IServerNetFunc_OnRegister = "OnRegister"
 
+local clientSocket = class()
+
+function clientSocket:ctor(toeknkey, resgisterName)
+	self.toeknkey = toeknkey
+	self.resgisterName = resgisterName
+end
+
+function clientSocket:get_key()
+	return self.toeknkey
+end
+
+function clientSocket:get_name()
+	return self.resgisterName
+end
+
+function clientSocket:set_name(resgisterName)
+	self.resgisterName = resgisterName
+end
+
 local IServerClass = class()
 
 function IServerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iDomain, bReusePort, bNoDelay)
@@ -93,12 +112,13 @@ end
 
 function IServerClass:GetSocketRegName(socket)
 	local clientSocketObj = self.client_hsocket[socket]
-	return clientSocketObj and clientSocketObj.resgisterName or nil
+	return clientSocketObj and clientSocketObj:get_name() or nil
 end
 
 function IServerClass:OnConnect(socket, ip)
-	self.client_hsocket[socket] = {key = tostring(CoreTool.GetTickCount()) .. tostring(socket) .. tostring(randomutil.random_int(1, 0x7FFFFFFF)), resgisterName = nil}
-	local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self.client_hsocket[socket].key)), net_module.PTYPE.PTYPE_REGISTER_KEY, 0)
+	local clientSocketObj = clientSocket.new(tostring(CoreTool.GetTickCount()) .. tostring(socket) .. tostring(randomutil.random_int(1, 0x7FFFFFFF)), nil)
+	self.client_hsocket[socket] = clientSocketObj
+	local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(clientSocketObj:get_key())), net_module.PTYPE.PTYPE_REGISTER_KEY, 0)
 	CoreNet.TCPSend(socket, header, sendData)
 	self.modulename[IServerNetFunc_OnConnect](self, socket, ip)
 end
@@ -118,12 +138,12 @@ function IServerClass:OnRecv(socket, data)
 		return
 	end
 
-	if net_module.PTYPE.PTYPE_REGISTER ~= PTYPE and not clientSocketObj.resgisterName then
+	if net_module.PTYPE.PTYPE_REGISTER ~= PTYPE and not clientSocketObj:get_name() then
 		print(debug.traceback(), "\n", string.format("IServerClass:OnRecv clientSocketObj=%s please register", socket))
 		return
 	end
 
-	if net_module.PTYPE.PTYPE_REGISTER == PTYPE and clientSocketObj.resgisterName then
+	if net_module.PTYPE.PTYPE_REGISTER == PTYPE and clientSocketObj:get_name() then
 		print(debug.traceback(), "\n", string.format("IServerClass:OnRecv clientSocketObj=%s register more", socket))
 		return
 	end
@@ -144,8 +164,8 @@ function IServerClass:OnRecv(socket, data)
 		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		local name, md5str = table.unpack(msgpack.unpack(contents))
-		if net_module.genToken(clientSocketObj.key, name) == md5str then
-			clientSocketObj.resgisterName = name
+		if net_module.genToken(clientSocketObj:get_key(), name) == md5str then
+			clientSocketObj:set_name(name)
 			self.modulename[IServerNetFunc_OnRegister](self, socket, name)
 			print(string.format("IServerClass:OnRecv clientSocketObj=%s register ok. name=%s md5str=%s", socket, name, md5str))
 		else
