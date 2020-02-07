@@ -83,7 +83,7 @@ function IClientPlayerClass:Connect()
 	end
 
 	if not next(self.modulename) then
-		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename=%s is empty", self.modulename))
+		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename is empty"))
 		return false
 	end
 
@@ -95,14 +95,14 @@ function IClientPlayerClass:Connect()
 	local funtList = {IClientNetFunc_OnRecv, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnPing, IClientNetFunc_OnSendPacketAttach}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
-			print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename=%s not has key=%s", self.modulename, funtname))
+			print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename not has key=%s", funtname))
 			return false
 		end
 	end
 
 	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, false, net_module.IpV4, self.bNoDelay)
 	if socket == 0 then 
-		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
+		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename Client Connect Failed. cIP=%s iPort=%s", self.cIP, self.Port))
 		return false 
 	end
 

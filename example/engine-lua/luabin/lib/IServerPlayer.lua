@@ -34,21 +34,21 @@ function IServerPlayerClass:Listen()
 	end
 
 	if not next(self.modulename) then
-		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename=%s is empty", self.modulename))
+		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename is empty"))
 		return false
 	end
 
 	local funtList = {IServerNetFunc_OnRecv, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
-			print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename=%s not has key=%s", self.modulename, funtname))
+			print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename not has key=%s", funtname))
 			return false
 		end
 	end
 
 	local socket = CoreNet.TCPListen(self.cIP, self.iPort, self.iTimeOut, false, net_module.IpV4, self.bReusePort, self.bNoDelay)
 	if socket == 0 then 
-		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename=%s Listen Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.iPort))
+		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename Listen Failed. cIP=%s iPort=%s", self.cIP, self.iPort))
 		return false 
 	end
 
