@@ -128,6 +128,8 @@ function IClientClass:SendData(targetName, proto, data)
 end
 
 function IClientClass:SendRemoteData(remote_socket, proto, data)
+	assert(type(proto) == type(0))
+	assert(type(remote_socket) == type(0))
 	local header, contents = net_module.pack("", tostring(proto), msgpack.pack(table.pack(remote_socket, data)), net_module.PTYPE.PTYPE_REMOTE, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
