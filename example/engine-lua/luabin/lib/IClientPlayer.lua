@@ -20,7 +20,7 @@ local iPingTimeDelay  = 1000 * 2
 
 local IClientPlayerClass = class()
 
-function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, iDomain, bNoDelay)
+function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
 	self.modulename = modulename
@@ -29,8 +29,6 @@ function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iC
 	self.iPort = iPort
 	self.iTimeOut = iTimeOut
 	self.iConnectTimeOut = iConnectTimeOut
-	self.bClinetFormat = bClinetFormat
-	self.iDomain = iDomain
 	self.bNoDelay = bNoDelay
 
 	self.m_iReConnectNum = 0
@@ -49,8 +47,6 @@ function IClientPlayerClass:del()-- 剔除各个变量
 	self.iPort = 0
 	self.iTimeOut = 0
 	self.iConnectTimeOut = 0
-	self.bClinetFormat = 0
-	self.iDomain = iDomain
 	self.bNoDelay = 0
 
 	self.m_iReConnectNum = 0
@@ -58,12 +54,11 @@ function IClientPlayerClass:del()-- 剔除各个变量
 	self.m_ullPingTIme = 0
 end
 
-function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, bNoDelay)
+function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
 	self.cIP = cIP
 	self.iPort = iPort
 	self.iTimeOut = iTimeOut
 	self.iConnectTimeOut = iConnectTimeOut
-	self.bClinetFormat = bClinetFormat
 	self.bNoDelay = bNoDelay
 end
 
@@ -92,7 +87,7 @@ function IClientPlayerClass:Connect()
 		end
 	end
 
-	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, not self.bClinetFormat, self.iDomain, self.bNoDelay)
+	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, false, net_module.IpV4, self.bNoDelay)
 	if socket == 0 then 
 		print(string.format("IClientPlayerClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
 		return false 
