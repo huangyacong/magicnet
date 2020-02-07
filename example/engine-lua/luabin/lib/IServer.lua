@@ -141,7 +141,7 @@ function IServerClass:OnRecv(socket, data)
 		local remote_socket, sendData = table.unpack(msgpack.unpack(contents))
 		self.modulename[IServerNetFunc_OnRecv_Remote](self, socket, remote_socket, proto, sendData)
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
-		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
+		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, tonumber(proto), msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		local name, md5str = table.unpack(msgpack.unpack(contents))
 		if net_module.genToken(clientSocketObj.key, name) == md5str then
