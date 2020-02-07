@@ -79,14 +79,16 @@ function svr_event.timerfunc(...)
 	--print("timerfunc", ...)
 	ccorenet.addtimer(svr_event, "timerfunc", 1, 1, 2, 3)
 	if socketObj then
-	local oo, data = ccorenet.getGlobalObj("serverObj"):CallData(socketObj, "testCallData", {"12345"})
-	--print(oo)
-	--if type(data) == type({}) then 
-	--	util.print(data) 
-	--else 
-	--	print(data) 
-	--end
-end
+		local oo, data = ccorenet.getGlobalObj("serverObj"):CallData(socketObj, "testCallData", {"12345"})
+		--[[
+		print(oo)
+		if type(data) == type({}) then 
+			util.print(data) 
+		else 
+			print(data) 
+		end
+		]]
+	end
 end
 
 
@@ -95,7 +97,7 @@ ccorenet.addtimer(svr_event, "timerfunc", 1, 1, 2, 3)
 local bReusePort = true
 local domain = ccorenet.IpV4
 local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
-local serverObj = IServer.new("serverObj", svr_event, ip, 8888, 1000*60, false, domain, bReusePort, false)
+local serverObj = IServer.new("serverObj", svr_event, ip, 8888, 1000*60, domain, bReusePort, false)
 ccorenet.addGlobalObj(serverObj, serverObj:GetName())
 
 return svr_event
