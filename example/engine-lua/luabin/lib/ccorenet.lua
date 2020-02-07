@@ -191,7 +191,7 @@ ccorenet.PTYPE = {
 
 -- 生成token
 function ccorenet.genToken(key, name)
-	return CoreTool.MD5(key .. name)
+	return CoreTool.MD5(key .. name.. "crtgame")
 end
 
 -- 打包
