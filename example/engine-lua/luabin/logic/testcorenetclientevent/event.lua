@@ -29,15 +29,17 @@ function client_event.OnPing(IClientClassObj)
 	--print("OnPing", IClientClassObj)
 end
 
-function client_event.OnRecv(IClientClassObj, targetName, proto, data)
-	print("c_recv", IClientClassObj, targetName, proto, data)
+function client_event.OnRecvCall(IClientClassObj, targetName, proto, data)
+	print("OnRecvCall", IClientClassObj, targetName, proto, data)
 	--
 	if "testCallData" == proto then
 		IClientClassObj:RetCallData(data)
 		return
 	end
-	---IClientClassObj:SendData(targetName, proto, data)
-	print("c_recv", IClientClassObj, targetName, proto, data)
+end
+
+function client_event.OnRecvCommon(IClientClassObj, targetName, proto, data)
+	print("OnRecvCommon", IClientClassObj, targetName, proto, data)
 end
 
 local timero = CoreTool.GetTickCount()

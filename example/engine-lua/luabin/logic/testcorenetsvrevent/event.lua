@@ -24,8 +24,8 @@ function svr_event.OnRegister(IServerClassObj, socket, regname)
 	print("OnRegister", socket, regname)
 end
 
-function svr_event.OnRecv(IServerClassObj, socket, targetName, proto, ret)
-	print("recv-----------------", socket, targetName, proto, ret)
+function svr_event.OnRecvCall(IServerClassObj, socket, targetName, proto, ret)
+	print("OnRecvCall-----------------", socket, targetName, proto, ret)
 	if "testCallData" == proto then
 		--util.print(msgpack.unpack(ret))
 		IServerClassObj:RetCallData(socket, ret)
@@ -38,9 +38,10 @@ function svr_event.OnRecv(IServerClassObj, socket, targetName, proto, ret)
 		--end
 		return
 	end
-	--local oo, data = IServerClassObj:CallData(socket, "testCallData", {"aaaaa"})
-	--util.print(table.pack(oo, data))
+end
 
+function svr_event.OnRecvCommon(IServerClassObj, socket, targetName, proto, ret)
+	print("OnRecvCommon-----------------", socket, targetName, proto, ret)
 	IServerClassObj:SendData(socket, targetName, proto, ret)
 end
 
