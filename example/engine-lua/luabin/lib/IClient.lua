@@ -22,7 +22,7 @@ local iPingTimeDelay  = 1000 * 2
 
 local IClientClass = class()
 
-function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, iDomain, bNoDelay)
+function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, iDomain, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
 	self.modulename = modulename
@@ -31,7 +31,6 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.iPort = iPort
 	self.iTimeOut = iTimeOut
 	self.iConnectTimeOut = iConnectTimeOut
-	self.bClinetFormat = bClinetFormat
 	self.iDomain = iDomain
 	self.bNoDelay = bNoDelay
 
@@ -51,7 +50,6 @@ function IClientClass:del()-- 剔除各个变量
 	self.iPort = 0
 	self.iTimeOut = 0
 	self.iConnectTimeOut = 0
-	self.bClinetFormat = 0
 	self.iDomain = iDomain
 	self.bNoDelay = 0
 
@@ -60,12 +58,11 @@ function IClientClass:del()-- 剔除各个变量
 	self.m_ullPingTIme = 0
 end
 
-function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bClinetFormat, bNoDelay)
+function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
 	self.cIP = cIP
 	self.iPort = iPort
 	self.iTimeOut = iTimeOut
 	self.iConnectTimeOut = iConnectTimeOut
-	self.bClinetFormat = bClinetFormat
 	self.bNoDelay = bNoDelay
 end
 
@@ -94,7 +91,7 @@ function IClientClass:Connect()
 		end
 	end
 
-	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, not self.bClinetFormat, self.iDomain, self.bNoDelay)
+	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, true, self.iDomain, self.bNoDelay)
 	if socket == 0 then 
 		print(string.format("IClientClass modulename=%s Client Connect Failed. cIP=%s iPort=%s", self.modulename, self.cIP, self.Port))
 		return false 
@@ -119,7 +116,6 @@ function IClientClass:SendData(proto, data)
 end
 
 function IClientClass:CallData(proto, data, timeout_millsec)
-	assert(not self.bClinetFormat)
 	local header, contents, PTYPE, session_id = net_module.pack(proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
@@ -131,7 +127,6 @@ function IClientClass:CallData(proto, data, timeout_millsec)
 end
 
 function IClientClass:RetCallData(data)
-	assert(not self.bClinetFormat)
 	local header, contents, PTYPE, session_id = net_module.pack("", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
