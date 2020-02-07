@@ -17,6 +17,8 @@ local iReConnectDelayTime = 1000
 local iReConnectCount = 10
 -- ping的时间间隔
 local iPingTimeDelay  = 1000 * 2
+-- ping的函数名
+local pingFuncName = "pingFunc"
 
 local IClientClass = class()
 
@@ -35,6 +37,9 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
 	self.m_ullPingTIme = CoreTool.GetTickCount()
+
+	self.pingTimerId = 0
+	self.pingFunc = function(obj) obj:TimeToPingPing() end
 end
 
 function IClientClass:del()-- 剔除各个变量
@@ -54,6 +59,9 @@ function IClientClass:del()-- 剔除各个变量
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = 0
 	self.m_ullPingTIme = 0
+
+	self.pingTimerId = 0
+	self.pingFunc = nil
 end
 
 function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -78,6 +86,11 @@ function IClientClass:Connect()
 
 	if not next(self.modulename) then
 		print(string.format("IClientClass modulename=%s is empty", self.modulename))
+		return false
+	end
+
+	if not self[pingFuncName] then
+		print(string.format("IClientClass not has ping func=%s", pingFuncName))
 		return false
 	end
 
@@ -134,6 +147,7 @@ function IClientClass:DisConnect()
 end
 
 function IClientClass:TimeToPingPing()
+	self.pingTimerId = net_module.addtimer(self, pingFuncName, iPingTimeDelay, self)
 	if self.hsocket == 0 then return end
 	local timeCnt = CoreTool.GetTickCount()
 	if iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
@@ -146,6 +160,7 @@ function IClientClass:OnConnect(ip)
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
+	self.pingTimerId = net_module.addtimer(self, pingFuncName, iPingTimeDelay, self)
 	local header, contents = net_module.pack("", msgpack.pack(self:GetName()), net_module.PTYPE.PTYPE_REGISTER, 0)
 	CoreNet.TCPSend(self.hsocket, header, contents)
 	self.modulename[IClientNetFunc_OnConnect](self, ip)
@@ -155,6 +170,8 @@ function IClientClass:OnConnectFailed()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
+	net_module.deltimer(self.pingTimerId)
+	self.pingTimerId = 0
 
 	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnConnectFailed](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
@@ -166,7 +183,9 @@ end
 function IClientClass:OnDisConnect()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
-	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime;
+	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
+	net_module.deltimer(self.pingTimerId)
+	self.pingTimerId = 0
 
 	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnDisConnect](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
@@ -191,7 +210,9 @@ function IClientClass:OnRecv(data)
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 		self.modulename[IClientNetFunc_OnRecv](self, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
+		
 	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
+		
 	end
 end
 
