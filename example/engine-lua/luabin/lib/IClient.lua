@@ -6,7 +6,8 @@ local CoreNet = require "CoreNet"
 local util = require "util"
 require "class"
 
-local IClientNetFunc_OnRecv = "OnRecv"
+local IClientNetFunc_OnRecv_Call = "OnRecvCall"
+local IClientNetFunc_OnRecv_Common = "OnRecvCommon"
 local IClientNetFunc_OnConnect = "OnConnect"
 local IClientNetFunc_OnDisConnect = "OnDisConnect"
 local IClientNetFunc_OnConnectFailed = "OnConnectFailed"
@@ -94,7 +95,7 @@ function IClientClass:Connect()
 		return false
 	end
 
-	local funtList = {IClientNetFunc_OnRecv, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed}
+	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
 			print(string.format("IClientClass modulename=%s not has key=%s", self.modulename, funtname))
@@ -206,9 +207,9 @@ function IClientClass:OnRecv(data)
 		end
 		ccoroutine.resume(co, true, contents)
 	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
-		self.modulename[IClientNetFunc_OnRecv](self, targetName, proto, msgpack.unpack(contents))
+		self.modulename[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
-		self.modulename[IClientNetFunc_OnRecv](self, targetName, proto, msgpack.unpack(contents))
+		self.modulename[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		
 	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
