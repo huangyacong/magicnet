@@ -170,7 +170,7 @@ function IServerClass:OnRecv(socket, data)
 			print(string.format("IServerClass:OnRecv clientSocketObj=%s register ok. name=%s md5str=%s", socket, name, md5str))
 		else
 			self:DisConnect(socket)
-			print(string.format("IServerClass:OnRecv clientSocketObj=%s register failed. name=%s md5str=%s", socket, name, md5str))
+			print(debug.traceback(), "\n", string.format("IServerClass:OnRecv clientSocketObj=%s register failed. name=%s md5str=%s", socket, name, md5str))
 		end
 	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
 		local header, sendData = net_module.pack("", "", "", net_module.PTYPE.PTYPE_PING, 0)
