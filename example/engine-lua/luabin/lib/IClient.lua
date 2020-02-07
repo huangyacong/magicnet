@@ -114,13 +114,13 @@ function IClientClass:TryReConnect()
 end
 
 function IClientClass:SendData(proto, data)
-	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, data, net_module.PTYPE.PTYPE_COMMON, 0)
+	local header, contents, PTYPE, session_id = net_module.pack(proto, data, net_module.PTYPE.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:CallData(proto, data, timeout_millsec)
 	assert(not self.bClinetFormat)
-	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
+	local header, contents, PTYPE, session_id = net_module.pack(proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
@@ -132,7 +132,7 @@ end
 
 function IClientClass:RetCallData(data)
 	assert(not self.bClinetFormat)
-	local header, contents, PTYPE, session_id = net_module.pack(self.bClinetFormat, "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
+	local header, contents, PTYPE, session_id = net_module.pack("", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -182,7 +182,7 @@ function IClientClass:OnDisConnect()
 end
 
 function IClientClass:OnRecv(data)
-	local proto, contents, PTYPE, session_id = net_module.unpack(self.bClinetFormat, data)
+	local proto, contents, PTYPE, session_id = net_module.unpack(data)
 	ccoroutine.add_session_coroutine_id(session_id)
 	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE and PTYPE then
 		local co = ccoroutine.get_session_id_coroutine(session_id)
