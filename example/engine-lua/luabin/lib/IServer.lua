@@ -61,13 +61,13 @@ function IServerClass:Listen()
 	return true 
 end
 
-function IServerClass:SendData(socket, proto, data)
-	local header, contents = net_module.pack(proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
+function IServerClass:SendData(socket, targetName, proto, data)
+	local header, contents = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(socket, header, contents)
 end
 
-function IServerClass:CallData(socket, proto, data, timeout_millsec)
-	local header, contents, PTYPE, session_id = net_module.pack(proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
+function IServerClass:CallData(socket, targetName, proto, data, timeout_millsec)
+	local header, contents, PTYPE, session_id = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
 	local ret = CoreNet.TCPSend(socket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
@@ -78,7 +78,7 @@ function IServerClass:CallData(socket, proto, data, timeout_millsec)
 end
 
 function IServerClass:RetCallData(socket, data)
-	local header, contents = net_module.pack("", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
+	local header, contents = net_module.pack("", "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
 	return CoreNet.TCPSend(socket, header, contents)
 end
 
@@ -95,7 +95,7 @@ function IServerClass:OnDisConnect(socket)
 end
 
 function IServerClass:OnRecv(socket, data)
-	local proto, contents, PTYPE, session_id = net_module.unpack(data)
+	local targetName, proto, contents, PTYPE, session_id = net_module.unpack(data)
 	ccoroutine.add_session_coroutine_id(session_id)
 
 	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
@@ -106,13 +106,13 @@ function IServerClass:OnRecv(socket, data)
 		end
 		ccoroutine.resume(co, true, contents)
 	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
-		self.modulename[IServerNetFunc_OnRecv](self, socket, proto, msgpack.unpack(contents))
+		self.modulename[IServerNetFunc_OnRecv](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
-		self.modulename[IServerNetFunc_OnRecv](self, socket, proto, msgpack.unpack(contents))
+		self.modulename[IServerNetFunc_OnRecv](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		self.modulename[IServerNetFunc_OnRegister](self, socket, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
-		local header, sendData = net_module.pack("", "", net_module.PTYPE.PTYPE_PING, 0)
+		local header, sendData = net_module.pack("", "", "", net_module.PTYPE.PTYPE_PING, 0)
 		CoreNet.TCPSend(socket, header, sendData)
 	end
 end

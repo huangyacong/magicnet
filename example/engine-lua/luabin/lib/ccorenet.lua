@@ -188,15 +188,15 @@ ccorenet.PTYPE = {
 }
 
 -- 打包
-function ccorenet.pack(proto, data, PTYPE, session_id)
+function ccorenet.pack(targetName, proto, data, PTYPE, session_id)
 	session_id = session_id or 0
-	return string.pack("s16>H>j", proto, PTYPE, session_id), data, PTYPE, session_id
+	return string.pack("zz>H>j", targetName, proto, PTYPE, session_id), data, PTYPE, session_id
 end
 
 -- 解包
 function ccorenet.unpack(data)
-	local proto, PTYPE, session_id, len = string.unpack("s16>H>j", data)
-	return proto, string.sub(data, len, string.len(data)), PTYPE, session_id
+	local targetName, proto, PTYPE, session_id, len = string.unpack("zz>H>j", data)
+	return targetName, proto, string.sub(data, len, string.len(data)), PTYPE, session_id
 end
 
 -- 系统print函数钩子
