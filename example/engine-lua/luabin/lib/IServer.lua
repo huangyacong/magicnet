@@ -104,8 +104,8 @@ function IServerClass:OnConnect(socket, ip)
 end
 
 function IServerClass:OnDisConnect(socket)
-	self.client_hsocket[socket] = nil
 	self.modulename[IServerNetFunc_OnDisConnect](self, socket)
+	self.client_hsocket[socket] = nil
 end
 
 function IServerClass:OnRecv(socket, data)
