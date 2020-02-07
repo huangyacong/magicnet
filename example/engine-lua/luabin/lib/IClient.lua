@@ -162,8 +162,6 @@ function IClientClass:OnConnect(ip)
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
 	self.pingTimerId = net_module.addtimer(self, pingFuncName, iPingTimeDelay, self)
-	local header, contents = net_module.pack("", "", msgpack.pack(self:GetName()), net_module.PTYPE.PTYPE_REGISTER, 0)
-	CoreNet.TCPSend(self.hsocket, header, contents)
 	self.modulename[IClientNetFunc_OnConnect](self, ip)
 end
 
@@ -210,10 +208,12 @@ function IClientClass:OnRecv(data)
 		self.modulename[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 		self.modulename[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
-	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
-		
-	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
-		
+	elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
+		local key = table.unpack(msgpack.unpack(contents))
+		local md5str = net_module.genToken(key, self:GetName())
+		local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self:GetName(), md5str)), net_module.PTYPE.PTYPE_REGISTER, 0)
+		CoreNet.TCPSend(self.hsocket, header, sendData)
+		print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), key, md5str))
 	end
 end
 

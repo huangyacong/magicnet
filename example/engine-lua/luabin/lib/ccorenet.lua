@@ -180,12 +180,18 @@ end
 
 -- 消息类型
 ccorenet.PTYPE = {
-	PTYPE_RESPONSE = 0,	-- 回应协程消息
-	PTYPE_CALL = 1,		-- 协程消息
-	PTYPE_COMMON = 2,	-- 普通类型
-	PTYPE_REGISTER = 3,	-- 注册类型
-	PTYPE_PING = 4,		-- Ping类型
+	PTYPE_RESPONSE = 0,			-- 回应协程消息
+	PTYPE_CALL = 1,				-- 协程消息
+	PTYPE_COMMON = 2,			-- 普通类型
+	PTYPE_REGISTER_KEY = 3,		-- 注册Key类型
+	PTYPE_REGISTER = 4,			-- 注册类型
+	PTYPE_PING = 5,				-- Ping类型
 }
+
+-- 生成token
+function ccorenet.genToken(key, name)
+	return CoreTool.MD5(key .. name)
+end
 
 -- 打包
 function ccorenet.pack(targetName, proto, data, PTYPE, session_id)

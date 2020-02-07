@@ -1,6 +1,7 @@
 ﻿local ccoroutine = require "ccoroutine"
 local net_module = require "ccorenet"
 local msgpack = require "msgpack53"
+local CoreTool = require "CoreTool"
 local CoreNet = require "CoreNet"
 local util = require "util"
 require "class"
@@ -15,6 +16,7 @@ local IServerClass = class()
 
 function IServerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iDomain, bReusePort, bNoDelay)
 	self.hsocket = 0
+	self.client_hsocket = {}
 	self.className = tostring(className)
 	self.modulename = modulename
 
@@ -88,16 +90,36 @@ function IServerClass:DisConnect(socket)
 end
 
 function IServerClass:OnConnect(socket, ip)
+	self.client_hsocket[socket] = {key = tostring(CoreTool.GetTickCount()) .. tostring(socket), bResgister = false}
+	local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self.client_hsocket[socket].key)), net_module.PTYPE.PTYPE_REGISTER_KEY, 0)
+	CoreNet.TCPSend(socket, header, sendData)
 	self.modulename[IServerNetFunc_OnConnect](self, socket, ip)
 end
 
 function IServerClass:OnDisConnect(socket)
+	self.client_hsocket[socket] = nil
 	self.modulename[IServerNetFunc_OnDisConnect](self, socket)
 end
 
 function IServerClass:OnRecv(socket, data)
 	local targetName, proto, contents, PTYPE, session_id = net_module.unpack(data)
 	ccoroutine.add_session_coroutine_id(session_id)
+
+	local clientSocketObj = self.client_hsocket[socket]
+	if not clientSocketObj then
+		print(string.format("IServerClass:OnRecv not find clientSocketObj=%s", socket))
+		return
+	end
+
+	if net_module.PTYPE.PTYPE_REGISTER ~= PTYPE and clientSocketObj.bResgister == false then
+		print(string.format("IServerClass:OnRecv clientSocketObj=%s please register", socket))
+		return
+	end
+
+	if net_module.PTYPE.PTYPE_REGISTER == PTYPE and clientSocketObj.bResgister == true then
+		print(string.format("IServerClass:OnRecv clientSocketObj=%s register more", socket))
+		return
+	end
 
 	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
 		local co = ccoroutine.get_session_id_coroutine(session_id)
@@ -111,7 +133,15 @@ function IServerClass:OnRecv(socket, data)
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
-		self.modulename[IServerNetFunc_OnRegister](self, socket, msgpack.unpack(contents))
+		local name, md5str = table.unpack(msgpack.unpack(contents))
+		if net_module.genToken(clientSocketObj.key, name) == md5str then
+			clientSocketObj.bResgister = true
+			self.modulename[IServerNetFunc_OnRegister](self, socket, name)
+			print(string.format("IServerClass:OnRecv clientSocketObj=%s register ok. name=%s md5str=%s", socket, name, md5str))
+		else
+			self:DisConnect(socket)
+			print(string.format("IServerClass:OnRecv clientSocketObj=%s register failed. name=%s md5str=%s", socket, name, md5str))
+		end
 	elseif net_module.PTYPE.PTYPE_PING == PTYPE then
 		local header, sendData = net_module.pack("", "", "", net_module.PTYPE.PTYPE_PING, 0)
 		CoreNet.TCPSend(socket, header, sendData)
