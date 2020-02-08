@@ -17,8 +17,12 @@ local iReConnectDelayTime = 1000
 local iReConnectCount = 10
 -- ping的时间间隔
 local iPingTimeDelay  = 1000 * 2
--- ping的函数名
-local pingFuncName = "pingFunc"
+
+local pingFuncEvent = {}
+function pingFuncEvent.pingFunc_callback(IClientPlayerClassObj)
+	IClientPlayerClassObj.pingTimerId = net_module.addtimer(pingFuncEvent, "pingFunc_callback", iPingTimeDelay, IClientPlayerClassObj)
+	IClientPlayerClassObj:TimeToPingPing()
+end
 
 local IClientPlayerClass = class()
 
@@ -38,7 +42,6 @@ function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iC
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 
 	self.pingTimerId = 0
-	self.pingFunc = function(obj) obj:TimeToPingPing() end
 end
 
 function IClientPlayerClass:del()-- 剔除各个变量
@@ -59,7 +62,6 @@ function IClientPlayerClass:del()-- 剔除各个变量
 	self.m_ullPingTIme = 0
 
 	self.pingTimerId = 0
-	self.pingFunc = nil
 end
 
 function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -84,11 +86,6 @@ function IClientPlayerClass:Connect()
 
 	if not next(self.modulename) then
 		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename is empty"))
-		return false
-	end
-
-	if not self[pingFuncName] then
-		print(debug.traceback(), "\n", string.format("IClientPlayerClass not has ping func=%s", pingFuncName))
 		return false
 	end
 
@@ -129,7 +126,6 @@ function IClientPlayerClass:DisConnect()
 end
 
 function IClientPlayerClass:TimeToPingPing()
-	self.pingTimerId = net_module.addtimer(self, pingFuncName, iPingTimeDelay, self)
 	if self.hsocket == 0 then return end
 	local timeCnt = CoreTool.GetTickCount()
 	if iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
@@ -141,7 +137,7 @@ function IClientPlayerClass:OnConnect(ip)
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
-	self.pingTimerId = net_module.addtimer(self, pingFuncName, iPingTimeDelay, self)
+	self.pingTimerId = net_module.addtimer(pingFuncEvent, "pingFunc_callback", iPingTimeDelay, self)
 	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnSendPacketAttach](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 	self.modulename[IClientNetFunc_OnConnect](self, ip)
