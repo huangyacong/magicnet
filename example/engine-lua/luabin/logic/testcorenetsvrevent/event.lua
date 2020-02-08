@@ -88,6 +88,7 @@ end
 function svr_event.timerfunc(...)
 	--print("timerfunc", ...)
 	ccorenet.addtimer(svr_event, "timerfunc", 1000, 1, 2, 3)
+	svr_event.framefunc()
 	if socketObj then
 		local oo, data = ccorenet.getGlobalObj("serverObj"):CallData(socketObj, "dddddddddddddddd", "testCallData", {"12345"})
 		

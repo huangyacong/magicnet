@@ -9,7 +9,6 @@ local sys_run = true
 local sys_print = nil
 
 local timeoutObj = {}
-local frameObj = {}
 local clientObj = {}
 local svrObj = {}
 
@@ -50,7 +49,6 @@ end
 -- 初始化
 function ccorenet.init(cLogName, iMaxClientNum, iTimerCnt, bPrintLog2Screen)
 	sys_print = print
-	ccorenet.setframefunc(ccorenet, "framefunc")
 	return CoreNet.Init(cLogName, iMaxClientNum, iTimerCnt, bPrintLog2Screen)
 end
 
@@ -58,23 +56,6 @@ end
 function ccorenet.fin()
 	clientObj, svrObj = {}, {}
 	return CoreNet.Fin()
-end
-
--- 默认的帧回调
-function ccorenet.framefunc()
-	print("please set time func")
-end
-
--- 设置帧回调数据
-function ccorenet.setframefunc(module_name, frame_func_name_str)
-	frameObj.modulename = module_name
-	frameObj.frame_func_name_str = frame_func_name_str
-end
-
--- 执行帧的函数
-local function frame_run()
-	local isOK, ret = pcall(function () frameObj.modulename[frameObj.frame_func_name_str]() end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 end
 
 -- 添加定时器
@@ -155,7 +136,6 @@ local function worker()
 			pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
 		end
 	elseif CoreNet.SOCKET_TIMER == netevent then
-		frame_run()
 		timeout_run()
 	else
 		pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
