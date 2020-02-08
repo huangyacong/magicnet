@@ -78,8 +78,9 @@ function svr_event.framefunc()
 	if report then
 		svr_event.test()
 		svr_event.test1()
-		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed = table.unpack(report)
-		CoreNet.HookPrint(string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s %s %s", sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine()))
+		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount = table.unpack(report)
+		CoreNet.HookPrint(string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s timerCount=%s %s %s pool=%s", 
+			sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine(), ccoroutine.count_coroutine_pool()))
 		collectgarbage()
 	end
 	svr_event.test1()

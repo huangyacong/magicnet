@@ -55,8 +55,9 @@ function client_event.framefunc()
 	local report = ccorenet.statreport()
 	--util.print_table(ccorenet.IClientList)
 	if report then
-		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed = table.unpack(report)
-		print(os.date("%Y-%m-%d %H:%M:%S"), string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s %s, %s", sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine()))
+		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount = table.unpack(report)
+		print(os.date("%Y-%m-%d %H:%M:%S"), string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s timerCount=%s %s, %s pool=%s", 
+				sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine(), ccoroutine.count_coroutine_pool()))
 		collectgarbage()
 	end
 
@@ -64,7 +65,7 @@ function client_event.framefunc()
 end
 
 function client_event.session_id_coroutine_timeout()
-	--ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
+	ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
 	client_event.framefunc()
 	ccorenet.getGlobalObj("clientObj"):SendRemoteData(10000000, 199, "ip.......")
 	ccorenet.getGlobalObj("clientObj"):SendData("watchdog.", "sssssss", "asddff")
