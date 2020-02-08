@@ -47,7 +47,7 @@ function client_event.framefunc()
 	--if CoreTool.GetTickCount() - timero < 1000 *17 then
 	
 	--end
-	ccorenet.getGlobalObj("clientObj"):TryReConnect()
+	--ccorenet.getGlobalObj("clientObj"):TryReConnect()
 	--ccorenet.getGlobalObj("clientObj"):TimeToPingPing()
 	
 	--if 0 == 0 then return end
@@ -80,7 +80,7 @@ ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
 
 local domain = ccorenet.IpV4
 local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
-local clientObj = IClient.new("clientObj", client_event, ip, 8888, 1000*60, 5*1000, domain, false)
+local clientObj = IClient.new("clientObj", client_event, ip, 8888, 1000*60, 5*1000, domain, false, false)
 ccorenet.addGlobalObj(clientObj, clientObj:GetName())
 
 return client_event
