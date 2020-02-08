@@ -5,55 +5,6 @@
 #include <malloc.h>
 #include <stdarg.h>
 
-bool SeCHStrStr(const char* pcDstChar, const char* pcSrcChar)
-{
-	int iLen = 0;
-	int iDstIndex = 0;
-
-	if(!pcDstChar || !pcSrcChar)
-	{
-		return false;
-	}
-	if(strlen(pcDstChar) <= 0 && strlen(pcSrcChar) <= 0)
-	{
-		return true;
-	}
-	if(strlen(pcDstChar) > 0 && strlen(pcSrcChar) <= 0)
-	{
-		return false;
-	}
-
-	iLen = (int)strlen(pcDstChar);
-	for(iDstIndex = 0; iDstIndex < iLen;)
-	{
-		const char* pcTmpDst = &pcDstChar[iDstIndex];
-		const char* pcTmpSrc = pcSrcChar;
-
-		while(*pcTmpDst == *pcTmpSrc && pcTmpDst != '\0' && pcTmpSrc != '\0')
-		{
-			pcTmpDst++;
-			pcTmpSrc++;
-		}
-
-		if(*pcTmpSrc == '\0')
-		{
-			return true;
-		}
-
-		// not ascii
-		if((unsigned char)pcDstChar[iDstIndex] >= 0x80)
-		{
-			iDstIndex += 2;
-		}
-		else
-		{
-			iDstIndex++;
-		}
-	}
-
-	return false;
-}
-
 void SeStrNcpy(char* pcDstChar, int iDstLen, const char* pcSrcChar)
 {
 	assert(iDstLen > 1);
