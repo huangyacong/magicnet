@@ -30,7 +30,7 @@ end
 
 local IClientPlayerClass = class()
 
-function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
+function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bReConnect, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
 	self.modulename = modulename
@@ -47,6 +47,7 @@ function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iC
 
 	self.pingTimerId = 0
 	self.reconnectTimerId = 0
+	self.bReConnect = bReConnect
 end
 
 function IClientPlayerClass:del()-- 剔除各个变量
@@ -68,6 +69,7 @@ function IClientPlayerClass:del()-- 剔除各个变量
 
 	self.pingTimerId = 0
 	self.reconnectTimerId = 0
+	self.bReConnect = false
 end
 
 function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -149,6 +151,9 @@ function IClientPlayerClass:DelPingTimer()
 end
 
 function IClientPlayerClass:AddReConnectTimer()
+	if not self.bReConnect then 
+		return
+	end
 	self.reconnectTimerId = net_module.addtimer(pingFuncEvent, "reconnectFunc_callback", self.m_ullReConnectTime - CoreTool.GetTickCount(), self)
 end
 
