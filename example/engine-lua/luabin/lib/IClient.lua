@@ -21,7 +21,7 @@ local iPingTimeDelay  = 1000 * 2
 
 local pingFuncEvent = {}
 function pingFuncEvent.pingFunc_callback(IClientClassObj)
-	IClientClassObj.pingTimerId = net_module.addtimer(pingFuncEvent, "pingFunc_callback", iPingTimeDelay, IClientClassObj)
+	IClientClassObj:AddPingTimer()
 	IClientClassObj:TimeToPingPing()
 end
 
@@ -160,11 +160,20 @@ function IClientClass:TimeToPingPing()
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
+function IClientClass:AddPingTimer()
+	self.pingTimerId = net_module.addtimer(pingFuncEvent, "pingFunc_callback", iPingTimeDelay, self)
+end
+
+function IClientClass:DelPingTimer()
+	net_module.deltimer(self.pingTimerId)
+	self.pingTimerId = 0
+end
+
 function IClientClass:OnConnect(ip)
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
-	self.pingTimerId = net_module.addtimer(pingFuncEvent, "pingFunc_callback", iPingTimeDelay, self)
+	self:AddPingTimer()
 	self.modulename[IClientNetFunc_OnConnect](self, ip)
 end
 
@@ -172,8 +181,7 @@ function IClientClass:OnConnectFailed()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
-	net_module.deltimer(self.pingTimerId)
-	self.pingTimerId = 0
+	self:DelPingTimer()
 
 	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnConnectFailed](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
@@ -186,8 +194,7 @@ function IClientClass:OnDisConnect()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
-	net_module.deltimer(self.pingTimerId)
-	self.pingTimerId = 0
+	self:DelPingTimer()
 
 	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnDisConnect](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
