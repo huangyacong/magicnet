@@ -112,13 +112,9 @@ void SeNetSocketMgrFin(struct SESOCKETMGR *pkNetSocketMgr)
 HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int iTypeSocket, int iHeaderLen, \
 			SEGETHEADERLENFUN pkGetHeaderLenFun, SESETHEADERLENFUN pkSetHeaderLenFun)
 {
-	int iCounter;
 	unsigned short usIndex;
 	struct SESOCKET *pkNetSocket;
 	struct SEHASHNODE *pkHashNode;
-	
-	pkNetSocketMgr->llCounter++;
-	iCounter = (int)pkNetSocketMgr->llCounter;
 
 	assert(socket > 0);
 	pkHashNode = SeHashPop(&(pkNetSocketMgr->kMainList));
