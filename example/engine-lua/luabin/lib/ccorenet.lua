@@ -47,9 +47,9 @@ function ccorenet.getOS()
 end
 
 -- 初始化
-function ccorenet.init(cLogName, iMaxClientNum, iTimerCnt, bPrintLog2Screen)
+function ccorenet.init(cLogName, iMaxClientNum, bPrintLog2Screen)
 	sys_print = print
-	return CoreNet.Init(cLogName, iMaxClientNum, iTimerCnt, bPrintLog2Screen)
+	return CoreNet.Init(cLogName, iMaxClientNum, 16, bPrintLog2Screen)
 end
 
 -- 结束
