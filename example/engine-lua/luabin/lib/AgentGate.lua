@@ -49,7 +49,7 @@ function ServerLocalEvent.OnRecvCall(IServerObj, socket, targetName, proto, data
 		return
 	end
 	if not AgentGateRegSvrList[targetName] then
-		print(debug.traceback(), "\n", string.format("AgentGate.OnRecvCommon not find targetName=%s error", targetName))
+		print(debug.traceback(), "\n", string.format("AgentGate.OnRecvCall not find targetName=%s error", targetName))
 		return
 	end
 	local IServerObj_, socket_ = table.unpack(AgentGateRegSvrList[targetName])
