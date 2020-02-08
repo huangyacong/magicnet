@@ -24,6 +24,10 @@ function pingFuncEvent.pingFunc_callback(IClientClassObj)
 	IClientClassObj:AddPingTimer()
 	IClientClassObj:TimeToPingPing()
 end
+function pingFuncEvent.reconnectFunc_callback(IClientClassObj)
+	IClientClassObj:AddReConnectTimer()
+	IClientClassObj:TryReConnect()
+end
 
 local IClientClass = class()
 
@@ -44,6 +48,7 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 
 	self.pingTimerId = 0
+	self.reconnectTimerId = 0
 end
 
 function IClientClass:del()-- 剔除各个变量
@@ -65,6 +70,7 @@ function IClientClass:del()-- 剔除各个变量
 	self.m_ullPingTIme = 0
 
 	self.pingTimerId = 0
+	self.reconnectTimerId = 0
 end
 
 function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -169,11 +175,21 @@ function IClientClass:DelPingTimer()
 	self.pingTimerId = 0
 end
 
+function IClientClass:AddReConnectTimer()
+	self.reconnectTimerId = net_module.addtimer(pingFuncEvent, "reconnectFunc_callback", self.m_ullReConnectTime - CoreTool.GetTickCount(), self)
+end
+
+function IClientClass:DelReConnectTimer()
+	net_module.deltimer(self.reconnectTimerId)
+	self.reconnectTimerId = 0
+end
+
 function IClientClass:OnConnect(ip)
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 	self.m_iReConnectNum = 0
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
 	self:AddPingTimer()
+	self:DelReConnectTimer()
 	self.modulename[IClientNetFunc_OnConnect](self, ip)
 end
 
@@ -181,6 +197,7 @@ function IClientClass:OnConnectFailed()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
+	self:AddReConnectTimer()
 	self:DelPingTimer()
 
 	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnConnectFailed](self) end)
@@ -194,6 +211,7 @@ function IClientClass:OnDisConnect()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
+	self:AddReConnectTimer()
 	self:DelPingTimer()
 
 	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnDisConnect](self) end)
