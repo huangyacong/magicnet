@@ -11,6 +11,11 @@ SeTimer::~SeTimer()
 
 }
 
+int SeTimer::GetTimerCount()
+{
+	return (int)m_kTimerIdList.size();
+}
+
 long long SeTimer::GetTimeOutId(unsigned long long llNowTime)
 {
 	if (m_kTimerMgr.empty())

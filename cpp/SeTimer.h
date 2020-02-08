@@ -10,6 +10,7 @@ public:
 	SeTimer();
 	~SeTimer();
 public:
+	int GetTimerCount();
 	long long GetTimeOutId(unsigned long long llNowTime);
 	long long SetTimer(int iDelayTtimeMillSec);
 	void DelTimer(long long llTimerId);
