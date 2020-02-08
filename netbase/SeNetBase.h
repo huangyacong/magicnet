@@ -79,7 +79,7 @@ extern "C" {
 
 typedef	unsigned long long HSOCKET;
 
-HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, unsigned int iSocket);
+HSOCKET SeGetHSocket(unsigned short usIndex, unsigned long long ullTime);
 
 unsigned short SeGetIndexByHScoket(HSOCKET kHSocket);
 

@@ -1,17 +1,19 @@
 #include "SeNetBase.h"
 #include "SeTool.h"
 
-HSOCKET SeGetHSocket(unsigned short usCounter, unsigned short usIndex, unsigned int iSocket)
+HSOCKET SeGetHSocket(unsigned short usIndex, unsigned long long ullTime)
 {
 	HSOCKET ret;
+	unsigned long long ullIndex;
 
-	ret = (HSOCKET)(((HSOCKET)((unsigned int)usCounter << 16 | (unsigned int)usIndex)) << 32 | ((HSOCKET)iSocket));
-	return (ret & 0x7FFFFFFFFFFFFFFF);
+	ullIndex = usIndex;
+	ret = (HSOCKET)((ullIndex << 46) | ((ullTime << 18) >> 18));
+	return ((ret << 2) >> 2) & 0x3FFFFFFFFFFFFFFF;
 }
 
 unsigned short SeGetIndexByHScoket(HSOCKET kHSocket)
 {
-	return (unsigned short)(((kHSocket>>32)<<16|0)>>16);
+	return (unsigned short)(kHSocket >> 46);
 }
 
 void SeCloseHandle(HANDLE kHandle)
