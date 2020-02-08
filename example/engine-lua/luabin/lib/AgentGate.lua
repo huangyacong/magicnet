@@ -149,6 +149,10 @@ function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTi
 		end
 	end
 
+	-- 赋值
+	AgentGateEvent = modulename
+	AgentGateClassName = className
+
 	if net_module.getOS() == "Linux" then
 		AgentGateLocalSvrUnixObj = IServer.new("UnixLocal-World", ServerLocalEvent, cUnixSocketName, 0, iLocalTimeOut, net_module.UnixLocal, false, bNoDelay)
 		if not AgentGateLocalSvrUnixObj:Listen() then
@@ -169,9 +173,6 @@ function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTi
 		return false
 	end
 
-	-- 赋值
-	AgentGateEvent = modulename
-	AgentGateClassName = className
 	return true
 end
 
