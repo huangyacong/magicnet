@@ -7,7 +7,7 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 
 HSOCKET SeGetTimerID()
 {
-	return SeGetHSocket(0, 0, 0);
+	return SeGetValidHSocket();
 }
 
 bool SeTimerRoutine(struct SENETCORE *pkNetCore)

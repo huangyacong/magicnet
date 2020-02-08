@@ -1,6 +1,14 @@
 #include "SeNetBase.h"
 #include "SeTool.h"
 
+HSOCKET SeGetValidHSocket()
+{
+	HSOCKET ret;
+
+	ret = 0x7FFFFFFFFFFFFFFF;
+	return ret;
+}
+
 HSOCKET SeGetHSocket(unsigned short usIndex, unsigned long long ullTime)
 {
 	HSOCKET ret;

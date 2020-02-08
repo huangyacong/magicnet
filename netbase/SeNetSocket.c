@@ -14,8 +14,8 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->iDomain = 0;
 	pkNetSocket->iNoDelay = 0;
 	pkNetSocket->kSocketFd.kSocket = 0;
-	pkNetSocket->kHSocket = SeGetHSocket(0, 0, 0);
-	pkNetSocket->kBelongListenHSocket = SeGetHSocket(0, 0, 0);
+	pkNetSocket->kHSocket = SeGetHSocket(0, 0);
+	pkNetSocket->kBelongListenHSocket = SeGetHSocket(0, 0);
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = 0;
 	pkNetSocket->iTypeSocket = 0;
@@ -131,7 +131,7 @@ HSOCKET SeNetSocketMgrAdd(struct SESOCKETMGR *pkNetSocketMgr, SOCKET socket, int
 
 	SeNetSocketReset(pkNetSocket);
 	pkNetSocket->kSocketFd.kSocket = socket;
-	pkNetSocket->kHSocket = SeGetHSocket((unsigned short)iCounter, usIndex, (unsigned int)socket);
+	pkNetSocket->kHSocket = SeGetHSocket(usIndex, SeTimeGetTickCount());
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = iHeaderLen;
 	pkNetSocket->iTypeSocket = iTypeSocket;

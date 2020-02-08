@@ -79,6 +79,8 @@ extern "C" {
 
 typedef	unsigned long long HSOCKET;
 
+HSOCKET SeGetValidHSocket();
+
 HSOCKET SeGetHSocket(unsigned short usIndex, unsigned long long ullTime);
 
 unsigned short SeGetIndexByHScoket(HSOCKET kHSocket);
