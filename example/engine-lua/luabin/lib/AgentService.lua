@@ -51,6 +51,10 @@ function AgentService.RetCallData(data)
 	return AgentServiceRemoteSvrObj:RetCallData(data)
 end
 
+function AgentService.GetName()
+	return AgentServiceClassName..""
+end
+
 function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
 

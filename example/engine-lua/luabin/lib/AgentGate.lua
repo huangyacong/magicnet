@@ -128,6 +128,10 @@ function AgentGate:CallData(targetName, proto, data, timeout_millsec)
 	return IServerObj_:CallData(socket_, targetName, proto, data, timeout_millsec)
 end
 
+function AgentGate.GetName()
+	return AgentGateClassName..""
+end
+
 function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTimeOut, cLocalIP, iLocalPort, cUnixSocketName, iLocalTimeOut, bReusePort, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
 
