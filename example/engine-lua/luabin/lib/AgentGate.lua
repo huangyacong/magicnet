@@ -132,7 +132,7 @@ function AgentGate.GetName()
 	return AgentGateClassName..""
 end
 
-function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTimeOut, cLocalIP, iLocalPort, cUnixSocketName, iLocalTimeOut, bReusePort, bNoDelay)
+function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTimeOut, cLocalIP, iLocalPort, cUnixSocketName, iLocalTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(modulename) ~= type({}) then
@@ -171,7 +171,7 @@ function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTi
 		return false
 	end
 
-	AgentGateRemoteSvrObj = IServerPlayer.new("IpV4-player", ServerRemotEvent, cRemoteIP, iRemotePort, iRemoteTimeOut, net_module.IpV4, bReusePort, bNoDelay)
+	AgentGateRemoteSvrObj = IServerPlayer.new("IpV4-player", ServerRemotEvent, cRemoteIP, iRemotePort, iRemoteTimeOut, net_module.IpV4, false, bNoDelay)
 	if not AgentGateRemoteSvrObj:Listen() then
 		print(debug.traceback(), "\n", string.format("AgentGate.Init %s Listen Failed. cLocalIP=%s iLocalPort=%s", AgentGateRemoteSvrObj:GetName(), cRemoteIP, iRemotePort))
 		return false
