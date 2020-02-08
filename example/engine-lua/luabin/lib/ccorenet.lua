@@ -79,7 +79,7 @@ end
 
 -- 添加定时器
 function ccorenet.addtimer(modulename, func_name_str, iMillSecTime, ...)
-	local timeId = CoreNet.AddTimer(iMillSecTime)
+	local timeId = CoreNet.AddTimer((iMillSecTime <= 0) and 1 or iMillSecTime)
 	if timeId == 0 then return nil end
 	timeoutObj[timeId] = {modulename = modulename, func = func_name_str, param = table.pack(...)}
 	return timeId
