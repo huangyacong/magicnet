@@ -7,6 +7,7 @@ require "class"
 local ccorenet = {}
 local sys_run = true
 local sys_print = nil
+local timer_do_max_num = 1000
 
 local timeoutObj = {}
 local clientObj = {}
@@ -74,12 +75,23 @@ end
 
 -- 执行定时器回调
 local function timeout_run()
-	local timeId = CoreNet.GetTimeOutId()
-	local runFuncObj = timeoutObj[timeId]
-	timeoutObj[timeId] = nil
-	if runFuncObj then
+	local doNum = 0
+	while true do
+		local timeId = CoreNet.GetTimeOutId()
+		local runFuncObj = timeoutObj[timeId]
+		timeoutObj[timeId] = nil
+		doNum = doNum + 1
+
+		if not runFuncObj then
+			break
+		end
+
 		local isOK, ret = pcall(function () runFuncObj.modulename[runFuncObj.func](table.unpack(runFuncObj.param)) end)
 		if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+
+		if doNum >= timer_do_max_num then
+			break
+		end
 	end
 end
 
