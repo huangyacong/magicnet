@@ -167,7 +167,6 @@ function IServerClass:OnRecv(socket, data)
 		if net_module.genToken(clientSocketObj:get_key(), name) == md5str and string.len(name) > 0 then
 			clientSocketObj:set_name(name)
 			self.modulename[IServerNetFunc_OnRegister](self, socket, name)
-			print(string.format("IServerClass:OnRecv clientSocketObj=%s register ok. name=%s md5str=%s", socket, name, md5str))
 		else
 			self:DisConnect(socket)
 			print(debug.traceback(), "\n", string.format("IServerClass:OnRecv clientSocketObj=%s register failed. name=%s md5str=%s", socket, name, md5str))
