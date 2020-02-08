@@ -364,6 +364,8 @@ extern "C" int CoreNetReport(lua_State *L)
 		lua_rawseti(L, -2, 3);
 		lua_pushinteger(L, ullRecvSpeed);
 		lua_rawseti(L, -2, 4);
+		lua_pushinteger(L, g_kSeTimer.GetTimerCount());
+		lua_rawseti(L, -2, 5);
 
 		return 1;
 	}
