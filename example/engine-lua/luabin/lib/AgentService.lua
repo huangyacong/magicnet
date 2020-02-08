@@ -72,7 +72,7 @@ function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixS
 		end
 	end
 
-	local iDomain = (ccorenet.getOS() == "Linux") and net_module.UnixLocal or net_module.IpV4
+	local iDomain = (net_module.getOS() == "Linux") and net_module.UnixLocal or net_module.IpV4
 
 	if iDomain == net_module.IpV4 then
 		AgentServiceRemoteSvrObj = IClient.new("IpV4-World", ServerClientEvent, cRemoteIP, iRemotePort, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)

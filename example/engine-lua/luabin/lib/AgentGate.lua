@@ -149,7 +149,7 @@ function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTi
 		end
 	end
 
-	if ccorenet.getOS() == "Linux" then
+	if net_module.getOS() == "Linux" then
 		AgentGateLocalSvrUnixObj = IServer.new("UnixLocal-World", ServerLocalEvent, cUnixSocketName, 0, iLocalTimeOut, net_module.UnixLocal, false, bNoDelay)
 		if not AgentGateLocalSvrUnixObj:Listen() then
 			print(debug.traceback(), "\n", string.format("AgentGate.Init %s Listen Failed. cLocalIP=%s iLocalPort=%s", AgentGateLocalSvrUnixObj:GetName(), cUnixSocketName, 0))
