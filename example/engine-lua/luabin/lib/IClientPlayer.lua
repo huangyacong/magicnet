@@ -112,6 +112,7 @@ function IClientPlayerClass:Connect()
 
 	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, false, net_module.IpV4, self.bNoDelay)
 	if socket == 0 then 
+		self:AddReConnectTimer()
 		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename Client Connect Failed. cIP=%s iPort=%s", self.cIP, self.iPort))
 		return false 
 	end
