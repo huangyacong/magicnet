@@ -12,10 +12,12 @@ HSOCKET SeGetValidHSocket()
 HSOCKET SeGetHSocket(unsigned short usIndex, unsigned long long ullTime)
 {
 	HSOCKET ret;
-	unsigned long long ullIndex;
+	unsigned long long ullIndex, ullTmp;
 
 	ullIndex = usIndex;
-	ret = (HSOCKET)((ullIndex << 46) | ((ullTime << 18) >> 18));
+	ullTmp = ((ullTime << 18) >> 18);
+	ullTmp = (ullIndex <= 0 && ullTmp <= 0) ? (ullIndex + 1) : ullTmp;
+	ret = (HSOCKET)((ullIndex << 46) | ullTmp);
 	return ((ret << 2) >> 2) & 0x3FFFFFFFFFFFFFFF;
 }
 
