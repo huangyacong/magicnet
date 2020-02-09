@@ -14,8 +14,8 @@ void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 	pkNetSocket->iDomain = 0;
 	pkNetSocket->iNoDelay = 0;
 	pkNetSocket->kSocketFd.kSocket = 0;
-	pkNetSocket->kHSocket = SeGetHSocket(0, 0);
-	pkNetSocket->kBelongListenHSocket = SeGetHSocket(0, 0);
+	pkNetSocket->kHSocket = 0;
+	pkNetSocket->kBelongListenHSocket = 0;
 	pkNetSocket->usStatus = SOCKET_STATUS_INIT;
 	pkNetSocket->iHeaderLen = 0;
 	pkNetSocket->iTypeSocket = 0;
