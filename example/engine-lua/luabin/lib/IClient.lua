@@ -91,7 +91,7 @@ function IClientClass:Connect()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(self.modulename) ~= type({}) then
-		print(debug.traceback(), "\n", "IClientClass Listen modulename not a table")
+		print(debug.traceback(), "\n", "IClientClass modulename not a table")
 		return false
 	end
 
@@ -106,6 +106,11 @@ function IClientClass:Connect()
 			print(debug.traceback(), "\n", string.format("IClientClass modulename not has key=%s", funtname))
 			return false
 		end
+	end
+
+	if self.hsocket ~= 0 then 
+		print(debug.traceback(), "\n", "IClientClass is connect")
+		return false 
 	end
 
 	local socket = CoreNet.TCPClient(self.cIP, self.iPort, self.iTimeOut, self.iConnectTimeOut, true, self.iDomain, self.bNoDelay)

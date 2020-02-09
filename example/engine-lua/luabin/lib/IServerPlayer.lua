@@ -46,6 +46,11 @@ function IServerPlayerClass:Listen()
 		end
 	end
 
+	if self.hsocket ~= 0 then 
+		print(debug.traceback(), "\n", "IServerPlayerClass is Listen")
+		return false 
+	end
+
 	local socket = CoreNet.TCPListen(self.cIP, self.iPort, self.iTimeOut, false, net_module.IpV4, self.bReusePort, self.bNoDelay)
 	if socket == 0 then 
 		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename Listen Failed. cIP=%s iPort=%s", self.cIP, self.iPort))
