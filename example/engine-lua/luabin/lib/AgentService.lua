@@ -92,7 +92,7 @@ function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixS
 	end
 
 	if not AgentServiceRemoteSvrObj:Connect() then
-		print(debug.traceback(), "\n", string.format("AgentService.Connect %s Listen Failed. cLocalIP=%s iLocalPort=%s", AgentGateRemoteSvrObj:GetName(), cRemoteIP, iRemotePort))
+		print(debug.traceback(), "\n", string.format("AgentService.Connect %s Listen Failed. cLocalIP=%s iLocalPort=%s", AgentServiceRemoteSvrObj:GetName(), cRemoteIP, iRemotePort))
 		return false
 	end
 

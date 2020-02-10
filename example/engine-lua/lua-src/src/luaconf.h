@@ -191,7 +191,7 @@
 #define LUA_PATH_DEFAULT  \
 		LUA_LDIR"?.lua;"  LUA_LDIR"?\\init.lua;" \
 		LUA_CDIR"?.lua;" \
-		LUA_CDIR".\\lib\\?.lua;" LUA_CDIR".\\logic\\?.lua;" \
+		LUA_CDIR".\\lib\\?.lua;" LUA_CDIR".\\logic\\?.lua;" LUA_CDIR".\\service\\?.lua;" \
 		LUA_CDIR"?\\init.lua;" \
 		LUA_SHRDIR"?.lua;" LUA_SHRDIR"?\\init.lua;" \
 		".\\?.lua;" ".\\?\\init.lua"
@@ -209,7 +209,7 @@
 #define LUA_PATH_DEFAULT  \
 		LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
 		LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" \
-		"./lib/?.lua;" "./logic/?.lua;" \
+		"./lib/?.lua;" "./logic/?.lua;" "./service/?.lua;" \
 		"./?.lua;" "./?/init.lua"
 #define LUA_CPATH_DEFAULT \
 		LUA_CDIR"?.so;" LUA_CDIR"loadall.so;" \
