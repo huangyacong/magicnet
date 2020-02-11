@@ -136,6 +136,9 @@ function AgentGate.IsServiceRegister(serviceName)
 	return AgentGateRegSvrList[serviceName] and true or false
 end
 
+-- 注册服务器列表
+AgentGate.AgentGateRegSvrList = AgentGateRegSvrList
+
 function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTimeOut, cLocalIP, iLocalPort, cUnixSocketName, iLocalTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
 
