@@ -44,12 +44,13 @@ end
 function reloadmodule.reloadlist(module_name_list)
 	for _, v in ipairs(module_name_list) do
 		if not reloadmodule.reloadtest(v) then
-			return
+			return false
 		end
 	end
 	for _, v in ipairs(module_name_list) do
-		reloadmodule.reload(v)
+		reloadmodule.reload(v) 
 	end
+	return true
 end
 
 return util.ReadOnlyTable(reloadmodule)
