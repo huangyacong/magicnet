@@ -6,6 +6,7 @@ require "class"
 
 local IAgentServiceNetFunc_OnRecvCall = "OnRecvCall"
 local IAgentServiceNetFunc_OnRecvCommon = "OnRecvCommon"
+local IAgentServiceNetFunc_OnSystem = "OnSystem"
 
 local AgentService = {}
 
@@ -25,6 +26,10 @@ function ServerClientEvent.OnRecvCommon(IClientObj, targetName, proto, data)
 	AgentServiceEvent[IAgentServiceNetFunc_OnRecvCommon](proto, data)
 end
 
+function ServerClientEvent.OnSystem(IClientObj, proto, data)
+	AgentServiceEvent[IAgentServiceNetFunc_OnSystem](proto, data)
+end
+
 function ServerClientEvent.OnConnect(IClientObj, ip)
 end
 
@@ -41,6 +46,10 @@ end
 
 function AgentService.SendData(targetName, proto, data)
 	return AgentServiceRemoteSvrObj:SendData(targetName, proto, data)
+end
+
+function AgentService.SendSystemData(proto, data)
+	return AgentServiceRemoteSvrObj:SendSystemData(proto, data)
 end
 
 function AgentService:CallData(targetName, proto, data, timeout_millsec)
@@ -68,7 +77,7 @@ function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixS
 		return false
 	end
 
-	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon}
+	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not modulename[funtname] then
 			print(string.format(debug.traceback(), "\n", "AgentService.Init modulename not has key=%s", funtname))

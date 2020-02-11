@@ -11,6 +11,7 @@ local IClientNetFunc_OnRecv_Common = "OnRecvCommon"
 local IClientNetFunc_OnConnect = "OnConnect"
 local IClientNetFunc_OnDisConnect = "OnDisConnect"
 local IClientNetFunc_OnConnectFailed = "OnConnectFailed"
+local IClientNetFunc_OnSystem = "OnSystem"
 
 -- 重连间隔时间,没次无法连接，就加上这个时间，几次之后，立马重连
 local iReConnectDelayTime = 1000
@@ -100,7 +101,7 @@ function IClientClass:Connect()
 		return false
 	end
 
-	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed}
+	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
 			print(debug.traceback(), "\n", string.format("IClientClass modulename not has key=%s", funtname))
@@ -135,6 +136,11 @@ end
 
 function IClientClass:SendData(targetName, proto, data)
 	local header, contents = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
+	return CoreNet.TCPSend(self.hsocket, header, contents)
+end
+
+function IClientClass:SendSystemData(proto, data)
+	local header, contents = net_module.pack("", proto, msgpack.pack(data), net_module.PTYPE.PTYPE_SYSTEM, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -247,6 +253,8 @@ function IClientClass:OnRecv(data)
 		self.modulename[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 		self.modulename[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_SYSTEM == PTYPE then
+		self.modulename[IClientNetFunc_OnSystem](self, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
 		local key = table.unpack(msgpack.unpack(contents))
 		local md5str = net_module.genToken(key, self:GetName())

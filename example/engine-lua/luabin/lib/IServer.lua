@@ -13,6 +13,7 @@ local IServerNetFunc_OnRecv_Remote = "OnRecvRemote"
 local IServerNetFunc_OnConnect = "OnConnect"
 local IServerNetFunc_OnDisConnect = "OnDisConnect"
 local IServerNetFunc_OnRegister = "OnRegister"
+local IServerNetFunc_OnSystem = "OnSystem"
 
 local clientSocket = class()
 
@@ -71,7 +72,7 @@ function IServerClass:Listen()
 		return false
 	end
 
-	local funtList = {IServerNetFunc_OnRecv_Call, IServerNetFunc_OnRecv_Common, IServerNetFunc_OnRecv_Remote, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect, IServerNetFunc_OnRegister}
+	local funtList = {IServerNetFunc_OnRecv_Call, IServerNetFunc_OnRecv_Common, IServerNetFunc_OnRecv_Remote, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect, IServerNetFunc_OnRegister, IServerNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not self.modulename[funtname] then
 			print(debug.traceback(), "\n", string.format("IServerClass modulename not has key=%s", funtname))
@@ -97,6 +98,11 @@ end
 
 function IServerClass:SendData(socket, targetName, proto, data)
 	local header, contents = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
+	return CoreNet.TCPSend(socket, header, contents)
+end
+
+function IServerClass:SendSystemData(socket, proto, data)
+	local header, contents = net_module.pack("", proto, msgpack.pack(data), net_module.PTYPE.PTYPE_SYSTEM, 0)
 	return CoreNet.TCPSend(socket, header, contents)
 end
 
@@ -178,6 +184,8 @@ function IServerClass:OnRecv(socket, data)
 		self.modulename[IServerNetFunc_OnRecv_Remote](self, socket, remote_socket, tonumber(proto), sendData)
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
+	elseif net_module.PTYPE.PTYPE_SYSTEM == PTYPE then
+		self.modulename[IServerNetFunc_OnSystem](self, socket, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		local name, md5str = table.unpack(msgpack.unpack(contents))
 		if net_module.genToken(clientSocketObj:get_key(), name) == md5str and string.len(name) > 0 then

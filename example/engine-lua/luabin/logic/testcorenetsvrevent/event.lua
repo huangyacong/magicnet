@@ -27,6 +27,11 @@ function svr_event.OnRegister(IServerClassObj, socket, regname)
 	--print("OnRegister", socket, regname)
 end
 
+function svr_event.OnSystem(IServerClassObj, socket, proto, ret)
+	print("OnSystem", socket, proto, ret)
+	IServerClassObj:SendSystemData(socket, "fffffffffffffff", "ssssssssssssss127.0.0.1")
+end
+
 function svr_event.OnRecvCall(IServerClassObj, socket, targetName, proto, ret)
 	--print("OnRecvCall-----------------", socket, targetName, proto, ret)
 	if "testCallData" == proto then
@@ -101,7 +106,7 @@ ccorenet.addtimer(svr_event, "timerfunc", 1000, 1, 2, 3)
 
 local bReusePort = true
 local domain = ccorenet.IpV4
-local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "192.168.211.129"
+local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
 local serverObj = IServer.new("serverObj", svr_event, ip, 8888, 1000*60, domain, bReusePort, false)
 ccorenet.addGlobalObj(serverObj, serverObj:GetName())
 

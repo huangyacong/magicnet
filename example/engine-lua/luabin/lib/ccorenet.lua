@@ -179,6 +179,7 @@ ccorenet.PTYPE = {
 	PTYPE_REGISTER_KEY = 4,		-- 注册Key类型
 	PTYPE_REGISTER = 5,			-- 注册类型
 	PTYPE_PING = 6,				-- Ping类型
+	PTYPE_SYSTEM = 7,			-- 系统类型
 }
 
 -- 生成token

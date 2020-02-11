@@ -10,6 +10,7 @@ local IAgentGateNetFunc_OnLocalRecvCommon = "OnLocalRecvCommon"
 local IAgentGateNetFunc_OnRemoteRecv = "OnRemoteRecv"
 local IAgentGateNetFunc_OnRemoteConnect = "OnRemoteConnect"
 local IAgentGateNetFunc_OnRemoteDisConnect = "OnRemoteDisConnect"
+local IAgentGateNetFunc_OnSystem = "OnSystem"
 
 local AgentGate = {}
 
@@ -72,6 +73,10 @@ function ServerLocalEvent.OnRecvCommon(IServerObj, socket, targetName, proto, da
 	IServerObj_:SendData(socket_, targetName, proto, data)
 end
 
+function ServerLocalEvent.OnSystem(IServerObj, socket, proto, data)
+	AgentGateEvent[IAgentGateNetFunc_OnSystem](IServerObj, socket, proto, data)
+end
+
 function ServerLocalEvent.OnRecvRemote(IServerObj, socket, remote_socket, proto, data)
 	AgentGateRemoteSvrObj:SendData(remote_socket, proto, data)
 end
@@ -119,6 +124,15 @@ function AgentGate.SendData(targetName, proto, data)
 	return IServerObj_:SendData(socket_, targetName, proto, data)
 end
 
+function AgentGate.SendSystemData(targetName, proto, data)
+	if not AgentGateRegSvrList[targetName] then
+		print(debug.traceback(), "\n", string.format("AgentGate.SendSystemData not find targetName=%s error", targetName))
+		return false
+	end
+	local IServerObj_, socket_ = table.unpack(AgentGateRegSvrList[targetName])
+	return IServerObj_:SendSystemData(socket_, proto, data)
+end
+
 function AgentGate:CallData(targetName, proto, data, timeout_millsec)
 	if not AgentGateRegSvrList[targetName] then
 		print(debug.traceback(), "\n", string.format("AgentGate.CallData not find targetName=%s error", targetName))
@@ -152,7 +166,7 @@ function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTi
 		return false
 	end
 
-	local funtList = {IAgentGateNetFunc_OnLocalRecvCall, IAgentGateNetFunc_OnLocalRecvCommon, IAgentGateNetFunc_OnRemoteRecv, IAgentGateNetFunc_OnRemoteConnect, IAgentGateNetFunc_OnRemoteDisConnect}
+	local funtList = {IAgentGateNetFunc_OnLocalRecvCall, IAgentGateNetFunc_OnLocalRecvCommon, IAgentGateNetFunc_OnRemoteRecv, IAgentGateNetFunc_OnRemoteConnect, IAgentGateNetFunc_OnRemoteDisConnect, IAgentGateNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not modulename[funtname] then
 			print(string.format(debug.traceback(), "\n", "AgentGate.Init modulename not has key=%s", funtname))

@@ -14,6 +14,10 @@ function event.OnRecvCommon(proto, data)
 	print("OnRecvCommon", proto, data)
 end
 
+function event.OnSystem(proto, data)
+	
+end
+
 function event.framefunc()
 	net_module.addtimer(event, "framefunc", 1000)
 	--local ret, data = AgentService:CallData("svr_a", "proto", "call svr_a recv ", 1000)

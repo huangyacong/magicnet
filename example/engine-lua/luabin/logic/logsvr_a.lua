@@ -20,8 +20,13 @@ function event.OnRecvCommon(proto, data)
 	--AgentService.SendData("gate", "ssssss", "OnRecvCommon")
 end
 
+function event.OnSystem(proto, data)
+	print(proto, data)
+end
+
 function event.framefunc()
 	net_module.addtimer(event, "framefunc", 1000)
+	AgentService.SendSystemData("ddddddddddd", "rrrrrrrrrrrrrrrrrrr")
 	--local ret, data = AgentService:CallData("gate", "proto", "data", 1000)
 	--util.print(table.pack(ret, data))
 	--print("ddddddddddddddddddddsssssssssssssssssssssssssssss")

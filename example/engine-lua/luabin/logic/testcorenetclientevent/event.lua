@@ -1,6 +1,6 @@
 local msgpack = require "msgpack53"
 local ccorenet = require "ccorenet"
-local IClientPlayer = require "IClientPlayer"
+local IClient = require "IClient"
 local CoreTool = require "CoreTool"
 local ccoroutine = require "ccoroutine"
 local CoreTool = require "CoreTool"
@@ -10,7 +10,7 @@ local client_event = {}
 
 function client_event.OnConnect(IClientClassObj, ip)
 	--print("c_connect", IClientClassObj, ip)
-	--IClientClassObj:SendData("watchdog.", "sssssss", ip)
+	--IClientClassObj:SendSystemData("xxxxxxxxxxxxxxxx", ip)
 end
 
 function client_event.OnConnectFailed(IClientClassObj)
@@ -29,6 +29,10 @@ function client_event.OnPing(IClientClassObj)
 	--print("OnPing", IClientClassObj)
 end
 
+function client_event.OnSystem(IClientClassObj, proto, ret)
+	print("OnSystem", proto, ret)
+end
+
 function client_event.OnRecvCall(IClientClassObj, targetName, proto, data)
 	print("OnRecvCall", IClientClassObj, targetName, proto, data)
 	--
@@ -40,6 +44,10 @@ end
 
 function client_event.OnRecv(IClientClassObj, proto, data)
 	--print("OnRecvCommon", IClientClassObj, proto, data)
+end
+
+function client_event.OnRecvCommon(IClientClassObj, targetName, proto, data)
+	print("OnRecvCommon", IClientClassObj, targetName, proto, data)
 end
 
 local timero = CoreTool.GetTickCount()
@@ -65,13 +73,13 @@ function client_event.framefunc()
 end
 
 function client_event.session_id_coroutine_timeout()
-	ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 500)
+	--ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 500)
 	client_event.framefunc()
 	--ccorenet.getGlobalObj("clientObj"):SendRemoteData(10000000, 199, "ip.......")
-	for i = 0, 5000 do
+	for i = 0, 0 do
 	local name = string.format("clientObj%s", i)
 	--for oo = 0, 1000 do
-	ccorenet.getGlobalObj(name):SendData(45566, "asddff")
+	ccorenet.getGlobalObj(name):SendSystemData("xxxxxxxxxxxxxxxx", "127.0.0.1")
 --end
 	end
 	--local oo, data = ccorenet.getGlobalObj("clientObj"):CallData("watchdog......", "testCallData", {"12345"})
@@ -83,13 +91,13 @@ function client_event.session_id_coroutine_timeout()
 	--end
 end
 
-ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 10000)
+ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
 
 local domain = ccorenet.IpV4
 local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
-for i = 0, 5000 do
+for i = 0, 0 do
 	local name = string.format("clientObj%s", i)
-local clientObj = IClientPlayer.new(name, client_event, ip, 8888, 1000*60, 5*1000, true, false)
+local clientObj = IClient.new(name, client_event, ip, 8888, 1000*60, 5*1000, domain, true, false)
 ccorenet.addGlobalObj(clientObj, clientObj:GetName())
 end
 

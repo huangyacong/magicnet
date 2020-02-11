@@ -17,6 +17,13 @@ function event.OnLocalRecvCommon(IServerObj, socket, proto, data)
 	
 end
 
+function event.OnSystem(IServerObj, socket, proto, data)
+	print("OnSystem", socket, proto, data)
+	IServerObj:SendSystemData(socket, proto, data)
+
+	AgentGate.SendSystemData("svr_a", "111111111","2222222222222222")
+end
+
 function event.OnRemoteRecv(socket, proto, data)
 	AgentGate.SendData("svr_a", "sssss", table.pack(socket, "sssssssssssssssssssssssssssss"))
 end
