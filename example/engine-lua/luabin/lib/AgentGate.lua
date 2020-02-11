@@ -169,7 +169,7 @@ function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTi
 	local funtList = {IAgentGateNetFunc_OnLocalRecvCall, IAgentGateNetFunc_OnLocalRecvCommon, IAgentGateNetFunc_OnRemoteRecv, IAgentGateNetFunc_OnRemoteConnect, IAgentGateNetFunc_OnRemoteDisConnect, IAgentGateNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not modulename[funtname] then
-			print(string.format(debug.traceback(), "\n", "AgentGate.Init modulename not has key=%s", funtname))
+			print(debug.traceback(), "\n", string.format("AgentGate.Init modulename not has key=%s", funtname))
 			return false
 		end
 	end

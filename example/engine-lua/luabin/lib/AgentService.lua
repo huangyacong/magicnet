@@ -80,7 +80,7 @@ function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixS
 	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not modulename[funtname] then
-			print(string.format(debug.traceback(), "\n", "AgentService.Init modulename not has key=%s", funtname))
+			print(debug.traceback(), "\n", string.format("AgentService.Init modulename not has key=%s", funtname))
 			return false
 		end
 	end
@@ -96,7 +96,7 @@ function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixS
 	elseif iDomain == net_module.UnixLocal then
 		AgentServiceRemoteSvrObj = IClient.new(AgentServiceClassName, ServerClientEvent, cUnixSocketName, 0, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
 	else
-		print(string.format(debug.traceback(), "\n", "AgentService.Init iDomain=%s error", iDomain))
+		print(debug.traceback(), "\n", string.format("AgentService.Init iDomain=%s error", iDomain))
 		return false
 	end
 
