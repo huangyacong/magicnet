@@ -61,7 +61,7 @@ end
 
 function ServerLocalEvent.OnRecvCommon(IServerObj, socket, targetName, proto, data)
 	if targetName == AgentGateClassName then
-		AgentGateEvent[IAgentGateNetFunc_OnLocalRecvCommon](proto, data)
+		AgentGateEvent[IAgentGateNetFunc_OnLocalRecvCommon](IServerObj, socket, proto, data)
 		return
 	end
 	if not AgentGateRegSvrList[targetName] then

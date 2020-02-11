@@ -16,9 +16,14 @@ local IServerNetFunc_OnRegister = "OnRegister"
 
 local clientSocket = class()
 
-function clientSocket:ctor(toeknkey, resgisterName)
+function clientSocket:ctor(ip, toeknkey, resgisterName)
+	self.ip = ip .. ""
 	self.toeknkey = toeknkey
 	self.resgisterName = resgisterName
+end
+
+function clientSocket:get_ip()
+	return self.ip
 end
 
 function clientSocket:get_key()
@@ -120,8 +125,13 @@ function IServerClass:GetSocketRegName(socket)
 	return clientSocketObj and clientSocketObj:get_name() or nil
 end
 
+function IServerClass:GetSocketIP(socket)
+	local clientSocketObj = self.client_hsocket[socket]
+	return clientSocketObj and clientSocketObj:get_ip() or nil
+end
+
 function IServerClass:OnConnect(socket, ip)
-	local clientSocketObj = clientSocket.new(tostring(CoreTool.GetTickCount()) .. tostring(socket) .. tostring(randomutil.random_int(1, 0x7FFFFFFF)), nil)
+	local clientSocketObj = clientSocket.new(ip, tostring(CoreTool.GetTickCount()) .. tostring(socket) .. tostring(randomutil.random_int(1, 0x7FFFFFFF)), nil)
 	self.client_hsocket[socket] = clientSocketObj
 	local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(clientSocketObj:get_key())), net_module.PTYPE.PTYPE_REGISTER_KEY, 0)
 	CoreNet.TCPSend(socket, header, sendData)
@@ -129,7 +139,8 @@ function IServerClass:OnConnect(socket, ip)
 end
 
 function IServerClass:OnDisConnect(socket)
-	self.modulename[IServerNetFunc_OnDisConnect](self, socket)
+	local isOK, ret = pcall(function () self.modulename[IServerNetFunc_OnDisConnect](self, socket) end)
+	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 	self.client_hsocket[socket] = nil
 end
 

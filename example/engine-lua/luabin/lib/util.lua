@@ -79,6 +79,10 @@ function util.split(str, pat)
 	return t
 end
 
+function util.get_arg(num)
+	return arg[num]
+end
+
 function util.ReadOnlyTable(t)
 	local proxy = {}
 	local mt = {
