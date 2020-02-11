@@ -1,0 +1,1 @@
+..\lua ..\logic\logsvr_a.lua
