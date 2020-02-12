@@ -46,7 +46,7 @@ end
 net_module.init("./test_svr_a.log", 65535, true)
 net_module.addtimer(event, "framefunc", 1000)
 
-AgentService.Init("svr_a", event, "127.0.0.1", 6666, "sssssss", 60000, 10000, false)
+AgentService.Init("svr_a", event, nil, "127.0.0.1", 6666, "sssssss", 60000, 10000, false)
 
 net_module.start()
 

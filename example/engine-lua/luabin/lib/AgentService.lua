@@ -1,4 +1,5 @@
-﻿local net_module = require "ccorenet"
+﻿local reloadmodule = require "reloadmodule"
+local net_module = require "ccorenet"
 local CoreTool = require "CoreTool"
 local IClient = require "IClient"
 local util = require "util"
@@ -12,6 +13,7 @@ local AgentService = {}
 
 local AgentServiceEvent = {}
 local AgentServiceClassName = ""
+local AgentServiceHotfixModuleName = nil
 
 local AgentServiceRemoteSvrObj = nil
 
@@ -64,7 +66,9 @@ function AgentService.GetName()
 	return AgentServiceClassName..""
 end
 
-function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
+AgentService.HotfixModuleName = AgentServiceHotfixModuleName
+
+function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(modulename) ~= type({}) then
@@ -85,9 +89,16 @@ function AgentService.Init(className, modulename, cRemoteIP, iRemotePort, cUnixS
 		end
 	end
 
+	if hotfixModuleName then
+		if not reloadmodule.reloadtest(hotfixModuleName) then
+			return false
+		end
+	end
+
 	-- 赋值
 	AgentServiceEvent = modulename
 	AgentServiceClassName = className
+	AgentServiceHotfixModuleName = hotfixModuleName
 
 	local iDomain = (net_module.getOS() == "Linux") and net_module.UnixLocal or net_module.IpV4
 

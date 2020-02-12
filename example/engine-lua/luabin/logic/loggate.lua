@@ -54,7 +54,7 @@ end
 net_module.init("./test_svr.log", 65535, true)
 net_module.addtimer(event, "framefunc", 1000)
 
-AgentGate.Init("gate", event, "127.0.0.1", 8888, 60000, "127.0.0.1", 6666, "sssssss", 60000, false)
+AgentGate.Init("gate", event, nil, "127.0.0.1", 8888, 60000, "127.0.0.1", 6666, "sssssss", 60000, false)
 
 net_module.start()
 

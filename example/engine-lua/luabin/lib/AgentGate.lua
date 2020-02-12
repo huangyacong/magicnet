@@ -1,4 +1,5 @@
 ﻿local IServerPlayer = require "IServerPlayer"
+local reloadmodule = require "reloadmodule"
 local net_module = require "ccorenet"
 local CoreTool = require "CoreTool"
 local IServer = require "IServer"
@@ -16,6 +17,7 @@ local AgentGate = {}
 
 local AgentGateEvent = {}
 local AgentGateClassName = ""
+local AgentGateHotfixModuleName = nil
 
 local AgentGateRemoteSvrObj = nil
 local AgentGateLocalSvrIPObj = nil
@@ -150,6 +152,8 @@ function AgentGate.GetName()
 	return AgentGateClassName..""
 end
 
+AgentGate.HotfixModuleName = AgentGateHotfixModuleName
+
 function AgentGate.IsServiceRegister(serviceName)
 	return AgentGateRegSvrList[serviceName] and true or false
 end
@@ -157,7 +161,7 @@ end
 -- 注册服务器列表
 AgentGate.AgentGateRegSvrList = AgentGateRegSvrList
 
-function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTimeOut, cLocalIP, iLocalPort, cUnixSocketName, iLocalTimeOut, bNoDelay)
+function AgentGate.Init(className, modulename, hotfixModuleName, cRemoteIP, iRemotePort, iRemoteTimeOut, cLocalIP, iLocalPort, cUnixSocketName, iLocalTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
 
 	if type(modulename) ~= type({}) then
@@ -178,9 +182,16 @@ function AgentGate.Init(className, modulename, cRemoteIP, iRemotePort, iRemoteTi
 		end
 	end
 
+	if hotfixModuleName then
+		if not reloadmodule.reloadtest(hotfixModuleName) then
+			return false
+		end
+	end
+
 	-- 赋值
 	AgentGateEvent = modulename
 	AgentGateClassName = className
+	AgentGateHotfixModuleName = hotfixModuleName
 
 	if net_module.getOS() == "Linux" then
 		AgentGateLocalSvrUnixObj = IServer.new("UnixLocal-World", ServerLocalEvent, cUnixSocketName, 0, iLocalTimeOut, net_module.UnixLocal, false, bNoDelay)
