@@ -267,6 +267,36 @@ extern "C" int CoreNetTCPSend(lua_State *L)
 	return 1;
 }
 
+extern "C" int CoreNetTCPBroadcast(lua_State *L)
+{
+	int index;
+	size_t seplen;
+	const char *pcBuf;
+
+	index = 1;
+	if (!lua_istable(L, index)){ luaL_error(L, "#arg1 must be table!"); return 0; }
+
+	seplen = 0;
+	pcBuf = luaL_checklstring(L, 2, &seplen);
+	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+
+	/* table is in the stack at index 'index' */
+	lua_pushnil(L);  /* first key  如果index是负数，此时table的索引位置变化了：假如原来是-1，现在变成-2了*/
+	while (lua_next(L, index) != 0) {
+		/* uses 'key' (at index -2) and 'value' (at index -1) */
+		//printf("%d - %s\n", lua_tointeger(L, -1), lua_tostring(L, -2));
+		if (lua_isinteger(L, -1) != 0)
+		{
+			SeNetCoreSend(&g_kNetore, lua_tointeger(L, -1), pcBuf, (int)seplen);
+		}
+		/* removes 'value'; keeps 'key' for next iteration */
+		lua_pop(L, 1);
+	}
+
+	lua_pushnil(L);
+	return 1;
+}
+
 extern "C" int CoreNetTCPClose(lua_State *L)
 {
 	HSOCKET kHSocket;
@@ -439,6 +469,7 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "TCPListen", CoreNetTCPListen },
 		{ "TCPClient", CoreNetTCPClient },
 		{ "TCPSend", CoreNetTCPSend },
+		{ "TCPBroadcast", CoreNetTCPBroadcast },
 		{ "TCPClose", CoreNetTCPClose },
 		{ "Read", CoreNetRead },
 		{ "Report", CoreNetReport }, 
@@ -447,7 +478,7 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "DelTimer", CoreNetDelTimer },
 		{ "GetTimeOutId", CoreNetGetTimeOutId }, 
 		{ "SysSessionId", CoreNetSysSessionId },
-		{ "GetOS", CoreNetGetOS },
+		{ "GetOS", CoreNetGetOS }, 
 		{ NULL, NULL },
 	};
 
