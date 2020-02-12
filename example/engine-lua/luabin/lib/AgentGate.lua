@@ -142,7 +142,7 @@ function AgentGate.SendSystemData(targetName, proto, data)
 	return IServerObj_:SendSystemData(socket_, proto, data)
 end
 
-function AgentGate:CallData(targetName, proto, data, timeout_millsec)
+function AgentGate.CallData(targetName, proto, data, timeout_millsec)
 	if not AgentGateRegSvrList[targetName] then
 		print(debug.traceback(), "\n", string.format("AgentGate.CallData not find targetName=%s error", targetName))
 		return false, "send failed"

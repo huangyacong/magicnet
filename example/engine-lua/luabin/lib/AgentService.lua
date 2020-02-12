@@ -54,7 +54,7 @@ function AgentService.SendSystemData(proto, data)
 	return AgentServiceRemoteSvrObj:SendSystemData(proto, data)
 end
 
-function AgentService:CallData(targetName, proto, data, timeout_millsec)
+function AgentService.CallData(targetName, proto, data, timeout_millsec)
 	return AgentServiceRemoteSvrObj:CallData(targetName, proto, data, timeout_millsec)
 end
 
