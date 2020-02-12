@@ -30,3 +30,5 @@
 *.hex
 *.vclog
 *.exp
+*.suo
+*.sdf
