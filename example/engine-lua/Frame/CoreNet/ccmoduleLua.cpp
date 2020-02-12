@@ -272,13 +272,25 @@ extern "C" int CoreNetTCPBroadcast(lua_State *L)
 	int index;
 	size_t seplen;
 	const char *pcBuf;
+	size_t seplenHead;
+	const char *pcBufHead;
+	struct SENETSTREAMBUF kBuf[2];
 
 	index = 1;
 	if (!lua_istable(L, index)){ luaL_error(L, "#arg1 must be table!"); return 0; }
 
+	seplenHead = 0;
+	pcBufHead = luaL_checklstring(L, 2, &seplenHead);
+	if (!pcBufHead) { luaL_error(L, "pcBufHead is NULL!"); return 0; }
+
 	seplen = 0;
-	pcBuf = luaL_checklstring(L, 2, &seplen);
+	pcBuf = luaL_checklstring(L, 3, &seplen);
 	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+
+	kBuf[0].pcBuf = pcBufHead;
+	kBuf[0].iBufLen = (int)seplenHead;
+	kBuf[1].pcBuf = pcBuf;
+	kBuf[1].iBufLen = (int)seplen;
 
 	/* table is in the stack at index 'index' */
 	lua_pushnil(L);  /* first key  如果index是负数，此时table的索引位置变化了：假如原来是-1，现在变成-2了*/
@@ -287,7 +299,7 @@ extern "C" int CoreNetTCPBroadcast(lua_State *L)
 		//printf("%d - %s\n", lua_tointeger(L, -1), lua_tostring(L, -2));
 		if (lua_isinteger(L, -1) != 0)
 		{
-			SeNetCoreSend(&g_kNetore, lua_tointeger(L, -1), pcBuf, (int)seplen);
+			SeNetCoreSendExtend(&g_kNetore, lua_tointeger(L, -1), kBuf, (int)(sizeof(kBuf) / sizeof(struct SENETSTREAMBUF)));
 		}
 		/* removes 'value'; keeps 'key' for next iteration */
 		lua_pop(L, 1);
