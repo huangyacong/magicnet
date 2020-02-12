@@ -160,7 +160,7 @@ function AgentGate.Hotfix()
 		print(debug.traceback(), "\n", "AgentGate.Hotfix modulename is nil")
 		return false
 	end
-	return reloadmodule.reloadlist({AgentGateHotfixModuleName})
+	return reloadmodule.reload(AgentGateHotfixModuleName)
 end
 
 function AgentGate.IsServiceRegister(serviceName)

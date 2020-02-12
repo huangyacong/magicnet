@@ -71,7 +71,7 @@ function AgentService.Hotfix()
 		print(debug.traceback(), "\n", "AgentService.Hotfix modulename is nil")
 		return false
 	end
-	return reloadmodule.reloadlist({AgentServiceHotfixModuleName})
+	return reloadmodule.reload(AgentServiceHotfixModuleName)
 end
 
 function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
