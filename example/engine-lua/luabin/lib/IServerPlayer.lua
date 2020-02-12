@@ -62,6 +62,11 @@ function IServerPlayerClass:Listen()
 	return true 
 end
 
+function IServerPlayerClass:BroadcastData(socketArray, proto, data)
+	local header = string.pack(">H", proto)
+	return CoreNet.TCPBroadcast(socketArray, header, data)
+end
+
 function IServerPlayerClass:SendData(socket, proto, data)
 	local header = string.pack(">H", proto)
 	return CoreNet.TCPSend(socket, header, data)

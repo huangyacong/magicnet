@@ -115,6 +115,10 @@ function AgentGate.SendRemote(remote_socket, proto, data)
 	return AgentGateRemoteSvrObj:SendData(remote_socket, proto, data)
 end
 
+function AgentGate.BroadcastRemote(socketArray, proto, data)
+	return AgentGateRemoteSvrObj:BroadcastData(socketArray, proto, data)
+end
+
 function AgentGate.SendData(targetName, proto, data)
 	if not AgentGateRegSvrList[targetName] then
 		print(debug.traceback(), "\n", string.format("AgentGate.SendData not find targetName=%s error", targetName))
