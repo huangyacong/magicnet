@@ -9,8 +9,8 @@ function reloadmodule.reload(module_name)
 	local ok,err = pcall(require, module_name)
 
 	if not ok then
-		print(string.format("hotfix fail, err=%s modulename=%s", err, module_name))
 		package.loaded[module_name] = old_module
+		print(debug.traceback(), "\n", string.format("hotfix fail, modulename=%s err=%s ", module_name, err))
 		return false
 	end
 
@@ -31,8 +31,8 @@ function reloadmodule.reloadtest(module_name)
 	local ok,err = pcall(require, module_name)
 
 	if not ok then
-		print(string.format("hotfix test fail, err=%s modulename=%s", err, module_name))
 		package.loaded[module_name] = old_module
+		print(debug.traceback(), "\n", string.format("hotfix fail, modulename=%s err=%s ", module_name, err))
 		return false
 	end
 
