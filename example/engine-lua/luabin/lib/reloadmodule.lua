@@ -24,7 +24,7 @@ function reloadmodule.reload(module_name)
 
 	if old_module == nil then
 		package.loaded[module_name] = new_module
-		print(string.format("hotfix ok, first require modulename=%s", module_name))
+		print(string.format("hotfix ok, first require type=%s modulename=%s", type(new_module), module_name))
 		return true
 	end
 
@@ -35,10 +35,10 @@ function reloadmodule.reload(module_name)
 		package.loaded[module_name] = old_module
 		print(string.format("hotfix ok, module change from table to table modulename=%s", module_name))
 		return true
-	elseif type(old_module) ~= type({}) and type(new_module) == type({}) then
+	elseif type(old_module) ~= type({}) then
 		old_module = new_module
 		package.loaded[module_name] = old_module
-		print(string.format("hotfix ok, module change from not table to table modulename=%s", module_name))
+		print(string.format("hotfix ok, module change from not table to %s modulename=%s", type(new_module), module_name))
 		return true
 	end
 
