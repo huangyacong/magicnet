@@ -110,6 +110,9 @@ function ServerLocalEvent.OnRegister(IServerObj, socket, name)
 	print(string.format("AgentGate.OnRegister register name=%s ok", name))
 end
 -----------------------------------------------------------------
+function AgentGate.CloseRemote(remote_socket)
+	return AgentGateRemoteSvrObj:DisConnect(remote_socket)
+end
 
 function AgentGate.SendRemote(remote_socket, proto, data)
 	return AgentGateRemoteSvrObj:SendData(remote_socket, proto, data)
