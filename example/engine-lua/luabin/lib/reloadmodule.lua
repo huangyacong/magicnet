@@ -3,7 +3,7 @@ local util = require "util"
 local reloadmodule = {}
 
 function reloadmodule.reload(module_name)
-	local old_module = package.loaded[module_name] or {}
+	local old_module = package.loaded[module_name]
 
 	package.loaded[module_name] = nil
 	local ok,err = pcall(require, module_name)
@@ -15,13 +15,36 @@ function reloadmodule.reload(module_name)
 	end
 
 	local new_module = package.loaded[module_name]
-	for k, v in pairs(new_module or {}) do
-		old_module[k] = v
+
+	if type(old_module) == type({}) and type(new_module) ~= type({}) then
+		package.loaded[module_name] = old_module
+		print(debug.traceback(), "\n", string.format("hotfix fail, module change from table to not table. modulename=%s ", module_name))
+		return false
+	end
+
+	if old_module == nil then
+		package.loaded[module_name] = new_module
+		print(string.format("hotfix ok, first require modulename=%s", module_name))
+		return true
+	end
+
+	if type(old_module) == type(new_module) and type(old_module) == type({}) then
+		for k, v in pairs(new_module) do
+			old_module[k] = v
+		end
+		package.loaded[module_name] = old_module
+		print(string.format("hotfix ok, module change from table to table modulename=%s", module_name))
+		return true
+	elseif type(old_module) ~= type({}) and type(new_module) == type({}) then
+		old_module = new_module
+		package.loaded[module_name] = old_module
+		print(string.format("hotfix ok, module change from not table to table modulename=%s", module_name))
+		return true
 	end
 
 	package.loaded[module_name] = old_module
-	print(string.format("hotfix ok, modulename=%s", module_name))
-	return true
+	print(debug.traceback(), "\n", string.format("hotfix fail, default change failed modulename=%s ", module_name))
+	return false
 end
 
 function reloadmodule.reloadtest(module_name)
