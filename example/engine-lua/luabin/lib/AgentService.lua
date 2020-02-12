@@ -66,7 +66,13 @@ function AgentService.GetName()
 	return AgentServiceClassName..""
 end
 
-AgentService.HotfixModuleName = AgentServiceHotfixModuleName
+function AgentService.Hotfix()
+	if not AgentServiceHotfixModuleName then
+		print(debug.traceback(), "\n", "AgentService.Hotfix modulename is nil")
+		return false
+	end
+	return reloadmodule.reloadlist({AgentServiceHotfixModuleName})
+end
 
 function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key

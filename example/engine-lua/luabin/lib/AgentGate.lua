@@ -155,7 +155,13 @@ function AgentGate.GetName()
 	return AgentGateClassName..""
 end
 
-AgentGate.HotfixModuleName = AgentGateHotfixModuleName
+function AgentGate.Hotfix()
+	if not AgentGateHotfixModuleName then
+		print(debug.traceback(), "\n", "AgentGate.Hotfix modulename is nil")
+		return false
+	end
+	return reloadmodule.reloadlist({AgentGateHotfixModuleName})
+end
 
 function AgentGate.IsServiceRegister(serviceName)
 	return AgentGateRegSvrList[serviceName] and true or false
