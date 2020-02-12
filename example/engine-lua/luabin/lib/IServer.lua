@@ -114,7 +114,10 @@ function IServerClass:CallData(socket, targetName, proto, data, timeout_millsec)
 		return false, "send failed"
 	end
 	local succ, msg = ccoroutine.yield_call(net_module, session_id, timeout_millsec)
-	return succ, (succ == true) and msgpack.unpack(msg) or msg
+	if succ then
+		msg = msgpack.unpack(msg)
+	end
+	return succ, msg
 end
 
 function IServerClass:RetCallData(socket, data)
@@ -128,12 +131,14 @@ end
 
 function IServerClass:GetSocketRegName(socket)
 	local clientSocketObj = self.client_hsocket[socket]
-	return clientSocketObj and clientSocketObj:get_name() or nil
+	if clientSocketObj then return clientSocketObj:get_name() end
+	return  nil
 end
 
 function IServerClass:GetSocketIP(socket)
 	local clientSocketObj = self.client_hsocket[socket]
-	return clientSocketObj and clientSocketObj:get_ip() or nil
+	if clientSocketObj then return clientSocketObj:get_ip() end
+	return nil
 end
 
 function IServerClass:OnConnect(socket, ip)
