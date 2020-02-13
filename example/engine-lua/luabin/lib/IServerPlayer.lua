@@ -3,9 +3,9 @@ local CoreNet = require "CoreNet"
 local util = require "util"
 require "class"
 
-local IServerNetFunc_OnRecv = "OnRecv"
-local IServerNetFunc_OnConnect = "OnConnect"
-local IServerNetFunc_OnDisConnect = "OnDisConnect"
+local IServerNetFunc_OnRecv = "OnSPlayerRecv"
+local IServerNetFunc_OnConnect = "OnSPlayerConnect"
+local IServerNetFunc_OnDisConnect = "OnSPlayerDisConnect"
 
 local IServerPlayerClass = class()
 

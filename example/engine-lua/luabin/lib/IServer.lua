@@ -7,13 +7,13 @@ local CoreNet = require "CoreNet"
 local util = require "util"
 require "class"
 
-local IServerNetFunc_OnRecv_Call = "OnRecvCall"
-local IServerNetFunc_OnRecv_Common = "OnRecvCommon"
-local IServerNetFunc_OnRecv_Remote = "OnRecvRemote"
-local IServerNetFunc_OnConnect = "OnConnect"
-local IServerNetFunc_OnDisConnect = "OnDisConnect"
-local IServerNetFunc_OnRegister = "OnRegister"
-local IServerNetFunc_OnSystem = "OnSystem"
+local IServerNetFunc_OnRecv_Call = "OnSRecvCall"
+local IServerNetFunc_OnRecv_Common = "OnSRecvCommon"
+local IServerNetFunc_OnRecv_Remote = "OnSRecvRemote"
+local IServerNetFunc_OnConnect = "OnSConnect"
+local IServerNetFunc_OnDisConnect = "OnSDisConnect"
+local IServerNetFunc_OnRegister = "OnSRegister"
+local IServerNetFunc_OnSystem = "OnSSystem"
 
 local clientSocket = class()
 

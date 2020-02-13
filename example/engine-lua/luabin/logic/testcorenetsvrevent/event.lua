@@ -14,28 +14,28 @@ local svr_event = {}
 
 local count = 0
 local socketObj = nil
-function svr_event.OnConnect(IServerClassObj, socket, ip)
+function svr_event.OnSConnect(IServerClassObj, socket, ip)
 	--print("connect----", socket, ip)
 	--IServerClassObj:DisConnect(socket)
 	socketObj = socket
 	count = count + 1
 end
 
-function svr_event.OnDisConnect(IServerClassObj, socket)
+function svr_event.OnSDisConnect(IServerClassObj, socket)
 	--print("disconnect", socket)
 	count = count - 1
 end
 
-function svr_event.OnRegister(IServerClassObj, socket, regname)
+function svr_event.OnSRegister(IServerClassObj, socket, regname)
 	--print("OnRegister", socket, regname)
 end
 
-function svr_event.OnSystem(IServerClassObj, socket, proto, ret)
+function svr_event.OnSSystem(IServerClassObj, socket, proto, ret)
 	print("OnSystem", socket, proto, ret)
 	IServerClassObj:SendSystemData(socket, "fffffffffffffff", "ssssssssssssss127.0.0.1")
 end
 
-function svr_event.OnRecvCall(IServerClassObj, socket, targetName, proto, ret)
+function svr_event.OnSRecvCall(IServerClassObj, socket, targetName, proto, ret)
 	--print("OnRecvCall-----------------", socket, targetName, proto, ret)
 	if "testCallData" == proto then
 		--util.print(msgpack.unpack(ret))
@@ -51,12 +51,12 @@ function svr_event.OnRecvCall(IServerClassObj, socket, targetName, proto, ret)
 	end
 end
 
-function svr_event.OnRecvCommon(IServerClassObj, socket, targetName, proto, ret)
+function svr_event.OnSRecvCommon(IServerClassObj, socket, targetName, proto, ret)
 	--print("OnRecvCommon-----------------", socket, targetName, proto, ret)
 	IServerClassObj:SendData(socket, targetName, proto, ret)
 end
 
-function svr_event.OnRecvRemote(IServerClassObj, socket, remote_socket, proto, ret)
+function svr_event.OnSRecvRemote(IServerClassObj, socket, remote_socket, proto, ret)
 	--print("OnRecvRemote-----------------", socket, remote_socket, type(remote_socket), proto, type(proto), ret)
 	
 end

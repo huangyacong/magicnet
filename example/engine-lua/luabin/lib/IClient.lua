@@ -7,12 +7,12 @@ local timer = require "timer"
 local util = require "util"
 require "class"
 
-local IClientNetFunc_OnRecv_Call = "OnRecvCall"
-local IClientNetFunc_OnRecv_Common = "OnRecvCommon"
-local IClientNetFunc_OnConnect = "OnConnect"
-local IClientNetFunc_OnDisConnect = "OnDisConnect"
-local IClientNetFunc_OnConnectFailed = "OnConnectFailed"
-local IClientNetFunc_OnSystem = "OnSystem"
+local IClientNetFunc_OnRecv_Call = "OnCRecvCall"
+local IClientNetFunc_OnRecv_Common = "OnCRecvCommon"
+local IClientNetFunc_OnConnect = "OnCConnect"
+local IClientNetFunc_OnDisConnect = "OnCDisConnect"
+local IClientNetFunc_OnConnectFailed = "OnCConnectFailed"
+local IClientNetFunc_OnSystem = "OnCSystem"
 
 local local_modulename = ...
 timer.register(local_modulename)

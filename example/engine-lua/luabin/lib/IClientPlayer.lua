@@ -5,12 +5,12 @@ local timer = require "timer"
 local util = require "util"
 require "class"
 
-local IClientNetFunc_OnPing = "OnPing"
-local IClientNetFunc_OnRecv = "OnRecv"
-local IClientNetFunc_OnConnect = "OnConnect"
-local IClientNetFunc_OnDisConnect = "OnDisConnect"
-local IClientNetFunc_OnConnectFailed = "OnConnectFailed"
-local IClientNetFunc_OnSendPacketAttach = "OnSendPacketAttach"
+local IClientNetFunc_OnPing = "OnCPlayerPing"
+local IClientNetFunc_OnRecv = "OnCPlayerRecv"
+local IClientNetFunc_OnConnect = "OnCPlayerConnect"
+local IClientNetFunc_OnDisConnect = "OnCPlayerDisConnect"
+local IClientNetFunc_OnConnectFailed = "OnCPlayerConnectFailed"
+local IClientNetFunc_OnSendPacketAttach = "OnCPlayerSendPacketAttach"
 
 local local_modulename = ...
 timer.register(local_modulename)

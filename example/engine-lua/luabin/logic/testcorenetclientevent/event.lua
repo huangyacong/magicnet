@@ -12,16 +12,16 @@ timer.register(local_modulename)
 
 local client_event = {}
 
-function client_event.OnConnect(IClientClassObj, ip)
+function client_event.OnCConnect(IClientClassObj, ip)
 	--print("c_connect", IClientClassObj, ip)
 	--IClientClassObj:SendSystemData("xxxxxxxxxxxxxxxx", ip)
 end
 
-function client_event.OnConnectFailed(IClientClassObj)
+function client_event.OnCConnectFailed(IClientClassObj)
 	--print("OnConnectFailed", IClientClassObj)
 end
 
-function client_event.OnDisConnect(IClientClassObj)
+function client_event.OnCDisConnect(IClientClassObj)
 	--print("c_disconnect", IClientClassObj)
 end
 
@@ -33,11 +33,11 @@ function client_event.OnPing(IClientClassObj)
 	--print("OnPing", IClientClassObj)
 end
 
-function client_event.OnSystem(IClientClassObj, proto, ret)
+function client_event.OnCSystem(IClientClassObj, proto, ret)
 	print("OnSystem", proto, ret)
 end
 
-function client_event.OnRecvCall(IClientClassObj, targetName, proto, data)
+function client_event.OnCRecvCall(IClientClassObj, targetName, proto, data)
 	print("OnRecvCall", IClientClassObj, targetName, proto, data)
 	--
 	if "testCallData" == proto then
@@ -50,7 +50,7 @@ function client_event.OnRecv(IClientClassObj, proto, data)
 	--print("OnRecvCommon", IClientClassObj, proto, data)
 end
 
-function client_event.OnRecvCommon(IClientClassObj, targetName, proto, data)
+function client_event.OnCRecvCommon(IClientClassObj, targetName, proto, data)
 	print("OnRecvCommon", IClientClassObj, targetName, proto, data)
 end
 
