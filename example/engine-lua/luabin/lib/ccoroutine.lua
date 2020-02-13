@@ -1,4 +1,8 @@
-﻿local util = require "util"
+﻿local timer = require "timer"
+local util = require "util"
+
+local local_modulename = ...
+timer.register(local_modulename)
 
 local ccoroutine = {}
 
@@ -82,11 +86,11 @@ end
 function ccoroutine.yield_call(net_modulename, sessionId, timeout_millsec)
 	timeout_millsec = timeout_millsec or 1000 * 20
 	local retpcall, ret, data = pcall(function() 
-		local timerId = net_modulename.addtimer(ccoroutine, "session_id_coroutine_timeout", timeout_millsec, sessionId)
+		local timerId = timer.addtimer(local_modulename, "session_id_coroutine_timeout", timeout_millsec, sessionId)
 		session_id_coroutine[sessionId] = running_thread
 		local succ, msg = coroutine.yield("YIELD_CALL")
 		session_id_coroutine[sessionId] = nil
-		net_modulename.deltimer(timerId)
+		timer.deltimer(timerId)
 		return succ, msg
 		end)
 	session_id_coroutine[sessionId] = nil
