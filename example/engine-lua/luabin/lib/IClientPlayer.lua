@@ -38,7 +38,7 @@ local IClientPlayerClass = class()
 function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, bReConnect, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
-	self.modulename = modulename
+	self.modulename = tostring(modulename)
 
 	self.cIP = cIP
 	self.iPort = iPort
@@ -85,6 +85,10 @@ function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOu
 	self.bNoDelay = bNoDelay
 end
 
+function IClientPlayerClass:GetModule()
+	return package.loaded[self.modulename]
+end
+
 function IClientPlayerClass:GetName()
 	return self.className
 end
@@ -92,19 +96,19 @@ end
 function IClientPlayerClass:Connect()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
-	if type(self.modulename) ~= type({}) then
+	if type(self:GetModule()) ~= type({}) then
 		print(debug.traceback(), "\n", "IClientPlayerClass modulename not a table")
 		return false
 	end
 
-	if not next(self.modulename) then
+	if not next(self:GetModule()) then
 		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename is empty"))
 		return false
 	end
 
 	local funtList = {IClientNetFunc_OnRecv, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnPing, IClientNetFunc_OnSendPacketAttach}
 	for _, funtname in pairs(funtList) do
-		if not self.modulename[funtname] then
+		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename not has key=%s", funtname))
 			return false
 		end
@@ -149,7 +153,7 @@ function IClientPlayerClass:TimeToPingPing()
 	local timeCnt = CoreTool.GetTickCount()
 	if iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
 	self.m_ullPingTIme = timeCnt
-	self.modulename[IClientNetFunc_OnPing](self)
+	self:GetModule()[IClientNetFunc_OnPing](self)
 end
 
 function IClientPlayerClass:AddPingTimer()
@@ -179,9 +183,9 @@ function IClientPlayerClass:OnConnect(ip)
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
 	self:AddPingTimer()
 	self:DelReConnectTimer()
-	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnSendPacketAttach](self) end)
+	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnSendPacketAttach](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
-	self.modulename[IClientNetFunc_OnConnect](self, ip)
+	self:GetModule()[IClientNetFunc_OnConnect](self, ip)
 end
 
 function IClientPlayerClass:OnConnectFailed()
@@ -191,7 +195,7 @@ function IClientPlayerClass:OnConnectFailed()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
-	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnConnectFailed](self) end)
+	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnConnectFailed](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
@@ -205,7 +209,7 @@ function IClientPlayerClass:OnDisConnect()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
-	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnDisConnect](self) end)
+	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnDisConnect](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
@@ -215,7 +219,7 @@ end
 function IClientPlayerClass:OnRecv(data)
 	local proto, len = string.unpack(">H", data)
 	local contents = string.sub(data, len, string.len(data))
-	self.modulename[IClientNetFunc_OnRecv](self, proto, contents)
+	self:GetModule()[IClientNetFunc_OnRecv](self, proto, contents)
 end
 
 IClientPlayer.IClientPlayerClass = IClientPlayerClass

@@ -40,7 +40,7 @@ local IClientClass = class()
 function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnectTimeOut, iDomain, bReConnect, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
-	self.modulename = modulename
+	self.modulename = tostring(modulename)
 
 	self.cIP = cIP
 	self.iPort = iPort
@@ -89,6 +89,10 @@ function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNo
 	self.bNoDelay = bNoDelay
 end
 
+function IClientClass:GetModule()
+	return package.loaded[self.modulename]
+end
+
 function IClientClass:GetName()
 	return self.className
 end
@@ -96,19 +100,19 @@ end
 function IClientClass:Connect()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
-	if type(self.modulename) ~= type({}) then
+	if type(self:GetModule()) ~= type({}) then
 		print(debug.traceback(), "\n", "IClientClass modulename not a table")
 		return false
 	end
 
-	if not next(self.modulename) then
+	if not next(self:GetModule()) then
 		print(debug.traceback(), "\n", string.format("IClientClass modulename is empty"))
 		return false
 	end
 
 	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
-		if not self.modulename[funtname] then
+		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IClientClass modulename not has key=%s", funtname))
 			return false
 		end
@@ -215,7 +219,7 @@ function IClientClass:OnConnect(ip)
 	self.m_ullReConnectTime = CoreTool.GetTickCount()
 	self:AddPingTimer()
 	self:DelReConnectTimer()
-	self.modulename[IClientNetFunc_OnConnect](self, ip)
+	self:GetModule()[IClientNetFunc_OnConnect](self, ip)
 end
 
 function IClientClass:OnConnectFailed()
@@ -225,7 +229,7 @@ function IClientClass:OnConnectFailed()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
-	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnConnectFailed](self) end)
+	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnConnectFailed](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
@@ -239,7 +243,7 @@ function IClientClass:OnDisConnect()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
-	local isOK, ret = pcall(function () self.modulename[IClientNetFunc_OnDisConnect](self) end)
+	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnDisConnect](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
@@ -258,11 +262,11 @@ function IClientClass:OnRecv(data)
 		end
 		ccoroutine.resume(co, true, contents)
 	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
-		self.modulename[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
+		self:GetModule()[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
-		self.modulename[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
+		self:GetModule()[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_SYSTEM == PTYPE then
-		self.modulename[IClientNetFunc_OnSystem](self, proto, msgpack.unpack(contents))
+		self:GetModule()[IClientNetFunc_OnSystem](self, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
 		local key = table.unpack(msgpack.unpack(contents))
 		local md5str = net_module.genToken(key, self:GetName())
