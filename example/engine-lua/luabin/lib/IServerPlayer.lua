@@ -12,13 +12,17 @@ local IServerPlayerClass = class()
 function IServerPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, bReusePort, bNoDelay)
 	self.hsocket = 0
 	self.className = tostring(className)
-	self.modulename = modulename
+	self.modulename = tostring(modulename)
 
 	self.cIP = cIP
 	self.iPort = iPort
 	self.iTimeOut = iTimeOut
 	self.bReusePort = bReusePort
 	self.bNoDelay = bNoDelay
+end
+
+function IServerPlayerClass:GetModule()
+	return package.loaded[self.modulename]
 end
 
 function IServerPlayerClass:GetName()
@@ -28,19 +32,19 @@ end
 function IServerPlayerClass:Listen()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
-	if type(self.modulename) ~= type({}) then
+	if type(self:GetModule()) ~= type({}) then
 		print(debug.traceback(), "\n", "IServerPlayerClass Listen modulename not a table")
 		return false
 	end
 
-	if not next(self.modulename) then
+	if not next(self:GetModule()) then
 		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename is empty"))
 		return false
 	end
 
 	local funtList = {IServerNetFunc_OnRecv, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect}
 	for _, funtname in pairs(funtList) do
-		if not self.modulename[funtname] then
+		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename not has key=%s", funtname))
 			return false
 		end
@@ -77,17 +81,17 @@ function IServerPlayerClass:DisConnect(socket)
 end
 
 function IServerPlayerClass:OnConnect(socket, ip)
-	self.modulename[IServerNetFunc_OnConnect](self, socket, ip)
+	self:GetModule()[IServerNetFunc_OnConnect](self, socket, ip)
 end
 
 function IServerPlayerClass:OnDisConnect(socket)
-	self.modulename[IServerNetFunc_OnDisConnect](self, socket)
+	self:GetModule()[IServerNetFunc_OnDisConnect](self, socket)
 end
 
 function IServerPlayerClass:OnRecv(socket, data)
 	local proto, len = string.unpack(">H", data)
 	local contents = string.sub(data, len, string.len(data))
-	self.modulename[IServerNetFunc_OnRecv](self, socket, proto, contents)
+	self:GetModule()[IServerNetFunc_OnRecv](self, socket, proto, contents)
 end
 
 return util.ReadOnlyTable(IServerPlayerClass)
