@@ -110,9 +110,9 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 	local iDomain = (net_module.getOS() == "Linux") and net_module.UnixLocal or net_module.IpV4
 
 	if iDomain == net_module.IpV4 then
-		AgentServiceRemoteSvrObj = IClient.new(AgentServiceClassName, ServerClientEvent, cRemoteIP, iRemotePort, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
+		AgentServiceRemoteSvrObj = IClient.IClientClass.new(AgentServiceClassName, ServerClientEvent, cRemoteIP, iRemotePort, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
 	elseif iDomain == net_module.UnixLocal then
-		AgentServiceRemoteSvrObj = IClient.new(AgentServiceClassName, ServerClientEvent, cUnixSocketName, 0, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
+		AgentServiceRemoteSvrObj = IClient.IClientClass.new(AgentServiceClassName, ServerClientEvent, cUnixSocketName, 0, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
 	else
 		print(debug.traceback(), "\n", string.format("AgentService.Init iDomain=%s error", iDomain))
 		return false
