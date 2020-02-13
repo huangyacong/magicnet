@@ -167,7 +167,7 @@ function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 		print(debug.traceback(), "\n", "CallData failed")
 		return false, "send failed"
 	end
-	local succ, msg = ccoroutine.yield_call(net_module, session_id, timeout_millsec)
+	local succ, msg = ccoroutine.yield_call(session_id, timeout_millsec)
 	if succ then
 		msg = msgpack.unpack(msg)
 	end
