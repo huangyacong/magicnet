@@ -2,11 +2,11 @@ local util = require "util"
 local ccorenet = require "ccorenet"
 local IClient = require "IClient"
 local timer = require "timer"
-require "testcorenetclientevent/event"
+require "logic/testcorenetclientevent/event"
 
 ccorenet.init("./test_client.log", 65535, true)
 
-local client_event = "testcorenetclientevent/event"
+local client_event = "logic/testcorenetclientevent/event"
 timer.addtimer(client_event, "session_id_coroutine_timeout", 1000)
 
 local domain = ccorenet.IpV4

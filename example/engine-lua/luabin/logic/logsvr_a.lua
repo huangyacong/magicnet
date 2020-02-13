@@ -4,9 +4,9 @@ local util = require "util"
 local ccoroutine = require "ccoroutine"
 local timer = require "timer"
 require "class"
-require "logsvr_event"
+require "logic/logsvr_event"
 
-local logsvr_event = "logsvr_event"
+local logsvr_event = "logic/logsvr_event"
 
 net_module.init("./test_svr_a.log", 65535, true)
 timer.addtimer(logsvr_event, "framefunc", 1000)

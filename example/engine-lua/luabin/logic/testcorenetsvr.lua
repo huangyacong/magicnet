@@ -2,11 +2,11 @@ local util = require "util"
 local timer = require "timer"
 local IServer = require "IServer"
 local ccorenet = require "ccorenet"
-require "testcorenetsvrevent/event"
+require "logic/testcorenetsvrevent/event"
 
 ccorenet.init("./test_svr.log", 65535, true)
 
-local server_event = "testcorenetsvrevent/event"
+local server_event = "logic/testcorenetsvrevent/event"
 timer.addtimer(server_event, "timerfunc", 1000, 1, 2, 3)
 
 local bReusePort = true
