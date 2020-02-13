@@ -45,7 +45,7 @@ function IServerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iDomain,
 	self.hsocket = 0
 	self.client_hsocket = {}
 	self.className = tostring(className)
-	self.modulename = modulename
+	self.modulename = tostring(modulename)
 
 	self.cIP = cIP
 	self.iPort = iPort
@@ -55,6 +55,10 @@ function IServerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iDomain,
 	self.bNoDelay = bNoDelay
 end
 
+function IServerClass:GetModule()
+	return package.loaded[self.modulename]
+end
+
 function IServerClass:GetName()
 	return self.className
 end
@@ -62,19 +66,19 @@ end
 function IServerClass:Listen()
 	-- 模块modulename中必须是table，同时必须有下面的key
 
-	if type(self.modulename) ~= type({}) then
+	if type(self:GetModule()) ~= type({}) then
 		print(debug.traceback(), "\n", "IServerClass Listen modulename not a table")
 		return false
 	end
 
-	if not next(self.modulename) then
+	if not next(self:GetModule()) then
 		print(debug.traceback(), "\n", string.format("IServerClass modulename is empty"))
 		return false
 	end
 
 	local funtList = {IServerNetFunc_OnRecv_Call, IServerNetFunc_OnRecv_Common, IServerNetFunc_OnRecv_Remote, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect, IServerNetFunc_OnRegister, IServerNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
-		if not self.modulename[funtname] then
+		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IServerClass modulename not has key=%s", funtname))
 			return false
 		end
@@ -146,11 +150,11 @@ function IServerClass:OnConnect(socket, ip)
 	self.client_hsocket[socket] = clientSocketObj
 	local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(clientSocketObj:get_key())), net_module.PTYPE.PTYPE_REGISTER_KEY, 0)
 	CoreNet.TCPSend(socket, header, sendData)
-	self.modulename[IServerNetFunc_OnConnect](self, socket, ip)
+	self:GetModule()[IServerNetFunc_OnConnect](self, socket, ip)
 end
 
 function IServerClass:OnDisConnect(socket)
-	local isOK, ret = pcall(function () self.modulename[IServerNetFunc_OnDisConnect](self, socket) end)
+	local isOK, ret = pcall(function () self:GetModule()[IServerNetFunc_OnDisConnect](self, socket) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 	self.client_hsocket[socket] = nil
 end
@@ -183,19 +187,19 @@ function IServerClass:OnRecv(socket, data)
 		end
 		ccoroutine.resume(co, true, contents)
 	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
-		self.modulename[IServerNetFunc_OnRecv_Call](self, socket, targetName, proto, msgpack.unpack(contents))
+		self:GetModule()[IServerNetFunc_OnRecv_Call](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REMOTE == PTYPE then
 		local remote_socket, sendData = table.unpack(msgpack.unpack(contents))
-		self.modulename[IServerNetFunc_OnRecv_Remote](self, socket, remote_socket, tonumber(proto), sendData)
+		self:GetModule()[IServerNetFunc_OnRecv_Remote](self, socket, remote_socket, tonumber(proto), sendData)
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
-		self.modulename[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
+		self:GetModule()[IServerNetFunc_OnRecv_Common](self, socket, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_SYSTEM == PTYPE then
-		self.modulename[IServerNetFunc_OnSystem](self, socket, proto, msgpack.unpack(contents))
+		self:GetModule()[IServerNetFunc_OnSystem](self, socket, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_REGISTER == PTYPE then
 		local name, md5str = table.unpack(msgpack.unpack(contents))
 		if net_module.genToken(clientSocketObj:get_key(), name) == md5str and string.len(name) > 0 then
 			clientSocketObj:set_name(name)
-			self.modulename[IServerNetFunc_OnRegister](self, socket, name)
+			self:GetModule()[IServerNetFunc_OnRegister](self, socket, name)
 		else
 			self:DisConnect(socket)
 			print(debug.traceback(), "\n", string.format("IServerClass:OnRecv clientSocketObj=%s register failed. name=%s md5str=%s", socket, name, md5str))
