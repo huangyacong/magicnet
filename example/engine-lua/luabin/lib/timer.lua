@@ -8,13 +8,14 @@ local timeoutObj = {}
 local timer_register = {}
 local max_run_timer_count = 1000
 
--- 定时器注册事件
+-- 定时器注册事件,这个事件，最好添加在每个文件的开头
+--[[
+		示例
+		local local_modulename = ...
+		timer.register(local_modulename)
+]]
 function timer.register(modulename)
 	local add_modulename = tostring(modulename)
-	if not package.loaded[add_modulename] then
-		print(debug.traceback(), "\n", string.format("timer.RegisterTimerID modulename=%s is not in package.loaded", add_modulename))
-		return false
-	end
 	timer_register[add_modulename] = add_modulename
 	return true
 end
