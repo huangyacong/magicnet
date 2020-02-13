@@ -10,7 +10,7 @@ function reloadmodule.reload(module_name)
 
 	if not ok then
 		package.loaded[module_name] = old_module
-		print(debug.traceback(), "\n", string.format("hotfix fail, modulename=%s err=%s ", module_name, err))
+		print(string.format("hotfix fail, modulename=%s err=%s ", module_name, err))
 		return false
 	end
 
@@ -55,7 +55,7 @@ function reloadmodule.reloadtest(module_name)
 
 	if not ok then
 		package.loaded[module_name] = old_module
-		print(debug.traceback(), "\n", string.format("hotfix fail, modulename=%s err=%s ", module_name, err))
+		print(string.format("hotfix fail, modulename=%s err=%s ", module_name, err))
 		return false
 	end
 
