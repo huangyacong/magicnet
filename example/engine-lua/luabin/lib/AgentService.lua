@@ -11,7 +11,7 @@ local IAgentServiceNetFunc_OnSystem = "OnSystem"
 
 local AgentService = {}
 
-local AgentServiceEvent = {}
+local AgentServiceEventMudleName = nil
 local AgentServiceClassName = ""
 local AgentServiceHotfixModuleName = nil
 
@@ -21,15 +21,15 @@ local AgentServiceRemoteSvrObj = nil
 local ServerClientEvent = {}
 
 function ServerClientEvent.OnRecvCall(IClientObj, targetName, proto, data)
-	AgentServiceEvent[IAgentServiceNetFunc_OnRecvCall](proto, data)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRecvCall](proto, data)
 end
 
 function ServerClientEvent.OnRecvCommon(IClientObj, targetName, proto, data)
-	AgentServiceEvent[IAgentServiceNetFunc_OnRecvCommon](proto, data)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRecvCommon](proto, data)
 end
 
 function ServerClientEvent.OnSystem(IClientObj, proto, data)
-	AgentServiceEvent[IAgentServiceNetFunc_OnSystem](proto, data)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnSystem](proto, data)
 end
 
 function ServerClientEvent.OnConnect(IClientObj, ip)
@@ -76,20 +76,21 @@ end
 
 function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
+	local packageName = package.loaded[modulename]
 
-	if type(modulename) ~= type({}) then
+	if type(packageName) ~= type({}) then
 		print(debug.traceback(), "\n", "AgentService.Init modulename not a table")
 		return false
 	end
 
-	if not next(modulename) then
+	if not next(packageName) then
 		print(debug.traceback(), "\n", string.format("AgentService.Init modulename is empty"))
 		return false
 	end
 
 	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
-		if not modulename[funtname] then
+		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentService.Init modulename not has key=%s", funtname))
 			return false
 		end
@@ -102,9 +103,9 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 	end
 
 	-- 赋值
-	AgentServiceEvent = modulename
-	AgentServiceClassName = className
-	AgentServiceHotfixModuleName = hotfixModuleName
+	AgentServiceEventMudleName = tostring(modulename)
+	AgentServiceClassName = tostring(className)
+	AgentServiceHotfixModuleName = tostring(hotfixModuleName)
 
 	local iDomain = (net_module.getOS() == "Linux") and net_module.UnixLocal or net_module.IpV4
 

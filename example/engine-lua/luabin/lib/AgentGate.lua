@@ -15,7 +15,7 @@ local IAgentGateNetFunc_OnSystem = "OnSystem"
 
 local AgentGate = {}
 
-local AgentGateEvent = {}
+local AgentGateEventMudleName = nil
 local AgentGateClassName = ""
 local AgentGateHotfixModuleName = nil
 
@@ -30,15 +30,15 @@ local AgentGateRegSvrList = {}
 local ServerRemotEvent = {}
 
 function ServerRemotEvent.OnConnect(IClientObj, socket, ip)
-	AgentGateEvent[IAgentGateNetFunc_OnRemoteConnect](socket, ip)
+	package.loaded[AgentGateEventMudleName][IAgentGateNetFunc_OnRemoteConnect](socket, ip)
 end
 
 function ServerRemotEvent.OnDisConnect(IClientObj, socket)
-	AgentGateEvent[IAgentGateNetFunc_OnRemoteDisConnect](socket)
+	package.loaded[AgentGateEventMudleName][IAgentGateNetFunc_OnRemoteDisConnect](socket)
 end
 
 function ServerRemotEvent.OnRecv(IClientObj, socket, proto, data)
-	AgentGateEvent[IAgentGateNetFunc_OnRemoteRecv](socket, proto, data)
+	package.loaded[AgentGateEventMudleName][IAgentGateNetFunc_OnRemoteRecv](socket, proto, data)
 end
 -----------------------------------------------------------------
 
@@ -48,7 +48,7 @@ local ServerLocalEvent = {}
 
 function ServerLocalEvent.OnRecvCall(IServerObj, socket, targetName, proto, data)
 	if targetName == AgentGateClassName then
-		AgentGateEvent[IAgentGateNetFunc_OnLocalRecvCall](IServerObj, socket, proto, data)
+		package.loaded[AgentGateEventMudleName][IAgentGateNetFunc_OnLocalRecvCall](IServerObj, socket, proto, data)
 		return
 	end
 	if not AgentGateRegSvrList[targetName] then
@@ -64,7 +64,7 @@ end
 
 function ServerLocalEvent.OnRecvCommon(IServerObj, socket, targetName, proto, data)
 	if targetName == AgentGateClassName then
-		AgentGateEvent[IAgentGateNetFunc_OnLocalRecvCommon](IServerObj, socket, proto, data)
+		package.loaded[AgentGateEventMudleName][IAgentGateNetFunc_OnLocalRecvCommon](IServerObj, socket, proto, data)
 		return
 	end
 	if not AgentGateRegSvrList[targetName] then
@@ -76,7 +76,7 @@ function ServerLocalEvent.OnRecvCommon(IServerObj, socket, targetName, proto, da
 end
 
 function ServerLocalEvent.OnSystem(IServerObj, socket, proto, data)
-	AgentGateEvent[IAgentGateNetFunc_OnSystem](IServerObj, socket, proto, data)
+	package.loaded[AgentGateEventMudleName][IAgentGateNetFunc_OnSystem](IServerObj, socket, proto, data)
 end
 
 function ServerLocalEvent.OnRecvRemote(IServerObj, socket, remote_socket, proto, data)
@@ -172,20 +172,21 @@ AgentGate.AgentGateRegSvrList = AgentGateRegSvrList
 
 function AgentGate.Init(className, modulename, hotfixModuleName, cRemoteIP, iRemotePort, iRemoteTimeOut, cLocalIP, iLocalPort, cUnixSocketName, iLocalTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
+	local packageName = package.loaded[modulename]
 
-	if type(modulename) ~= type({}) then
+	if type(packageName) ~= type({}) then
 		print(debug.traceback(), "\n", "AgentGate.Init modulename not a table")
 		return false
 	end
 
-	if not next(modulename) then
+	if not next(packageName) then
 		print(debug.traceback(), "\n", string.format("AgentGate.Init modulename is empty"))
 		return false
 	end
 
 	local funtList = {IAgentGateNetFunc_OnLocalRecvCall, IAgentGateNetFunc_OnLocalRecvCommon, IAgentGateNetFunc_OnRemoteRecv, IAgentGateNetFunc_OnRemoteConnect, IAgentGateNetFunc_OnRemoteDisConnect, IAgentGateNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
-		if not modulename[funtname] then
+		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentGate.Init modulename not has key=%s", funtname))
 			return false
 		end
@@ -198,9 +199,9 @@ function AgentGate.Init(className, modulename, hotfixModuleName, cRemoteIP, iRem
 	end
 
 	-- 赋值
-	AgentGateEvent = modulename
-	AgentGateClassName = className
-	AgentGateHotfixModuleName = hotfixModuleName
+	AgentGateEventMudleName = tostring(modulename)
+	AgentGateClassName = tostring(className)
+	AgentGateHotfixModuleName = tostring(hotfixModuleName)
 
 	if net_module.getOS() == "Linux" then
 		AgentGateLocalSvrUnixObj = IServer.new("UnixLocal-World", ServerLocalEvent, cUnixSocketName, 0, iLocalTimeOut, net_module.UnixLocal, false, bNoDelay)
