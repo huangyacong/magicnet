@@ -3,6 +3,7 @@ local net_module = require "ccorenet"
 local msgpack = require "msgpack53"
 local CoreTool = require "CoreTool"
 local CoreNet = require "CoreNet"
+local timer = require "timer"
 local util = require "util"
 require "class"
 
@@ -13,6 +14,9 @@ local IClientNetFunc_OnDisConnect = "OnDisConnect"
 local IClientNetFunc_OnConnectFailed = "OnConnectFailed"
 local IClientNetFunc_OnSystem = "OnSystem"
 
+local local_modulename = ...
+timer.register(local_modulename)
+
 -- 重连间隔时间,没次无法连接，就加上这个时间，几次之后，立马重连
 local iReConnectDelayTime = 1000
 -- 重连循环次数
@@ -20,12 +24,13 @@ local iReConnectCount = 10
 -- ping的时间间隔
 local iPingTimeDelay  = 1000 * 2
 
-local pingFuncEvent = {}
-function pingFuncEvent.pingFunc_callback(IClientClassObj)
+local IClient = {}
+
+function IClient.pingFunc_callback(IClientClassObj)
 	IClientClassObj:AddPingTimer()
 	IClientClassObj:TimeToPingPing()
 end
-function pingFuncEvent.reconnectFunc_callback(IClientClassObj)
+function IClient.reconnectFunc_callback(IClientClassObj)
 	IClientClassObj:AddReConnectTimer()
 	IClientClassObj:TryReConnect()
 end
@@ -184,11 +189,11 @@ function IClientClass:TimeToPingPing()
 end
 
 function IClientClass:AddPingTimer()
-	self.pingTimerId = net_module.addtimer(pingFuncEvent, "pingFunc_callback", iPingTimeDelay, self)
+	self.pingTimerId = timer.addtimer(local_modulename, "pingFunc_callback", iPingTimeDelay, self)
 end
 
 function IClientClass:DelPingTimer()
-	net_module.deltimer(self.pingTimerId)
+	timer.deltimer(self.pingTimerId)
 	self.pingTimerId = 0
 end
 
@@ -196,11 +201,11 @@ function IClientClass:AddReConnectTimer()
 	if not self.bReConnect then
 		return
 	end
-	self.reconnectTimerId = net_module.addtimer(pingFuncEvent, "reconnectFunc_callback", self.m_ullReConnectTime - CoreTool.GetTickCount(), self)
+	self.reconnectTimerId = timer.addtimer(local_modulename, "reconnectFunc_callback", self.m_ullReConnectTime - CoreTool.GetTickCount(), self)
 end
 
 function IClientClass:DelReConnectTimer()
-	net_module.deltimer(self.reconnectTimerId)
+	timer.deltimer(self.reconnectTimerId)
 	self.reconnectTimerId = 0
 end
 
@@ -267,4 +272,6 @@ function IClientClass:OnRecv(data)
 	end
 end
 
-return util.ReadOnlyTable(IClientClass)
+IClient.IClientClass = IClientClass
+
+return util.ReadOnlyTable(IClient)
