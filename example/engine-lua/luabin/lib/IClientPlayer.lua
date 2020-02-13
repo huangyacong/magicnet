@@ -101,17 +101,19 @@ function IClientPlayerClass:Connect()
 		return false
 	end
 
-	if not next(self:GetModule()) then
-		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename is empty"))
-		return false
-	end
-
+	local bEmpty = true
 	local funtList = {IClientNetFunc_OnRecv, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnPing, IClientNetFunc_OnSendPacketAttach}
 	for _, funtname in pairs(funtList) do
 		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename not has key=%s", funtname))
 			return false
 		end
+		bEmpty = false
+	end
+
+	if bEmpty then
+		print(debug.traceback(), "\n", string.format("IClientPlayerClass modulename is empty"))
+		return false
 	end
 
 	if self.hsocket ~= 0 then 

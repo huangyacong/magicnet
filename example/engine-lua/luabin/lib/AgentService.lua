@@ -9,6 +9,8 @@ local IAgentServiceNetFunc_OnRecvCall = "OnRecvCall"
 local IAgentServiceNetFunc_OnRecvCommon = "OnRecvCommon"
 local IAgentServiceNetFunc_OnSystem = "OnSystem"
 
+local local_modulename = ...
+
 local AgentService = {}
 
 local AgentServiceEventMudleName = nil
@@ -18,27 +20,25 @@ local AgentServiceHotfixModuleName = nil
 local AgentServiceRemoteSvrObj = nil
 
 -----------------------------------------------------------------
-local ServerClientEvent = {}
-
-function ServerClientEvent.OnRecvCall(IClientObj, targetName, proto, data)
+function AgentService.OnCRecvCall(IClientObj, targetName, proto, data)
 	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRecvCall](proto, data)
 end
 
-function ServerClientEvent.OnRecvCommon(IClientObj, targetName, proto, data)
+function AgentService.OnCRecvCommon(IClientObj, targetName, proto, data)
 	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRecvCommon](proto, data)
 end
 
-function ServerClientEvent.OnSystem(IClientObj, proto, data)
+function AgentService.OnCSystem(IClientObj, proto, data)
 	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnSystem](proto, data)
 end
 
-function ServerClientEvent.OnConnect(IClientObj, ip)
+function AgentService.OnCConnect(IClientObj, ip)
 end
 
-function ServerClientEvent.OnDisConnect(IClientObj)
+function AgentService.OnCDisConnect(IClientObj)
 end
 
-function ServerClientEvent.OnConnectFailed(IClientObj)
+function AgentService.OnCConnectFailed(IClientObj)
 end
 -----------------------------------------------------------------
 
@@ -110,9 +110,9 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 	local iDomain = (net_module.getOS() == "Linux") and net_module.UnixLocal or net_module.IpV4
 
 	if iDomain == net_module.IpV4 then
-		AgentServiceRemoteSvrObj = IClient.IClientClass.new(AgentServiceClassName, ServerClientEvent, cRemoteIP, iRemotePort, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
+		AgentServiceRemoteSvrObj = IClient.IClientClass.new(AgentServiceClassName, local_modulename, cRemoteIP, iRemotePort, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
 	elseif iDomain == net_module.UnixLocal then
-		AgentServiceRemoteSvrObj = IClient.IClientClass.new(AgentServiceClassName, ServerClientEvent, cUnixSocketName, 0, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
+		AgentServiceRemoteSvrObj = IClient.IClientClass.new(AgentServiceClassName, local_modulename, cUnixSocketName, 0, iTimeOut, iConnectTimeOut, iDomain, true, bNoDelay)
 	else
 		print(debug.traceback(), "\n", string.format("AgentService.Init iDomain=%s error", iDomain))
 		return false

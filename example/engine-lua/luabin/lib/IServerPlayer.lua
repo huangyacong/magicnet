@@ -37,17 +37,19 @@ function IServerPlayerClass:Listen()
 		return false
 	end
 
-	if not next(self:GetModule()) then
-		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename is empty"))
-		return false
-	end
-
+	local bEmpty = true
 	local funtList = {IServerNetFunc_OnRecv, IServerNetFunc_OnConnect, IServerNetFunc_OnDisConnect}
 	for _, funtname in pairs(funtList) do
 		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename not has key=%s", funtname))
 			return false
 		end
+		bEmpty = false
+	end
+
+	if bEmpty then
+		print(debug.traceback(), "\n", string.format("IServerPlayerClass modulename is empty"))
+		return false
 	end
 
 	if self.hsocket ~= 0 then 
