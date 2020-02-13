@@ -1,15 +1,14 @@
 ﻿local CoreNet = require "CoreNet"
 local ccoroutine = require "ccoroutine"
 local CoreTool = require "CoreTool"
+local timer = require "timer"
 local util = require "util"
 require "class"
 
 local ccorenet = {}
 local sys_run = true
 local sys_print = nil
-local timer_do_max_num = 1000
 
-local timeoutObj = {}
 local clientObj = {}
 local svrObj = {}
 
@@ -57,42 +56,6 @@ end
 function ccorenet.fin()
 	clientObj, svrObj = {}, {}
 	return CoreNet.Fin()
-end
-
--- 添加定时器
-function ccorenet.addtimer(modulename, func_name_str, iMillSecTime, ...)
-	local timeId = CoreNet.AddTimer((iMillSecTime <= 0) and 1 or iMillSecTime)
-	if timeId == 0 then return nil end
-	timeoutObj[timeId] = {modulename = modulename, func = func_name_str, param = table.pack(...)}
-	return timeId
-end
-
--- 删除定时器
-function ccorenet.deltimer(timeId)
-	CoreNet.DelTimer(timeId)
-	timeoutObj[timeId] = nil
-end
-
--- 执行定时器回调
-local function timeout_run()
-	local doNum = 0
-	while true do
-		local timeId = CoreNet.GetTimeOutId()
-		local runFuncObj = timeoutObj[timeId]
-		timeoutObj[timeId] = nil
-		doNum = doNum + 1
-
-		if not runFuncObj then
-			break
-		end
-
-		local isOK, ret = pcall(function () runFuncObj.modulename[runFuncObj.func](table.unpack(runFuncObj.param)) end)
-		if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
-
-		if doNum >= timer_do_max_num then
-			break
-		end
-	end
 end
 
 local net_event_fliter_svr = {
@@ -148,7 +111,7 @@ local function worker()
 			pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
 		end
 	elseif CoreNet.SOCKET_TIMER == netevent then
-		timeout_run()
+		timer.timeout()
 	else
 		pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
 	end
