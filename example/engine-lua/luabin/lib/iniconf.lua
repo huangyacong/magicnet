@@ -1,3 +1,4 @@
+local net_module = require "ccorenet"
 local util = require "util"
 require "class"
 
@@ -16,6 +17,25 @@ end
 
 local iniconf = {}
 
+
+local function StringPathFromWindowsToLinux(value)
+	if net_module.getOS() == "Linux" then
+		local path = ""
+		for i=1,#value do
+	        --获取当前下标字符串
+			local tmp = string.sub(value,i,i)
+	        --如果为'\\'则替换
+			if tmp =='\\' then
+				path = path..'/'
+			else
+				path = path..tmp
+			end
+		end
+		return tostring(path)
+	end
+	return tostring(value)
+end
+
 function iniconf.read(filename)
 	local result = {}
 
@@ -30,6 +50,7 @@ function iniconf.read(filename)
 		if lines then
 			lines = lines:gsub("%c", "")
 			lines = lines:gsub("%s", "")
+			lines = StringPathFromWindowsToLinux(lines)
 
 			if string.sub(lines, 1, 1) ~= "#" then
 				local data = util.split(lines, "=")
