@@ -1,10 +1,14 @@
 local msgpack = require "msgpack53"
 local ccorenet = require "ccorenet"
-local IClient = require "IClient"
+
 local CoreTool = require "CoreTool"
 local ccoroutine = require "ccoroutine"
 local CoreTool = require "CoreTool"
 local util = require "util"
+local timer = require "timer"
+
+local local_modulename = ...
+timer.register(local_modulename)
 
 local client_event = {}
 
@@ -73,32 +77,23 @@ function client_event.framefunc()
 end
 
 function client_event.session_id_coroutine_timeout()
-	--ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 500)
+	timer.addtimer(local_modulename, "session_id_coroutine_timeout", 500)
 	client_event.framefunc()
 	--ccorenet.getGlobalObj("clientObj"):SendRemoteData(10000000, 199, "ip.......")
 	for i = 0, 0 do
-	local name = string.format("clientObj%s", i)
-	--for oo = 0, 1000 do
-	ccorenet.getGlobalObj(name):SendSystemData("xxxxxxxxxxxxxxxx", "127.0.0.1")
---end
+		local name = string.format("clientObj%s", i)
+		--for oo = 0, 1000 do
+		ccorenet.getGlobalObj(name):SendSystemData("xxxxxxxxxxxxxxxx", "127.0.0.1")
+		--end
+	
+		local oo, data = ccorenet.getGlobalObj(name):CallData("watchdog......", "testCallData", {"12345"})
+		print(oo)
+		if type(data) == type({}) then 
+			util.print(data) 
+		else 
+			print(data) 
+		end
 	end
-	--local oo, data = ccorenet.getGlobalObj("clientObj"):CallData("watchdog......", "testCallData", {"12345"})
-	--print(oo)
-	--if type(data) == type({}) then 
-	--	util.print(data) 
-	--else 
-	--	print(data) 
-	--end
-end
-
-ccorenet.addtimer(client_event, "session_id_coroutine_timeout", 1000)
-
-local domain = ccorenet.IpV4
-local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
-for i = 0, 0 do
-	local name = string.format("clientObj%s", i)
-local clientObj = IClient.new(name, client_event, ip, 8888, 1000*60, 5*1000, domain, true, false)
-ccorenet.addGlobalObj(clientObj, clientObj:GetName())
 end
 
 return client_event

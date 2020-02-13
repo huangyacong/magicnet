@@ -1,11 +1,14 @@
 local msgpack = require "msgpack53"
 local ccorenet = require "ccorenet"
-local IServer = require "IServer"
 local reloadmodule = require "reloadmodule"
 local ccoroutine = require "ccoroutine"
 local util = require "util"
 local CoreNet = require "CoreNet"
 local CoreTool = require "CoreTool"
+local timer = require "timer"
+
+local local_modulename = ...
+timer.register(local_modulename)
 
 local svr_event = {}
 
@@ -96,18 +99,12 @@ end
 
 function svr_event.timerfunc(...)
 	--print("timerfunc", ...)
-	ccorenet.addtimer(svr_event, "timerfunc", 1000, 1, 2, 3)
+	timer.addtimer(local_modulename, "timerfunc", 1000, 1, 2, 3)
 	svr_event.framefunc()
 	
 end
 
 
-ccorenet.addtimer(svr_event, "timerfunc", 1000, 1, 2, 3)
 
-local bReusePort = true
-local domain = ccorenet.IpV4
-local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
-local serverObj = IServer.new("serverObj", svr_event, ip, 8888, 1000*60, domain, bReusePort, false)
-ccorenet.addGlobalObj(serverObj, serverObj:GetName())
 
 return svr_event
