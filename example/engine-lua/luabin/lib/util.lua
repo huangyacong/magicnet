@@ -87,9 +87,9 @@ function util.ReadOnlyTable(t)
 	local proxy = {}
 	local mt = {
 		__index = t,
-		__newindex = function (t,k,v)
-		error("attempt to update a read-only talbe",2)
-	end
+		__pairs = function (a) return pairs(t) end,
+		__ipairs = function (a) return ipairs(t) end,
+		__newindex = function (a, k, v) error("attempt to update a read-only talbe",2) end
 	}
 	setmetatable(proxy,mt)
 	return proxy
