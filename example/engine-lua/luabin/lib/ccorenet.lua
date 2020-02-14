@@ -13,6 +13,7 @@ local clientObj = {}
 local svrObj = {}
 
 local globalSingleObj = {}
+local globalHotfixModuleName = {}
 
 -- socket类型 
 ccorenet.IpV4 = CoreNet.DOMAIN_INET
@@ -23,6 +24,14 @@ ccorenet.IServerList = svrObj
 
 -- IClient列表
 ccorenet.IClientList = clientObj
+
+-- 热更新的模块列表
+ccorenet.HotfixModuleName = globalHotfixModuleName
+
+-- 添加需要热更新的模块
+function ccorenet.addHotfixModuleName(modulename)
+	globalHotfixModuleName[tostring(modulename)] = true
+end
 
 -- 加入一个全局实例
 function ccorenet.addGlobalObj(object, name)
