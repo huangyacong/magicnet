@@ -79,6 +79,30 @@ function util.split(str, pat)
 	return t
 end
 
+-- windows和linux的路径相互替换
+function util.PathReplace(str, bLinuxOS)
+
+	local function replace(value, patSrc, patTarget)
+		local path = ""
+		for i=1, #value do
+			local tmp = string.sub(value,i,i)
+			if tmp == patSrc then
+				path = path .. patTarget
+			else
+				path = path .. tmp
+			end
+		end
+		return tostring(path)
+	end
+
+	local patSrc, patTarget = '/', '\\'
+	if bLinuxOS then
+		patSrc, patTarget = '\\', '/'
+	end
+
+	return replace(str, patSrc, patTarget)
+end
+
 function util.get_arg(num)
 	return arg[num]
 end
