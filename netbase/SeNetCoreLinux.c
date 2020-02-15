@@ -2,6 +2,7 @@
 
 #if defined(__linux)
 
+#define WRITE_EVENT_FLAG READ_EVENT_SOCKET
 bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
 bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
 
@@ -707,7 +708,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	if(bBlock)
 	{
 		SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_SOCKET);
-		if(!SeNetSocketMgrHasEvent(pkNetSocket, READ_EVENT_SOCKET))
+		if(!SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_FLAG))
 		{
 			SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket open EPOLLOUT epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
 			kEvent.data.u64 = pkNetSocket->kHSocket;
@@ -717,7 +718,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "SeNetCoreSendBuf epoll_ctl failed.socket=0x%llx", pkNetSocket->kHSocket);
 				return false;
 			}
-			SeNetSocketMgrAddEvent(pkNetSocket, READ_EVENT_SOCKET);
+			SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_FLAG);
 		}
 		return true;
 	}
@@ -725,7 +726,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 	{
 		if(SeNetSreamCount(&pkNetSocket->kSendNetStream) <= 0)
 		{
-			if(SeNetSocketMgrHasEvent(pkNetSocket, READ_EVENT_SOCKET))
+			if(SeNetSocketMgrHasEvent(pkNetSocket, WRITE_EVENT_FLAG))
 			{
 				SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[SeNetCoreSendBuf] socket close EPOLLOUT epoll_ctl.socket=0x%llx", pkNetSocket->kHSocket);
 				kEvent.data.u64 = pkNetSocket->kHSocket;
@@ -735,7 +736,7 @@ bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 					SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "SeNetCoreSendBuf epoll_ctl failed.socket=0x%llx", pkNetSocket->kHSocket);
 					return false;
 				}
-				SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
+				SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_FLAG);
 			}
 		}
 		else
@@ -1004,7 +1005,7 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 				epoll_ctl(pkNetCore->kHandle, EPOLL_CTL_ADD, pkNetSocket->kSocketFd.kSocket, &kEvent);
 				pkNetSocket->usStatus = SOCKET_STATUS_ACTIVECONNECT;
 				pkNetSocket->llTime = SeTimeGetTickCount();
-				SeNetSocketMgrClearEvent(pkNetSocket, READ_EVENT_SOCKET);
+				SeNetSocketMgrClearEvent(pkNetSocket, WRITE_EVENT_FLAG);
 				SeNetSocketMgrAddEvent(pkNetSocket, WRITE_EVENT_SOCKET);
 				bOK = true;
 				break;
