@@ -11,9 +11,9 @@ bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket)
 #define OP_TYPE_CONNECT 4
 
 #if defined(IO_DATA_LEN)
-#define MAX_IO_DATA_LEN 1024*512 - 256
+#define MAX_IO_DATA_LEN 1024*16 - 256
 #else
-#define MAX_IO_DATA_LEN 1024*32 - 256
+#define MAX_IO_DATA_LEN 1024*4 - 256
 #endif
 
 struct IODATA
