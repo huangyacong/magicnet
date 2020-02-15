@@ -24,7 +24,7 @@ void SeCreateTimer(struct SENETCORE *pkNetCore, int iMillSec)
 	pkNetCore->kTimerHandle = timerfd_create(CLOCK_MONOTONIC, EFD_NONBLOCK | EFD_CLOEXEC);
 
 	timeValue.it_value.tv_sec = 0;
-	timeValue.it_value.tv_nsec = SENETCORE_TIMER_FIRST * 1000 * 1000;
+	timeValue.it_value.tv_nsec = (SENETCORE_TIMER_FIRST <= 0 ? 1 : SENETCORE_TIMER_FIRST) * 1000 * 1000;
 
 	timeValue.it_interval.tv_sec = iMillSec / 1000;
 	timeValue.it_interval.tv_nsec = abs(timeValue.it_interval.tv_sec * 1000 - iMillSec) * 1000 * 1000;
