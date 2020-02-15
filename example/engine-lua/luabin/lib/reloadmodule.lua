@@ -29,10 +29,10 @@ function reloadmodule.reload(module_name)
 	end
 
 	if type(old_module) == type(new_module) and type(old_module) == type({}) then
+		package.loaded[module_name] = old_module
 		for k, v in pairs(new_module) do
 			old_module[k] = v
 		end
-		package.loaded[module_name] = old_module
 		print(string.format("hotfix ok, module change from table to table modulename=%s", module_name))
 		return true
 	elseif type(old_module) ~= type({}) then
