@@ -162,7 +162,7 @@ void SeCreateTimer(struct SENETCORE *pkNetCore, int iMillSec)
 {
 	assert(pkNetCore->kTimerHandle == NULL);
 	assert(pkNetCore->kHandle != NULL);
-	CreateTimerQueueTimer(&pkNetCore->kTimerHandle, NULL, SeTimerRoutine, &pkNetCore->kHandle, 2000, iMillSec, WT_EXECUTEDEFAULT);
+	CreateTimerQueueTimer(&pkNetCore->kTimerHandle, NULL, SeTimerRoutine, &pkNetCore->kHandle, SENETCORE_TIMER_FIRST, iMillSec, WT_EXECUTEDEFAULT);
 }
 
 void SeDeleteTimer(struct SENETCORE *pkNetCore)
