@@ -5,6 +5,7 @@
 #define WRITE_EVENT_FLAG READ_EVENT_SOCKET
 bool SeNetCoreSendBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
 bool SeNetCoreRecvBuf(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSocket);
+void SeNetTimeOut(struct SENETCORE *pkNetCore);
 
 HSOCKET SeGetTimerID()
 {
@@ -950,22 +951,9 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	SeNetCoreAcceptSocket(pkNetCore, pkNetSocket, bRead, bWrite, bError);
 }
 
-bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize)
+void SeNetTimeOut(struct SENETCORE *pkNetCore)
 {
-	bool bOK;
-	int iTimeOut;
-	struct epoll_event kEvent;
-	struct SESOCKET *pkNetSocket;
 	struct SESOCKET *pkConstNetSocket;
-
-	*rSSize = 0;
-	*rRSize = 0;
-
-	if (*riLen <= 0 || *riLen < SENETCORE_SOCKET_RECV_BUF_LEN)
-	{
-		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[RECV Buf] Recv Buf too small.len=%d", *riLen);
-		return false;
-	}
 
 	pkConstNetSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
 	if(pkConstNetSocket)
@@ -979,6 +967,23 @@ bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *
 		}
 	}
 	pkConstNetSocket = 0;
+}
+
+bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize)
+{
+	bool bOK;
+	int iTimeOut;
+	struct epoll_event kEvent;
+	struct SESOCKET *pkNetSocket;
+
+	*rSSize = 0;
+	*rRSize = 0;
+
+	if (*riLen <= 0 || *riLen < SENETCORE_SOCKET_RECV_BUF_LEN)
+	{
+		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[RECV Buf] Recv Buf too small.len=%d", *riLen);
+		return false;
+	}
 
 	do
 	{
@@ -1186,6 +1191,8 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 
 	if(bHasaTimer)
 	{
+		SeNetTimeOut(pkNetCore);
+		
 		*rkHSocket = 0;
 		*rkListenHSocket = 0;
 		*riEvent = SENETCORE_EVENT_SOCKET_TIMER;
