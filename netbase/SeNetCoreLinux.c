@@ -953,6 +953,7 @@ void SeNetCoreClientSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 
 void SeNetTimeOut(struct SENETCORE *pkNetCore)
 {
+	int iTimeOut;
 	struct SESOCKET *pkConstNetSocket;
 
 	pkConstNetSocket = SeNetSocketMgrTimeOut(&pkNetCore->kSocketMgr);
@@ -972,7 +973,6 @@ void SeNetTimeOut(struct SENETCORE *pkNetCore)
 bool SeNetCoreProcess(struct SENETCORE *pkNetCore, int *riEventSocket, HSOCKET *rkListenHSocket, HSOCKET *rkHSocket, char *pcBuf, int *riLen, int *rSSize, int *rRSize)
 {
 	bool bOK;
-	int iTimeOut;
 	struct epoll_event kEvent;
 	struct SESOCKET *pkNetSocket;
 
