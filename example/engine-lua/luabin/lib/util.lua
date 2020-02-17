@@ -10,9 +10,7 @@ function util.print_table(root)
 		print(tostring(root))
 		return
 	end
-	if not next(root) then
-		return
-	end
+	
 	local cache = {  [root] = "." }
 	local function _dump(t,space,name)
 		local temp = {}
