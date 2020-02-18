@@ -23,9 +23,22 @@ local iReConnectDelayTime = 1000
 local iReConnectCount = 10
 -- ping的时间间隔
 local iPingTimeDelay  = 1000 * 2
+-- 缓存计数器
+local IClientClassPoolCount = 1
+-- 缓存
+local IClientClassPool = setmetatable({}, { __mode = "kv" })
 
 local IClient = {}
 
+function IClient.GetPoolCount()
+	local count = 0
+	for _, value in pairs(IClientClassPool) do
+		count = count + 1
+	end
+	return count
+end
+
+-- 定时器回调
 function IClient.pingFunc_callback(IClientClassObj)
 	IClientClassObj:AddPingTimer()
 	IClientClassObj:TimeToPingPing()
@@ -56,29 +69,10 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.pingTimerId = 0
 	self.reconnectTimerId = 0
 	self.bReConnect = bReConnect
-end
 
-function IClientClass:del()-- 剔除各个变量
-	assert(self.hsocket == 0)
-	
-	self.hsocket = 0
-	self.className = 0
-	self.modulename = 0
-
-	self.cIP = 0
-	self.iPort = 0
-	self.iTimeOut = 0
-	self.iConnectTimeOut = 0
-	self.iDomain = iDomain
-	self.bNoDelay = 0
-
-	self.m_iReConnectNum = 0
-	self.m_ullReConnectTime = 0
-	self.m_ullPingTIme = 0
-
-	self.pingTimerId = 0
-	self.reconnectTimerId = 0
-	self.bReConnect = false
+	self.privateData = nil
+	IClientClassPoolCount = IClientClassPoolCount + 1
+	IClientClassPool[IClientClassPoolCount] = self
 end
 
 function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -89,12 +83,24 @@ function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNo
 	self.bNoDelay = bNoDelay
 end
 
+function IClientClass:SetPrivateData(data)
+	self.privateData = data
+end
+
+function IClientClass:GetPrivateData()
+	return self.privateData
+end
+
 function IClientClass:GetModule()
 	return package.loaded[self.modulename]
 end
 
 function IClientClass:GetName()
 	return self.className
+end
+
+function IClientClass:HSocket()
+	return self.hsocket
 end
 
 function IClientClass:Connect()

@@ -1,6 +1,17 @@
 local util = {}
 
+local printTableConf = true
+
+function util.setPrintTable(bPrint)
+	printTableConf = bPrint
+end
+
 function util.print_table(root)
+
+	if not printTableConf then
+		return
+	end
+
 	if root == nil then
 		print("[PRINT_TABLE] root is nil")
 		return
