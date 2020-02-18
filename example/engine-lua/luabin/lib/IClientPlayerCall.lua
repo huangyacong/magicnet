@@ -16,9 +16,24 @@ function IClientPlayerCall.OnCPlayerConnect(IClientObj, ip) end
 
 function IClientPlayerCall.OnCPlayerDisConnect(IClientObj) end
 
-function IClientPlayerCall.OnCPlayerConnectFailed(IClientObj) end
-
 function IClientPlayerCall.OnCPlayerPing(IClientObj) end
+
+function IClientPlayerCall.OnCPlayerConnectFailed(IClientObj) 
+	local privateProto, session_id = table.unpack(IClientObj:GetPrivateData())
+
+	if not session_id then
+		print(debug.traceback(), "\n", "IClientPlayerCall OnCPlayerConnectFailed session_id nil")
+		return
+	end
+
+	local co = ccoroutine.get_session_id_coroutine(session_id)
+	if not co then 
+		print(debug.traceback(), "\n", "IClientPlayerCall OnCPlayerConnectFailed not find co", session_id)
+		return
+	end
+
+	ccoroutine.resume(co, false, "OnCPlayerConnectFailed")
+end
 
 function IClientPlayerCall.OnCPlayerSendPacketAttach(IClientObj)
 	local privateProto, session_id, data = table.unpack(IClientObj:GetPrivateData())
