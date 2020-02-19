@@ -24,8 +24,8 @@ struct MsgIDStat
 	unsigned long long ullSendByteNum;
 	int iRecvNum;
 	unsigned long long ullRecvByteNum;
-	int iPintNum;
-	unsigned long long ullPingByteNum;
+	int iPrintNum;
+	unsigned long long ullPrintByteNum;
 };
 
 struct MsgIDStat g_kMsgIDStat;
@@ -38,8 +38,8 @@ static void ResetMsgIDStat()
 	g_kMsgIDStat.ullSendByteNum = 0;
 	g_kMsgIDStat.iRecvNum = 0;
 	g_kMsgIDStat.ullRecvByteNum = 0;
-	g_kMsgIDStat.iPintNum = 0;
-	g_kMsgIDStat.ullPingByteNum = 0;
+	g_kMsgIDStat.iPrintNum = 0;
+	g_kMsgIDStat.ullPrintByteNum = 0;
 
 	g_ullDelayStatTime = 5000;
 	g_ullStatTime = SeTimeGetTickCount();
@@ -377,8 +377,8 @@ extern "C" int CoreNetHookPrint(lua_State *L)
 
 	SeLogWrite(&g_kNetore.kLog, LT_DEBUG, true, "%s", pcText);
 
-	g_kMsgIDStat.iPintNum++;
-	g_kMsgIDStat.ullPingByteNum += (int)seplen;
+	g_kMsgIDStat.iPrintNum++;
+	g_kMsgIDStat.ullPrintByteNum += (int)seplen;
 
 	lua_pushnil(L);
 	return 1;
@@ -393,8 +393,8 @@ extern "C" int CoreNetReport(lua_State *L)
 	unsigned long long ullSendSpeed = 0;
 	int iRecvNum = 0;
 	unsigned long long ullRecvSpeed = 0;
-	int iPintNum = 0;
-	unsigned long long ullPingByteNum = 0;
+	int iPrintNum = 0;
+	unsigned long long ullPrintByteNum = 0;
 
 	if (ullNow > g_ullStatTime && (g_ullDelayStatTime + g_ullStatTime) <= ullNow)
 	{
@@ -403,8 +403,8 @@ extern "C" int CoreNetReport(lua_State *L)
 		ullSendSpeed = (unsigned long long)((unsigned long long)(g_kMsgIDStat.ullSendByteNum * 1000) / (unsigned long long)iTime);
 		iRecvNum = (g_kMsgIDStat.iRecvNum * 1000) / (int)iTime;
 		ullRecvSpeed = (unsigned long long)((unsigned long long)(g_kMsgIDStat.ullRecvByteNum * 1000) / (unsigned long long)iTime);
-		iPintNum = (g_kMsgIDStat.iPintNum * 1000) / (int)iTime;
-		ullPingByteNum = (unsigned long long)((unsigned long long)(g_kMsgIDStat.ullPingByteNum * 1000) / (unsigned long long)iTime);
+		iPrintNum = (g_kMsgIDStat.iPrintNum * 1000) / (int)iTime;
+		ullPrintByteNum = (unsigned long long)((unsigned long long)(g_kMsgIDStat.ullPrintByteNum * 1000) / (unsigned long long)iTime);
 
 		ResetMsgIDStat();
 
@@ -417,9 +417,9 @@ extern "C" int CoreNetReport(lua_State *L)
 		lua_rawseti(L, -2, 3);
 		lua_pushinteger(L, ullRecvSpeed);
 		lua_rawseti(L, -2, 4);
-		lua_pushinteger(L, iPintNum);
+		lua_pushinteger(L, iPrintNum);
 		lua_rawseti(L, -2, 5);
-		lua_pushinteger(L, ullPingByteNum);
+		lua_pushinteger(L, ullPrintByteNum);
 		lua_rawseti(L, -2, 6);
 		lua_pushinteger(L, g_kSeTimer.GetTimerCount());
 		lua_rawseti(L, -2, 7);
