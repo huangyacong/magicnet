@@ -23,7 +23,7 @@ end
 -- 添加定时器
 function timer.addtimer(modulename, func_name_str, iMillSecTime, ...)
 	if not timer_register[modulename] then
-		print(debug.traceback(), "\n", string.format("timer.addtimer modulename=%s is register", modulename))
+		print(debug.traceback(), "\n", string.format("timer.addtimer modulename=%s is not register timer id", modulename))
 		return nil
 	end
 	local timeId = CoreNet.AddTimer((iMillSecTime <= 0) and 1 or iMillSecTime)
