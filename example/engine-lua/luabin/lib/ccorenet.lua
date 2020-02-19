@@ -69,35 +69,28 @@ end
 
 local net_event_fliter_svr = {
 	[CoreNet.SOCKET_CONNECT] = function(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-										local isOK, ret = pcall(function () tcpsocketobj:OnConnect(recvsocket, data) end)
-										if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+										tcpsocketobj:OnConnect(recvsocket, data)
 								end,
 	[CoreNet.SOCKET_DISCONNECT] = function(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-										local isOK, ret = pcall(function () tcpsocketobj:OnDisConnect(recvsocket) end)
-										if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+										tcpsocketobj:OnDisConnect(recvsocket)
 								end,
 	[CoreNet.SOCKET_RECV_DATA] = function(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-										local isOK, ret = pcall(function () tcpsocketobj:OnRecv(recvsocket, data) end)
-										if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+										tcpsocketobj:OnRecv(recvsocket, data)
 								end,
 }
 
 local net_event_fliter_client = {
 	[CoreNet.SOCKET_CONNECT] = function(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-										local isOK, ret = pcall(function () tcpsocketobj:OnConnect(data) end)
-										if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+										tcpsocketobj:OnConnect(data)
 								end,
 	[CoreNet.SOCKET_CONNECT_FAILED] = function(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-										local isOK, ret = pcall(function () tcpsocketobj:OnConnectFailed() end)
-										if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+										tcpsocketobj:OnConnectFailed()
 								end,
 	[CoreNet.SOCKET_DISCONNECT] = function(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-										local isOK, ret = pcall(function () tcpsocketobj:OnDisConnect() end)
-										if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+										tcpsocketobj:OnDisConnect()
 								end,
 	[CoreNet.SOCKET_RECV_DATA] = function(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-										local isOK, ret = pcall(function () tcpsocketobj:OnRecv(data) end)
-										if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+										tcpsocketobj:OnRecv(data)
 								end,
 }
 

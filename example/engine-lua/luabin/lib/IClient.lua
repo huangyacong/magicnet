@@ -268,7 +268,8 @@ function IClientClass:OnRecv(data)
 			print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id)
 			return
 		end
-		ccoroutine.resume(co, true, contents)
+		local ret, err = ccoroutine.resume(co, true, contents)
+		if not ret then print(debug.traceback(), "\n", string.format("IClientClass:OnRecv %s", err)) end
 	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
 		self:GetModule()[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
 	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then

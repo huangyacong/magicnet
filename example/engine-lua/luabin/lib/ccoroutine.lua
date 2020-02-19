@@ -34,7 +34,8 @@ local function co_create(f)
 		end)
 	else
 		local running = running_thread
-		coroutine_resume(co, f)
+		local ret, err = coroutine_resume(co, f)
+		if not ret then print(debug.traceback(), "\n", string.format("co_create %s", err)) end
 		running_thread = running
 	end
 	return co
@@ -80,7 +81,10 @@ end
 function ccoroutine.session_id_coroutine_timeout(sessionId)
 	local co = session_id_coroutine[sessionId]
 	print(debug.traceback(), "\n", "CallData time out")
-	if co then coroutine_resume(co, false, "time out") end
+	if co then 
+		local ret, err = coroutine_resume(co, false, "time out") 
+		if not ret then print(debug.traceback(), "\n", string.format("session_id_coroutine_timeout %s", err)) end
+	end
 end
 
 function ccoroutine.yield_call(sessionId, timeout_millsec)

@@ -52,7 +52,7 @@ function timer.timeout()
 		end
 
 		local isOK, ret = pcall(function () package.loaded[runFuncObj.modulename][runFuncObj.func](table.unpack(runFuncObj.param)) end)
-		if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+		if not isOK then pcall(function () print(debug.traceback(), "\n", string.format("modulename=%s func=%s", runFuncObj.modulename, runFuncObj.func), "\n", ret) end) end
 
 		if doNum > max_run_timer_count then
 			break

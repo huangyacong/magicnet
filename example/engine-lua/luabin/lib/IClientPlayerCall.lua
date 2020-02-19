@@ -32,7 +32,8 @@ function IClientPlayerCall.OnCPlayerConnectFailed(IClientObj)
 		return
 	end
 
-	ccoroutine.resume(co, false, "OnCPlayerConnectFailed")
+	local ret, err = ccoroutine.resume(co, false, "OnCPlayerConnectFailed")
+	if not ret then print(debug.traceback(), "\n", string.format("IClientPlayerCall.OnCPlayerConnectFailed %s", err)) end
 end
 
 function IClientPlayerCall.OnCPlayerSendPacketAttach(IClientObj)
@@ -58,7 +59,8 @@ function IClientPlayerCall.OnCPlayerRecv(IClientObj, proto, data)
 		return
 	end
 
-	ccoroutine.resume(co, true, data)
+	local ret, err = ccoroutine.resume(co, true, data)
+	if not ret then print(debug.traceback(), "\n", string.format("IClientPlayerCall.OnCPlayerRecv %s", err)) end
 end
 
 local IClientPlayerCallClass = class()
