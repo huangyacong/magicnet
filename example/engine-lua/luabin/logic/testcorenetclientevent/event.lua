@@ -67,9 +67,9 @@ function client_event.framefunc()
 	local report = ccorenet.statreport()
 	--util.print_table(ccorenet.IClientList)
 	if report then
-		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount = table.unpack(report)
-		print(os.date("%Y-%m-%d %H:%M:%S"), string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s timerCount=%s %s, %s pool=%s", 
-				sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine(), ccoroutine.count_coroutine_pool()))
+		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, pingNumSpeed, pingByteSpeed, timerCount = table.unpack(report)
+		print(os.date("%Y-%m-%d %H:%M:%S"), string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s pingNumSpeed=%s pingByteSpeed=%s timerCount=%s %s, %s pool=%s", 
+				sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, pingNumSpeed, pingByteSpeed, timerCount, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine(), ccoroutine.count_coroutine_pool()))
 		collectgarbage()
 	end
 
