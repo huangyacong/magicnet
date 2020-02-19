@@ -90,8 +90,8 @@ end
 function ccoroutine.yield_call(sessionId, timeout_millsec)
 	timeout_millsec = timeout_millsec or 1000 * 20
 	local retpcall, ret, data = pcall(function() 
-		local timerId = timer.addtimer(local_modulename, "session_id_coroutine_timeout", timeout_millsec, sessionId)
 		assert(session_id_coroutine[sessionId] == nil)
+		local timerId = timer.addtimer(local_modulename, "session_id_coroutine_timeout", timeout_millsec, sessionId)
 		session_id_coroutine[sessionId] = running_thread
 		local succ, msg = coroutine.yield("YIELD_CALL")
 		session_id_coroutine[sessionId] = nil
