@@ -11,6 +11,7 @@ local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
 local wait_coroutine_first_event = nil
 local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
+local suspend_coroutine_event = {} -- 挂起队列
 local coroutine_pool = setmetatable({}, { __mode = "kv" })
 
 local function coroutine_resume(co, ...)
@@ -166,6 +167,30 @@ function ccoroutine.wait_event(event_id, sessionId, f, ...)
 		return nil
 	end
 	return table.unpack(data)
+end
+
+function ccoroutine.suspend_event_time_out(event_id)
+	assert(type(event_id) == type(""))
+	local co = suspend_coroutine_event[event_id]
+	if co then 
+		local ret, err = coroutine_resume(co) 
+		if not ret then print(debug.traceback(), "\n", err) end
+	end
+end
+
+function ccoroutine.wakeup_event(event_id)
+	return ccoroutine.suspend_event_time_out(event_id)
+end
+
+function ccoroutine.suspend_event(event_id, timeout_millsec)
+	assert(type(event_id) == type(""))
+	timeout_millsec = timeout_millsec or 1000 * 20
+	assert(suspend_coroutine_event[event_id] == nil)
+	local timerId = timer.addtimer(local_modulename, "suspend_event_time_out", timeout_millsec, event_id)
+	suspend_coroutine_event[event_id] = running_thread
+	local succ, msg = coroutine.yield("YIELD_CALL_SUSPEND")
+	suspend_coroutine_event[event_id] = nil
+	timer.deltimer(timerId)
 end
 
 return util.ReadOnlyTable(ccoroutine)

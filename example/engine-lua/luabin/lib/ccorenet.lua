@@ -169,6 +169,16 @@ function ccorenet.waitEvent(event_id, f, ...)
 	return ccoroutine.wait_event(event_id, CoreNet.SysSessionId(), f, ...)
 end
 
+-- 唤醒
+function ccorenet.wakeup(event_id)
+	return ccoroutine.wakeup_event(event_id)
+end
+
+-- 挂起
+function ccorenet.suspend(event_id, timeout_millsec)
+	return ccoroutine.suspend_event(event_id, timeout_millsec)
+end
+
 -- 系统print函数钩子
 function ccorenet.hookprint()
 
