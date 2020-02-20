@@ -164,6 +164,11 @@ function ccorenet.unpack(data)
 	return targetName, proto, string.sub(data, len, string.len(data)), PTYPE, session_id
 end
 
+-- 等待一个函数执行完毕
+function ccorenet.waitEvent(event_id, f, ...)
+	return ccoroutine.wait_event(event_id, CoreNet.SysSessionId(), f, ...)
+end
+
 -- 系统print函数钩子
 function ccorenet.hookprint()
 

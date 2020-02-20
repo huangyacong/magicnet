@@ -9,6 +9,8 @@ local ccoroutine = {}
 local running_thread = nil
 local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
+local wait_coroutine_first_event = nil
+local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
 local coroutine_pool = setmetatable({}, { __mode = "kv" })
 
 local function coroutine_resume(co, ...)
@@ -104,6 +106,66 @@ function ccoroutine.yield_call(sessionId, timeout_millsec)
 		return false, "traceback"
 	end
 	return ret, data
+end
+
+function ccoroutine.wait_event_other_resume(event_id, result)
+	if not wait_coroutine_event[event_id] then
+		return
+	end
+	if not next(wait_coroutine_event[event_id]) then
+		return
+	end
+	
+	local sortData = {}
+	util.copytable(wait_coroutine_event[event_id])
+	for sessionId, _ in pairs(wait_coroutine_event[event_id]) do
+		sortData[#sortData + 1] = sessionId
+	end
+	table.sort(sortData)-- 从小到大
+
+	for _, sessionId in ipairs(sortData) do
+		local co = wait_coroutine_event[event_id][sessionId]
+		if co then 
+			local ret, err = coroutine_resume(co, result) 
+			if not ret then print(debug.traceback(), "\n", string.format("wait_event_other_resume %s", err)) end
+		end
+	end
+end
+
+function ccoroutine.wait_event(event_id, sessionId, f, ...)
+	local param = table.pack(...)
+	assert(type(event_id) == type(""))
+	local retpcall, data = pcall(function() 
+		if not wait_coroutine_first_event then
+			wait_coroutine_first_event = running_thread
+			wait_coroutine_event[event_id] = {}
+			return table.pack(f(table.unpack(param)))
+		end
+		assert(wait_coroutine_event[event_id][sessionId] == nil)
+		wait_coroutine_event[event_id][sessionId] = running_thread
+		local result = coroutine.yield("YIELD_CALL_WAIT_EVENT")
+		wait_coroutine_event[event_id][sessionId] = nil
+		return result
+		end)
+
+	-- 第一个进入者唤醒其它等待的协程
+	if wait_coroutine_first_event == running_thread then
+		wait_coroutine_first_event = nil
+		if next(wait_coroutine_event[event_id]) then 
+			local result = nil
+			if retpcall then result = data end
+			local timerId = timer.addtimer(local_modulename, "wait_event_other_resume", 1, event_id, result)
+			if timerId == 0 then
+				print(debug.traceback(), "\n", string.format("ccoroutine.wait_event addtimer failed. event_id=%s", event_id))
+			end
+		end
+	end
+
+	if not retpcall then 
+		print(debug.traceback(), "\n", string.format("ccoroutine.wait_event event_id=%s", event_id), "\n", data)
+		return nil
+	end
+	return table.unpack(data)
 end
 
 return util.ReadOnlyTable(ccoroutine)
