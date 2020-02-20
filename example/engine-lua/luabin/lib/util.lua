@@ -32,7 +32,7 @@ function util.print_table(root)
 			elseif type(v) == "table" then
 				local new_key = name .. "." .. key
 				cache[v] = new_key
-				table.insert(temp,"+" .. key .. _dump(v,space .. (next(t,k) and "|" or " " ).. string.rep(" ",#key),new_key))
+				table.insert(temp,"+" .. key .. _dump(v,space .. (rawget(t,k) and "|" or " " ).. string.rep(" ",#key),new_key))
 			else
 				table.insert(temp,"+" .. key .. " [" .. tostring(v).."]")
 			end
