@@ -142,6 +142,7 @@ function ccoroutine.wait_event(event_id, sessionId, f, ...)
 			wait_coroutine_event[event_id] = {}
 			return table.pack(f(table.unpack(param)))
 		end
+		assert(running_thread ~= wait_coroutine_first_event, string.format("wait_event=%s is overflow", event_id))
 		assert(wait_coroutine_event[event_id][sessionId] == nil)
 		wait_coroutine_event[event_id][sessionId] = running_thread
 		local result = coroutine.yield("YIELD_CALL_WAIT_EVENT")
