@@ -21,8 +21,6 @@ timer.register(local_modulename)
 local iReConnectDelayTime = 1000
 -- 重连循环次数
 local iReConnectCount = 10
--- ping的时间间隔
-local iPingTimeDelay  = 1000 * 2
 -- 缓存计数器
 local IClientClassPoolCount = 1
 -- 缓存
@@ -67,6 +65,7 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.m_ullPingTIme = CoreTool.GetTickCount()
 
 	self.pingTimerId = 0
+	self.iPingTimeDelay  = 1000 * 2
 	self.reconnectTimerId = 0
 	self.bReConnect = bReConnect
 
@@ -81,6 +80,10 @@ function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNo
 	self.iTimeOut = iTimeOut
 	self.iConnectTimeOut = iConnectTimeOut
 	self.bNoDelay = bNoDelay
+end
+
+function IClientClass:SetPingTimeDelay(iPingTimeDelay)
+	self.iPingTimeDelay = iPingTimeDelay
 end
 
 function IClientClass:SetPrivateData(data)
@@ -194,14 +197,14 @@ end
 function IClientClass:TimeToPingPing()
 	if self.hsocket == 0 then return end
 	local timeCnt = CoreTool.GetTickCount()
-	if iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
+	if self.iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
 	self.m_ullPingTIme = timeCnt
 	local header, contents = net_module.pack("", "", "", net_module.PTYPE.PTYPE_PING, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:AddPingTimer()
-	self.pingTimerId = timer.addtimer(local_modulename, "pingFunc_callback", iPingTimeDelay, self)
+	self.pingTimerId = timer.addtimer(local_modulename, "pingFunc_callback", self.iPingTimeDelay, self)
 end
 
 function IClientClass:DelPingTimer()
