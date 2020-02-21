@@ -11,12 +11,6 @@ static int g_iCoreWaitTime;
 
 static std::list<std::string> g_kLinkFile;
 
-// 会话ID
-static unsigned long long g_ullSysSessionTickCount;
-static unsigned long long g_ullMaxSysySessionCount;
-static unsigned long long g_ullSysySessionCount;
-static int g_iShiftBit;
-
 //统计
 struct MsgIDStat
 {
@@ -97,32 +91,6 @@ static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int
 	return false;
 }
 
-extern "C" int CoreNetSysSessionId(lua_State *L)
-{
-	unsigned long long timer, count, ret;
-
-	g_ullSysySessionCount++;
-	if (g_ullSysySessionCount >= g_ullMaxSysySessionCount)
-	{
-		g_ullSysySessionCount = 0;
-		g_ullSysSessionTickCount++;
-	}
-
-	timer = SeTimeGetTickCount();
-	if (timer > g_ullSysSessionTickCount)
-	{
-		g_ullSysySessionCount = 0;
-		g_ullSysSessionTickCount = timer;
-	}
-
-	timer = g_ullSysSessionTickCount;
-	count = g_ullSysySessionCount;
-	ret = ((timer << g_iShiftBit) | count) & 0x7FFFFFFFFFFFFFFF;
-
-	lua_pushinteger(L, ret);
-	return 1;
-}
-
 extern "C" int CoreNetInit(lua_State *L)
 {
 	int iLogLV;
@@ -144,11 +112,6 @@ extern "C" int CoreNetInit(lua_State *L)
 	iLogLV |= bPrint ? (iLogLV | LT_PRINT) : iLogLV;
 
 	ResetMsgIDStat();
-
-	g_iShiftBit = 21;
-	g_ullMaxSysySessionCount = ((unsigned long long)pow(2, g_iShiftBit) - 1);
-	g_ullSysSessionTickCount = SeTimeGetTickCount();
-	g_ullSysySessionCount = 0;
 	
 	g_iCoreWaitTime = -1;
 	SeNetCoreInit(&g_kNetore, (char*)pcLogName, usMax, iTimerCnt, iLogLV);
@@ -508,7 +471,6 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "AddTimer", CoreNetAddTimer },
 		{ "DelTimer", CoreNetDelTimer },
 		{ "GetTimeOutId", CoreNetGetTimeOutId }, 
-		{ "SysSessionId", CoreNetSysSessionId },
 		{ "GetOS", CoreNetGetOS }, 
 		{ NULL, NULL },
 	};

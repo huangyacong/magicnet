@@ -113,7 +113,7 @@ function IServerClass:SendSystemData(socket, proto, data)
 end
 
 function IServerClass:CallData(socket, targetName, proto, data, timeout_millsec)
-	local header, contents, PTYPE, session_id = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreNet.SysSessionId())
+	local header, contents, PTYPE, session_id = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreTool.SysSessionId())
 	local ret = CoreNet.TCPSend(socket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")

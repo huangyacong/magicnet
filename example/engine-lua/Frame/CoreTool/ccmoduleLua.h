@@ -12,7 +12,9 @@ extern "C" {
 #include <string.h>
 #include <stdlib.h>
 #include <lualib.h>
-#include "SeTime.h"
+#include <math.h>
+
+static int CoreNetSysSessionId(lua_State *L);
 
 static int CoreToolSleep(lua_State *L);
 

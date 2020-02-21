@@ -1,9 +1,49 @@
 #include "ccmoduleLua.h"
 #include "SeThread.h"
+#include "SeTime.h"
 #include "SeBase64.h"
 #include "SeSha1.h"
 #include "SeTool.h"
 #include "SeMD5.h"
+
+static int g_iShiftBit;
+static unsigned long long g_ullSysSessionTickCount;
+static unsigned long long g_ullMaxSysySessionCount;
+static unsigned long long g_ullSysySessionCount;
+
+static void CoreToolInit()
+{
+	g_iShiftBit = 21;
+	g_ullSysSessionTickCount = SeTimeGetTickCount();
+	g_ullMaxSysySessionCount = ((unsigned long long)pow(2, g_iShiftBit) - 1);
+	g_ullSysySessionCount = 0;
+}
+
+static int CoreNetSysSessionId(lua_State *L)
+{
+	unsigned long long timer, count, ret;
+
+	g_ullSysySessionCount++;
+	if (g_ullSysySessionCount >= g_ullMaxSysySessionCount)
+	{
+		g_ullSysySessionCount = 0;
+		g_ullSysSessionTickCount++;
+	}
+
+	timer = SeTimeGetTickCount();
+	if (timer > g_ullSysSessionTickCount)
+	{
+		g_ullSysySessionCount = 0;
+		g_ullSysSessionTickCount = timer;
+	}
+
+	timer = g_ullSysSessionTickCount;
+	count = g_ullSysySessionCount;
+	ret = ((timer << g_iShiftBit) | count) & 0x7FFFFFFFFFFFFFFF;
+
+	lua_pushinteger(L, ret);
+	return 1;
+}
 
 static int CoreToolSleep(lua_State *L)
 {
@@ -159,6 +199,8 @@ int luaopen_CoreTool(lua_State *L)
 	if(sizeof(lua_Integer) != 8) { luaL_error(L, "must use int64 for lua_Integer"); return 0; }
 	luaL_checkversion(L);
 
+	CoreToolInit();
+
 	luaL_Reg reg[] = {
 		{ "Sleep", CoreToolSleep },
 		{ "GetTickCount", CoreToolGetTickCount },
@@ -170,6 +212,7 @@ int luaopen_CoreTool(lua_State *L)
 		{ "Base64Decode", CoreToolBase64Decode },
 		{ "SHA1", CoreToolSHA1 },
 		{ "MacSHA1", CoreToolMacSHA1 },
+		{ "SysSessionId", CoreNetSysSessionId },
 		{ NULL, NULL },
 	};
 

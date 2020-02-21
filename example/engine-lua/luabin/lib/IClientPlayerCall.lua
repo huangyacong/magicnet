@@ -81,7 +81,7 @@ function IClientPlayerCallClass:CallData(proto, data)
 	end
 
 	proto = tonumber(proto)
-	local session_id = CoreNet.SysSessionId()
+	local session_id = CoreTool.SysSessionId()
 	self.IClientPlayerObj:SetPrivateData(table.pack(proto, session_id, data))
 	local succ, msg = ccoroutine.yield_call(session_id)
 	self.IClientPlayerObj:SetPrivateData()
