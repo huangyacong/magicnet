@@ -9,7 +9,7 @@ local ccoroutine = {}
 local running_thread = nil
 local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
-local wait_coroutine_first_event = nil
+local wait_coroutine_doing_thread = nil
 local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
 local suspend_coroutine_event = {} -- 挂起队列
 local coroutine_pool = setmetatable({}, { __mode = "kv" })
@@ -109,57 +109,48 @@ function ccoroutine.yield_call(sessionId, timeout_millsec)
 	return ret, data
 end
 
-function ccoroutine.wait_event_other_resume(event_id, result)
-	if not wait_coroutine_event[event_id] then
-		return
+function ccoroutine.wait_event_other_resume(event_id, sessionId, result)
+	while next(wait_coroutine_event[event_id][sessionId]) do
+		local co = wait_coroutine_event[event_id][sessionId][1]
+		local ret, err = coroutine_resume(co, sessionId, result) 
+		if not ret then print(debug.traceback(), "\n", string.format("wait_event_other_resume %s", err)) end
 	end
-	if not next(wait_coroutine_event[event_id]) then
-		return
-	end
-	
-	local sortData = {}
-	util.copytable(wait_coroutine_event[event_id])
-	for sessionId, _ in pairs(wait_coroutine_event[event_id]) do
-		sortData[#sortData + 1] = sessionId
-	end
-	table.sort(sortData)-- 从小到大
-
-	for _, sessionId in ipairs(sortData) do
-		local co = wait_coroutine_event[event_id][sessionId]
-		if co then 
-			local ret, err = coroutine_resume(co, result) 
-			if not ret then print(debug.traceback(), "\n", string.format("wait_event_other_resume %s", err)) end
-		end
-	end
+	wait_coroutine_event[event_id][sessionId] = nil
 end
 
 function ccoroutine.wait_event(event_id, sessionId, f, ...)
 	local param = table.pack(...)
 	assert(type(event_id) == type(""))
 	local retpcall, data = pcall(function() 
-		if not wait_coroutine_first_event then
-			wait_coroutine_first_event = running_thread
+		if not wait_coroutine_event[event_id] then
 			wait_coroutine_event[event_id] = {}
+		end
+		if not wait_coroutine_doing_thread then
+			assert(not wait_coroutine_event[event_id][sessionId])
+			wait_coroutine_doing_thread = {sessionId, running_thread}
+			wait_coroutine_event[event_id][sessionId] = {}
 			return table.pack(f(table.unpack(param)))
 		end
-		assert(running_thread ~= wait_coroutine_first_event, string.format("wait_event=%s is overflow", event_id))
-		assert(wait_coroutine_event[event_id][sessionId] == nil)
-		wait_coroutine_event[event_id][sessionId] = running_thread
-		local result = coroutine.yield("YIELD_CALL_WAIT_EVENT")
-		wait_coroutine_event[event_id][sessionId] = nil
+		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread)
+		assert(running_thread ~= doing_thread, string.format("wait_event=%s is dead loop!", event_id))
+		table.insert(wait_coroutine_event[event_id][doing_sessionId], running_thread)
+		local yield_sessionId, result = coroutine.yield("YIELD_CALL_WAIT_EVENT")
+		assert(wait_coroutine_event[event_id][yield_sessionId][1] == running_thread)
+		table.remove(wait_coroutine_event[event_id][yield_sessionId], 1)
 		return result
 		end)
 
-	-- 第一个进入者唤醒其它等待的协程
-	if wait_coroutine_first_event == running_thread then
-		wait_coroutine_first_event = nil
-		if next(wait_coroutine_event[event_id]) then 
+	if wait_coroutine_doing_thread then
+		-- 谁带头做，谁唤醒其它等待的协程
+		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread)
+		if doing_thread == running_thread then
 			local result = nil
 			if retpcall then result = data end
-			local timerId = timer.addtimer(local_modulename, "wait_event_other_resume", 1, event_id, result)
+			local timerId = timer.addtimer(local_modulename, "wait_event_other_resume", 1, event_id, doing_sessionId, result)
 			if timerId == 0 then
 				print(debug.traceback(), "\n", string.format("ccoroutine.wait_event addtimer failed. event_id=%s", event_id))
 			end
+			wait_coroutine_doing_thread = nil
 		end
 	end
 
