@@ -1,3 +1,5 @@
+local CoreTool = require "CoreTool"
+
 local util = {}
 
 local printTableConf = true
@@ -123,6 +125,29 @@ function util.ReadOnlyTable(t)
 		__pairs = function (a) return pairs(t) end,
 		__ipairs = function (a) return ipairs(t) end,
 		__newindex = function (a, k, v) error("attempt to update a read-only talbe",2) end
+	}
+	setmetatable(proxy,mt)
+	return proxy
+end
+
+local keyWords = {["__bUpdate"] = true, ["__iSessionId"] = true}
+
+function util.AddTableAutoUpdateMsg(t)
+	for k, v in pairs(t) do
+		assert(not keyWords[k], string.format("Class Has Key=%s, this can only use in system!", k))
+	end
+	local proxy = {}
+	local mt = {
+		__index = t,
+		__pairs = function (a) return pairs(t) end,
+		__ipairs = function (a) return ipairs(t) end,
+		__newindex = function (a, k, v)
+			t[k] = v
+			if not keyWords[k] then
+				t.__bUpdate = true
+				t.__iSessionId = CoreTool.SysSessionId()
+			end
+		end
 	}
 	setmetatable(proxy,mt)
 	return proxy
