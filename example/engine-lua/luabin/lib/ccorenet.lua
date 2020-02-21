@@ -215,8 +215,8 @@ function ccorenet.cancelprint()
 end
 
 -- 获取统计数据
-function ccorenet.statreport()
-	return CoreNet.Report()
+function ccorenet.statReport(timeDelay)
+	return CoreNet.Report(timeDelay)
 end
 
 return util.ReadOnlyTable(ccorenet)

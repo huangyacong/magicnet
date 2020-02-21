@@ -387,6 +387,7 @@ extern "C" int CoreNetHookPrint(lua_State *L)
 extern "C" int CoreNetReport(lua_State *L)
 {
 	int iTime = 1;
+	unsigned long long ullStatTime = 0;
 	unsigned long long ullNow = SeTimeGetTickCount();
 
 	int iSendNum = 0;
@@ -396,7 +397,10 @@ extern "C" int CoreNetReport(lua_State *L)
 	int iPrintNum = 0;
 	unsigned long long ullPrintByteNum = 0;
 
-	if (ullNow > g_ullStatTime && (g_ullDelayStatTime + g_ullStatTime) <= ullNow)
+	ullStatTime = (unsigned long long)luaL_checkinteger(L, 1);
+	ullStatTime = ullStatTime <= 0 ? g_ullDelayStatTime : ullStatTime;
+
+	if (ullNow > g_ullStatTime && (ullStatTime + g_ullStatTime) <= ullNow)
 	{
 		iTime = (int)(ullNow - g_ullStatTime);
 		iSendNum = (g_kMsgIDStat.iSendNum * 1000) / (int)iTime;

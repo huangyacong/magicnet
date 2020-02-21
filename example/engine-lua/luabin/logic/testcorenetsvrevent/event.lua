@@ -85,13 +85,13 @@ function svr_event.framefunc()
 		end
 	--end
 
-	local report = ccorenet.statreport()
+	local report = ccorenet.statReport((ccorenet.getOS() ~= "Linux") and (30 * 1000) or 0)
 	if report then
 		svr_event.test()
 		svr_event.test1()
-		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, printNumSpeed, printByteSpeed, timerCount = table.unpack(report)
-		print(os.date("%Y-%m-%d %H:%M:%S"), string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s pingNumSpeed=%s pingByteSpeed=%s timerCount=%s %s, %s pool=%s", 
-				sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, printNumSpeed, printByteSpeed, timerCount, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine(), ccoroutine.count_coroutine_pool()))
+		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount = table.unpack(report)
+		CoreNet.HookPrint(string.format("statreport count=%s sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s timerCount=%s %s %s pool=%s", 
+			count, sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine(), ccoroutine.count_coroutine_pool()))
 		collectgarbage()
 	end
 	svr_event.test1()
