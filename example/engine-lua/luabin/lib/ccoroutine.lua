@@ -188,7 +188,9 @@ function ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
 		end
 	end
 
-	wait_coroutine_queue[queue_id] = nil
+	if not next(wait_coroutine_queue[queue_id]) then
+		wait_coroutine_queue[queue_id] = nil
+	end
 end
 
 function ccoroutine.wait_queue(queue_id)
