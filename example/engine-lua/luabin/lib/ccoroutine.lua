@@ -11,7 +11,7 @@ local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
 local wait_coroutine_doing_thread = nil
 local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
-local suspend_coroutine_event = {} -- 挂起队列
+local wait_coroutine_queue = {} -- 等待队列
 local coroutine_pool = setmetatable({}, { __mode = "kv" })
 
 local function coroutine_resume(co, ...)
@@ -161,28 +161,44 @@ function ccoroutine.wait_event(event_id, sessionId, f, ...)
 	return table.unpack(data)
 end
 
-function ccoroutine.suspend_event_time_out(event_id)
-	assert(type(event_id) == type(""))
-	local co = suspend_coroutine_event[event_id]
-	if co then 
-		local ret, err = coroutine_resume(co) 
-		if not ret then print(debug.traceback(), "\n", err) end
+function ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
+	if not wait_coroutine_queue[queue_id] then
+		return
 	end
+
+	local doNum = 1
+	if not queueNum or queueNum <= 0 then
+		doNum = nil
+	else
+		doNum = queueNum
+	end
+
+	local count = 0
+	while next(wait_coroutine_queue[queue_id]) do
+		local co = wait_coroutine_queue[queue_id][bPopHead and 1 or (#wait_coroutine_queue[queue_id])]
+		local ret, err = coroutine_resume(co, bPopHead and true or false) 
+		if not ret then print(debug.traceback(), "\n", string.format("ccoroutine.wakeup_queue queue_id=%s %s", queue_id, err)) end
+		count = count + 1
+
+		if doNum ~= nil then
+			doNum = doNum - 1
+			if doNum <= 0 then
+				break
+			end
+		end
+	end
+
+	wait_coroutine_queue[queue_id] = nil
 end
 
-function ccoroutine.wakeup_event(event_id)
-	return ccoroutine.suspend_event_time_out(event_id)
-end
-
-function ccoroutine.suspend_event(event_id, timeout_millsec)
-	assert(type(event_id) == type(""))
-	timeout_millsec = timeout_millsec or 1000 * 20
-	assert(suspend_coroutine_event[event_id] == nil)
-	local timerId = timer.addtimer(local_modulename, "suspend_event_time_out", timeout_millsec, event_id)
-	suspend_coroutine_event[event_id] = running_thread
-	local succ, msg = coroutine.yield("YIELD_CALL_SUSPEND")
-	suspend_coroutine_event[event_id] = nil
-	timer.deltimer(timerId)
+function ccoroutine.wait_queue(queue_id)
+	if not wait_coroutine_queue[queue_id] then
+		wait_coroutine_queue[queue_id] = {}
+	end
+	table.insert(wait_coroutine_queue[queue_id], running_thread)
+	local bPopHead = coroutine.yield("YIELD_CALL_WAIT_QUEUE")
+	assert(wait_coroutine_queue[queue_id][bPopHead and 1 or #wait_coroutine_queue[queue_id]] == running_thread)
+	table.remove(wait_coroutine_queue[queue_id], bPopHead and 1 or nil)
 end
 
 return util.ReadOnlyTable(ccoroutine)
