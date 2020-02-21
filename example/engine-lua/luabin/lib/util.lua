@@ -132,9 +132,12 @@ end
 
 local keyWords = {["__bUpdate"] = true, ["__iSessionId"] = true}
 
-function util.AddTableAutoUpdateMsg(t)
+function util.AddTableAutoUpdateMsg(t, keyWordsArray)
 	for k, v in pairs(t) do
 		assert(not keyWords[k], string.format("Class Has Key=%s, this can only use in system!", k))
+	end
+	for _, k in ipairs(keyWordsArray or {}) do
+		keyWords[k] = true
 	end
 	local proxy = {}
 	local mt = {
