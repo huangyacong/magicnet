@@ -1,4 +1,5 @@
-﻿local timer = require "timer"
+﻿local CoreTool = require "CoreTool"
+local timer = require "timer"
 local util = require "util"
 
 local local_modulename = ...
