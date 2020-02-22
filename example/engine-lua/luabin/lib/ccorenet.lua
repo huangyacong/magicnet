@@ -121,13 +121,9 @@ end
 
 -- 运行
 function ccorenet.start()
-	local isOK, errMsg = pcall(function ()
-			while sys_run == true do
-				local ret, err = ccoroutine.resume(ccoroutine.co_create(worker))
-				if not ret then pcall(function () print(debug.traceback(), "\n", err) end) end
-			end
-		end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", errMsg) end) end
+	while sys_run == true do
+		ccoroutine.resume(ccoroutine.co_create(worker))
+	end
 end
 
 -- 停止
@@ -177,6 +173,11 @@ end
 -- 加入队列
 function ccorenet.waitQueue(queue_id)
 	return ccoroutine.wait_queue(queue_id)
+end
+
+-- 挂起
+function ccorenet.suspendTimeOut(timeout_millsec)
+	return ccoroutine.wait_time_sleep(timeout_millsec)
 end
 
 -- 系统print函数钩子

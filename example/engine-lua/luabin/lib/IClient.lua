@@ -263,29 +263,37 @@ end
 
 function IClientClass:OnRecv(data)
 	local targetName, proto, contents, PTYPE, session_id = net_module.unpack(data)
+
 	ccoroutine.add_session_coroutine_id(session_id)
 
-	if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
-		local co = ccoroutine.get_session_id_coroutine(session_id)
-		if not co then 
-			print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id)
-			return
+	local funcRet, funcErr = pcall(function() 
+		if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
+			local co = ccoroutine.get_session_id_coroutine(session_id)
+			if not co then 
+				print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id)
+				return
+			end
+			ccoroutine.resume(co, true, contents)
+		elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
+			self:GetModule()[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
+		elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
+			self:GetModule()[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
+		elseif net_module.PTYPE.PTYPE_SYSTEM == PTYPE then
+			self:GetModule()[IClientNetFunc_OnSystem](self, proto, msgpack.unpack(contents))
+		elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
+			local key = table.unpack(msgpack.unpack(contents))
+			local md5str = net_module.genToken(key, self:GetName())
+			local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self:GetName(), md5str)), net_module.PTYPE.PTYPE_REGISTER, 0)
+			CoreNet.TCPSend(self.hsocket, header, sendData)
+			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), key, md5str))
 		end
-		local ret, err = ccoroutine.resume(co, true, contents)
-		if not ret then print(debug.traceback(), "\n", string.format("IClientClass:OnRecv %s", err)) end
-	elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
-		self:GetModule()[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
-	elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
-		self:GetModule()[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
-	elseif net_module.PTYPE.PTYPE_SYSTEM == PTYPE then
-		self:GetModule()[IClientNetFunc_OnSystem](self, proto, msgpack.unpack(contents))
-	elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
-		local key = table.unpack(msgpack.unpack(contents))
-		local md5str = net_module.genToken(key, self:GetName())
-		local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self:GetName(), md5str)), net_module.PTYPE.PTYPE_REGISTER, 0)
-		CoreNet.TCPSend(self.hsocket, header, sendData)
-		print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), key, md5str))
+	end)
+
+	if not funcRet then
+		print(debug.traceback(), "\n", "IClientClass:OnRecv", funcErr)
 	end
+
+	ccoroutine.del_session_coroutine_id()
 end
 
 IClient.IClientClass = IClientClass
