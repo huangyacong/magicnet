@@ -118,7 +118,7 @@ function ccoroutine.wait_event_other_resume(event_id, sessionId, result)
 	wait_coroutine_event[event_id][sessionId] = nil
 end
 
-function ccoroutine.wait_event(event_id, sessionId, f, ...)
+function ccoroutine.wait_event(event_id, f, ...)
 	local param = table.pack(...)
 	assert(type(event_id) == type(""))
 	local retpcall, data = pcall(function() 
@@ -126,6 +126,7 @@ function ccoroutine.wait_event(event_id, sessionId, f, ...)
 			wait_coroutine_event[event_id] = {}
 		end
 		if not wait_coroutine_doing_thread then
+			local sessionId = CoreTool.SysSessionId()
 			assert(not wait_coroutine_event[event_id][sessionId])
 			wait_coroutine_doing_thread = {sessionId, running_thread}
 			wait_coroutine_event[event_id][sessionId] = {}

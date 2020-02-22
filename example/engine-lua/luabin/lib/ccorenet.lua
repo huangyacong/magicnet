@@ -166,7 +166,7 @@ end
 
 -- 等待一个函数执行完毕
 function ccorenet.waitEvent(event_id, f, ...)
-	return ccoroutine.wait_event(event_id, CoreTool.SysSessionId(), f, ...)
+	return ccoroutine.wait_event(event_id, f, ...)
 end
 
 -- 唤醒队列
