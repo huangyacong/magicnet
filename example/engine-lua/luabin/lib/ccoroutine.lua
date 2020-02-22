@@ -10,7 +10,7 @@ local ccoroutine = {}
 local running_thread = nil
 local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
-local wait_coroutine_doing_thread = nil
+local wait_coroutine_doing_thread = {}
 local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
 local wait_coroutine_queue = {} -- 等待队列
 local coroutine_pool = setmetatable({}, { __mode = "kv" })
@@ -126,14 +126,14 @@ function ccoroutine.wait_event(event_id, f, ...)
 		if not wait_coroutine_event[event_id] then
 			wait_coroutine_event[event_id] = {}
 		end
-		if not wait_coroutine_doing_thread then
+		if not wait_coroutine_doing_thread[event_id] then
 			local sessionId = CoreTool.SysSessionId()
 			assert(not wait_coroutine_event[event_id][sessionId])
-			wait_coroutine_doing_thread = {sessionId, running_thread}
+			wait_coroutine_doing_thread[event_id] = {sessionId, running_thread}
 			wait_coroutine_event[event_id][sessionId] = {}
 			return table.pack(f(table.unpack(param)))
 		end
-		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread)
+		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread[event_id])
 		assert(running_thread ~= doing_thread, string.format("wait_event=%s is dead loop!", event_id))
 		table.insert(wait_coroutine_event[event_id][doing_sessionId], running_thread)
 		local yield_sessionId, result = coroutine.yield("YIELD_CALL_WAIT_EVENT")
@@ -142,9 +142,9 @@ function ccoroutine.wait_event(event_id, f, ...)
 		return result
 		end)
 
-	if wait_coroutine_doing_thread then
+	if wait_coroutine_doing_thread[event_id] then
 		-- 谁带头做，谁唤醒其它等待的协程
-		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread)
+		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread[event_id])
 		if doing_thread == running_thread then
 			local result = nil
 			if retpcall then result = data end
@@ -152,7 +152,7 @@ function ccoroutine.wait_event(event_id, f, ...)
 			if timerId == 0 then
 				print(debug.traceback(), "\n", string.format("ccoroutine.wait_event addtimer failed. event_id=%s", event_id))
 			end
-			wait_coroutine_doing_thread = nil
+			wait_coroutine_doing_thread[event_id] = nil
 		end
 	end
 
