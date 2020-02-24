@@ -177,17 +177,19 @@ function AgentGate.Init(className, modulename, hotfixModuleName, cRemoteIP, iRem
 		return false
 	end
 
-	if not next(packageName) then
-		print(debug.traceback(), "\n", string.format("AgentGate.Init modulename is empty"))
-		return false
-	end
-
+	local bEmpty = true
 	local funtList = {IAgentGateNetFunc_OnLocalRecvCall, IAgentGateNetFunc_OnLocalRecvCommon, IAgentGateNetFunc_OnRemoteRecv, IAgentGateNetFunc_OnRemoteConnect, IAgentGateNetFunc_OnRemoteDisConnect, IAgentGateNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentGate.Init modulename not has key=%s", funtname))
 			return false
 		end
+		bEmpty = false
+	end
+
+	if not bEmpty then
+		print(debug.traceback(), "\n", string.format("AgentGate.Init modulename is empty"))
+		return false
 	end
 
 	if hotfixModuleName then

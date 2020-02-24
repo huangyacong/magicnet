@@ -83,17 +83,19 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 		return false
 	end
 
-	if not next(packageName) then
-		print(debug.traceback(), "\n", string.format("AgentService.Init modulename is empty"))
-		return false
-	end
-
+	local bEmpty = true
 	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentService.Init modulename not has key=%s", funtname))
 			return false
 		end
+		bEmpty = false
+	end
+
+	if not bEmpty then
+		print(debug.traceback(), "\n", string.format("AgentService.Init modulename is empty"))
+		return false
 	end
 
 	if hotfixModuleName then
