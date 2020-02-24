@@ -187,7 +187,7 @@ function AgentGate.Init(className, modulename, hotfixModuleName, cRemoteIP, iRem
 		bEmpty = false
 	end
 
-	if not bEmpty then
+	if bEmpty then
 		print(debug.traceback(), "\n", string.format("AgentGate.Init modulename is empty"))
 		return false
 	end

@@ -93,7 +93,7 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 		bEmpty = false
 	end
 
-	if not bEmpty then
+	if bEmpty then
 		print(debug.traceback(), "\n", string.format("AgentService.Init modulename is empty"))
 		return false
 	end
