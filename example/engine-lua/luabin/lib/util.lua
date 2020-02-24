@@ -122,6 +122,7 @@ function util.ReadOnlyTable(t)
 	local proxy = {}
 	local mt = {
 		__index = t,
+		__len = function (a) return #t end,
 		__pairs = function (a) return pairs(t) end,
 		__ipairs = function (a) return ipairs(t) end,
 		__newindex = function (a, k, v) error("attempt to update a read-only talbe",2) end
@@ -146,6 +147,7 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 	local proxy = {}
 	local mt = {
 		__index = t,
+		__len = function (a) return #t end,
 		__pairs = function (a) return pairs(t) end,
 		__ipairs = function (a) return ipairs(t) end,
 		__newindex = function (a, k, v)
