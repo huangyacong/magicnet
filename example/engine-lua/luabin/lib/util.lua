@@ -143,10 +143,10 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 	for _, k in ipairs(keyWordsArray or {}) do
 		keyWords[k] = true
 	end
-	if bchange then
-		t.__bUpdate = true
-		t.__iSessionId = CoreTool.SysSessionId()
-	end
+	
+	t.__bUpdate = bchange and true or false
+	t.__iSessionId = CoreTool.SysSessionId()
+
 	local proxy = {}
 	local mt = {
 		__index = t,
@@ -163,6 +163,30 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 	}
 	setmetatable(proxy,mt)
 	return proxy
+end
+
+local function tableHasAutoUpdateMsg(checkTable)
+	assert(checkTable.__bUpdate ~= nil)
+	if checkTable.__bUpdate == true then
+		return true
+	end
+	for k, v in pairs(checkTable) do
+		if type(k) == type({}) then
+			if tableHasAutoUpdateMsg(k) then
+				return true
+			end
+		end
+		if type(v) == type({}) then
+			if tableHasAutoUpdateMsg(v) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function util.TableHasAutoUpdateMsg(checkTable)
+	return tableHasAutoUpdateMsg(checkTable)
 end
 
 return util.ReadOnlyTable(util)
