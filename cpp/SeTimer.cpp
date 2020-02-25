@@ -29,6 +29,11 @@ long long SeTimer::GetTimeOutId(unsigned long long llNowTime)
 		return 0;
 	}
 
+	if (itr->second.empty())
+	{
+		return 0;
+	}
+
 	long long llTimerId = *itr->second.begin();
 	itr->second.pop_front();
 
