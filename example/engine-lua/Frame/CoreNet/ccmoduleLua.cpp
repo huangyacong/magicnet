@@ -8,6 +8,8 @@ static SeTimer g_kSeTimer;
 static char g_acBuf[1024*1024*4];
 static struct SENETCORE g_kNetore;
 static int g_iCoreWaitTime;
+static std::string g_kNetLogLuaFuncName;
+static lua_State* g_pkLuaState;
 
 static std::list<std::string> g_kLinkFile;
 
@@ -91,13 +93,33 @@ static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int
 	return false;
 }
 
+static void NetLogCallBack(void *pkLogContect, const char* pcHeader, const char* pcContext, int iLogLv, bool *rbPrint, bool *rbWrite)
+{
+	int status = 0;
+
+	lua_getglobal((lua_State*)pkLogContect, g_kNetLogLuaFuncName.c_str());
+	lua_pushfstring((lua_State*)pkLogContect, "%s%s", pcHeader, pcContext);
+	status = lua_pcall((lua_State*)pkLogContect, 1, 0, 0);
+	lua_pop((lua_State*)pkLogContect, 1);
+
+	if (status != LUA_OK)
+	{
+		return;
+	}
+
+	*rbPrint = false;
+	*rbWrite = false;
+}
+
 extern "C" int CoreNetInit(lua_State *L)
 {
 	int iLogLV;
 	bool bPrint;
 	size_t seplen;
+	size_t netLoglen;
 	int iTimerCnt;
 	const char *pcLogName;
+	const char *pcNetLogFuncName;
 	unsigned short usMax;
 	
 	seplen = 0;
@@ -106,7 +128,15 @@ extern "C" int CoreNetInit(lua_State *L)
 
 	usMax = (unsigned short)luaL_checkinteger(L, 2);
 	iTimerCnt = (int)luaL_checkinteger(L, 3);
-	bPrint = lua_toboolean(L, 4) == 1 ? true : false;
+
+	if (lua_isnil(L, 4) == 0)
+	{
+		netLoglen = 0;
+		pcNetLogFuncName = luaL_checklstring(L, 4, &netLoglen);
+		g_kNetLogLuaFuncName = std::string(pcNetLogFuncName);
+	}
+
+	bPrint = lua_toboolean(L, 5) == 1 ? true : false;
 
 	iLogLV = LT_SPLIT | LT_ERROR | LT_WARNING | LT_INFO | LT_DEBUG | LT_CRITICAL | LT_SOCKET | LT_RESERROR | LT_NOHEAD;
 	iLogLV |= bPrint ? (iLogLV | LT_PRINT) : iLogLV;
@@ -116,6 +146,11 @@ extern "C" int CoreNetInit(lua_State *L)
 	g_iCoreWaitTime = -1;
 	SeNetCoreInit(&g_kNetore, (char*)pcLogName, usMax, iTimerCnt, iLogLV);
 	SeNetCoreSetWaitTime(&g_kNetore, g_iCoreWaitTime);
+
+	if (g_kNetLogLuaFuncName.length() > 0)
+	{
+		SeNetCoreSetLogContextFunc(&g_kNetore, NetLogCallBack, g_pkLuaState);
+	}
 
 	lua_pushnil(L);
 	return 1;
@@ -330,23 +365,6 @@ extern "C" int CoreNetRead(lua_State *L)
 	return 1;
 }
 
-extern "C" int CoreNetHookPrint(lua_State *L)
-{
-	size_t seplen = 0;
-	const char *pcText;
-
-	pcText = luaL_checklstring(L, 1, &seplen);
-	if (!pcText) { luaL_error(L, "pcText is NULL!"); return 0; }
-
-	SeLogWrite(&g_kNetore.kLog, LT_DEBUG, true, "%s", pcText);
-
-	g_kMsgIDStat.iPrintNum++;
-	g_kMsgIDStat.ullPrintByteNum += (int)seplen;
-
-	lua_pushnil(L);
-	return 1;
-}
-
 extern "C" int CoreNetReport(lua_State *L)
 {
 	int iTime = 1;
@@ -452,6 +470,7 @@ extern "C" __declspec(dllexport) int luaopen_CoreNet(lua_State *L)
 extern "C" int luaopen_CoreNet(lua_State *L)
 #endif
 {
+	g_pkLuaState = L;
 	// must use int64 number
 	if(LUA_VERSION_NUM < 503) { luaL_error(L, "Lua ver must > 5.3"); return 0; }
 	if(sizeof(lua_Integer) != 8) { luaL_error(L, "must use int64 for lua_Integer"); return 0; }
@@ -467,7 +486,6 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "TCPClose", CoreNetTCPClose },
 		{ "Read", CoreNetRead },
 		{ "Report", CoreNetReport }, 
-		{ "HookPrint", CoreNetHookPrint },
 		{ "AddTimer", CoreNetAddTimer },
 		{ "DelTimer", CoreNetDelTimer },
 		{ "GetTimeOutId", CoreNetGetTimeOutId }, 
