@@ -81,8 +81,8 @@ end
 function ccoroutine.resume(co, ...)
 	local running = running_thread
 	local ret, err = coroutine_resume(co, ...)
-	if not ret then print(debug.traceback(), "\n", string.format("ccoroutine.resume %s", err)) end
 	running_thread = running
+	return ret, err
 end
 
 function ccoroutine.session_id_coroutine_timeout(sessionId)

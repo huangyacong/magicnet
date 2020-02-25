@@ -126,10 +126,13 @@ end
 
 -- 运行
 function ccorenet.start()
-	while sys_run == true do
-		local ret, err = pcall(function() ccoroutine.resume(ccoroutine.co_create(worker)) end)
-		if not ret then print(debug.traceback(), "\n", string.format("ccorenet.start %s", err)) end
-	end
+	local result, errMsg = pcall(function() 
+		while sys_run == true do
+			local ret, err = ccoroutine.resume(ccoroutine.co_create(worker))
+			if not ret then print(debug.traceback(), "\n", string.format("ccoroutine.resume %s", err)) end
+		end
+	end)
+	if not result then print(debug.traceback(), "\n", string.format("ccorenet.start %s", errMsg)) end
 end
 
 -- 停止
