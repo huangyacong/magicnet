@@ -28,6 +28,11 @@ ccorenet.IClientList = clientObj
 -- 热更新的模块列表
 ccorenet.HotfixModuleName = globalHotfixModuleName
 
+-- 全局日志函数回调
+function GlobalLogCallBack(logStr)
+	sys_print(logStr)
+end
+
 -- 添加需要热更新的模块
 function ccorenet.addHotfixModuleName(modulename)
 	globalHotfixModuleName[tostring(modulename)] = true
@@ -58,7 +63,7 @@ end
 -- 初始化
 function ccorenet.init(cLogName, iMaxClientNum, bPrintLog2Screen)
 	sys_print = print
-	return CoreNet.Init(cLogName, iMaxClientNum, 16, bPrintLog2Screen)
+	return CoreNet.Init(cLogName, iMaxClientNum, 16, "GlobalLogCallBack", bPrintLog2Screen)
 end
 
 -- 结束
@@ -188,11 +193,11 @@ function ccorenet.hookprint()
 	end
 	
 	local hook_print = function(...)
-		local cache = ""
+		local cache = os.date("%Y-%m-%d %H:%M:%S")
 		for k,v in ipairs(table.pack(...)) do
 			cache = cache.." "..tostring(v)
 		end
-		CoreNet.HookPrint(cache)
+		GlobalLogCallBack(cache)
 	end
 
 	print = hook_print
