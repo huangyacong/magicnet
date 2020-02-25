@@ -63,7 +63,7 @@ end
 -- 初始化
 function ccorenet.init(cLogName, iMaxClientNum, bPrintLog2Screen)
 	sys_print = print
-	return CoreNet.Init(cLogName, iMaxClientNum, 16, "GlobalLogCallBack", bPrintLog2Screen)
+	return CoreNet.Init(cLogName, iMaxClientNum, 16, bPrintLog2Screen)
 end
 
 -- 结束
