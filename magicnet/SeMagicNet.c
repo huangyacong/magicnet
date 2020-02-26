@@ -999,6 +999,10 @@ enum MAGIC_STATE SeMagicNetCRead(struct SEMAGICNETC *pkMagicNetC, HSOCKET *rkRec
 		SeTimeSleep(1);
 		return MAGIC_IDLE_SVR_DATA;
 	}
+	if (riEvent == SENETCORE_EVENT_SOCKET_TIMER)
+	{
+		return MAGIC_IDLE_SVR_DATA;
+	}
 	assert(rkHSocket == pkMagicNetC->kHScoket);
 
 	if(riEvent == SENETCORE_EVENT_SOCKET_CONNECT)
