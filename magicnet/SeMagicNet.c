@@ -55,18 +55,18 @@ bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
 	switch (iheaderlen)
 	{
-		case 2:// 小端
+		/*case 2:// 小端
 		{
 			pcHeader[0] = ilen & 0xFF;
 			pcHeader[1] = (ilen >> 8) & 0xFF;
 			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-		}
-		/*case 2:// 大端
+		}*/
+		case 2:// 大端
 		{
 			pcHeader[0] = (ilen >> 8) & 0xff;
 			pcHeader[1] = ilen & 0xff;
 			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-		}*/
+		}
 		case 4:// 小端
 		{
 			// 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。
@@ -90,16 +90,16 @@ bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 {
 	switch (iheaderlen)
 	{
-		case 2:// 小端
+		/*case 2:// 小端
 		{
 			*ilen = (unsigned short)(pcHeader[1] << 8 | pcHeader[0]);
 			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
-		}
-		/*case 2:// 大端
+		}*/
+		case 2:// 大端
 		{
 			*ilen = (unsigned short)(pcHeader[0] << 8 | pcHeader[1]);
 			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
-		}*/
+		}
 		case 4:// 小端
 		{
 			// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
