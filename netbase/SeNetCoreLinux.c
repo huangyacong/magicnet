@@ -143,6 +143,7 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReuse
 	if(domain == SE_DOMAIN_UNIX)
 	{
 		pkAddr = &servaddr;
+		bNoDelay = false;
 		iLen = sizeof(struct sockaddr_un);
 		SeSetSockAddr(domain, &servaddr, pcIP, usPort);
 	}
@@ -247,6 +248,11 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, int iDomain, const char 
 		SeCloseSocket(socket);
 		SeLogWrite(&pkNetCore->kLog, LT_SOCKET, true, "[TCP CLIENT] SeSetSockOpt ERROR, errno=%d IP=%s port=%d", iErrorno, pcIP, usPort);
 		return 0;
+	}
+
+	if(domain == SE_DOMAIN_UNIX)
+	{
+		bNoDelay = false;
 	}
 
 	if(bNoDelay)
