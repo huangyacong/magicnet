@@ -20,9 +20,9 @@ local iniconf = {}
 function iniconf.read(filename)
 	local result = {}
 
-	local file = io.open(filename, "rb")
+	local file, err = io.open(filename, "rb")
 	if nil == file then
-		print(debug.traceback(), "\n", string.format("iniconf.read filename=%s failed", filename))
+		print(debug.traceback(), "\n", string.format("iniconf.read filename=%s failed %s", filename, err))
 		return nil
 	end
 

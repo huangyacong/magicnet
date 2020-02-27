@@ -12,6 +12,7 @@ local IClientNetFunc_OnRecv_Common = "OnCRecvCommon"
 local IClientNetFunc_OnConnect = "OnCConnect"
 local IClientNetFunc_OnDisConnect = "OnCDisConnect"
 local IClientNetFunc_OnConnectFailed = "OnCConnectFailed"
+local IClientNetFunc_Register = "OnCRegister"
 local IClientNetFunc_OnSystem = "OnCSystem"
 
 local local_modulename = ...
@@ -115,7 +116,7 @@ function IClientClass:Connect()
 	end
 
 	local bEmpty = true
-	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_OnSystem}
+	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_Register, IClientNetFunc_OnSystem}
 	for _, funtname in pairs(funtList) do
 		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IClientClass modulename not has key=%s", funtname))
@@ -285,6 +286,7 @@ function IClientClass:OnRecv(data)
 			local md5str = net_module.genToken(key, self:GetName())
 			local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self:GetName(), md5str)), net_module.PTYPE.PTYPE_REGISTER, 0)
 			CoreNet.TCPSend(self.hsocket, header, sendData)
+			self:GetModule()[IClientNetFunc_Register](self)
 			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), key, md5str))
 		end
 	end)

@@ -8,6 +8,7 @@ require "class"
 local IAgentServiceNetFunc_OnRecvCall = "OnRecvCall"
 local IAgentServiceNetFunc_OnRecvCommon = "OnRecvCommon"
 local IAgentServiceNetFunc_OnSystem = "OnSystem"
+local IAgentServiceNetFunc_OnRegister = "OnRegister"
 
 local local_modulename = ...
 
@@ -39,6 +40,10 @@ function AgentService.OnCDisConnect(IClientObj)
 end
 
 function AgentService.OnCConnectFailed(IClientObj)
+end
+
+function AgentService.OnCRegister(IClientObj)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRegister]()
 end
 -----------------------------------------------------------------
 
@@ -84,7 +89,7 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 	end
 
 	local bEmpty = true
-	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnSystem}
+	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnSystem, IAgentServiceNetFunc_OnRegister}
 	for _, funtname in pairs(funtList) do
 		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentService.Init modulename not has key=%s", funtname))
