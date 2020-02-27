@@ -28,6 +28,9 @@ function event.OnSystem(proto, data)
 	print(proto, data)
 end
 
+function event.OnRegister()
+end
+
 function event.framefunc()
 	timer.addtimer(local_modulename, "framefunc", 1000)
 	AgentService.SendSystemData("ddddddddddd", "rrrrrrrrrrrrrrrrrrr")

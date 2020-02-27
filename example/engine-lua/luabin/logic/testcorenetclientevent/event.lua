@@ -33,6 +33,9 @@ function client_event.OnPing(IClientClassObj)
 	--print("OnPing", IClientClassObj)
 end
 
+function client_event.OnCRegister(IClientClassObj)
+end
+
 function client_event.OnCSystem(IClientClassObj, proto, ret)
 	print("OnSystem", proto, ret)
 end
