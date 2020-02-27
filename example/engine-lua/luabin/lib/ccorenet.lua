@@ -157,13 +157,13 @@ function ccorenet.genToken(key, name)
 end
 
 -- 打包
-function ccorenet.pack(targetName, proto, data, PTYPE, session_id)
+function ccorenet.netPack(targetName, proto, data, PTYPE, session_id)
 	session_id = session_id or 0
 	return string.pack("zz>H>j", targetName, proto, PTYPE, session_id), data, PTYPE, session_id
 end
 
 -- 解包
-function ccorenet.unpack(data)
+function ccorenet.netUnPack(data)
 	local targetName, proto, PTYPE, session_id, len = string.unpack("zz>H>j", data)
 	return targetName, proto, string.sub(data, len, string.len(data)), PTYPE, session_id
 end

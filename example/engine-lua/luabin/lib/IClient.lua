@@ -156,24 +156,24 @@ function IClientClass:TryReConnect()
 end
 
 function IClientClass:SendData(targetName, proto, data)
-	local header, contents = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
+	local header, contents = net_module.netPack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:SendSystemData(proto, data)
-	local header, contents = net_module.pack("", proto, msgpack.pack(data), net_module.PTYPE.PTYPE_SYSTEM, 0)
+	local header, contents = net_module.netPack("", proto, msgpack.pack(data), net_module.PTYPE.PTYPE_SYSTEM, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:SendRemoteData(remote_socket, proto, data)
 	assert(type(proto) == type(0))
 	assert(type(remote_socket) == type(0))
-	local header, contents = net_module.pack("", tostring(proto), msgpack.pack(table.pack(remote_socket, data)), net_module.PTYPE.PTYPE_REMOTE, 0)
+	local header, contents = net_module.netPack("", tostring(proto), msgpack.pack(table.pack(remote_socket, data)), net_module.PTYPE.PTYPE_REMOTE, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:CallData(targetName, proto, data, timeout_millsec)
-	local header, contents, PTYPE, session_id = net_module.pack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreTool.SysSessionId())
+	local header, contents, PTYPE, session_id = net_module.netPack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreTool.SysSessionId())
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
@@ -187,7 +187,7 @@ function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 end
 
 function IClientClass:RetCallData(data)
-	local header, contents = net_module.pack("", "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
+	local header, contents = net_module.netPack("", "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -200,7 +200,7 @@ function IClientClass:TimeToPingPing()
 	local timeCnt = CoreTool.GetTickCount()
 	if self.iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
 	self.m_ullPingTIme = timeCnt
-	local header, contents = net_module.pack("", "", "", net_module.PTYPE.PTYPE_PING, 0)
+	local header, contents = net_module.netPack("", "", "", net_module.PTYPE.PTYPE_PING, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -263,7 +263,7 @@ function IClientClass:OnDisConnect()
 end
 
 function IClientClass:OnRecv(data)
-	local targetName, proto, contents, PTYPE, session_id = net_module.unpack(data)
+	local targetName, proto, contents, PTYPE, session_id = net_module.netUnPack(data)
 
 	ccoroutine.add_session_coroutine_id(session_id)
 
@@ -284,7 +284,7 @@ function IClientClass:OnRecv(data)
 		elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
 			local key = table.unpack(msgpack.unpack(contents))
 			local md5str = net_module.genToken(key, self:GetName())
-			local header, sendData = net_module.pack("", "", msgpack.pack(table.pack(self:GetName(), md5str)), net_module.PTYPE.PTYPE_REGISTER, 0)
+			local header, sendData = net_module.netPack("", "", msgpack.pack(table.pack(self:GetName(), md5str)), net_module.PTYPE.PTYPE_REGISTER, 0)
 			CoreNet.TCPSend(self.hsocket, header, sendData)
 			self:GetModule()[IClientNetFunc_Register](self)
 			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), key, md5str))
