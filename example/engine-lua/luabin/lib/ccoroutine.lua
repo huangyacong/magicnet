@@ -82,6 +82,7 @@ function ccoroutine.resume(co, ...)
 	local running = running_thread
 	local ret, err = coroutine_resume(co, ...)
 	running_thread = running
+	if not ret then print(debug.traceback(), "\n", string.format("ccoroutine.resume %s", err)) end
 	return ret, err
 end
 
