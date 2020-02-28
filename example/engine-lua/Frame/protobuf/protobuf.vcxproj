@@ -131,6 +131,7 @@ XCOPY /Y ..\src\PbcForLua\binding\lua53\protobuf.lua ..\..\luabin\lib\</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\CoreSrc\common\SeBase64.c" />
+    <ClCompile Include="..\src\CoreSrc\common\SeBuffWR.c" />
     <ClCompile Include="..\src\CoreSrc\common\SeCrc32.c" />
     <ClCompile Include="..\src\CoreSrc\common\SeCrypt.c" />
     <ClCompile Include="..\src\CoreSrc\common\SeHash.c" />
@@ -176,6 +177,7 @@ XCOPY /Y ..\src\PbcForLua\binding\lua53\protobuf.lua ..\..\luabin\lib\</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\CoreSrc\common\SeBase64.h" />
+    <ClInclude Include="..\src\CoreSrc\common\SeBuffWR.h" />
     <ClInclude Include="..\src\CoreSrc\common\SeCrc32.h" />
     <ClInclude Include="..\src\CoreSrc\common\SeCrypt.h" />
     <ClInclude Include="..\src\CoreSrc\common\SeHash.h" />

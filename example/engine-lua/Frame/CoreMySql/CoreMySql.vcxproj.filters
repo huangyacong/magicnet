@@ -114,6 +114,9 @@
     <ClCompile Include="..\src\NetEngine\SeTimer.cpp">
       <Filter>src\NetEngine</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\CoreSrc\common\SeBuffWR.c">
+      <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NetEngine\SeClient.h">
@@ -202,6 +205,9 @@
     </ClInclude>
     <ClInclude Include="..\src\NetEngine\SeTimer.h">
       <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CoreSrc\common\SeBuffWR.h">
+      <Filter>src\CoreSrc\common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
