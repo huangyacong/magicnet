@@ -41,27 +41,39 @@ static void ResetMsgIDStat()
 
 static bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
 {
-	/*if (iheaderlen == 2)// 小端
+	if (iheaderlen == 2)
 	{
-		pcHeader[0] = ilen & 0xFF;
-		pcHeader[1] = (ilen >> 8) & 0xFF;
-		return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-	}*/
+		union UHEADER
+		{
+			unsigned char cBuf[2];
+			unsigned short usLen;
+		};
 
-	if (iheaderlen == 2)// 大端
-	{
-		pcHeader[0] = (ilen >> 8) & 0xff;
-		pcHeader[1] = ilen & 0xff;
+		bool bBigEndianL = true;// 大端
+		unsigned short usLen = bBigEndianL ? SeLittleToBigEndianS((unsigned short)ilen) : (unsigned short)ilen;
+		union UHEADER* pkUHeader = (union UHEADER*)&usLen;
+		pcHeader[0] = pkUHeader->cBuf[0];
+		pcHeader[1] = pkUHeader->cBuf[1];
+
 		return (ilen < 0 || ilen > 0xFFFF) ? false : true;
 	}
 
-	if (iheaderlen == 4)// 小端
+	if (iheaderlen == 4)
 	{
-		// 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。
-		pcHeader[3] = ((ilen & 0xFF000000) >> 24);
-		pcHeader[2] = ((ilen & 0x00FF0000) >> 16);
-		pcHeader[1] = ((ilen & 0x0000FF00) >> 8);
-		pcHeader[0] = ((ilen & 0x000000FF));
+		union UHEADER
+		{
+			unsigned char cBuf[4];
+			unsigned int uiLen;
+		};
+
+		bool bBigEndianL = true;// 大端
+		unsigned int uiLen = bBigEndianL ? SeLittleToBigEndianL((unsigned int)ilen) : (unsigned int)ilen;
+		union UHEADER* pkUHeader = (union UHEADER*)&uiLen;
+		pcHeader[0] = pkUHeader->cBuf[0];
+		pcHeader[1] = pkUHeader->cBuf[1];
+		pcHeader[2] = pkUHeader->cBuf[2];
+		pcHeader[3] = pkUHeader->cBuf[3];
+
 		return (ilen < 0 || ilen > 1024 * 1024 * 3) ? false : true;
 	}
 
@@ -70,21 +82,32 @@ static bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int
 
 static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
 {
-	/*if (iheaderlen == 2)// 小端
+	if (iheaderlen == 2)
 	{
-		*ilen = (unsigned short)(pcHeader[1] << 8 | pcHeader[0]);
-		return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
-	}*/
+		union UHEADER
+		{
+			unsigned char cBuf[2];
+			unsigned short usLen;
+		};
 
-	if (iheaderlen == 2)// 大端
-	{
-		*ilen = (unsigned short)(pcHeader[0] << 8 | pcHeader[1]);
+		bool bBigEndianL = true;// 大端
+		const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
+		*ilen = bBigEndianL ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
+
 		return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
 	}
-	if (iheaderlen == 4)// 小端
+	if (iheaderlen == 4)
 	{
-		// byte数组中取int数值，本方法适用于(低位在前，高位在后)的顺序
-		*ilen = (int)((pcHeader[0] & 0xFF) | ((pcHeader[1] << 8) & 0xFF00) | ((pcHeader[2] << 16) & 0xFF0000) | ((pcHeader[3] << 24) & 0xFF000000));
+		union UHEADER
+		{
+			unsigned char cBuf[4];
+			unsigned int uiLen;
+		};
+
+		bool bBigEndianL = true;// 大端
+		const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
+		*ilen = bBigEndianL ? SeBigToLittleEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
+
 		return (*ilen < 0 || *ilen > 1024 * 1024 * 3) ? false : true;
 	}
 
