@@ -413,8 +413,14 @@ bool SeNetEngine::SeSetHeader(unsigned char* pcHeader, const int iheaderlen, con
 			};
 
 			bool bBigEndianL = true;// 大端
-			assert(SeLocalIsLittleEndian());
-			unsigned short usLen = bBigEndianL ? SeLittleToBigEndianS((unsigned short)ilen) : (unsigned short)ilen;
+			unsigned short usLen = (unsigned short)ilen;
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+
+			if (bBigEndianL)
+				usLen = bLocalIsLittleEndian ? SeLittleToBigEndianS(usLen) : usLen;
+			else
+				usLen = !bLocalIsLittleEndian ? SeBigToLittleEndianS(usLen) : usLen;
+
 			union UHEADER* pkUHeader = (union UHEADER*)&usLen;
 			pcHeader[0] = pkUHeader->cBuf[0];
 			pcHeader[1] = pkUHeader->cBuf[1];
@@ -430,8 +436,14 @@ bool SeNetEngine::SeSetHeader(unsigned char* pcHeader, const int iheaderlen, con
 			};
 
 			bool bBigEndianL = true;// 大端
-			assert(SeLocalIsLittleEndian());
-			unsigned int uiLen = bBigEndianL ? SeLittleToBigEndianL((unsigned int)ilen) : (unsigned int)ilen;
+			unsigned int uiLen = (unsigned int)ilen;
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+
+			if (bBigEndianL)
+				uiLen = bLocalIsLittleEndian ? SeLittleToBigEndianL(uiLen) : uiLen;
+			else
+				uiLen = !bLocalIsLittleEndian ? SeBigToLittleEndianL(uiLen) : uiLen;
+
 			union UHEADER* pkUHeader = (union UHEADER*)&uiLen;
 			pcHeader[0] = pkUHeader->cBuf[0];
 			pcHeader[1] = pkUHeader->cBuf[1];
@@ -462,9 +474,13 @@ bool SeNetEngine::SeGetHeader(const unsigned char* pcHeader, const int iheaderle
 			};
 
 			bool bBigEndianL = true;// 大端
-			assert(SeLocalIsLittleEndian());
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
 			const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
-			*ilen = bBigEndianL ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
+
+			if (bBigEndianL)
+				*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
+			else
+				*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianS(pkUHeader->usLen) : pkUHeader->usLen;
 
 			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
 		}
@@ -477,9 +493,13 @@ bool SeNetEngine::SeGetHeader(const unsigned char* pcHeader, const int iheaderle
 			};
 
 			bool bBigEndianL = true;// 大端
-			assert(SeLocalIsLittleEndian());
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
 			const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
-			*ilen = bBigEndianL ? SeBigToLittleEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
+
+			if (bBigEndianL)
+				*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
+			else
+				*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
 
 			return (*ilen < 0 || *ilen > 1024 * 1024 * 3) ? false : true;
 		}
