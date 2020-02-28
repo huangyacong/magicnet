@@ -53,14 +53,14 @@ unsigned short SeLittleToBigEndianS(unsigned short usValue)
 	return htons(usValue);
 }
 
-#define SWAP_LONGLONG(l)					\
-	((((l) >> 56) & 0x00000000000000FFLL) | \
-	(((l) >> 40) & 0x000000000000FF00LL) | \
-	(((l) >> 24) & 0x0000000000FF0000LL) | \
-	(((l) >> 8) & 0x00000000FF000000LL) | \
-	(((l) << 8) & 0x000000FF00000000LL) | \
-	(((l) << 24) & 0x0000FF0000000000LL) | \
-	(((l) << 40) & 0x00FF000000000000LL) | \
+#define SWAP_LONGLONG(l)					  \
+	((((l) >> 56) & 0x00000000000000FFLL) 	| \
+	(((l) >> 40) & 0x000000000000FF00LL) 	| \
+	(((l) >> 24) & 0x0000000000FF0000LL) 	| \
+	(((l) >> 8) & 0x00000000FF000000LL) 	| \
+	(((l) << 8) & 0x000000FF00000000LL) 	| \
+	(((l) << 24) & 0x0000FF0000000000LL) 	| \
+	(((l) << 40) & 0x00FF000000000000LL) 	| \
 	(((l) << 56) & 0xFF00000000000000LL))
 
 unsigned long long SeBigToLittleEndianLL(unsigned long long llValue)
@@ -71,6 +71,46 @@ unsigned long long SeBigToLittleEndianLL(unsigned long long llValue)
 unsigned long long SeLittleToBigEndianLL(unsigned long long llValue)
 {
 	return SWAP_LONGLONG(llValue);
+}
+
+unsigned long long SeLittleToBigEndianDF(double dfValue) 
+{ 
+	unsigned long long Tempval;
+	unsigned long long Retval;
+	Tempval = *(unsigned long long*)(&dfValue);
+	Retval = SWAP_LONGLONG(Tempval);
+	return Retval;
+}
+
+double SeBigToLittleEndianDF(unsigned long long ullValue) 
+{ 
+	const unsigned long long Tempval = SWAP_LONGLONG(ullValue);
+	double Retval;
+	*((unsigned long long*)&Retval) = Tempval;
+	return Retval;
+}
+
+#define SWAP_LONG(l)					\
+	( ( ((l) >> 24) & 0x000000FFL )	|	\
+	( ((l) >>  8) & 0x0000FF00L )	|	\
+	( ((l) <<  8) & 0x00FF0000L )	|	\
+	( ((l) << 24) & 0xFF000000L )	)
+
+unsigned int SeLittleToBigEndianF(float fValue) 
+{ 
+	unsigned int Tempval;
+	unsigned int Retval;
+	Tempval = *(unsigned int*)(&fValue);
+	Retval = SWAP_LONG(Tempval);
+	return Retval;
+}
+
+float SeBigToLittleEndianF(unsigned int uiValue) 
+{ 
+	const unsigned int Tempval = SWAP_LONG(uiValue);
+	float Retval;
+	*((unsigned int*)&Retval) = Tempval;
+	return Retval;
 }
 
 void SeCloseHandle(HANDLE kHandle)

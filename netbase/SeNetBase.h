@@ -104,6 +104,14 @@ unsigned long long SeBigToLittleEndianLL(unsigned long long llValue);
 
 unsigned long long SeLittleToBigEndianLL(unsigned long long llValue);
 
+unsigned long long SeLittleToBigEndianDF(double dfValue);
+
+double SeBigToLittleEndianDF(unsigned long long ullValue);
+
+unsigned int SeLittleToBigEndianF(float fValue);
+
+float SeBigToLittleEndianF(unsigned int uiValue);
+
 void SeCloseHandle(HANDLE kHandle);
 
 SOCKET SeSocket(int domain /*=SE_DOMAIN_INET,SE_DOMAIN_UNIX*/, int iType /*= SOCK_STREAM*/);
