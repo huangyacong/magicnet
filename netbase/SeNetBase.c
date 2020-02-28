@@ -77,16 +77,22 @@ unsigned long long SeLittleToBigEndianDF(double dfValue)
 { 
 	unsigned long long Tempval;
 	unsigned long long Retval;
-	Tempval = *(unsigned long long*)(&dfValue);
+	unsigned long long* p;
+
+	p = (unsigned long long*)(&dfValue);
+	Tempval = *p;
 	Retval = SWAP_LONGLONG(Tempval);
 	return Retval;
 }
 
 double SeBigToLittleEndianDF(unsigned long long ullValue) 
 { 
-	const unsigned long long Tempval = SWAP_LONGLONG(ullValue);
 	double Retval;
-	*((unsigned long long*)&Retval) = Tempval;
+	unsigned long long* p;
+	const unsigned long long Tempval = SWAP_LONGLONG(ullValue);
+	
+	p = (unsigned long long*)&Retval;
+	*p = Tempval;
 	return Retval;
 }
 
@@ -100,16 +106,22 @@ unsigned int SeLittleToBigEndianF(float fValue)
 { 
 	unsigned int Tempval;
 	unsigned int Retval;
-	Tempval = *(unsigned int*)(&fValue);
+	unsigned int* p;
+	
+	p = (unsigned int*)(&fValue);
+	Tempval = *p;
 	Retval = SWAP_LONG(Tempval);
 	return Retval;
 }
 
 float SeBigToLittleEndianF(unsigned int uiValue) 
 { 
-	const unsigned int Tempval = SWAP_LONG(uiValue);
 	float Retval;
-	*((unsigned int*)&Retval) = Tempval;
+	unsigned int* p;
+	const unsigned int Tempval = SWAP_LONG(uiValue);
+	
+	p = (unsigned int*)&Retval;
+	*p = Tempval;
 	return Retval;
 }
 
