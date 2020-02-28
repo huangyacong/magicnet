@@ -5,26 +5,11 @@
 #include <map>
 
 static SeTimer g_kSeTimer;
+static int g_iCoreWaitTime;
 static char g_acBuf[1024*1024*4];
 static struct SENETCORE g_kNetore;
-static int g_iCoreWaitTime;
-
+static struct MsgIDStat g_kMsgIDStat;
 static std::list<std::string> g_kLinkFile;
-
-//Í³¼Æ
-struct MsgIDStat
-{
-	int iSendNum;
-	unsigned long long ullSendByteNum;
-	int iRecvNum;
-	unsigned long long ullRecvByteNum;
-	int iPrintNum;
-	unsigned long long ullPrintByteNum;
-};
-
-struct MsgIDStat g_kMsgIDStat;
-static unsigned long long g_ullStatTime;
-static unsigned long long g_ullDelayStatTime;
 
 static void ResetMsgIDStat()
 {
@@ -35,8 +20,8 @@ static void ResetMsgIDStat()
 	g_kMsgIDStat.iPrintNum = 0;
 	g_kMsgIDStat.ullPrintByteNum = 0;
 
-	g_ullDelayStatTime = 5000;
-	g_ullStatTime = SeTimeGetTickCount();
+	g_kMsgIDStat.ullDelayStatTime = 5000;
+	g_kMsgIDStat.ullStatTime = SeTimeGetTickCount();
 }
 
 static bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
@@ -391,11 +376,11 @@ extern "C" int CoreNetReport(lua_State *L)
 	unsigned long long ullPrintByteNum = 0;
 
 	ullStatTime = (unsigned long long)luaL_checkinteger(L, 1);
-	ullStatTime = ullStatTime <= 0 ? g_ullDelayStatTime : ullStatTime;
+	ullStatTime = ullStatTime <= 0 ? g_kMsgIDStat.ullDelayStatTime : ullStatTime;
 
-	if (ullNow > g_ullStatTime && (ullStatTime + g_ullStatTime) <= ullNow)
+	if (ullNow > g_kMsgIDStat.ullStatTime && (ullStatTime + g_kMsgIDStat.ullStatTime) <= ullNow)
 	{
-		iTime = (int)(ullNow - g_ullStatTime);
+		iTime = (int)(ullNow - g_kMsgIDStat.ullStatTime);
 		iSendNum = (g_kMsgIDStat.iSendNum * 1000) / (int)iTime;
 		ullSendSpeed = (unsigned long long)((unsigned long long)(g_kMsgIDStat.ullSendByteNum * 1000) / (unsigned long long)iTime);
 		iRecvNum = (g_kMsgIDStat.iRecvNum * 1000) / (int)iTime;

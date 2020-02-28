@@ -15,6 +15,20 @@ extern "C" {
 #include "SeTime.h"
 #include "SeNetCore.h"
 
+//Í³¼Æ
+struct MsgIDStat
+{
+	int iSendNum;
+	unsigned long long ullSendByteNum;
+	int iRecvNum;
+	unsigned long long ullRecvByteNum;
+	int iPrintNum;
+	unsigned long long ullPrintByteNum;
+
+	unsigned long long ullStatTime;
+	unsigned long long ullDelayStatTime;
+};
+
 #ifdef	__cplusplus
 }
 #endif
