@@ -15,6 +15,10 @@ extern "C" {
 #include "SeTime.h"
 #include "SeNetCore.h"
 
+#ifdef	__cplusplus
+}
+#endif
+
 //Í³¼Æ
 struct MsgIDStat
 {
@@ -28,9 +32,5 @@ struct MsgIDStat
 	unsigned long long ullStatTime;
 	unsigned long long ullDelayStatTime;
 };
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif
