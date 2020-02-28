@@ -50,6 +50,7 @@ static bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int
 		};
 
 		bool bBigEndianL = true;// 大端
+		assert(SeLocalIsLittleEndian());
 		unsigned short usLen = bBigEndianL ? SeLittleToBigEndianS((unsigned short)ilen) : (unsigned short)ilen;
 		union UHEADER* pkUHeader = (union UHEADER*)&usLen;
 		pcHeader[0] = pkUHeader->cBuf[0];
@@ -67,6 +68,7 @@ static bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int
 		};
 
 		bool bBigEndianL = true;// 大端
+		assert(SeLocalIsLittleEndian());
 		unsigned int uiLen = bBigEndianL ? SeLittleToBigEndianL((unsigned int)ilen) : (unsigned int)ilen;
 		union UHEADER* pkUHeader = (union UHEADER*)&uiLen;
 		pcHeader[0] = pkUHeader->cBuf[0];
@@ -91,6 +93,7 @@ static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int
 		};
 
 		bool bBigEndianL = true;// 大端
+		assert(SeLocalIsLittleEndian());
 		const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
 		*ilen = bBigEndianL ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
 
@@ -105,6 +108,7 @@ static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int
 		};
 
 		bool bBigEndianL = true;// 大端
+		assert(SeLocalIsLittleEndian());
 		const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
 		*ilen = bBigEndianL ? SeBigToLittleEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
 
