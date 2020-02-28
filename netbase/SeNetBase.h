@@ -10,6 +10,11 @@ extern "C" {
  * 
  * 
  * NOTE: base net for win or linux
+   网路字节是大端表示 H 是主机字节 S表示网络字节
+   内存的高低地址从左到右依次是低内存到高内存 低---->高 布局
+   0x12345678 十六进制前面表示从高位到低位 高位--->低位 布局
+   大端模式就是指把数据的高字节保存在内存的低地址中，数据的低字节保存在内存的高地址中
+   小端模式则相反，数据的高字节位置保存在内存的高地址处，数据的低字节保存在内存的低地址处
  * 
  *
  **********************************************************************/
@@ -84,6 +89,20 @@ HSOCKET SeGetValidHSocket();
 HSOCKET SeGetHSocket(unsigned short usIndex, unsigned long long ullTime);
 
 unsigned short SeGetIndexByHScoket(HSOCKET kHSocket);
+
+bool SeLocalIsLittleEndian();
+
+unsigned int SeBigToLittleEndianL(unsigned int uiValue);
+
+unsigned int SeLittleToBigEndianL(unsigned int uiValue);
+
+unsigned short SeBigToLittleEndianS(unsigned short usValue);
+
+unsigned short SeLittleToBigEndianS(unsigned short usValue);
+
+unsigned long long SeBigToLittleEndianLL(unsigned long long llValue);
+
+unsigned long long SeLittleToBigEndianLL(unsigned long long llValue);
 
 void SeCloseHandle(HANDLE kHandle);
 

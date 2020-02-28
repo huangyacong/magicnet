@@ -26,6 +26,53 @@ unsigned short SeGetIndexByHScoket(HSOCKET kHSocket)
 	return (unsigned short)(kHSocket >> 46);
 }
 
+bool SeLocalIsLittleEndian()
+{
+	unsigned int uiTest = 0x12345678;
+	unsigned char *pcTest = (unsigned char*)&uiTest;
+	return pcTest[0] != 0x12;
+}
+
+unsigned int SeBigToLittleEndianL(unsigned int uiValue)
+{
+	return ntohl(uiValue);
+}
+
+unsigned int SeLittleToBigEndianL(unsigned int uiValue)
+{
+	return htonl(uiValue);
+}
+
+unsigned short SeBigToLittleEndianS(unsigned short usValue)
+{
+	return ntohs(usValue);
+}
+
+unsigned short SeLittleToBigEndianS(unsigned short usValue)
+{
+	return htons(usValue);
+}
+
+#define SWAP_LONGLONG(l)					\
+	((((l) >> 56) & 0x00000000000000FFLL) | \
+	(((l) >> 40) & 0x000000000000FF00LL) | \
+	(((l) >> 24) & 0x0000000000FF0000LL) | \
+	(((l) >> 8) & 0x00000000FF000000LL) | \
+	(((l) << 8) & 0x000000FF00000000LL) | \
+	(((l) << 24) & 0x0000FF0000000000LL) | \
+	(((l) << 40) & 0x00FF000000000000LL) | \
+	(((l) << 56) & 0xFF00000000000000LL))
+
+unsigned long long SeBigToLittleEndianLL(unsigned long long llValue)
+{
+	return SWAP_LONGLONG(llValue);
+}
+
+unsigned long long SeLittleToBigEndianLL(unsigned long long llValue)
+{
+	return SWAP_LONGLONG(llValue);
+}
+
 void SeCloseHandle(HANDLE kHandle)
 {
 #ifdef __linux
