@@ -1238,8 +1238,6 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	bWork = false;
 	pkOverlapped = NULL;
 
-	SeSetAcceptSocket(pkNetCore);
-
 	*rkHSocket = 0;
 	*rkListenHSocket = 0;
 
@@ -1306,6 +1304,7 @@ bool SeNetCoreRead(struct SENETCORE *pkNetCore, int *riEvent, HSOCKET *rkListenH
 	else if (bResult && !pkOverlapped)
 	{
 		SeNetTimeOut(pkNetCore);
+		SeSetAcceptSocket(pkNetCore);
 		
 		*rkHSocket = 0;
 		*rkListenHSocket = 0;
