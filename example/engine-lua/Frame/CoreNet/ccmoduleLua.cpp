@@ -492,7 +492,6 @@ extern "C" int CoreNetNetPack(lua_State *L)
 	if (kPacket.eType == PTYPE_REMOTE || kPacket.eType == PTYPE_REMOTE_RECV_DATA)
 	{
 		usProto = (unsigned short)luaL_checkinteger(L, 5);
-		usProto = SeLocalIsLittleEndian() ? SeLittleToBigEndianS(usProto) : usProto;
 		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), SeUnSignedShortToA(usProto).c_str());
 	}
 	else
@@ -538,8 +537,7 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 
 	if (kPacket.eType == PTYPE_REMOTE || kPacket.eType == PTYPE_REMOTE_RECV_DATA)
 	{
-		usProto = SeAToInt(kPacket.acProto);
-		usProto = SeLocalIsLittleEndian() ? SeBigToLittleEndianS(usProto) : usProto;
+		usProto = (unsigned short)SeAToInt(kPacket.acProto);
 		lua_pushinteger(L, usProto);
 	}
 	else
