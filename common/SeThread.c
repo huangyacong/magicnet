@@ -12,6 +12,24 @@ THREADHANDLE SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs)
 #endif
 }
 
+void SeExitThread()
+{
+#ifdef __linux
+	pthread_exit(0);
+#elif (defined(_WIN32) || defined(WIN32))
+	_endthread();
+#endif
+}
+
+void SeJoinThread(THREADHANDLE threadID)
+{
+#ifdef __linux
+	pthread_join(threadID, 0);
+#elif (defined(_WIN32) || defined(WIN32))
+	WaitForSingleObject((HANDLE)threadID, INFINITE);
+#endif
+}
+
 bool SeSchedSetaffinity(int iCpu)
 {
 #if defined(__linux)

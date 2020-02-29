@@ -37,6 +37,10 @@ typedef void (*SETHREADPROC)(void *);
 
 THREADHANDLE SeCreateThread(SETHREADPROC pkFun,void *pkFunArgs);
 
+void SeExitThread();
+
+void SeJoinThread(THREADHANDLE threadID);
+
 bool SeSchedSetaffinity(int iCpu);
 
 long SeGetCpuNum();
