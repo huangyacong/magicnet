@@ -604,5 +604,35 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 	lua_pushinteger(L, SE_DOMAIN_UNIX);
 	lua_setfield(L, -2, "DOMAIN_UNIX");
 
+	lua_pushinteger(L, PTYPE_RESPONSE);
+	lua_setfield(L, -2, "PTYPE_RESPONSE");
+
+	lua_pushinteger(L, PTYPE_CALL);
+	lua_setfield(L, -2, "PTYPE_CALL");
+
+	lua_pushinteger(L, PTYPE_REMOTE);
+	lua_setfield(L, -2, "PTYPE_REMOTE");
+
+	lua_pushinteger(L, PTYPE_COMMON);
+	lua_setfield(L, -2, "PTYPE_COMMON");
+
+	lua_pushinteger(L, PTYPE_REGISTER_KEY);
+	lua_setfield(L, -2, "PTYPE_REGISTER_KEY");
+
+	lua_pushinteger(L, PTYPE_REGISTER);
+	lua_setfield(L, -2, "PTYPE_REGISTER");
+	
+	lua_pushinteger(L, PTYPE_PING);
+	lua_setfield(L, -2, "PTYPE_PING");
+	
+	lua_pushinteger(L, PTYPE_REMOTE_CONNECT);
+	lua_setfield(L, -2, "PTYPE_REMOTE_CONNECT");
+
+	lua_pushinteger(L, PTYPE_REMOTE_DISCONNECT);
+	lua_setfield(L, -2, "PTYPE_REMOTE_DISCONNECT");
+
+	lua_pushinteger(L, PTYPE_REMOTE_RECV_DATA);
+	lua_setfield(L, -2, "PTYPE_REMOTE_RECV_DATA");
+
 	return 1;
 }
