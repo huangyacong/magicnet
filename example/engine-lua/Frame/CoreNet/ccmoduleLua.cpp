@@ -493,9 +493,14 @@ extern "C" int CoreNetNetPack(lua_State *L)
 	kPacket.eType = (AGENTSERVICE_PTYPE)luaL_checkinteger(L, 4);
 	kPacket.ullSessionId = (unsigned long long)luaL_checkinteger(L, 5);
 
+	seplen = 0;
+	pcBuf = luaL_checklstring(L, 6, &seplen);
+	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+
 	iLen = NetPack(kPacket, (unsigned char*)g_acBuf, (int)sizeof(g_acBuf));
 	lua_pushlstring(L, g_acBuf, iLen);
-	return 1;
+	lua_pushlstring(L, pcBuf, seplen);
+	return 2;
 }
 
 extern "C" int CoreNetNetUnPack(lua_State *L)
