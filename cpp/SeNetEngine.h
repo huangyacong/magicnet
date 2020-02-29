@@ -56,6 +56,7 @@ public:
 	virtual HSOCKET AddTCPClient(IClient* pkIClient, int iDomain, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader);
 public:
 	virtual char *GetSendBuf(int &riLen);
+	virtual struct SELOG* GetEngineLogInstance();
 	virtual bool SendEngineData(HSOCKET kHSocket, const char* pcBuf, int iSize);
 	virtual bool SendEngineData(HSOCKET kHSocket, const char* pcBufF, int iSizeF, const char* pcBufS, int iSizeS);
 	virtual void DiscEngineSocket(HSOCKET kHSocket);

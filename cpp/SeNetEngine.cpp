@@ -353,6 +353,15 @@ char *SeNetEngine::GetSendBuf(int &riLen)
 	return m_pkSendBuf;
 }
 
+struct SELOG* SeNetEngine::GetEngineLogInstance()
+{
+	if (!m_bInit) 
+	{ 
+		return 0; 
+	}
+	return &m_kNetEngine.kLog;
+}
+
 bool SeNetEngine::SendEngineData(HSOCKET kHSocket, const char* pcBuf, int iSize)
 {
 	if(!m_bInit) 
