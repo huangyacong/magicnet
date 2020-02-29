@@ -10,12 +10,12 @@ static int g_iCoreWaitTime;
 static char g_acBuf[1024*1024*4];
 static struct SENETCORE g_kNetore;
 static struct MsgIDStat g_kMsgIDStat;
-static ServiceAgent* g_pkServiceAgent;
+static ServiceAgent* g_pkServiceAgentGate;
 static std::list<std::string> g_kLinkFile;
 
 static void CoreNet_Init()
 {
-	g_pkServiceAgent = NULL;
+	g_pkServiceAgentGate = NULL;
 }
 
 static void ResetMsgIDStat()
@@ -128,6 +128,33 @@ static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int
 	}
 
 	return false;
+}
+
+extern "C" int CoreNetInitAgentGate(lua_State *L)
+{
+	int iLogLV;
+	bool bPrint;
+	size_t seplen;
+	int iTimerCnt;
+	const char *pcLogName;
+	unsigned short usMax;
+
+	seplen = 0;
+	pcLogName = luaL_checklstring(L, 1, &seplen);
+	if (!pcLogName) { luaL_error(L, "pcLogName is NULL!"); return 0; }
+
+	usMax = (unsigned short)luaL_checkinteger(L, 2);
+	iTimerCnt = (int)luaL_checkinteger(L, 3);
+	bPrint = lua_toboolean(L, 4) == 1 ? true : false;
+
+	iLogLV = LT_SPLIT | LT_ERROR | LT_WARNING | LT_INFO | LT_DEBUG | LT_CRITICAL | LT_SOCKET | LT_RESERROR | LT_NOHEAD;
+	iLogLV |= bPrint ? (iLogLV | LT_PRINT) : iLogLV;
+
+	g_pkServiceAgentGate = new ServiceAgent();
+	g_pkServiceAgentGate->Init(pcLogName, iLogLV, usMax, iTimerCnt);
+
+	lua_pushnil(L);
+	return 1;
 }
 
 extern "C" int CoreNetInit(lua_State *L)
@@ -597,7 +624,8 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "GetOS", CoreNetGetOS }, 
 		{ "NetPack", CoreNetNetPack },
 		{ "NetUnPack", CoreNetNetUnPack },
-		{ "GenRegToken", CoreNetGenRegToken },
+		{ "GenRegToken", CoreNetGenRegToken }, 
+		{ "InitAgentGate", CoreNetInitAgentGate },
 		{ NULL, NULL },
 	};
 
