@@ -79,7 +79,7 @@ class ServiceForRemote : public SeServer
 	void OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen);
 	void OnServerDisConnect(HSOCKET kHSocket);
 	void OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize);
-	void SendCommonData(const std::string& rkSrcName, const char *pcBuf, int iLen);
+	void SendCommonData(const std::string& rkDstName, const char *pcBuf, int iLen);
 	void SendRemoteData(HSOCKET kHSocket, const char *pcBuf, int iLen);
 	void SendRegKey(HSOCKET kHSocket);
 	void RegisterService(HSOCKET kHSocket, const std::string& rkName, const std::string& rkMD5);

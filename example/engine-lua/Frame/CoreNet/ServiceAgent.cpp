@@ -164,16 +164,16 @@ void ServiceForRemote::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLe
 	switch (kPacket.eType)
 	{
 	case PTYPE_RESPONSE:			//回应协程消息
-		SendCommonData(kPacket.acSrcName, pcBuf, iLen);
+		SendCommonData(kPacket.acDstName, pcBuf, iLen);
 		break;
 	case PTYPE_CALL:				//协程消息
-		SendCommonData(kPacket.acSrcName, pcBuf, iLen);
+		SendCommonData(kPacket.acDstName, pcBuf, iLen);
 		break;
 	case PTYPE_REMOTE:				//发送给远程目标数据类型
 		SendRemoteData((HSOCKET)kPacket.ullSessionId, &pcBuf[iPacketLen], iLen - iPacketLen);
 		break;
 	case PTYPE_COMMON:				//普通类型
-		SendCommonData(kPacket.acSrcName, pcBuf, iLen);
+		SendCommonData(kPacket.acDstName, pcBuf, iLen);
 		break;
 	case PTYPE_REGISTER_KEY:		//注册Key类型
 		SendRegKey(kHSocket);
@@ -194,11 +194,11 @@ void ServiceForRemote::SendRemoteData(HSOCKET kHSocket, const char *pcBuf, int i
 	ServiceAgent::m_kServiceForRemote.SendData(kHSocket, pcBuf, iLen);
 }
 
-void ServiceForRemote::SendCommonData(const std::string& rkSrcName, const char *pcBuf, int iLen)
+void ServiceForRemote::SendCommonData(const std::string& rkDstName, const char *pcBuf, int iLen)
 {
-	if (ServiceAgent::m_kRegSvrList.find(rkSrcName) != ServiceAgent::m_kRegSvrList.end())
+	if (ServiceAgent::m_kRegSvrList.find(rkDstName) != ServiceAgent::m_kRegSvrList.end())
 	{
-		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[rkSrcName];
+		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[rkDstName];
 		rkObj.first->SendData(rkObj.second, pcBuf, iLen);
 	}
 }
