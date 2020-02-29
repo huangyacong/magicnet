@@ -117,15 +117,94 @@ void ServiceForRemote::OnServerDisConnect(HSOCKET kHSocket)
 
 void ServiceForRemote::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
 {
+	int iSize = 0;
+	const int iHeaderLen = 2;
+	unsigned short usProto = 0;
+
+	if (iHeaderLen > iLen)
+	{
+		DisConnect(kHSocket);
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForRemote::OnServerRecv header error", kHSocket);
+		return;
+	}
+
+	if (!SeGetProtoHeader((const unsigned char*)pcBuf, iHeaderLen, &iSize))
+	{
+		DisConnect(kHSocket);
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForRemote::OnServerRecv SeGetProtoHeader error", kHSocket);
+		return;
+	}
+
+	usProto = (unsigned short)iSize;
 	if (m_kRemoteList.find(kHSocket) != m_kRemoteList.end() && ServiceAgent::m_kRegSvrList.find(ServiceAgent::m_kWatchDogName) != ServiceAgent::m_kRegSvrList.end())
 	{
 		AgentServicePacket kPacket;
 		kPacket.eType = PTYPE_REMOTE_RECV_DATA;
 		kPacket.ullSessionId = kHSocket;
+		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), SeUnSignedShortToA(usProto).c_str());
 		int iPacketLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 		std::pair<ServiceForAgent*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
-		rkObj.first->SendData(rkObj.second, ServiceAgent::m_acBuff, iPacketLen, pcBuf, iLen);
+		rkObj.first->SendData(rkObj.second, ServiceAgent::m_acBuff, iPacketLen, &pcBuf[iHeaderLen], iLen - iHeaderLen);
 	}
+}
+
+bool ServiceForRemote::SendRemoteData(HSOCKET kHSocket, unsigned short usProto, const char *pcBuf, int iLen)
+{
+	const int iHeaderLen = 2;
+	char acHeader[iHeaderLen] = {};
+	
+	if (!SeSetProtoHeader((unsigned char*)acHeader, iHeaderLen, usProto))
+	{
+		DisConnect(kHSocket);
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForRemote::OnServerRecv SeSetProtoHeader error", kHSocket);
+		return false;
+	}
+
+	return SendData(kHSocket, acHeader, iHeaderLen, pcBuf, iLen);
+}
+
+bool ServiceForRemote::SeSetProtoHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
+{
+	union UHEADER
+	{
+		unsigned char cBuf[2];
+		unsigned short usLen;
+	};
+
+	bool bBigEndianL = true;// 大端
+	unsigned short usLen = (unsigned short)ilen;
+	bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+
+	if (bBigEndianL)
+		usLen = bLocalIsLittleEndian ? SeLittleToBigEndianS(usLen) : usLen;
+	else
+		usLen = !bLocalIsLittleEndian ? SeBigToLittleEndianS(usLen) : usLen;
+
+	union UHEADER* pkUHeader = (union UHEADER*)&usLen;
+	pcHeader[0] = pkUHeader->cBuf[0];
+	pcHeader[1] = pkUHeader->cBuf[1];
+
+	return (ilen < 0 || ilen > 0xFFFF) ? false : true;
+}
+
+bool ServiceForRemote::SeGetProtoHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
+{
+	union UHEADER
+	{
+		unsigned char cBuf[2];
+		unsigned short usLen;
+	};
+
+	bool bBigEndianL = true;// 大端
+	bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+	const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
+
+	if (bBigEndianL)
+		*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
+	else
+		*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianS(pkUHeader->usLen) : pkUHeader->usLen;
+
+	return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
 }
 
 void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
@@ -170,7 +249,7 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 		SendCommonData(kPacket.acDstName, pcBuf, iLen);
 		break;
 	case PTYPE_REMOTE:				//发送给远程目标数据类型
-		SendRemoteData((HSOCKET)kPacket.ullSessionId, &pcBuf[iPacketLen], iLen - iPacketLen);
+		SendRemoteData((HSOCKET)kPacket.ullSessionId, (unsigned short)SeAToInt(kPacket.acProto), &pcBuf[iPacketLen], iLen - iPacketLen);
 		break;
 	case PTYPE_COMMON:				//普通类型
 		SendCommonData(kPacket.acDstName, pcBuf, iLen);
@@ -189,9 +268,9 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 	}
 }
 
-void ServiceForAgent::SendRemoteData(HSOCKET kHSocket, const char *pcBuf, int iLen)
+void ServiceForAgent::SendRemoteData(HSOCKET kHSocket, unsigned short usProto, const char *pcBuf, int iLen)
 {
-	ServiceAgent::m_kServiceForRemote.SendData(kHSocket, pcBuf, iLen);
+	ServiceAgent::m_kServiceForRemote.SendRemoteData(kHSocket, usProto, pcBuf, iLen);
 }
 
 void ServiceForAgent::SendCommonData(const std::string& rkDstName, const char *pcBuf, int iLen)

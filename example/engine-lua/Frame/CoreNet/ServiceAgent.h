@@ -69,7 +69,11 @@ class ServiceForRemote : public SeServer
 	void OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen);
 	void OnServerDisConnect(HSOCKET kHSocket);
 	void OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize);
+	bool SeSetProtoHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen);
+	bool SeGetProtoHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen);
 	void OnServerUpdate() {};
+public:
+	bool SendRemoteData(HSOCKET kHSocket, unsigned short usProto, const char *pcBuf, int iLen);
 private:
 	std::map<HSOCKET, std::string> m_kRemoteList;
 };
@@ -80,7 +84,7 @@ class ServiceForAgent : public SeServer
 	void OnServerDisConnect(HSOCKET kHSocket);
 	void OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize);
 	void SendCommonData(const std::string& rkDstName, const char *pcBuf, int iLen);
-	void SendRemoteData(HSOCKET kHSocket, const char *pcBuf, int iLen);
+	void SendRemoteData(HSOCKET kHSocket, unsigned short usProto, const char *pcBuf, int iLen);
 	void SendRegKey(HSOCKET kHSocket);
 	void RegisterService(HSOCKET kHSocket, const std::string& rkName, const std::string& rkMD5);
 	void SendPing(HSOCKET kHSocket);
