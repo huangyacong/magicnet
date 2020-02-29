@@ -531,8 +531,8 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 	pcBuf = pcBuf + iLen;
 	iLen = (int)seplen - iLen;
 
-	lua_pushstring(L, kPacket.acSrcName);
-	lua_pushstring(L, kPacket.acDstName);
+	lua_pushlstring(L, kPacket.acSrcName, (int)strlen(kPacket.acSrcName));
+	lua_pushlstring(L, kPacket.acDstName, (int)strlen(kPacket.acDstName));
 	lua_pushinteger(L, kPacket.eType);
 	lua_pushinteger(L, kPacket.ullSessionId);
 
@@ -544,7 +544,7 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 	}
 	else
 	{
-		lua_pushstring(L, kPacket.acProto);
+		lua_pushlstring(L, kPacket.acProto, (int)strlen(kPacket.acProto));
 	}
 
 	lua_pushlstring(L, pcBuf, iLen);
