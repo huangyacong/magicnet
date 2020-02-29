@@ -6,7 +6,7 @@ ServiceForAgent ServiceAgent::m_kServiceForAgentIPSocket;
 ServiceForAgent ServiceAgent::m_kServiceForAgentUnixSocket;
 ServiceAgenttEngine ServiceAgent::m_kServiceAgenttEngine;
 std::string ServiceAgent::m_kWatchDogName = std::string(".watchdog");
-std::map< std::string, std::pair<ServiceForRemote*, HSOCKET> > ServiceAgent::m_kRegSvrList;
+std::map< std::string, std::pair<ServiceForAgent*, HSOCKET> > ServiceAgent::m_kRegSvrList;
 
 AgentServicePacket::AgentServicePacket()
 {
@@ -79,7 +79,7 @@ std::string GenRegToken(const std::string kKey, const std::string kName)
 	return std::string(acMD5);
 }
 
-void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
+void ServiceForRemote::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 {
 	if (ServiceAgent::m_kRegSvrList.find(ServiceAgent::m_kWatchDogName) != ServiceAgent::m_kRegSvrList.end())
 		m_kRemoteList[kHSocket] = std::string(pcIP);
@@ -96,12 +96,12 @@ void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iL
 		kPacket.ullSessionId = kHSocket;
 		SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), pcIP);
 		int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
-		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
+		std::pair<ServiceForAgent*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
 		rkObj.first->SendData(rkObj.second, ServiceAgent::m_acBuff, iLen);
 	}
 }
 
-void ServiceForAgent::OnServerDisConnect(HSOCKET kHSocket)
+void ServiceForRemote::OnServerDisConnect(HSOCKET kHSocket)
 {
 	if (m_kRemoteList.find(kHSocket) != m_kRemoteList.end() && ServiceAgent::m_kRegSvrList.find(ServiceAgent::m_kWatchDogName) != ServiceAgent::m_kRegSvrList.end())
 	{
@@ -109,13 +109,13 @@ void ServiceForAgent::OnServerDisConnect(HSOCKET kHSocket)
 		kPacket.eType = PTYPE_REMOTE_DISCONNECT;
 		kPacket.ullSessionId = kHSocket;
 		int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
-		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
+		std::pair<ServiceForAgent*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
 		rkObj.first->SendData(rkObj.second, ServiceAgent::m_acBuff, iLen);
 	}
 	m_kRemoteList.erase(kHSocket);
 }
 
-void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
+void ServiceForRemote::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
 {
 	if (m_kRemoteList.find(kHSocket) != m_kRemoteList.end() && ServiceAgent::m_kRegSvrList.find(ServiceAgent::m_kWatchDogName) != ServiceAgent::m_kRegSvrList.end())
 	{
@@ -123,12 +123,12 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 		kPacket.eType = PTYPE_REMOTE_RECV_DATA;
 		kPacket.ullSessionId = kHSocket;
 		int iPacketLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
-		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
+		std::pair<ServiceForAgent*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
 		rkObj.first->SendData(rkObj.second, ServiceAgent::m_acBuff, iPacketLen, pcBuf, iLen);
 	}
 }
 
-void ServiceForRemote::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
+void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 {
 	m_kServiceList[kHSocket] = ServiceSocket();
 	m_kServiceList[kHSocket].m_kIP = pcIP;
@@ -136,7 +136,7 @@ void ServiceForRemote::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int i
 	m_kServiceList[kHSocket].m_kTokenKey = SeLongLongToA(kHSocket) + SeLongLongToA(SeTimeGetTickCount());
 }
 
-void ServiceForRemote::OnServerDisConnect(HSOCKET kHSocket)
+void ServiceForAgent::OnServerDisConnect(HSOCKET kHSocket)
 {
 	if (m_kServiceList.find(kHSocket) == m_kServiceList.end())
 		return;
@@ -152,7 +152,7 @@ void ServiceForRemote::OnServerDisConnect(HSOCKET kHSocket)
 	m_kServiceList.erase(kHSocket);
 }
 
-void ServiceForRemote::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
+void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
 {
 	AgentServicePacket kPacket;
 	int iPacketLen = NetUnPack(kPacket, (const unsigned char*)pcBuf, iLen);
@@ -189,21 +189,21 @@ void ServiceForRemote::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLe
 	}
 }
 
-void ServiceForRemote::SendRemoteData(HSOCKET kHSocket, const char *pcBuf, int iLen)
+void ServiceForAgent::SendRemoteData(HSOCKET kHSocket, const char *pcBuf, int iLen)
 {
 	ServiceAgent::m_kServiceForRemote.SendData(kHSocket, pcBuf, iLen);
 }
 
-void ServiceForRemote::SendCommonData(const std::string& rkDstName, const char *pcBuf, int iLen)
+void ServiceForAgent::SendCommonData(const std::string& rkDstName, const char *pcBuf, int iLen)
 {
 	if (ServiceAgent::m_kRegSvrList.find(rkDstName) != ServiceAgent::m_kRegSvrList.end())
 	{
-		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[rkDstName];
+		std::pair<ServiceForAgent*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[rkDstName];
 		rkObj.first->SendData(rkObj.second, pcBuf, iLen);
 	}
 }
 
-void ServiceForRemote::SendRegKey(HSOCKET kHSocket)
+void ServiceForAgent::SendRegKey(HSOCKET kHSocket)
 {
 	if (m_kServiceList.find(kHSocket) == m_kServiceList.end())
 		return;
@@ -223,7 +223,7 @@ void ServiceForRemote::SendRegKey(HSOCKET kHSocket)
 	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_DEBUG, "Service send register key=%s %llx", rkServiceSocket.m_kTokenKey.c_str(), kHSocket);
 }
 
-void ServiceForRemote::RegisterService(HSOCKET kHSocket, const std::string& rkName, const std::string& rkMD5)
+void ServiceForAgent::RegisterService(HSOCKET kHSocket, const std::string& rkName, const std::string& rkMD5)
 {
 	if (m_kServiceList.find(kHSocket) == m_kServiceList.end())
 		return;
@@ -253,11 +253,11 @@ void ServiceForRemote::RegisterService(HSOCKET kHSocket, const std::string& rkNa
 		return;
 	}
 	rkServiceSocket.m_kRegName = rkName;
-	ServiceAgent::m_kRegSvrList[rkName] = std::pair<ServiceForRemote*, HSOCKET>(this, kHSocket);
+	ServiceAgent::m_kRegSvrList[rkName] = std::pair<ServiceForAgent*, HSOCKET>(this, kHSocket);
 	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_INFO, "Service %s register", rkName.c_str());
 }
 
-void ServiceForRemote::SendPing(HSOCKET kHSocket)
+void ServiceForAgent::SendPing(HSOCKET kHSocket)
 {
 	if (m_kServiceList.find(kHSocket) == m_kServiceList.end())
 		return;

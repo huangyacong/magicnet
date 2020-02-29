@@ -64,7 +64,7 @@ int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, int iSiz
 
 std::string GenRegToken(const std::string kKey, const std::string kName);
 
-class ServiceForAgent : public SeServer
+class ServiceForRemote : public SeServer
 {
 	void OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen);
 	void OnServerDisConnect(HSOCKET kHSocket);
@@ -74,7 +74,7 @@ private:
 	std::map<HSOCKET, std::string> m_kRemoteList;
 };
 
-class ServiceForRemote : public SeServer
+class ServiceForAgent : public SeServer
 {
 	void OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen);
 	void OnServerDisConnect(HSOCKET kHSocket);
@@ -107,7 +107,7 @@ public:
 	static ServiceForAgent m_kServiceForAgentIPSocket;
 	static ServiceForAgent m_kServiceForAgentUnixSocket;
 	static ServiceAgenttEngine m_kServiceAgenttEngine;
-	static std::map< std::string, std::pair<ServiceForRemote*, HSOCKET> > m_kRegSvrList;
+	static std::map< std::string, std::pair<ServiceForAgent*, HSOCKET> > m_kRegSvrList;
 };
 
 #endif
