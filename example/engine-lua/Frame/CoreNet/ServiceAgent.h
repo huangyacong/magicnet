@@ -46,7 +46,7 @@ struct AgentServicePacket
 	AgentServicePacket();
 	char acSrcName[64];
 	char acDstName[64];
-	char acProto[30];
+	char acProto[32];
 	AGENTSERVICE_PTYPE eType;
 	unsigned long long ullSessionId;
 };
