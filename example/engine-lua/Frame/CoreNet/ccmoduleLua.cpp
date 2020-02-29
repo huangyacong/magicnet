@@ -10,7 +10,13 @@ static int g_iCoreWaitTime;
 static char g_acBuf[1024*1024*4];
 static struct SENETCORE g_kNetore;
 static struct MsgIDStat g_kMsgIDStat;
+static ServiceAgent* g_pkServiceAgent;
 static std::list<std::string> g_kLinkFile;
+
+static void CoreNet_Init()
+{
+	g_pkServiceAgent = NULL;
+}
 
 static void ResetMsgIDStat()
 {
@@ -543,6 +549,8 @@ extern "C" __declspec(dllexport) int luaopen_CoreNet(lua_State *L)
 extern "C" int luaopen_CoreNet(lua_State *L)
 #endif
 {
+	CoreNet_Init();
+
 	// must use int64 number
 	if(LUA_VERSION_NUM < 503) { luaL_error(L, "Lua ver must > 5.3"); return 0; }
 	if(sizeof(lua_Integer) != 8) { luaL_error(L, "must use int64 for lua_Integer"); return 0; }
