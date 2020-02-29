@@ -473,6 +473,7 @@ extern "C" int CoreNetNetPack(lua_State *L)
 	int iLen;
 	size_t seplen;
 	const char *pcBuf;
+	unsigned short usProto;
 	AgentServicePacket kPacket;
 
 	seplen = 0;
@@ -485,13 +486,22 @@ extern "C" int CoreNetNetPack(lua_State *L)
 	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
 	SeStrNcpy(kPacket.acDstName, (int)sizeof(kPacket.acDstName), pcBuf);
 
-	seplen = 0;
-	pcBuf = luaL_checklstring(L, 3, &seplen);
-	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
-	SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), pcBuf);
+	kPacket.eType = (AGENTSERVICE_PTYPE)luaL_checkinteger(L, 3);
+	kPacket.ullSessionId = (unsigned long long)luaL_checkinteger(L, 4);
 
-	kPacket.eType = (AGENTSERVICE_PTYPE)luaL_checkinteger(L, 4);
-	kPacket.ullSessionId = (unsigned long long)luaL_checkinteger(L, 5);
+	if (kPacket.eType == PTYPE_REMOTE || kPacket.eType == PTYPE_REMOTE_RECV_DATA)
+	{
+		usProto = (unsigned short)luaL_checkinteger(L, 5);
+		usProto = SeLocalIsLittleEndian() ? SeLittleToBigEndianS(usProto) : usProto;
+		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), SeUnSignedShortToA(usProto).c_str());
+	}
+	else
+	{
+		seplen = 0;
+		pcBuf = luaL_checklstring(L, 5, &seplen);
+		if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), pcBuf);
+	}
 
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 6, &seplen);
@@ -508,6 +518,7 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 	int iLen;
 	size_t seplen;
 	const char *pcBuf;
+	unsigned short usProto;
 	AgentServicePacket kPacket;
 
 	seplen = 0;
@@ -522,9 +533,20 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 
 	lua_pushstring(L, kPacket.acSrcName);
 	lua_pushstring(L, kPacket.acDstName);
-	lua_pushstring(L, kPacket.acProto);
 	lua_pushinteger(L, kPacket.eType);
 	lua_pushinteger(L, kPacket.ullSessionId);
+
+	if (kPacket.eType == PTYPE_REMOTE || kPacket.eType == PTYPE_REMOTE_RECV_DATA)
+	{
+		usProto = SeAToInt(kPacket.acProto);
+		usProto = SeLocalIsLittleEndian() ? SeBigToLittleEndianS(usProto) : usProto;
+		lua_pushinteger(L, usProto);
+	}
+	else
+	{
+		lua_pushstring(L, kPacket.acProto);
+	}
+
 	lua_pushlstring(L, pcBuf, iLen);
 	return 6;
 }
