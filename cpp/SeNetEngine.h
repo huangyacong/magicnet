@@ -107,4 +107,7 @@ private:
 	friend class IClient;
 };
 
+#define NETENGINE_CACHE_LOG(NetEngine, LogLv, format, ...) SeLogWrite((NetEngine).GetEngineLogInstance(), (LogLv), false, (format), __VA_ARGS__)
+#define NETENGINE_FLUSH_LOG(NetEngine, LogLv, format, ...) SeLogWrite((NetEngine).GetEngineLogInstance(), (LogLv), true, (format), __VA_ARGS__)
+
 #endif
