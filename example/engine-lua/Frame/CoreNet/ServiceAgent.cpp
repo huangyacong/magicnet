@@ -1,5 +1,8 @@
 #include "ServiceAgent.h"
 
+bool ServiceAgent::bCreateThread = false;
+std::string ServiceAgent::m_kLinkFile("");
+THREADHANDLE ServiceAgent::m_kThreadHand;
 char ServiceAgent::m_acBuff[1024 * 1024 * 4] = {};
 ServiceForRemote ServiceAgent::m_kServiceForRemote;
 ServiceForAgent ServiceAgent::m_kServiceForAgentIPSocket;
@@ -355,6 +358,32 @@ void ServiceForAgent::SendPing(HSOCKET kHSocket)
 	SendData(kHSocket, ServiceAgent::m_acBuff, iLen);
 }
 
+static void ServiceAgentThread(void *)
+{
+	ServiceAgent::m_kServiceAgenttEngine.StartEngine();
+	SeExitThread();
+}
+
+ServiceAgent::~ServiceAgent()
+{
+#if defined(__linux)
+	unlink(m_kLinkFile.c_str());
+	NETENGINE_FLUSH_LOG(m_kServiceAgenttEngine, LT_INFO, "unlink %s", m_kLinkFile.c_str());
+#endif
+}
+
+void ServiceAgent::CreateThread()
+{
+	m_kThreadHand = SeCreateThread(ServiceAgentThread, NULL);
+	bCreateThread = true;
+}
+
+void ServiceAgent::JoinThread()
+{
+	if (bCreateThread)
+		SeJoinThread(m_kThreadHand);
+}
+
 bool ServiceAgent::Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt)
 {
 	m_kServiceAgenttEngine.SetStatDelayTime(5000);
@@ -373,6 +402,8 @@ bool ServiceAgent::Listen(const char* IPRemote, int PortRemote, const char* IPSe
 	m_kServiceForAgentUnixSocket.Init(&m_kServiceEngine, SE_DOMAIN_UNIX, IPServiceUnix, 0, iTimeOut, true);
 	if (!m_kServiceForAgentUnixSocket.Listen())
 		return false;
+	m_kLinkFile = IPServiceUnix;
+	NETENGINE_FLUSH_LOG(m_kServiceAgenttEngine, LT_INFO, "link %s", IPServiceUnix);
 #endif
 	return true;
 }

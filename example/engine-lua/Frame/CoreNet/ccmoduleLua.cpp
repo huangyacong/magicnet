@@ -189,6 +189,13 @@ extern "C" int CoreNetInit(lua_State *L)
 
 extern "C" int CoreNetFin(lua_State *L)
 {
+	if(g_pkServiceAgentGate)
+	{
+		g_pkServiceAgentGate->m_kServiceAgenttEngine.StopEngine();
+		g_pkServiceAgentGate->JoinThread();
+		delete g_pkServiceAgentGate;
+		g_pkServiceAgentGate = NULL;
+	}
 #if defined(__linux)
 	std::list<std::string>::iterator itr = g_kLinkFile.begin();
 	for (; itr != g_kLinkFile.end(); itr++)
