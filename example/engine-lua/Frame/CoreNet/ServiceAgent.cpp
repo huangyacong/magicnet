@@ -7,7 +7,7 @@ AgentServicePacket::AgentServicePacket()
 	memset(acProto, 0, (int)sizeof(acProto));
 }
 
-static int NetPack(const AgentServicePacket& kPacket, unsigned char* pcBuff, int iSize)
+int NetPack(const AgentServicePacket& kPacket, unsigned char* pcBuff, int iSize)
 {
 	int iIndex = 0;
 	int iTotalSize = 0;
@@ -33,7 +33,7 @@ static int NetPack(const AgentServicePacket& kPacket, unsigned char* pcBuff, int
 	return iIndex;
 }
 
-static int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, int iSize)
+int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, int iSize)
 {
 	int iIndex = 0;
 	int iTotalSize = 0;
@@ -63,7 +63,7 @@ static int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, i
 	return iIndex;
 }
 
-static std::string GenRegToken(const std::string kKey, const std::string kName)
+std::string GenRegToken(const std::string kKey, const std::string kName)
 {
 	char acMD5[33] = {};
 	std::string kBuff = kKey + kName;

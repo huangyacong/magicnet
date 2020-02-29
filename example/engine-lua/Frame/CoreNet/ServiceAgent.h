@@ -59,10 +59,10 @@ struct ServiceSocket
 	std::string m_kRegName;
 };
 
-static int NetPack(const AgentServicePacket& kPacket, unsigned char* pcBuff, int iSize);
-static int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, int iSize);
+int NetPack(const AgentServicePacket& kPacket, unsigned char* pcBuff, int iSize);
+int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, int iSize);
 
-static std::string GenRegToken(const std::string kKey, const std::string kName);
+std::string GenRegToken(const std::string kKey, const std::string kName);
 
 class ServiceForAgent : public SeServer
 {
