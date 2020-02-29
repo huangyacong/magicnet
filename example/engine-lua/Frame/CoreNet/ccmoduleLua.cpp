@@ -1,4 +1,5 @@
 #include "ccmoduleLua.h"
+#include "ServiceAgent.h"
 #include "SeTimer.h"
 #include <math.h>
 #include <string>
@@ -461,6 +462,81 @@ extern "C" int CoreNetGetOS(lua_State *L)
 	return 1;
 }
 
+extern "C" int CoreNetNetPack(lua_State *L)
+{
+	int iLen;
+	size_t seplen;
+	const char *pcBuf;
+	AgentServicePacket kPacket;
+
+	seplen = 0;
+	pcBuf = luaL_checklstring(L, 1, &seplen);
+	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+	SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), pcBuf);
+
+	seplen = 0;
+	pcBuf = luaL_checklstring(L, 2, &seplen);
+	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+	SeStrNcpy(kPacket.acDstName, (int)sizeof(kPacket.acDstName), pcBuf);
+
+	seplen = 0;
+	pcBuf = luaL_checklstring(L, 3, &seplen);
+	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+	SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), pcBuf);
+
+	kPacket.eType = (AGENTSERVICE_PTYPE)luaL_checkinteger(L, 4);
+	kPacket.ullSessionId = (unsigned long long)luaL_checkinteger(L, 5);
+
+	iLen = NetPack(kPacket, (unsigned char*)g_acBuf, (int)sizeof(g_acBuf));
+	lua_pushlstring(L, g_acBuf, iLen);
+	return 1;
+}
+
+extern "C" int CoreNetNetUnPack(lua_State *L)
+{
+	int iLen;
+	size_t seplen;
+	const char *pcBuf;
+	AgentServicePacket kPacket;
+
+	seplen = 0;
+	pcBuf = luaL_checklstring(L, 1, &seplen);
+	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+
+	iLen = NetUnPack(kPacket, (const unsigned char*)pcBuf, (int)seplen);
+	if (iLen > (int)seplen) { luaL_error(L, "pcBuf is error!"); return 0; }
+
+	pcBuf = pcBuf + iLen;
+	iLen = (int)seplen - iLen;
+
+	lua_pushstring(L, kPacket.acSrcName);
+	lua_pushstring(L, kPacket.acDstName);
+	lua_pushstring(L, kPacket.acProto);
+	lua_pushinteger(L, kPacket.eType);
+	lua_pushinteger(L, kPacket.ullSessionId);
+	lua_pushlstring(L, pcBuf, iLen);
+	return 6;
+}
+
+extern "C" int CoreNetGenRegToken(lua_State *L)
+{
+	size_t seplen_name, seplen_key;
+	const char *pcBuf_name, *pcBuf_key;
+
+	seplen_name = 0;
+	pcBuf_name = luaL_checklstring(L, 1, &seplen_name);
+	if (!pcBuf_name) { luaL_error(L, "pcBuf_name is NULL!"); return 0; }
+
+	seplen_key = 0;
+	pcBuf_key = luaL_checklstring(L, 2, &seplen_key);
+	if (!pcBuf_key) { luaL_error(L, "pcBuf_key is NULL!"); return 0; }
+
+	std::string kMD5 = GenRegToken(pcBuf_key, pcBuf_name);
+
+	lua_pushstring(L, kMD5.c_str());
+	return 1;
+}
+
 #if (defined(_WIN32) || defined(WIN32))
 extern "C" __declspec(dllexport) int luaopen_CoreNet(lua_State *L)
 #elif defined(__linux)
@@ -486,6 +562,9 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "DelTimer", CoreNetDelTimer },
 		{ "GetTimeOutId", CoreNetGetTimeOutId }, 
 		{ "GetOS", CoreNetGetOS }, 
+		{ "NetPack", CoreNetNetPack },
+		{ "NetUnPack", CoreNetNetUnPack },
+		{ "GenRegToken", CoreNetGenRegToken },
 		{ NULL, NULL },
 	};
 

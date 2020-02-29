@@ -1,5 +1,13 @@
 #include "ServiceAgent.h"
 
+char ServiceAgent::m_acBuff[1024 * 1024 * 4] = {};
+ServiceForRemote ServiceAgent::m_kServiceForRemote;
+ServiceForAgent ServiceAgent::m_kServiceForAgentIPSocket;
+ServiceForAgent ServiceAgent::m_kServiceForAgentUnixSocket;
+ServiceAgenttEngine ServiceAgent::m_kServiceAgenttEngine;
+std::string ServiceAgent::m_kWatchDogName = std::string(".watchdog");
+std::map< std::string, std::pair<ServiceForRemote*, HSOCKET> > ServiceAgent::m_kRegSvrList;
+
 AgentServicePacket::AgentServicePacket()
 {
 	memset(acSrcName, 0, (int)sizeof(acSrcName));
@@ -288,4 +296,5 @@ void ServiceAgenttEngine::OnPrintStat(int iSendNum, unsigned long long ullSendSp
 {
 	NETENGINE_FLUSH_LOG(*this, LT_INFO, "State Report SendNum=%d  SendSpeed=%lld RecvNum=%d RecvSpeed=%lld", iSendNum, ullSendSpeed, iRecvNum, ullRecvSpeed);
 }
+
 

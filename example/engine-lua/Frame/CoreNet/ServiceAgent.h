@@ -110,12 +110,4 @@ public:
 	static std::map< std::string, std::pair<ServiceForRemote*, HSOCKET> > m_kRegSvrList;
 };
 
-char ServiceAgent::m_acBuff[1024 * 1024 * 4] = {};
-ServiceForRemote ServiceAgent::m_kServiceForRemote;
-ServiceForAgent ServiceAgent::m_kServiceForAgentIPSocket;
-ServiceForAgent ServiceAgent::m_kServiceForAgentUnixSocket;
-ServiceAgenttEngine ServiceAgent::m_kServiceAgenttEngine;
-std::string ServiceAgent::m_kWatchDogName = std::string(".watchdog");
-std::map< std::string, std::pair<ServiceForRemote*, HSOCKET> > ServiceAgent::m_kRegSvrList;
-
 #endif
