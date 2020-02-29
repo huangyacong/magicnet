@@ -117,6 +117,9 @@
     <ClCompile Include="..\src\CoreSrc\common\SeBuffWR.c">
       <Filter>src\CoreSrc\common</Filter>
     </ClCompile>
+    <ClCompile Include="ServiceAgent.cpp">
+      <Filter>ccmodule</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NetEngine\SeClient.h">
@@ -208,6 +211,9 @@
     </ClInclude>
     <ClInclude Include="..\src\CoreSrc\common\SeBuffWR.h">
       <Filter>src\CoreSrc\common</Filter>
+    </ClInclude>
+    <ClInclude Include="ServiceAgent.h">
+      <Filter>ccmodule</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
