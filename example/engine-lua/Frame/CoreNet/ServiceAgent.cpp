@@ -171,6 +171,9 @@ bool ServiceForRemote::SeSetProtoHeader(unsigned char* pcHeader, const int ihead
 		unsigned short usLen;
 	};
 
+	if (iheaderlen != 2)
+		return false;
+
 	bool bBigEndianL = true;// ´ó¶Ë
 	unsigned short usLen = (unsigned short)ilen;
 	bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
@@ -194,6 +197,9 @@ bool ServiceForRemote::SeGetProtoHeader(const unsigned char* pcHeader, const int
 		unsigned char cBuf[2];
 		unsigned short usLen;
 	};
+
+	if (iheaderlen != 2)
+		return false;
 
 	bool bBigEndianL = true;// ´ó¶Ë
 	bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
