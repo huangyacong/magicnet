@@ -85,6 +85,7 @@ void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iL
 	{
 		AgentServicePacket kPacket;
 		kPacket.eType = PTYPE_REMOTE_CONNECT;
+		kPacket.ullSessionId = kHSocket;
 		SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), pcIP);
 		int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
@@ -98,6 +99,7 @@ void ServiceForAgent::OnServerDisConnect(HSOCKET kHSocket)
 	{
 		AgentServicePacket kPacket;
 		kPacket.eType = PTYPE_REMOTE_DISCONNECT;
+		kPacket.ullSessionId = kHSocket;
 		int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
 		rkObj.first->SendData(rkObj.second, ServiceAgent::m_acBuff, iLen);
@@ -111,6 +113,7 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 	{
 		AgentServicePacket kPacket;
 		kPacket.eType = PTYPE_REMOTE_RECV_DATA;
+		kPacket.ullSessionId = kHSocket;
 		int iPacketLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 		std::pair<ServiceForRemote*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName];
 		rkObj.first->SendData(rkObj.second, ServiceAgent::m_acBuff, iPacketLen, pcBuf, iLen);
@@ -209,7 +212,7 @@ void ServiceForRemote::SendRegKey(HSOCKET kHSocket)
 	SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), rkServiceSocket.m_kTokenKey.c_str());
 	int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 	SendData(kHSocket, ServiceAgent::m_acBuff, iLen);
-	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_INFO, "Service send register key=%s %llx", rkServiceSocket.m_kTokenKey.c_str(), kHSocket);
+	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_DEBUG, "Service send register key=%s %llx", rkServiceSocket.m_kTokenKey.c_str(), kHSocket);
 }
 
 void ServiceForRemote::RegisterService(HSOCKET kHSocket, const std::string& rkName, const std::string& rkMD5)
