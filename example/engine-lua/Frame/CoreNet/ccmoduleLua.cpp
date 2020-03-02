@@ -31,104 +31,6 @@ static void ResetMsgIDStat()
 	g_kMsgIDStat.ullStatTime = SeTimeGetTickCount();
 }
 
-static bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
-{
-	if (iheaderlen == 2)
-	{
-		union UHEADER
-		{
-			unsigned char cBuf[2];
-			unsigned short usLen;
-		};
-
-		bool bBigEndianL = true;// 大端
-		unsigned short usLen = (unsigned short)ilen;
-		bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-
-		if (bBigEndianL)
-			usLen = bLocalIsLittleEndian ? SeLittleToBigEndianS(usLen) : usLen;
-		else
-			usLen = !bLocalIsLittleEndian ? SeBigToLittleEndianS(usLen) : usLen;
-
-		union UHEADER* pkUHeader = (union UHEADER*)&usLen;
-		pcHeader[0] = pkUHeader->cBuf[0];
-		pcHeader[1] = pkUHeader->cBuf[1];
-
-		return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-	}
-
-	if (iheaderlen == 4)
-	{
-		union UHEADER
-		{
-			unsigned char cBuf[4];
-			unsigned int uiLen;
-		};
-
-		bool bBigEndianL = true;// 大端
-		unsigned int uiLen = (unsigned int)ilen;
-		bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-
-		if (bBigEndianL)
-			uiLen = bLocalIsLittleEndian ? SeLittleToBigEndianL(uiLen) : uiLen;
-		else
-			uiLen = !bLocalIsLittleEndian ? SeBigToLittleEndianL(uiLen) : uiLen;
-
-		union UHEADER* pkUHeader = (union UHEADER*)&uiLen;
-		pcHeader[0] = pkUHeader->cBuf[0];
-		pcHeader[1] = pkUHeader->cBuf[1];
-		pcHeader[2] = pkUHeader->cBuf[2];
-		pcHeader[3] = pkUHeader->cBuf[3];
-
-		return (ilen < 0 || ilen > 1024 * 1024 * 3) ? false : true;
-	}
-
-	return false;
-}
-
-static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
-{
-	if (iheaderlen == 2)
-	{
-		union UHEADER
-		{
-			unsigned char cBuf[2];
-			unsigned short usLen;
-		};
-
-		bool bBigEndianL = true;// 大端
-		bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-		const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
-
-		if (bBigEndianL)
-			*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
-		else
-			*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianS(pkUHeader->usLen) : pkUHeader->usLen;
-
-		return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
-	}
-	if (iheaderlen == 4)
-	{
-		union UHEADER
-		{
-			unsigned char cBuf[4];
-			unsigned int uiLen;
-		};
-
-		bool bBigEndianL = true;// 大端
-		bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-		const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
-
-		if (bBigEndianL)
-			*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
-		else
-			*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
-
-		return (*ilen < 0 || *ilen > 1024 * 1024 * 3) ? false : true;
-	}
-
-	return false;
-}
 
 extern "C" int CoreNetInitAgentGate(lua_State *L)
 {
@@ -233,7 +135,7 @@ extern "C" int CoreNetTCPListen(lua_State *L)
 	bReusePort = lua_toboolean(L, 6) == 1 ? true : false;
 	bNoDelay = lua_toboolean(L, 7) == 1 ? true : false;
 	
-	kHoscket = SeNetCoreTCPListen(&g_kNetore, iDoMain, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
+	kHoscket = SeNetCoreTCPListen(&g_kNetore, iDoMain, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
 
 	if (kHoscket != 0 && iDoMain == SE_DOMAIN_UNIX)
 	{
@@ -268,7 +170,7 @@ extern "C" int CoreNetTCPClient(lua_State *L)
 	iDoMain = (int)luaL_checkinteger(L, 6);
 	bNoDelay = lua_toboolean(L, 7) == 1 ? true : false;
 
-	kHoscket = SeNetCoreTCPClient(&g_kNetore, iDoMain, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
+	kHoscket = SeNetCoreTCPClient(&g_kNetore, iDoMain, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
 
 	lua_pushinteger(L, kHoscket);
 	return 1;

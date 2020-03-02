@@ -1,4 +1,5 @@
 #include "SeNetStream.h"
+#include "SeNetCore.h"
 
 void SeNetSreamInit(struct SENETSTREAM *pkNetStream)
 {
@@ -44,6 +45,118 @@ long long SeGetNetSreamLen(struct SENETSTREAM *pkNetStream)
 {
 	assert(pkNetStream->llSize >= 0);
 	return pkNetStream->llSize;
+}
+
+bool SeNetSreamSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
+{
+	switch (iheaderlen)
+	{
+		case 2:
+		{
+			union UHEADER
+			{
+				unsigned char cBuf[2];
+				unsigned short usLen;
+			};
+
+			bool bBigEndianL = true;// 大端
+			unsigned short usLen = (unsigned short)ilen;
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+
+			if (bBigEndianL)
+				usLen = bLocalIsLittleEndian ? SeLittleToBigEndianS(usLen) : usLen;
+			else
+				usLen = !bLocalIsLittleEndian ? SeBigToLittleEndianS(usLen) : usLen;
+
+			union UHEADER* pkUHeader = (union UHEADER*)&usLen;
+			pcHeader[0] = pkUHeader->cBuf[0];
+			pcHeader[1] = pkUHeader->cBuf[1];
+
+			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
+		}
+		case 4:
+		{
+			union UHEADER
+			{
+				unsigned char cBuf[4];
+				unsigned int uiLen;
+			};
+
+			bool bBigEndianL = true;// 大端
+			unsigned int uiLen = (unsigned int)ilen;
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+
+			if (bBigEndianL)
+				uiLen = bLocalIsLittleEndian ? SeLittleToBigEndianL(uiLen) : uiLen;
+			else
+				uiLen = !bLocalIsLittleEndian ? SeBigToLittleEndianL(uiLen) : uiLen;
+
+			union UHEADER* pkUHeader = (union UHEADER*)&uiLen;
+			pcHeader[0] = pkUHeader->cBuf[0];
+			pcHeader[1] = pkUHeader->cBuf[1];
+			pcHeader[2] = pkUHeader->cBuf[2];
+			pcHeader[3] = pkUHeader->cBuf[3];
+
+			return (ilen < 0 || ilen > 1024 * 1024 * 3) ? false : true;
+		}
+		default:
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+
+bool SeNetSreamGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
+{
+	switch (iheaderlen)
+	{
+		case 2:
+		{
+			union UHEADER
+			{
+				unsigned char cBuf[2];
+				unsigned short usLen;
+			};
+
+			bool bBigEndianL = true;// 大端
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+			const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
+
+			if (bBigEndianL)
+				*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
+			else
+				*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianS(pkUHeader->usLen) : pkUHeader->usLen;
+
+			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
+		}
+		case 4:
+		{
+			union UHEADER
+			{
+				unsigned char cBuf[4];
+				unsigned int uiLen;
+			};
+
+			bool bBigEndianL = true;// 大端
+			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
+			const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
+
+			if (bBigEndianL)
+				*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
+			else
+				*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
+
+			return (*ilen < 0 || *ilen > 1024 * 1024 * 3) ? false : true;
+		}
+		default:
+		{
+			return false;
+		}
+	}
+
+	return false;
 }
 
 struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
@@ -238,35 +351,6 @@ bool SeNetSreamReadLen(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNe
 	}
 
 	return (iBufLen == iCopyPos);
-}
-
-bool SeNetSreamCreateHeader(SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, int iWriteLen, char *pcHeader, int *riHeaderLen)
-{
-	assert(pkSetHeaderLenFun);
-	assert(iHeaderSize >= 0);
-	assert(pcHeader);
-	assert(*riHeaderLen >= iHeaderSize);
-	assert(iWriteLen >= 0);
-
-	if (!pkSetHeaderLenFun || iHeaderSize < 0 || iWriteLen < 0 || !pcHeader || *riHeaderLen <= 0 || *riHeaderLen < iHeaderSize)
-	{
-		return false;
-	}
-
-	if (iHeaderSize <= 0)
-	{
-		*riHeaderLen = 0;
-		return true;
-	}
-
-	if (!pkSetHeaderLenFun((unsigned char *)pcHeader, iHeaderSize, iWriteLen))
-	{
-		return false;
-	}
-
-	*riHeaderLen = iHeaderSize;
-	assert(*riHeaderLen > 0);
-	return true;
 }
 
 bool SeNetSreamCanRead(struct SENETSTREAM *pkNetStream, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize)

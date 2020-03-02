@@ -70,9 +70,6 @@ public:
 	virtual void OnUpdate() = 0;
 	virtual void OnPrintStat(int iSendNum, unsigned long long ullSendSpeed, int iRecvNum, unsigned long long ullRecvSpeed) = 0;
 private:
-	static bool SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen);
-	static bool SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen);
-private:
 	virtual void Run();
 	virtual void RunStat();
 	virtual void RunUpdate();

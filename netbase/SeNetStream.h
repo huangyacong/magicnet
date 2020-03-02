@@ -56,6 +56,12 @@ long long SeGetNetSreamLen(struct SENETSTREAM *pkNetStream);
 
 
 
+bool SeNetSreamSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen);
+
+bool SeNetSreamGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen);
+
+
+
 struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream);
 
 void SeNetSreamHeadAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode);
@@ -64,8 +70,6 @@ struct SENETSTREAMNODE *SeNetSreamTailPop(struct SENETSTREAM *pkNetStream);
 
 void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode);
 
-
-bool SeNetSreamCreateHeader(SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, int iWriteLen, char *pcHeader, int *riHeaderLen);
 
 bool SeNetSreamCanRead(struct SENETSTREAM *pkNetStream, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize);
 

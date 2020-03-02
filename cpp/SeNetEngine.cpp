@@ -57,7 +57,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort,
 		return false; 
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, iDomain, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeGetHeader, SeSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, iDomain, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
 	if (kHSocket > 0) 
 	{ 
 		m_kListen[kHSocket] = pkIServer; 
@@ -80,7 +80,7 @@ HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, int iDomain, const char *p
 		return 0;
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, iDomain, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeGetHeader, SeSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, iDomain, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
 	if(kHSocket <= 0) 
 	{ 
 		return 0; 
@@ -409,114 +409,3 @@ void SeNetEngine::DiscEngineSocket(HSOCKET kHSocket)
 	SeNetCoreDisconnect(&m_kNetEngine, kHSocket);
 }
 
-bool SeNetEngine::SeSetHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
-{
-	switch (iheaderlen)
-	{
-		case 2:
-		{
-			union UHEADER
-			{
-				unsigned char cBuf[2];
-				unsigned short usLen;
-			};
-
-			bool bBigEndianL = true;// 大端
-			unsigned short usLen = (unsigned short)ilen;
-			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-
-			if (bBigEndianL)
-				usLen = bLocalIsLittleEndian ? SeLittleToBigEndianS(usLen) : usLen;
-			else
-				usLen = !bLocalIsLittleEndian ? SeBigToLittleEndianS(usLen) : usLen;
-
-			union UHEADER* pkUHeader = (union UHEADER*)&usLen;
-			pcHeader[0] = pkUHeader->cBuf[0];
-			pcHeader[1] = pkUHeader->cBuf[1];
-
-			return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-		}
-		case 4:
-		{
-			union UHEADER
-			{
-				unsigned char cBuf[4];
-				unsigned int uiLen;
-			};
-
-			bool bBigEndianL = true;// 大端
-			unsigned int uiLen = (unsigned int)ilen;
-			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-
-			if (bBigEndianL)
-				uiLen = bLocalIsLittleEndian ? SeLittleToBigEndianL(uiLen) : uiLen;
-			else
-				uiLen = !bLocalIsLittleEndian ? SeBigToLittleEndianL(uiLen) : uiLen;
-
-			union UHEADER* pkUHeader = (union UHEADER*)&uiLen;
-			pcHeader[0] = pkUHeader->cBuf[0];
-			pcHeader[1] = pkUHeader->cBuf[1];
-			pcHeader[2] = pkUHeader->cBuf[2];
-			pcHeader[3] = pkUHeader->cBuf[3];
-
-			return (ilen < 0 || ilen > 1024 * 1024 * 3) ? false : true;
-		}
-		default:
-		{
-			return false;
-		}
-	}
-
-	return false;
-}
-
-bool SeNetEngine::SeGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
-{
-	switch (iheaderlen)
-	{
-		case 2:
-		{
-			union UHEADER
-			{
-				unsigned char cBuf[2];
-				unsigned short usLen;
-			};
-
-			bool bBigEndianL = true;// 大端
-			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-			const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
-
-			if (bBigEndianL)
-				*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
-			else
-				*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianS(pkUHeader->usLen) : pkUHeader->usLen;
-
-			return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
-		}
-		case 4:
-		{
-			union UHEADER
-			{
-				unsigned char cBuf[4];
-				unsigned int uiLen;
-			};
-
-			bool bBigEndianL = true;// 大端
-			bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-			const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
-
-			if (bBigEndianL)
-				*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
-			else
-				*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianL(pkUHeader->uiLen) : pkUHeader->uiLen;
-
-			return (*ilen < 0 || *ilen > 1024 * 1024 * 3) ? false : true;
-		}
-		default:
-		{
-			return false;
-		}
-	}
-
-	return false;
-}
