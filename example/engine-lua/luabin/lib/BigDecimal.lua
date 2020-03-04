@@ -7,8 +7,11 @@ local BigDecimalScale = 1000000 -- 精度度 = 10^6 不用直接使用10^6会变
 -- ctor(true, 3, 1) 表示正数 3.000001 
 local BigDecimalClass = class()
 function BigDecimalClass:ctor(bUnSigned, HInteger, LInteger)
-	assert(HInteger >= 0 and HInteger <= 0x7FFFFFFF)
-	assert(LInteger >= 0 and LInteger <= (BigDecimalScale - 1))
+	assert(HInteger >= 0 and HInteger <= 0x7FFFFFFF, string.format("HInteger=%s > %s", HInteger, 0x7FFFFFFF))
+	assert(LInteger >= 0 and LInteger <= (BigDecimalScale - 1), string.format("LInteger=%s > %s", LInteger, (BigDecimalScale - 1)))
+	local HIntegerRet = string.find(tostring(HInteger), "%.")
+	local LIntegerRet = string.find(tostring(LInteger), "%.")
+	assert(not (HIntegerRet ~= nil or LIntegerRet ~= nil), string.format("HInteger=%s LInteger=%s is float num.", HInteger, LInteger))
 
 	self.bUnSigned = bUnSigned 			-- true 是正数否则负数
 	self.HInteger = math.floor(HInteger)-- 整数部分
