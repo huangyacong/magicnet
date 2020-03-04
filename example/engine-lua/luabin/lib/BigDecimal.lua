@@ -13,9 +13,9 @@ function BigDecimalClass:ctor(bUnSigned, HInteger, LInteger)
 	local LIntegerRet = string.find(tostring(LInteger), "%.")
 	assert(not (HIntegerRet ~= nil or LIntegerRet ~= nil), string.format("HInteger=%s LInteger=%s is float num.", HInteger, LInteger))
 
-	self.bUnSigned = bUnSigned 			-- true 是正数否则负数
-	self.HInteger = math.floor(HInteger)-- 整数部分
-	self.LInteger = math.floor(LInteger)-- 小数部分
+	self.bUnSigned = bUnSigned 	-- true 是正数否则负数
+	self.HInteger = HInteger 	-- 整数部分
+	self.LInteger = LInteger 	-- 小数部分
 end
 
 function BigDecimalClass:ToString()
