@@ -105,7 +105,7 @@ public:
 	~ServiceAgent();
 public:
 	void StopServiceAgent();
-	void CreateThreadAndRunServiceAgent();
+	void StartServiceAgent();
 	bool Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt);
 	bool Listen(const char* IPRemote, int PortRemote, const char* IPService, int PortService, const char* IPServiceUnix, int iTimeOut);
 public:
@@ -117,9 +117,7 @@ public:
 	static ServiceAgenttEngine m_kServiceAgenttEngine;
 	static std::map< std::string, std::pair<ServiceForAgent*, HSOCKET> > m_kRegSvrList;
 private:
-	bool bCreateThread;
 	std::string m_kLinkFile;
-	THREADHANDLE m_kThreadHand;
 };
 
 #endif

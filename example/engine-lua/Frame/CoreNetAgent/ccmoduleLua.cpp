@@ -42,7 +42,7 @@ extern "C" int CoreNetFinAgentGate(lua_State *L)
 
 extern "C" int CoreNetStartAgentGate(lua_State *L)
 {
-	g_kServiceAgentGate.CreateThreadAndRunServiceAgent();
+	g_kServiceAgentGate.StartServiceAgent();
 	lua_pushboolean(L, true);
 	return 1;
 }

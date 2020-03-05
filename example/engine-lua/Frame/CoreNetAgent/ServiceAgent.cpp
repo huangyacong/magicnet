@@ -314,23 +314,13 @@ void ServiceForAgent::SendPing(HSOCKET kHSocket)
 	SendData(kHSocket, ServiceAgent::m_acBuff, iLen);
 }
 
-static void ServiceAgentThread(void *)
-{
-	ServiceAgent::m_kServiceAgenttEngine.StartEngine();
-	SeExitThread();
-}
-
 ServiceAgent::ServiceAgent()
 {
-	bCreateThread = false;
+	
 }
 
 ServiceAgent::~ServiceAgent()
 {
-	if (bCreateThread)
-	{
-		SeJoinThread(m_kThreadHand);
-	}
 #if defined(__linux)
 	unlink(m_kLinkFile.c_str());
 	NETENGINE_FLUSH_LOG(m_kServiceAgenttEngine, LT_INFO, "unlink %s", m_kLinkFile.c_str());
@@ -342,10 +332,9 @@ void ServiceAgent::StopServiceAgent()
 	m_kServiceAgenttEngine.StopEngine();
 }
 
-void ServiceAgent::CreateThreadAndRunServiceAgent()
+void ServiceAgent::StartServiceAgent()
 {
-	bCreateThread = true;
-	m_kThreadHand = SeCreateThread(ServiceAgentThread, NULL);
+	m_kServiceAgenttEngine.StartEngine();
 }
 
 bool ServiceAgent::Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt)
