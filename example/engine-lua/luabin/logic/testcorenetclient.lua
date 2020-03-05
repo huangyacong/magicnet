@@ -1,6 +1,6 @@
 local util = require "util"
 local ccorenet = require "ccorenet"
-local IClient = require "IClient"
+local IClientPlayer = require "IClientPlayer"
 local timer = require "timer"
 require "logic/testcorenetclientevent/event"
 
@@ -13,7 +13,7 @@ local domain = ccorenet.IpV4
 local ip = (ccorenet.getOS() == "Linux" and domain == ccorenet.UnixLocal) and "dont.del.local.socket" or "127.0.0.1"
 for i = 0, 0 do
 	local name = string.format("clientObj%s", i)
-local clientObj = IClient.IClientClass.new(name, client_event, ip, 8888, 1000*60, 5*1000, domain, true, false)
+local clientObj = IClientPlayer.IClientPlayerClass.new(name, client_event, ip, 8888, 1000*60, 5*1000, true, false)
 ccorenet.addGlobalObj(clientObj, clientObj:GetName())
 end
 --util.print_table(testcorenetclientevent)
