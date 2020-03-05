@@ -189,7 +189,8 @@ function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 end
 
 function IClientClass:RetCallData(data)
-	local header, contents = net_module.netPack("", "", msgpack.pack(data), net_module.PTYPE.PTYPE_RESPONSE, ccoroutine.get_session_coroutine_id())
+	local sessionId, srcName, proto = ccoroutine.get_session_coroutine_id()
+	local header, contents = net_module.netPack(self:GetName(), srcName, proto, net_module.PTYPE.PTYPE_RESPONSE, sessionId, msgpack.pack(data))
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -265,9 +266,9 @@ function IClientClass:OnDisConnect()
 end
 
 function IClientClass:OnRecv(data)
-	local targetName, proto, contents, PTYPE, session_id = net_module.netUnPack(data)
+	local srcName, targetName, PTYPE, session_id, proto, contents = net_module.netUnPack(data)
 
-	ccoroutine.add_session_coroutine_id(session_id)
+	ccoroutine.add_session_coroutine_id(session_id, srcName, proto)
 
 	local funcRet, funcErr = pcall(function() 
 		if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
