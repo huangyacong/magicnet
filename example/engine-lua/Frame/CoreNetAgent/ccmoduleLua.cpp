@@ -184,13 +184,13 @@ extern "C" int CoreNetGenRegToken(lua_State *L)
 	size_t seplen_name, seplen_key;
 	const char *pcBuf_name, *pcBuf_key;
 
-	seplen_name = 0;
-	pcBuf_name = luaL_checklstring(L, 1, &seplen_name);
-	if (!pcBuf_name) { luaL_error(L, "pcBuf_name is NULL!"); return 0; }
-
 	seplen_key = 0;
-	pcBuf_key = luaL_checklstring(L, 2, &seplen_key);
+	pcBuf_key = luaL_checklstring(L, 1, &seplen_key);
 	if (!pcBuf_key) { luaL_error(L, "pcBuf_key is NULL!"); return 0; }
+
+	seplen_name = 0;
+	pcBuf_name = luaL_checklstring(L, 2, &seplen_name);
+	if (!pcBuf_name) { luaL_error(L, "pcBuf_name is NULL!"); return 0; }
 
 	std::string kMD5 = GenRegToken(pcBuf_key, pcBuf_name);
 
