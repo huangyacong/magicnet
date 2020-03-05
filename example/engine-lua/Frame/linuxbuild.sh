@@ -17,6 +17,10 @@ cd CoreNet
 rm -fr *.o
 make
 cd ..
+cd CoreNetAgent
+rm -fr *.o
+make
+cd ..
 cd CoreTool
 rm -rf *.o
 make

@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreLog", "..\CoreLog\CoreL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "protobuf", "..\protobuf\protobuf.vcxproj", "{11B2371F-ABF0-4159-BABF-75FF9AD15AE3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreNetAgent", "..\CoreNetAgent\CoreNetAgent.vcxproj", "{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -61,6 +63,14 @@ Global
 		{11B2371F-ABF0-4159-BABF-75FF9AD15AE3}.Release|Win32.Build.0 = Release|Win32
 		{11B2371F-ABF0-4159-BABF-75FF9AD15AE3}.Release|x64.ActiveCfg = Release|x64
 		{11B2371F-ABF0-4159-BABF-75FF9AD15AE3}.Release|x64.Build.0 = Release|x64
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Debug|Win32.Build.0 = Debug|Win32
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Debug|x64.ActiveCfg = Debug|x64
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Debug|x64.Build.0 = Debug|x64
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Release|Win32.ActiveCfg = Release|Win32
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Release|Win32.Build.0 = Release|Win32
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Release|x64.ActiveCfg = Release|x64
+		{8EE3FAF8-2264-49CB-98EF-045C1AA5DE08}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
