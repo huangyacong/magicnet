@@ -13,6 +13,9 @@ local IClientNetFunc_OnConnect = "OnCConnect"
 local IClientNetFunc_OnDisConnect = "OnCDisConnect"
 local IClientNetFunc_OnConnectFailed = "OnCConnectFailed"
 local IClientNetFunc_Register = "OnCRegister"
+local IClientNetFunc_OnRemoteConnect = "OnCRemoteConnect"
+local IClientNetFunc_OnRemoteDisConnect = "OnCRemoteDisConnect"
+local IClientNetFunc_OnRemoteRecvData = "OnCRemoteRecvData"
 
 local local_modulename = ...
 timer.register(local_modulename)
@@ -115,7 +118,7 @@ function IClientClass:Connect()
 	end
 
 	local bEmpty = true
-	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_Register}
+	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_Register, IClientNetFunc_OnRemoteConnect, IClientNetFunc_OnRemoteDisConnect, IClientNetFunc_OnRemoteRecvData}
 	for _, funtname in pairs(funtList) do
 		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IClientClass modulename not has key=%s", funtname))
@@ -278,6 +281,12 @@ function IClientClass:OnRecv(data)
 			self:GetModule()[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
 		elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
+		elseif net_module.PTYPE.PTYPE_REMOTE_CONNECT == PTYPE then
+			self:GetModule()[IClientNetFunc_OnRemoteConnect](self, proto, contents)
+		elseif net_module.PTYPE.PTYPE_REMOTE_DISCONNECT == PTYPE then
+			self:GetModule()[IClientNetFunc_OnRemoteDisConnect](self, proto, contents)
+		elseif net_module.PTYPE.PTYPE_REMOTE_RECV_DATA == PTYPE then
+			self:GetModule()[IClientNetFunc_OnRemoteRecvData](self, proto, contents)
 		elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
 			local key = table.unpack(msgpack.unpack(contents))
 			local md5str = net_module.genToken(key, self:GetName())
