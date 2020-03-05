@@ -195,9 +195,15 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 	AgentServicePacket kPacket;
 	int iPacketLen = NetUnPack(kPacket, (const unsigned char*)pcBuf, iLen);
 	if (iPacketLen <= 0)
+	{
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForAgent::OnServerRecv NetUnPack error", kHSocket);
 		return;
+	}
 	if (iPacketLen > iLen)
+	{
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForAgent::OnServerRecv iPacketLen=%d > iLen=%d error", kHSocket, iPacketLen, iLen);
 		return;
+	}
 
 	switch (kPacket.eType)
 	{
@@ -238,7 +244,9 @@ void ServiceForAgent::SendCommonData(const std::string& rkDstName, const char *p
 	{
 		std::pair<ServiceForAgent*, HSOCKET>& rkObj = ServiceAgent::m_kRegSvrList[rkDstName];
 		rkObj.first->SendData(rkObj.second, pcBuf, iLen);
+		return;
 	}
+	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "ServiceForAgent::SendCommonData not find target=%s", rkDstName.c_str());
 }
 
 void ServiceForAgent::SendRegKey(HSOCKET kHSocket)
@@ -249,6 +257,7 @@ void ServiceForAgent::SendRegKey(HSOCKET kHSocket)
 	if (rkServiceSocket.m_kRegName.length() > 0 || rkServiceSocket.m_bSendKey == true)
 	{
 		DisConnect(kHSocket);
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "Service send register error srcRegName=%s SendKey=%s", rkServiceSocket.m_kRegName.c_str(), rkServiceSocket.m_bSendKey ? "get more":"");
 		return;
 	}
 	rkServiceSocket.m_bSendKey = true;
