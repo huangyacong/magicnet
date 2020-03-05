@@ -158,24 +158,19 @@ function IClientClass:TryReConnect()
 end
 
 function IClientClass:SendData(targetName, proto, data)
-	local header, contents = net_module.netPack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_COMMON, 0)
-	return CoreNet.TCPSend(self.hsocket, header, contents)
-end
-
-function IClientClass:SendSystemData(proto, data)
-	local header, contents = net_module.netPack("", proto, msgpack.pack(data), net_module.PTYPE.PTYPE_SYSTEM, 0)
+	local header, contents = net_module.netPack(self:GetName(), targetName, proto, net_module.PTYPE.PTYPE_COMMON, 0, msgpack.pack(data))
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:SendRemoteData(remote_socket, proto, data)
 	assert(type(proto) == type(0))
 	assert(type(remote_socket) == type(0))
-	local header, contents = net_module.netPack("", tostring(proto), msgpack.pack(table.pack(remote_socket, data)), net_module.PTYPE.PTYPE_REMOTE, 0)
+	local header, contents = net_module.netPack(self:GetName(), "", proto, net_module.PTYPE.PTYPE_REMOTE, remote_socket, data)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:CallData(targetName, proto, data, timeout_millsec)
-	local header, contents, PTYPE, session_id = net_module.netPack(targetName, proto, msgpack.pack(data), net_module.PTYPE.PTYPE_CALL, CoreTool.SysSessionId())
+	local header, contents, PTYPE, session_id = net_module.netPack(self:GetName(), targetName, proto, net_module.PTYPE.PTYPE_CALL, CoreTool.SysSessionId(), msgpack.pack(data))
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
@@ -203,7 +198,7 @@ function IClientClass:TimeToPingPing()
 	local timeCnt = CoreTool.GetTickCount()
 	if self.iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
 	self.m_ullPingTIme = timeCnt
-	local header, contents = net_module.netPack("", "", "", net_module.PTYPE.PTYPE_PING, 0)
+	local header, contents = net_module.netPack(self:GetName(), "", "", net_module.PTYPE.PTYPE_PING, 0, "")
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
