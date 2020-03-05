@@ -47,7 +47,9 @@ function ccoroutine.add_session_coroutine_id(sessionId, srcName, proto)
 end
 
 function ccoroutine.get_session_coroutine_id()
-	local sessionId, srcName, proto = session_coroutine_id[running_thread]
+	local sessionData = session_coroutine_id[running_thread]
+	assert(sessionData, "get_session_coroutine_id failed")
+	local sessionId, srcName, proto = table.unpack(sessionData)
 	return sessionId, srcName, proto
 end
 
