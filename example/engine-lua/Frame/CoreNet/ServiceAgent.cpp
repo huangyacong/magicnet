@@ -1,8 +1,5 @@
 #include "ServiceAgent.h"
 
-bool ServiceAgent::bCreateThread = false;
-std::string ServiceAgent::m_kLinkFile("");
-THREADHANDLE ServiceAgent::m_kThreadHand;
 char ServiceAgent::m_acBuff[1024 * 1024 * 4] = {};
 ServiceForRemote ServiceAgent::m_kServiceForRemote;
 ServiceForAgent ServiceAgent::m_kServiceForAgentIPSocket;
@@ -323,24 +320,32 @@ static void ServiceAgentThread(void *)
 	SeExitThread();
 }
 
+ServiceAgent::ServiceAgent()
+{
+	bCreateThread = false;
+}
+
 ServiceAgent::~ServiceAgent()
 {
+	if (bCreateThread)
+	{
+		SeJoinThread(m_kThreadHand);
+	}
 #if defined(__linux)
 	unlink(m_kLinkFile.c_str());
 	NETENGINE_FLUSH_LOG(m_kServiceAgenttEngine, LT_INFO, "unlink %s", m_kLinkFile.c_str());
 #endif
 }
 
-void ServiceAgent::CreateThread()
+void ServiceAgent::StopServiceAgent()
 {
-	m_kThreadHand = SeCreateThread(ServiceAgentThread, NULL);
-	bCreateThread = true;
+	m_kServiceAgenttEngine.StopEngine();
 }
 
-void ServiceAgent::JoinThread()
+void ServiceAgent::CreateThreadAndRunServiceAgent()
 {
-	if (bCreateThread)
-		SeJoinThread(m_kThreadHand);
+	bCreateThread = true;
+	m_kThreadHand = SeCreateThread(ServiceAgentThread, NULL);
 }
 
 bool ServiceAgent::Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt)

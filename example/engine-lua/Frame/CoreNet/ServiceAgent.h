@@ -101,16 +101,14 @@ class ServiceAgenttEngine : public SeNetEngine
 class ServiceAgent
 {
 public:
+	ServiceAgent();
 	~ServiceAgent();
 public:
-	void CreateThread();
-	void JoinThread();
+	void StopServiceAgent();
+	void CreateThreadAndRunServiceAgent();
 	bool Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt);
 	bool Listen(const char* IPRemote, int PortRemote, const char* IPService, int PortService, const char* IPServiceUnix, int iTimeOut);
 public:
-	static bool bCreateThread;
-	static std::string m_kLinkFile;
-	static THREADHANDLE m_kThreadHand;
 	static std::string m_kWatchDogName;
 	static char m_acBuff[1024 * 1024 * 4];
 	static ServiceForRemote m_kServiceForRemote;
@@ -118,6 +116,10 @@ public:
 	static ServiceForAgent m_kServiceForAgentUnixSocket;
 	static ServiceAgenttEngine m_kServiceAgenttEngine;
 	static std::map< std::string, std::pair<ServiceForAgent*, HSOCKET> > m_kRegSvrList;
+private:
+	bool bCreateThread;
+	std::string m_kLinkFile;
+	THREADHANDLE m_kThreadHand;
 };
 
 #endif
