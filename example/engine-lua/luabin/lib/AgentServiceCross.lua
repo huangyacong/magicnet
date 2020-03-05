@@ -7,7 +7,6 @@ require "class"
 
 local IAgentServiceCrossNetFunc_OnCrossRecvCall = "OnCrossRecvCall"
 local IAgentServiceCrossNetFunc_OnCrossRecvCommon = "OnCrossRecvCommon"
-local IAgentServiceCrossNetFunc_OnCrossSystem = "OnCrossSystem"
 local IAgentServiceCrossNetFunc_OnCrossRegister = "OnCrossRegister"
 
 local local_modulename = ...
@@ -33,8 +32,20 @@ function AgentServiceCross.OnCRecvCommon(IClientObj, targetName, proto, data)
 	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnRecvCommon](IClientObj:GetPrivateData(), proto, data)
 end
 
-function AgentServiceCross.OnCSystem(IClientObj, proto, data)
-	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnSystem](IClientObj:GetPrivateData(), proto, data)
+function AgentServiceCross.OnCRegister(IClientObj)
+	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnCrossRegister](IClientObj:GetPrivateData())
+end
+
+function AgentServiceCross.OnCRemoteConnect(IClientObj)
+	
+end
+
+function AgentServiceCross.OnCRemoteDisConnect(IClientObj)
+	
+end
+
+function AgentServiceCross.OnCRemoteRecvData(IClientObj, proto, data)
+	
 end
 
 function AgentServiceCross.OnCConnect(IClientObj, ip)
@@ -46,9 +57,6 @@ end
 function AgentServiceCross.OnCConnectFailed(IClientObj)
 end
 
-function AgentServiceCross.OnCRegister(IClientObj)
-	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnCrossRegister](IClientObj:GetPrivateData())
-end
 -----------------------------------------------------------------
 
 function AgentServiceCross.SendRemote(serviceName, remote_socket, proto, data)
@@ -57,10 +65,6 @@ end
 
 function AgentServiceCross.SendData(serviceName, targetName, proto, data)
 	return GetAgentServiceCrossObj(serviceName):SendData(targetName, proto, data)
-end
-
-function AgentServiceCross.SendSystemData(serviceName, proto, data)
-	return GetAgentServiceCrossObj(serviceName):SendSystemData(proto, data)
 end
 
 function AgentServiceCross.CallData(serviceName, targetName, proto, data, timeout_millsec)
@@ -138,7 +142,7 @@ function AgentServiceCross.Init(className, modulename, hotfixModuleName, bLocalS
 	end
 
 	local bEmpty = true
-	local funtList = {IAgentServiceCrossNetFunc_OnCrossRecvCall, IAgentServiceCrossNetFunc_OnCrossRecvCommon, IAgentServiceCrossNetFunc_OnCrossSystem, IAgentServiceCrossNetFunc_OnCrossRegister}
+	local funtList = {IAgentServiceCrossNetFunc_OnCrossRecvCall, IAgentServiceCrossNetFunc_OnCrossRecvCommon, IAgentServiceCrossNetFunc_OnCrossRegister}
 	for _, funtname in pairs(funtList) do
 		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentServiceCross.Init modulename not has key=%s", funtname))
