@@ -273,28 +273,24 @@ function IClientClass:OnRecv(data)
 	local funcRet, funcErr = pcall(function() 
 		if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
 			local co = ccoroutine.get_session_id_coroutine(session_id)
-			if not co then 
-				print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id)
-				return
-			end
-			ccoroutine.resume(co, true, contents)
+			if co then ccoroutine.resume(co, true, contents) end
+			if not co then print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id) end
+		elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
+			local md5str = net_module.genToken(srcName, self:GetName())
+			local header, sendData = net_module.netPack(self:GetName(), md5str, "sendregname", net_module.PTYPE.PTYPE_REGISTER, 0, "")
+			CoreNet.TCPSend(self.hsocket, header, sendData)
+			self:GetModule()[IClientNetFunc_Register](self)
+			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), srcName, md5str))
 		elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
-			self:GetModule()[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
+			self:GetModule()[IClientNetFunc_OnRecv_Call](self, proto, msgpack.unpack(contents))
 		elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
-			self:GetModule()[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
+			self:GetModule()[IClientNetFunc_OnRecv_Common](self, proto, msgpack.unpack(contents))
 		elseif net_module.PTYPE.PTYPE_REMOTE_CONNECT == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRemoteConnect](self, proto, contents)
 		elseif net_module.PTYPE.PTYPE_REMOTE_DISCONNECT == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRemoteDisConnect](self, proto, contents)
 		elseif net_module.PTYPE.PTYPE_REMOTE_RECV_DATA == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRemoteRecvData](self, proto, contents)
-		elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
-			local key = table.unpack(msgpack.unpack(contents))
-			local md5str = net_module.genToken(key, self:GetName())
-			local header, sendData = net_module.netPack("", "", msgpack.pack(table.pack(self:GetName(), md5str)), net_module.PTYPE.PTYPE_REGISTER, 0)
-			CoreNet.TCPSend(self.hsocket, header, sendData)
-			self:GetModule()[IClientNetFunc_Register](self)
-			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), key, md5str))
 		end
 	end)
 
