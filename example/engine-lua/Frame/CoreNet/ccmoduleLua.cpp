@@ -87,6 +87,64 @@ extern "C" int CoreNetStartAgentGate(lua_State *L)
 	return 1;
 }
 
+extern "C" int CoreNetAgentGateListen(lua_State *L)
+{
+	bool bResult;
+	const char* IPRemote;
+	int PortRemote;
+	const char* IPService;
+	int PortService;
+	const char* IPServiceUnix;
+	int iTimeOut;
+
+	if (!g_pkServiceAgentGate)
+	{
+		luaL_error(L, "g_pkServiceAgentGate is NULL!");
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	IPRemote = luaL_checkstring(L, 1);
+	PortRemote = (int)luaL_checkinteger(L, 2);
+	IPService = luaL_checkstring(L, 3);
+	PortService = (int)luaL_checkinteger(L, 4);
+	IPServiceUnix = luaL_checkstring(L, 5);
+	iTimeOut = (int)luaL_checkinteger(L, 6);
+
+	if (!IPRemote)
+	{
+		luaL_error(L, "IPRemote is NULL!");
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	if (!IPService)
+	{
+		luaL_error(L, "IPService is NULL!");
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	if (!IPServiceUnix)
+	{
+		luaL_error(L, "IPServiceIPServiceUnix is NULL!");
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	bResult = g_pkServiceAgentGate->Listen(IPRemote, PortRemote, IPService, PortService, IPServiceUnix, iTimeOut);
+
+	if (!bResult)
+	{
+		luaL_error(L, "Listen failed!");
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 extern "C" int CoreNetInit(lua_State *L)
 {
 	int iLogLV;
@@ -557,7 +615,8 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "GenRegToken", CoreNetGenRegToken }, 
 		{ "InitAgentGate", CoreNetInitAgentGate }, 
 		{ "FinAgentGate", CoreNetFinAgentGate }, 
-		{ "StartAgentGate", CoreNetStartAgentGate },
+		{ "StartAgentGate", CoreNetStartAgentGate }, 
+		{ "AgentGateListen", CoreNetAgentGateListen },
 		{ NULL, NULL },
 	};
 
