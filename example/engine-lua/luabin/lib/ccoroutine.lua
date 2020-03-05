@@ -42,12 +42,13 @@ local function co_create(f)
 	return co
 end
 
-function ccoroutine.add_session_coroutine_id(sessionId)
-	session_coroutine_id[running_thread] = sessionId
+function ccoroutine.add_session_coroutine_id(sessionId, srcName, proto)
+	session_coroutine_id[running_thread] = {sessionId, tostring(srcName), tostring(proto)}
 end
 
 function ccoroutine.get_session_coroutine_id()
-	return session_coroutine_id[running_thread]
+	local sessionId, srcName, proto = session_coroutine_id[running_thread]
+	return sessionId, srcName, proto
 end
 
 function ccoroutine.del_session_coroutine_id()
