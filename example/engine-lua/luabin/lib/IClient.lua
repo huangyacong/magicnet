@@ -13,7 +13,6 @@ local IClientNetFunc_OnConnect = "OnCConnect"
 local IClientNetFunc_OnDisConnect = "OnCDisConnect"
 local IClientNetFunc_OnConnectFailed = "OnCConnectFailed"
 local IClientNetFunc_Register = "OnCRegister"
-local IClientNetFunc_OnSystem = "OnCSystem"
 
 local local_modulename = ...
 timer.register(local_modulename)
@@ -116,7 +115,7 @@ function IClientClass:Connect()
 	end
 
 	local bEmpty = true
-	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_Register, IClientNetFunc_OnSystem}
+	local funtList = {IClientNetFunc_OnRecv_Call, IClientNetFunc_OnRecv_Common, IClientNetFunc_OnConnect, IClientNetFunc_OnDisConnect, IClientNetFunc_OnConnectFailed, IClientNetFunc_Register}
 	for _, funtname in pairs(funtList) do
 		if not self:GetModule()[funtname] then
 			print(debug.traceback(), "\n", string.format("IClientClass modulename not has key=%s", funtname))
@@ -279,8 +278,6 @@ function IClientClass:OnRecv(data)
 			self:GetModule()[IClientNetFunc_OnRecv_Call](self, targetName, proto, msgpack.unpack(contents))
 		elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRecv_Common](self, targetName, proto, msgpack.unpack(contents))
-		elseif net_module.PTYPE.PTYPE_SYSTEM == PTYPE then
-			self:GetModule()[IClientNetFunc_OnSystem](self, proto, msgpack.unpack(contents))
 		elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
 			local key = table.unpack(msgpack.unpack(contents))
 			local md5str = net_module.genToken(key, self:GetName())
