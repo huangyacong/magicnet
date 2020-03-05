@@ -23,6 +23,10 @@ function BigDecimalClass:ToString()
 	return string.format("%s%s.%0" .. format, not self.bUnSigned and "-" or "", self.HInteger, self.LInteger)
 end
 
+function BigDecimalClass:Floor()
+	return self.HInteger
+end
+
 -- 获取商数和余数
 local function GetQuotientAndRemainder(numerator, denominator)
 	if numerator < denominator then
@@ -42,12 +46,6 @@ local function GetQuotientAndRemainder(numerator, denominator)
 	end
 	
 	return count, numerator
-end
-
--- 取整数
-function BigDecimal.Floor(num)
-	local ret,_ = GetQuotientAndRemainder(num, 1)
-	return ret
 end
 
 -- 加法
@@ -83,7 +81,7 @@ end
 function BigDecimal.Div(BigDecimalClassObj_numerator, BigDecimalClassObj_denominator)
 	local value_numerator = BigDecimalClassObj_numerator.HInteger * BigDecimalScale + BigDecimalClassObj_numerator.LInteger
 	local value_denominator = BigDecimalClassObj_denominator.HInteger * BigDecimalScale + BigDecimalClassObj_denominator.LInteger
-	assert((BigDecimalClassObj_denominator.HInteger + BigDecimalClassObj_denominator.LInteger) ~= 0)
+	assert((BigDecimalClassObj_denominator.HInteger + BigDecimalClassObj_denominator.LInteger) ~= 0, "denominator is zero")
 	local HInteger, remainder = GetQuotientAndRemainder(value_numerator, value_denominator)
 	local LInteger = GetQuotientAndRemainder(remainder * BigDecimalScale, value_denominator)
 	local bUnSigned = (BigDecimalClassObj_numerator.bUnSigned == BigDecimalClassObj_denominator.bUnSigned) and true, false
