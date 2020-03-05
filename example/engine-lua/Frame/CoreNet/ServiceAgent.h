@@ -70,8 +70,6 @@ class ServiceForRemote : public SeServer
 	void OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen);
 	void OnServerDisConnect(HSOCKET kHSocket);
 	void OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize);
-	bool SeSetProtoHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen);
-	bool SeGetProtoHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen);
 	void OnServerUpdate() {};
 public:
 	bool SendRemoteData(HSOCKET kHSocket, unsigned short usProto, const char *pcBuf, int iLen);

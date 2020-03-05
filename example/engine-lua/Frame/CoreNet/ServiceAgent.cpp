@@ -131,7 +131,7 @@ void ServiceForRemote::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLe
 		return;
 	}
 
-	if (!SeGetProtoHeader((const unsigned char*)pcBuf, iHeaderLen, &iSize))
+	if (!SeNetSreamGetHeader((const unsigned char*)pcBuf, iHeaderLen, &iSize))
 	{
 		DisConnect(kHSocket);
 		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForRemote::OnServerRecv SeGetProtoHeader error", kHSocket);
@@ -156,7 +156,7 @@ bool ServiceForRemote::SendRemoteData(HSOCKET kHSocket, unsigned short usProto, 
 	const int iHeaderLen = 2;
 	char acHeader[iHeaderLen] = {};
 	
-	if (!SeSetProtoHeader((unsigned char*)acHeader, iHeaderLen, usProto))
+	if (!SeNetSreamSetHeader((unsigned char*)acHeader, iHeaderLen, usProto))
 	{
 		DisConnect(kHSocket);
 		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForRemote::OnServerRecv SeSetProtoHeader error", kHSocket);
@@ -164,56 +164,6 @@ bool ServiceForRemote::SendRemoteData(HSOCKET kHSocket, unsigned short usProto, 
 	}
 
 	return SendData(kHSocket, acHeader, iHeaderLen, pcBuf, iLen);
-}
-
-bool ServiceForRemote::SeSetProtoHeader(unsigned char* pcHeader, const int iheaderlen, const int ilen)
-{
-	union UHEADER
-	{
-		unsigned char cBuf[2];
-		unsigned short usLen;
-	};
-
-	if (iheaderlen != 2)
-		return false;
-
-	bool bBigEndianL = true;// ´ó¶Ë
-	unsigned short usLen = (unsigned short)ilen;
-	bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-
-	if (bBigEndianL)
-		usLen = bLocalIsLittleEndian ? SeLittleToBigEndianS(usLen) : usLen;
-	else
-		usLen = !bLocalIsLittleEndian ? SeBigToLittleEndianS(usLen) : usLen;
-
-	union UHEADER* pkUHeader = (union UHEADER*)&usLen;
-	pcHeader[0] = pkUHeader->cBuf[0];
-	pcHeader[1] = pkUHeader->cBuf[1];
-
-	return (ilen < 0 || ilen > 0xFFFF) ? false : true;
-}
-
-bool ServiceForRemote::SeGetProtoHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen)
-{
-	union UHEADER
-	{
-		unsigned char cBuf[2];
-		unsigned short usLen;
-	};
-
-	if (iheaderlen != 2)
-		return false;
-
-	bool bBigEndianL = true;// ´ó¶Ë
-	bool bLocalIsLittleEndian = SeLocalIsLittleEndian();
-	const union UHEADER* pkUHeader = (const union UHEADER*)pcHeader;
-
-	if (bBigEndianL)
-		*ilen = bLocalIsLittleEndian ? SeBigToLittleEndianS(pkUHeader->usLen) : pkUHeader->usLen;
-	else
-		*ilen = !bLocalIsLittleEndian ? SeLittleToBigEndianS(pkUHeader->usLen) : pkUHeader->usLen;
-
-	return (*ilen < 0 || *ilen > 0xFFFF) ? false : true;
 }
 
 void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
