@@ -8,6 +8,9 @@ require "class"
 local IAgentServiceNetFunc_OnRecvCall = "OnRecvCall"
 local IAgentServiceNetFunc_OnRecvCommon = "OnRecvCommon"
 local IAgentServiceNetFunc_OnRegister = "OnRegister"
+local IAgentServiceNetFunc_OnRemoteConnect = "OnRemoteConnect"
+local IAgentServiceNetFunc_OnRemoteDisConnect = "OnRemoteDisConnect"
+local IAgentServiceNetFunc_OnRemoteRecvData = "OnRemoteRecvData"
 
 local local_modulename = ...
 
@@ -28,6 +31,22 @@ function AgentService.OnCRecvCommon(IClientObj, targetName, proto, data)
 	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRecvCommon](proto, data)
 end
 
+function AgentService.OnCRegister(IClientObj)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRegister]()
+end
+
+function AgentService.OnCRemoteConnect(IClientObj)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteConnect]()
+end
+
+function AgentService.OnCRemoteDisConnect(IClientObj)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteDisConnect]()
+end
+
+function AgentService.OnCRemoteRecvData(IClientObj, proto, data)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteRecvData](proto, data)
+end
+
 function AgentService.OnCConnect(IClientObj, ip)
 end
 
@@ -35,10 +54,6 @@ function AgentService.OnCDisConnect(IClientObj)
 end
 
 function AgentService.OnCConnectFailed(IClientObj)
-end
-
-function AgentService.OnCRegister(IClientObj)
-	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRegister]()
 end
 -----------------------------------------------------------------
 
@@ -84,7 +99,7 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 	end
 
 	local bEmpty = true
-	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnRegister}
+	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnRegister, IAgentServiceNetFunc_OnRemoteConnect, IAgentServiceNetFunc_OnRemoteDisConnect, IAgentServiceNetFunc_OnRemoteRecvData}
 	for _, funtname in pairs(funtList) do
 		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentService.Init modulename not has key=%s", funtname))
