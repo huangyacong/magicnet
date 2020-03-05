@@ -74,7 +74,7 @@ int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, int iSiz
 std::string GenRegToken(const std::string kKey, const std::string kName)
 {
 	char acMD5[33] = {};
-	std::string kBuff = kKey + kName;
+	std::string kBuff = kKey + kName + "str2020";
 	SeMD5(acMD5, kBuff.c_str(), (unsigned int)kBuff.length());
 	return std::string(acMD5);
 }
@@ -167,8 +167,8 @@ void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iL
 {
 	m_kServiceList[kHSocket] = ServiceSocket();
 	m_kServiceList[kHSocket].m_kIP = pcIP;
-	m_kServiceList[kHSocket].m_bSendKey = false;
 	m_kServiceList[kHSocket].m_kTokenKey = SeLongLongToA(kHSocket) + SeLongLongToA(SeTimeGetTickCount());
+	SendRegKey(kHSocket);
 }
 
 void ServiceForAgent::OnServerDisConnect(HSOCKET kHSocket)
@@ -216,9 +216,6 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 	case PTYPE_COMMON:				//普通类型
 		SendCommonData(kPacket.acDstName, pcBuf, iLen);
 		break;
-	case PTYPE_REGISTER_KEY:		//注册Key类型
-		SendRegKey(kHSocket);
-		break;
 	case PTYPE_REGISTER:			//注册类型
 		RegisterService(kHSocket, kPacket.acSrcName, kPacket.acDstName);
 		break;
@@ -251,13 +248,12 @@ void ServiceForAgent::SendRegKey(HSOCKET kHSocket)
 	if (m_kServiceList.find(kHSocket) == m_kServiceList.end())
 		return;
 	ServiceSocket& rkServiceSocket = m_kServiceList[kHSocket];
-	if (rkServiceSocket.m_kRegName.length() > 0 || rkServiceSocket.m_bSendKey == true)
+	if (rkServiceSocket.m_kRegName.length() > 0)
 	{
 		DisConnect(kHSocket);
-		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "Service send register error srcRegName=%s SendKey=%s", rkServiceSocket.m_kRegName.c_str(), rkServiceSocket.m_bSendKey ? "get more":"");
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "Service send register error srcRegName=%s ", rkServiceSocket.m_kRegName.c_str());
 		return;
 	}
-	rkServiceSocket.m_bSendKey = true;
 
 	AgentServicePacket kPacket;
 	kPacket.eType = PTYPE_REGISTER_KEY;
@@ -290,10 +286,11 @@ void ServiceForAgent::RegisterService(HSOCKET kHSocket, const std::string& rkNam
 		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "Service %s register regName error", rkName.c_str());
 		return;
 	}
-	if (GenRegToken(rkServiceSocket.m_kTokenKey, rkName) != rkMD5)
+	std::string kMD5 = GenRegToken(rkServiceSocket.m_kTokenKey, rkName);
+	if (kMD5 != rkMD5)
 	{
 		DisConnect(kHSocket);
-		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "Service %s register md5 error", rkName.c_str());
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "Service [%s] key=%s register md5=%s->%s error", rkName.c_str(), rkServiceSocket.m_kTokenKey.c_str(), rkMD5.c_str(), kMD5.c_str());
 		return;
 	}
 	rkServiceSocket.m_kRegName = rkName;

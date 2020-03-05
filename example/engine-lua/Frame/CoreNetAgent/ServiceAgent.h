@@ -54,7 +54,6 @@ struct AgentServicePacket
 
 struct ServiceSocket
 {
-	bool m_bSendKey;
 	std::string m_kIP;
 	std::string m_kTokenKey;
 	std::string m_kRegName;
