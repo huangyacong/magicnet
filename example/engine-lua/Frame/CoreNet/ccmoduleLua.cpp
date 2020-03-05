@@ -72,6 +72,21 @@ extern "C" int CoreNetFinAgentGate(lua_State *L)
 	return 1;
 }
 
+extern "C" int CoreNetStartAgentGate(lua_State *L)
+{
+	if (!g_pkServiceAgentGate) 
+	{ 
+		luaL_error(L, "g_pkServiceAgentGate is NULL!"); 
+		lua_pushboolean(L, false);
+		return 0; 
+	}
+
+	g_pkServiceAgentGate->CreateThreadAndRunServiceAgent();
+
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 extern "C" int CoreNetInit(lua_State *L)
 {
 	int iLogLV;
@@ -541,7 +556,8 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "NetUnPack", CoreNetNetUnPack },
 		{ "GenRegToken", CoreNetGenRegToken }, 
 		{ "InitAgentGate", CoreNetInitAgentGate }, 
-		{ "FinAgentGate", CoreNetFinAgentGate },
+		{ "FinAgentGate", CoreNetFinAgentGate }, 
+		{ "StartAgentGate", CoreNetStartAgentGate },
 		{ NULL, NULL },
 	};
 
