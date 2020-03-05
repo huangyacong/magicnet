@@ -281,11 +281,11 @@ function IClientClass:OnRecv(data)
 		elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRecv_Common](self, proto, msgpack.unpack(contents))
 		elseif net_module.PTYPE.PTYPE_REMOTE_CONNECT == PTYPE then
-			self:GetModule()[IClientNetFunc_OnRemoteConnect](self, contents)
+			self:GetModule()[IClientNetFunc_OnRemoteConnect](self, session_id, srcName)
 		elseif net_module.PTYPE.PTYPE_REMOTE_DISCONNECT == PTYPE then
-			self:GetModule()[IClientNetFunc_OnRemoteDisConnect](self, contents)
+			self:GetModule()[IClientNetFunc_OnRemoteDisConnect](self, session_id)
 		elseif net_module.PTYPE.PTYPE_REMOTE_RECV_DATA == PTYPE then
-			self:GetModule()[IClientNetFunc_OnRemoteRecvData](self, proto, contents)
+			self:GetModule()[IClientNetFunc_OnRemoteRecvData](self, session_id, proto, contents)
 		end
 	end)
 

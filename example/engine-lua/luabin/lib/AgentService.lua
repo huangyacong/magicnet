@@ -36,16 +36,16 @@ function AgentService.OnCRegister(IClientObj)
 	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRegister]()
 end
 
-function AgentService.OnCRemoteConnect(IClientObj)
-	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteConnect]()
+function AgentService.OnCRemoteConnect(IClientObj, socket, ip)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteConnect](socket, ip)
 end
 
-function AgentService.OnCRemoteDisConnect(IClientObj)
-	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteDisConnect]()
+function AgentService.OnCRemoteDisConnect(IClientObj, socket)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteDisConnect](socket)
 end
 
-function AgentService.OnCRemoteRecvData(IClientObj, proto, data)
-	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteRecvData](proto, data)
+function AgentService.OnCRemoteRecvData(IClientObj, socket, proto, data)
+	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRemoteRecvData](socket, proto, data)
 end
 
 function AgentService.OnCConnect(IClientObj, ip)
