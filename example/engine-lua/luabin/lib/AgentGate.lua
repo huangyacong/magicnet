@@ -1,4 +1,5 @@
 ﻿local net_module = require "ccorenet"
+local util = require "util"
 
 local AgentGate = {}
 
