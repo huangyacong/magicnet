@@ -339,8 +339,9 @@ void ServiceAgent::StartServiceAgent()
 
 bool ServiceAgent::Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt)
 {
+	bool ret = m_kServiceAgenttEngine.Init(pcLogName, iLogLV, usMax, iTimerCnt);
 	m_kServiceAgenttEngine.SetStatDelayTime(5000);
-	return m_kServiceAgenttEngine.Init(pcLogName, iLogLV, usMax, iTimerCnt);
+	return ret;
 }
 
 bool ServiceAgent::Listen(const char* IPRemote, int PortRemote, const char* IPService, int PortService, const char* IPServiceUnix, int iTimeOut)
