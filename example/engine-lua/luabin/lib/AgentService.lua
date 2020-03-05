@@ -16,6 +16,7 @@ local local_modulename = ...
 
 local AgentService = {}
 
+local AgentWatchDogName = ".watchdog"
 local AgentServiceEventMudleName = nil
 local AgentServiceClassName = ""
 local AgentServiceHotfixModuleName = nil
@@ -95,7 +96,12 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 	end
 
 	local bEmpty = true
-	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnRegister, IAgentServiceNetFunc_OnRemoteConnect, IAgentServiceNetFunc_OnRemoteDisConnect, IAgentServiceNetFunc_OnRemoteRecvData}
+	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnRegister}
+	if AgentWatchDogName ~= className then
+		table.insert(funtList, IAgentServiceNetFunc_OnRemoteConnect)
+		table.insert(funtList, IAgentServiceNetFunc_OnRemoteDisConnect)
+		table.insert(funtList, IAgentServiceNetFunc_OnRemoteRecvData)
+	end
 	for _, funtname in pairs(funtList) do
 		if not packageName[funtname] then
 			print(debug.traceback(), "\n", string.format("AgentService.Init modulename not has key=%s", funtname))
