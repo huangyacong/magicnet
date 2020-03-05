@@ -23,6 +23,10 @@ function BigDecimalClass:ToString()
 	return string.format("%s%s.%0" .. format, not self.bUnSigned and "-" or "", self.HInteger, self.LInteger)
 end
 
+function BigDecimalClass:GetHugeValue()
+	return (self.HInteger * BigDecimalScale + self.LInteger) * (self.bUnSigned and 1 or -1)
+end
+
 function BigDecimalClass:Floor()
 	return self.HInteger
 end
@@ -90,56 +94,32 @@ end
 
 -- 小于 (less than)
 function BigDecimal.LT(BigDecimalClassObjLeft, BigDecimalClassObjRight)
-	local valueLeft = BigDecimalClassObjLeft.HInteger * BigDecimalScale + BigDecimalClassObjLeft.LInteger
-	local valueRight = BigDecimalClassObjRight.HInteger * BigDecimalScale + BigDecimalClassObjRight.LInteger
-	valueLeft = valueLeft * (BigDecimalClassObjLeft.bUnSigned and 1 or -1)
-	valueRight = valueRight * (BigDecimalClassObjRight.bUnSigned and 1 or -1)
-	return valueLeft < valueRight
+	return BigDecimalClassObjLeft:GetHugeValue() < BigDecimalClassObjRight:GetHugeValue()
 end
 
 -- 小于等于 (less than and equal to)
 function BigDecimal.LE(BigDecimalClassObjLeft, BigDecimalClassObjRight)
-	local valueLeft = BigDecimalClassObjLeft.HInteger * BigDecimalScale + BigDecimalClassObjLeft.LInteger
-	local valueRight = BigDecimalClassObjRight.HInteger * BigDecimalScale + BigDecimalClassObjRight.LInteger
-	valueLeft = valueLeft * (BigDecimalClassObjLeft.bUnSigned and 1 or -1)
-	valueRight = valueRight * (BigDecimalClassObjRight.bUnSigned and 1 or -1)
-	return valueLeft <= valueRight
+	return BigDecimalClassObjLeft:GetHugeValue() <= BigDecimalClassObjRight:GetHugeValue()
 end
 
 -- 等于 (equal to)
 function BigDecimal.EQ(BigDecimalClassObjLeft, BigDecimalClassObjRight)
-	local valueLeft = BigDecimalClassObjLeft.HInteger * BigDecimalScale + BigDecimalClassObjLeft.LInteger
-	local valueRight = BigDecimalClassObjRight.HInteger * BigDecimalScale + BigDecimalClassObjRight.LInteger
-	valueLeft = valueLeft * (BigDecimalClassObjLeft.bUnSigned and 1 or -1)
-	valueRight = valueRight * (BigDecimalClassObjRight.bUnSigned and 1 or -1)
-	return valueLeft == valueRight
+	return BigDecimalClassObjLeft:GetHugeValue() == BigDecimalClassObjRight:GetHugeValue()
 end
 
 -- 不等于 (not equal to)
 function BigDecimal.NE(BigDecimalClassObjLeft, BigDecimalClassObjRight)
-	local valueLeft = BigDecimalClassObjLeft.HInteger * BigDecimalScale + BigDecimalClassObjLeft.LInteger
-	local valueRight = BigDecimalClassObjRight.HInteger * BigDecimalScale + BigDecimalClassObjRight.LInteger
-	valueLeft = valueLeft * (BigDecimalClassObjLeft.bUnSigned and 1 or -1)
-	valueRight = valueRight * (BigDecimalClassObjRight.bUnSigned and 1 or -1)
-	return valueLeft ~= valueRight
+	return BigDecimalClassObjLeft:GetHugeValue() ~= BigDecimalClassObjRight:GetHugeValue()
 end
 
 -- 大于等于 (greater than and equal to)
 function BigDecimal.GE(BigDecimalClassObjLeft, BigDecimalClassObjRight)
-	local valueLeft = BigDecimalClassObjLeft.HInteger * BigDecimalScale + BigDecimalClassObjLeft.LInteger
-	local valueRight = BigDecimalClassObjRight.HInteger * BigDecimalScale + BigDecimalClassObjRight.LInteger
-	valueLeft = valueLeft * (BigDecimalClassObjLeft.bUnSigned and 1 or -1)
-	valueRight = valueRight * (BigDecimalClassObjRight.bUnSigned and 1 or -1)
-	return valueLeft >= valueRight
+	return BigDecimalClassObjLeft:GetHugeValue() >= BigDecimalClassObjRight:GetHugeValue()
 end
 
 -- 大于 gt (greater than)
 function BigDecimal.GT(BigDecimalClassObjLeft, BigDecimalClassObjRight)
-	local valueLeft = BigDecimalClassObjLeft.HInteger * BigDecimalScale + BigDecimalClassObjLeft.LInteger
-	local valueRight = BigDecimalClassObjRight.HInteger * BigDecimalScale + BigDecimalClassObjRight.LInteger
-	valueLeft = valueLeft * (BigDecimalClassObjLeft.bUnSigned and 1 or -1)
-	valueRight = valueRight * (BigDecimalClassObjRight.bUnSigned and 1 or -1)
-	return valueLeft > valueRight
+	return BigDecimalClassObjLeft:GetHugeValue() > BigDecimalClassObjRight:GetHugeValue()
 end
 
 BigDecimal.BigDecimalClass = BigDecimalClass
