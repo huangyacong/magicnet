@@ -1,6 +1,7 @@
-﻿local CoreNet = require "CoreNet"
+﻿local CoreNetAgent = require "CoreNetAgent"
 local ccoroutine = require "ccoroutine"
 local CoreTool = require "CoreTool"
+local CoreNet = require "CoreNet"
 local timer = require "timer"
 local util = require "util"
 require "class"
@@ -141,33 +142,33 @@ end
 
 -- 消息类型
 ccorenet.PTYPE = {
-	PTYPE_RESPONSE = CoreNet.PTYPE_RESPONSE,					-- 回应协程消息
-	PTYPE_CALL = CoreNet.PTYPE_CALL,							-- 协程消息
-	PTYPE_REMOTE = CoreNet.PTYPE_REMOTE,						-- 发送给远程目标数据类型
-	PTYPE_COMMON = CoreNet.PTYPE_COMMON,						-- 普通类型
-	PTYPE_REGISTER_KEY = CoreNet.PTYPE_REGISTER_KEY,			-- 注册Key类型
-	PTYPE_REGISTER = CoreNet.PTYPE_REGISTER,					-- 注册类型
-	PTYPE_PING = CoreNet.PTYPE_PING,							-- Ping类型
-	PTYPE_REMOTE_CONNECT = CoreNet.PTYPE_REMOTE_CONNECT,		-- 新的链接
-	PTYPE_REMOTE_DISCONNECT = CoreNet.PTYPE_REMOTE_DISCONNECT, 	-- 链接断开
-	PTYPE_REMOTE_RECV_DATA = CoreNet.PTYPE_REMOTE_RECV_DATA,	-- 收到链接数据
+	PTYPE_RESPONSE = CoreNetAgent.PTYPE_RESPONSE,					-- 回应协程消息
+	PTYPE_CALL = CoreNetAgent.PTYPE_CALL,							-- 协程消息
+	PTYPE_REMOTE = CoreNetAgent.PTYPE_REMOTE,						-- 发送给远程目标数据类型
+	PTYPE_COMMON = CoreNetAgent.PTYPE_COMMON,						-- 普通类型
+	PTYPE_REGISTER_KEY = CoreNetAgent.PTYPE_REGISTER_KEY,			-- 注册Key类型
+	PTYPE_REGISTER = CoreNetAgent.PTYPE_REGISTER,					-- 注册类型
+	PTYPE_PING = CoreNetAgent.PTYPE_PING,							-- Ping类型
+	PTYPE_REMOTE_CONNECT = CoreNetAgent.PTYPE_REMOTE_CONNECT,		-- 新的链接
+	PTYPE_REMOTE_DISCONNECT = CoreNetAgent.PTYPE_REMOTE_DISCONNECT, 	-- 链接断开
+	PTYPE_REMOTE_RECV_DATA = CoreNetAgent.PTYPE_REMOTE_RECV_DATA,	-- 收到链接数据
 }
 
 -- 生成token
 function ccorenet.genToken(key, name)
-	return CoreNet.GenRegToken(key, name)
+	return CoreNetAgent.GenRegToken(key, name)
 end
 
 -- 打包
 function ccorenet.netPack(srcName, targetName, proto, PTYPE, session_id, data)
 	session_id = session_id or 0
-	local header, sendData = CoreNet.NetPack(srcName, targetName, PTYPE, session_id, proto, data)
+	local header, sendData = CoreNetAgent.NetPack(srcName, targetName, PTYPE, session_id, proto, data)
 	return header, sendData
 end
 
 -- 解包
 function ccorenet.netUnPack(data)
-	local srcName, targetName, PTYPE, session_id, proto, recvData = CoreNet.NetUnPack(data)
+	local srcName, targetName, PTYPE, session_id, proto, recvData = CoreNetAgent.NetUnPack(data)
 	return srcName, targetName, PTYPE, session_id, proto, recvData
 end
 
