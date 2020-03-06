@@ -34,7 +34,7 @@ function client_event.OnCPlayerPing(IClientClassObj)
 end
 
 function client_event.OnCPlayerRecv(IClientClassObj, proto, data)
-	print("OnRecvCommon", IClientClassObj, proto, data)
+	print("OnRecvCommon", IClientClassObj, proto, data, string.format("[%s]", data))
 end
 
 function client_event.framefunc()
