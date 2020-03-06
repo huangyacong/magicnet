@@ -1,6 +1,6 @@
 #include "ServiceAgent.h"
 
-char ServiceAgent::m_acBuff[1024 * 1024 * 4] = {};
+char ServiceAgent::m_acBuff[256] = {};
 ServiceForRemote ServiceAgent::m_kServiceForRemote;
 ServiceForAgent ServiceAgent::m_kServiceForAgentIPSocket;
 ServiceForAgent ServiceAgent::m_kServiceForAgentUnixSocket;

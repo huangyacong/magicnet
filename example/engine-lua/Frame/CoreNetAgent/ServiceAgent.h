@@ -113,8 +113,8 @@ public:
 	bool Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt);
 	bool Listen(const char* IPRemote, int PortRemote, const char* IPService, int PortService, const char* IPServiceUnix, int iTimeOut);
 public:
+	static char m_acBuff[256];
 	static std::string m_kWatchDogName;
-	static char m_acBuff[1024 * 1024 * 4];
 	static ServiceForRemote m_kServiceForRemote;
 	static ServiceForAgent m_kServiceForAgentIPSocket;
 	static ServiceForAgent m_kServiceForAgentUnixSocket;
