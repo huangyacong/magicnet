@@ -270,5 +270,8 @@ extern "C" int luaopen_CoreNetAgent(lua_State *L)
 	lua_pushinteger(L, PTYPE_REMOTE_RECV_DATA);
 	lua_setfield(L, -2, "PTYPE_REMOTE_RECV_DATA");
 
+	lua_pushinteger(L, PTYPE_REMOTE_CLOSE);
+	lua_setfield(L, -2, "PTYPE_REMOTE_CLOSE");
+
 	return 1;
 }
