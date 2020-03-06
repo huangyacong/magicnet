@@ -377,7 +377,7 @@ bool ServiceAgent::Listen(const char* IPRemote, int PortRemote, const char* IPSe
 	if (!m_kServiceForAgentIPSocket.Listen())
 		return false;
 #if defined(__linux)
-	m_kServiceForAgentUnixSocket.Init(&m_kServiceEngine, SE_DOMAIN_UNIX, IPServiceUnix, 0, iTimeOut, true);
+	m_kServiceForAgentUnixSocket.Init(&m_kServiceAgenttEngine, SE_DOMAIN_UNIX, IPServiceUnix, 0, iTimeOut, true);
 	if (!m_kServiceForAgentUnixSocket.Listen())
 		return false;
 	m_kLinkFile = IPServiceUnix;
