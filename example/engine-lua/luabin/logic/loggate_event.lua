@@ -1,7 +1,7 @@
-﻿local AgentGate = require "AgentGate"
+﻿local AgentService = require "AgentService"
+local ccoroutine = require "ccoroutine"
 local net_module = require "ccorenet"
 local CoreTool = require "CoreTool"
-local ccoroutine = require "ccoroutine"
 local util = require "util"
 local timer = require "timer"
 
@@ -14,33 +14,48 @@ local event = {}
 local client_list = {}
 local count = 0
 function event.OnRecvCall(proto, data)
-	
+	print("OnRecvCall", proto, data)
+	AgentService.RetCallData(data)
 end
 
 function event.OnRecvCommon(proto, data)
-	
+	print("OnRecvCommon", proto, data)
 end
 
 function event.OnRegister()
-	print("xxxxxxxxxxxxxxxxxxxx")
+	
 end
 
 function event.OnRemoteRecvData(socket, proto, data)
-	
+	print("OnRemoteRecvData",socket, proto, data)
+	AgentService.SendRemote(socket, proto, data)
 end
 
 function event.OnRemoteConnect(socket, ip)
 client_list[socket] =socket
 count = count + 1
+print("OnRemoteConnect",socket, ip)
 end
 
 function event.OnRemoteDisConnect(socket)
 	client_list[socket] =nil
 	count = count - 1
+	print("OnRemoteDisConnect",socket)
 end
 
 function event.framefunc()
-	timer.addtimer(local_modulename, "framefunc", 1000)
+	timer.addtimer(local_modulename, "framefunc", 10000)
+
+	local a, b = AgentService.CallData("svr_a", "ssss", {1,2,3})
+	util.print(table.pack(a, b))
+
+	AgentService.SendData("svr_a", "ssss", {1,2,3})
+
+
+	local a, b = AgentService.CallData(".watchdog", "me call", {1,2,3})
+	util.print(table.pack(a, b))
+
+	AgentService.SendData(".watchdog", "me common", {1,2,3})
 
 	local report = net_module.statReport((net_module.getOS() ~= "Linux") and (30 * 1000) or 0)
 	--util.print_table(ccorenet.IClientList)
