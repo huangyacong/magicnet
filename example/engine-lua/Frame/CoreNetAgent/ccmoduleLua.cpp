@@ -132,14 +132,9 @@ extern "C" int CoreNetNetPack(lua_State *L)
 		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), pcBuf);
 	}
 
-	seplen = 0;
-	pcBuf = luaL_checklstring(L, 6, &seplen);
-	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
-
 	iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 	lua_pushlstring(L, ServiceAgent::m_acBuff, iLen);
-	lua_pushlstring(L, pcBuf, seplen);
-	return 2;
+	return 1;
 }
 
 extern "C" int CoreNetNetUnPack(lua_State *L)
