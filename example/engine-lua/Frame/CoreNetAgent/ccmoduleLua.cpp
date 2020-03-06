@@ -5,7 +5,12 @@
 #include <string>
 #include <map>
 
-static ServiceAgent g_kServiceAgentGate;
+static ServiceAgent* g_pkServiceAgentGate;
+
+static void CoreNetInit()
+{
+	g_pkServiceAgentGate = NULL;
+}
 
 extern "C" int CoreNetInitAgentGate(lua_State *L)
 {
@@ -27,7 +32,11 @@ extern "C" int CoreNetInitAgentGate(lua_State *L)
 	iLogLV = LT_SPLIT | LT_ERROR | LT_WARNING | LT_INFO | LT_DEBUG | LT_CRITICAL | LT_SOCKET | LT_RESERROR | LT_NOHEAD;
 	iLogLV |= bPrint ? (iLogLV | LT_PRINT) : iLogLV;
 
-	g_kServiceAgentGate.Init(pcLogName, iLogLV, usMax, iTimerCnt);
+	if (g_pkServiceAgentGate)
+		return 0;
+
+	g_pkServiceAgentGate = new ServiceAgent();
+	g_pkServiceAgentGate->Init(pcLogName, iLogLV, usMax, iTimerCnt);
 
 	lua_pushnil(L);
 	return 1;
@@ -35,14 +44,18 @@ extern "C" int CoreNetInitAgentGate(lua_State *L)
 
 extern "C" int CoreNetFinAgentGate(lua_State *L)
 {
-	g_kServiceAgentGate.StopServiceAgent();
+	if (!g_pkServiceAgentGate)
+		return 0;
+	g_pkServiceAgentGate->StopServiceAgent();
 	lua_pushnil(L);
 	return 1;
 }
 
 extern "C" int CoreNetStartAgentGate(lua_State *L)
 {
-	g_kServiceAgentGate.StartServiceAgent();
+	if (!g_pkServiceAgentGate)
+		return 0;
+	g_pkServiceAgentGate->StartServiceAgent();
 	lua_pushboolean(L, true);
 	return 1;
 }
@@ -68,30 +81,37 @@ extern "C" int CoreNetAgentGateListen(lua_State *L)
 	{
 		luaL_error(L, "IPRemote is NULL!");
 		lua_pushboolean(L, false);
-		return 0;
+		return 1;
 	}
 
 	if (!IPService)
 	{
 		luaL_error(L, "IPService is NULL!");
 		lua_pushboolean(L, false);
-		return 0;
+		return 1;
 	}
 
 	if (!IPServiceUnix)
 	{
 		luaL_error(L, "IPServiceIPServiceUnix is NULL!");
 		lua_pushboolean(L, false);
-		return 0;
+		return 1;
 	}
 
-	bResult = g_kServiceAgentGate.Listen(IPRemote, PortRemote, IPService, PortService, IPServiceUnix, iTimeOut);
+	if (!g_pkServiceAgentGate)
+	{
+		luaL_error(L, "not init  g_pkServiceAgentGate!");
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	bResult = g_pkServiceAgentGate->Listen(IPRemote, PortRemote, IPService, PortService, IPServiceUnix, iTimeOut);
 
 	if (!bResult)
 	{
 		luaL_error(L, "Listen failed!");
 		lua_pushboolean(L, false);
-		return 0;
+		return 1;
 	}
 
 	lua_pushboolean(L, true);
@@ -200,6 +220,8 @@ extern "C" __declspec(dllexport) int luaopen_CoreNetAgent(lua_State *L)
 extern "C" int luaopen_CoreNetAgent(lua_State *L)
 #endif
 {
+	CoreNetInit();
+
 	// must use int64 number
 	if(LUA_VERSION_NUM < 503) { luaL_error(L, "Lua ver must > 5.3"); return 0; }
 	if(sizeof(lua_Integer) != 8) { luaL_error(L, "must use int64 for lua_Integer"); return 0; }
