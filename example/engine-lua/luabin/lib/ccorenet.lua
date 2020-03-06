@@ -162,8 +162,8 @@ end
 -- 打包
 function ccorenet.netPack(srcName, targetName, proto, PTYPE, session_id, data)
 	session_id = session_id or 0
-	local header, sendData = CoreNetAgent.NetPack(srcName, targetName, PTYPE, session_id, proto, data)
-	return header, sendData
+	local header = CoreNetAgent.NetPack(srcName, targetName, PTYPE, session_id, proto)
+	return header, data
 end
 
 -- 解包
