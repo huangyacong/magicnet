@@ -228,7 +228,7 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 		SendPing(kHSocket);
 		break;
 	case PTYPE_REMOTE_CLOSE:		//主动断开链接类型
-		CloseRemote(kHSocket);
+		CloseRemote((HSOCKET)kPacket.ullSessionId);
 		break;
 	default:
 		break;
