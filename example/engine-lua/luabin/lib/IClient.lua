@@ -1,4 +1,5 @@
-﻿local ccoroutine = require "ccoroutine"
+﻿local CoreNetAgent = require "CoreNetAgent"
+local ccoroutine = require "ccoroutine"
 local net_module = require "ccorenet"
 local msgpack = require "msgpack53"
 local CoreTool = require "CoreTool"
@@ -158,20 +159,20 @@ function IClientClass:TryReConnect()
 end
 
 function IClientClass:SendData(targetName, proto, data)
-	local header, contents = net_module.netPack(self:GetName(), targetName, proto, net_module.PTYPE.PTYPE_COMMON, 0, msgpack.pack(data))
+	local header, contents = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_COMMON, 0, msgpack.pack(data))
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:SendRemoteData(remote_socket, proto, data)
 	assert(type(proto) == type(0))
 	assert(type(remote_socket) == type(0))
-	local header, contents = net_module.netPack(self:GetName(), "", proto, net_module.PTYPE.PTYPE_REMOTE, remote_socket, data)
+	local header, contents = net_module.netPack(self:GetName(), "", proto, CoreNetAgent.PTYPE_REMOTE, remote_socket, data)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 	local session_id = CoreTool.SysSessionId()
-	local header, contents = net_module.netPack(self:GetName(), targetName, proto, net_module.PTYPE.PTYPE_CALL, session_id, msgpack.pack(data))
+	local header, contents = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_CALL, session_id, msgpack.pack(data))
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
@@ -186,7 +187,7 @@ end
 
 function IClientClass:RetCallData(data)
 	local sessionId, srcName, proto = ccoroutine.get_session_coroutine_id()
-	local header, contents = net_module.netPack(self:GetName(), srcName, proto, net_module.PTYPE.PTYPE_RESPONSE, sessionId, msgpack.pack(data))
+	local header, contents = net_module.netPack(self:GetName(), srcName, proto, CoreNetAgent.PTYPE_RESPONSE, sessionId, msgpack.pack(data))
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -199,7 +200,7 @@ function IClientClass:TimeToPingPing()
 	local timeCnt = CoreTool.GetTickCount()
 	if self.iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
 	self.m_ullPingTIme = timeCnt
-	local header, contents = net_module.netPack(self:GetName(), "", "", net_module.PTYPE.PTYPE_PING, 0, "")
+	local header, contents = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_PING, 0, "")
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -267,25 +268,25 @@ function IClientClass:OnRecv(data)
 	ccoroutine.add_session_coroutine_id(session_id, srcName, proto)
 
 	local funcRet, funcErr = pcall(function() 
-		if net_module.PTYPE.PTYPE_RESPONSE == PTYPE then
+		if CoreNetAgent.PTYPE_RESPONSE == PTYPE then
 			local co = ccoroutine.get_session_id_coroutine(session_id)
 			if co then ccoroutine.resume(co, true, contents) end
 			if not co then print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id) end
-		elseif net_module.PTYPE.PTYPE_REGISTER_KEY == PTYPE then
+		elseif CoreNetAgent.PTYPE_REGISTER_KEY == PTYPE then
 			local md5str = net_module.genToken(srcName, self:GetName())
-			local header, sendData = net_module.netPack(self:GetName(), md5str, "sendregname", net_module.PTYPE.PTYPE_REGISTER, 0, "")
+			local header, sendData = net_module.netPack(self:GetName(), md5str, "sendregname", CoreNetAgent.PTYPE_REGISTER, 0, "")
 			CoreNet.TCPSend(self.hsocket, header, sendData)
 			self:GetModule()[IClientNetFunc_Register](self)
 			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), srcName, md5str))
-		elseif net_module.PTYPE.PTYPE_CALL == PTYPE then
+		elseif CoreNetAgent.PTYPE_CALL == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRecv_Call](self, proto, msgpack.unpack(contents))
-		elseif net_module.PTYPE.PTYPE_COMMON == PTYPE then
+		elseif CoreNetAgent.PTYPE_COMMON == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRecv_Common](self, proto, msgpack.unpack(contents))
-		elseif net_module.PTYPE.PTYPE_REMOTE_CONNECT == PTYPE then
+		elseif CoreNetAgent.PTYPE_REMOTE_CONNECT == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRemoteConnect](self, session_id, srcName)
-		elseif net_module.PTYPE.PTYPE_REMOTE_DISCONNECT == PTYPE then
+		elseif CoreNetAgent.PTYPE_REMOTE_DISCONNECT == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRemoteDisConnect](self, session_id)
-		elseif net_module.PTYPE.PTYPE_REMOTE_RECV_DATA == PTYPE then
+		elseif CoreNetAgent.PTYPE_REMOTE_RECV_DATA == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRemoteRecvData](self, session_id, proto, contents)
 		end
 	end)

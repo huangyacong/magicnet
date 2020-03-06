@@ -140,20 +140,6 @@ function ccorenet.exit()
 	sys_run = false
 end
 
--- 消息类型
-ccorenet.PTYPE = {
-	PTYPE_RESPONSE = CoreNetAgent.PTYPE_RESPONSE,					-- 回应协程消息
-	PTYPE_CALL = CoreNetAgent.PTYPE_CALL,							-- 协程消息
-	PTYPE_REMOTE = CoreNetAgent.PTYPE_REMOTE,						-- 发送给远程目标数据类型
-	PTYPE_COMMON = CoreNetAgent.PTYPE_COMMON,						-- 普通类型
-	PTYPE_REGISTER_KEY = CoreNetAgent.PTYPE_REGISTER_KEY,			-- 注册Key类型
-	PTYPE_REGISTER = CoreNetAgent.PTYPE_REGISTER,					-- 注册类型
-	PTYPE_PING = CoreNetAgent.PTYPE_PING,							-- Ping类型
-	PTYPE_REMOTE_CONNECT = CoreNetAgent.PTYPE_REMOTE_CONNECT,		-- 新的链接
-	PTYPE_REMOTE_DISCONNECT = CoreNetAgent.PTYPE_REMOTE_DISCONNECT, 	-- 链接断开
-	PTYPE_REMOTE_RECV_DATA = CoreNetAgent.PTYPE_REMOTE_RECV_DATA,	-- 收到链接数据
-}
-
 -- 生成token
 function ccorenet.genToken(key, name)
 	return CoreNetAgent.GenRegToken(key, name)
