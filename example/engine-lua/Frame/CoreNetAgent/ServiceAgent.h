@@ -40,6 +40,7 @@ enum AGENTSERVICE_PTYPE
 	PTYPE_REMOTE_CONNECT = 7,	//新的链接
 	PTYPE_REMOTE_DISCONNECT = 8,//链接断开
 	PTYPE_REMOTE_RECV_DATA = 9,	//链接断开
+	PTYPE_REMOTE_CLOSE = 10,	//主动断开链接
 };
 
 struct AgentServicePacket
@@ -72,6 +73,7 @@ class ServiceForRemote : public SeServer
 	void OnServerUpdate() {};
 public:
 	bool SendRemoteData(HSOCKET kHSocket, unsigned short usProto, const char *pcBuf, int iLen);
+	void CloseRemote(HSOCKET kHSocket);
 private:
 	std::map<HSOCKET, std::string> m_kRemoteList;
 };
@@ -86,6 +88,7 @@ class ServiceForAgent : public SeServer
 	void SendRegKey(HSOCKET kHSocket);
 	void RegisterService(HSOCKET kHSocket, const std::string& rkName, const std::string& rkMD5);
 	void SendPing(HSOCKET kHSocket);
+	void CloseRemote(HSOCKET kHSocket);
 	void OnServerUpdate() {};
 private:
 	std::map<HSOCKET, ServiceSocket> m_kServiceList;

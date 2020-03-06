@@ -163,6 +163,11 @@ bool ServiceForRemote::SendRemoteData(HSOCKET kHSocket, unsigned short usProto, 
 	return SendData(kHSocket, acHeader, iHeaderLen, pcBuf, iLen);
 }
 
+void ServiceForRemote::CloseRemote(HSOCKET kHSocket)
+{
+	DisConnect(kHSocket);
+}
+
 void ServiceForAgent::OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 {
 	m_kServiceList[kHSocket] = ServiceSocket();
@@ -221,6 +226,9 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 		break;
 	case PTYPE_PING:				//Ping类型
 		SendPing(kHSocket);
+		break;
+	case PTYPE_REMOTE_CLOSE:		//主动断开链接类型
+		CloseRemote(kHSocket);
 		break;
 	default:
 		break;
@@ -309,6 +317,11 @@ void ServiceForAgent::SendPing(HSOCKET kHSocket)
 	kPacket.eType = PTYPE_PING;
 	int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 	SendData(kHSocket, ServiceAgent::m_acBuff, iLen);
+}
+
+void ServiceForAgent::CloseRemote(HSOCKET kHSocket)
+{
+	ServiceAgent::m_kServiceForRemote.CloseRemote(kHSocket);
 }
 
 ServiceAgent::ServiceAgent()
