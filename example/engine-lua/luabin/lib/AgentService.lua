@@ -97,7 +97,7 @@ function AgentService.Init(className, modulename, hotfixModuleName, cRemoteIP, i
 
 	local bEmpty = true
 	local funtList = {IAgentServiceNetFunc_OnRecvCall, IAgentServiceNetFunc_OnRecvCommon, IAgentServiceNetFunc_OnRegister}
-	if AgentWatchDogName ~= className then
+	if AgentWatchDogName == className then
 		table.insert(funtList, IAgentServiceNetFunc_OnRemoteConnect)
 		table.insert(funtList, IAgentServiceNetFunc_OnRemoteDisConnect)
 		table.insert(funtList, IAgentServiceNetFunc_OnRemoteRecvData)

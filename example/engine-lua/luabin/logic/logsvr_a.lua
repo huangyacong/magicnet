@@ -1,7 +1,6 @@
 ﻿local AgentService = require "AgentService"
 local net_module = require "ccorenet"
 local util = require "util"
-local ccoroutine = require "ccoroutine"
 local timer = require "timer"
 require "class"
 require "logic/logsvr_event"

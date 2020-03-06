@@ -13,26 +13,23 @@ local event = {}
 
 local client_list = {}
 local count = 0
-function event.OnLocalRecvCall(IServerObj, socket, proto, data)
+function event.OnRecvCall(proto, data)
 	
 end
 
-function event.OnLocalRecvCommon(IServerObj, socket, proto, data)
+function event.OnRecvCommon(proto, data)
 	
 end
 
-function event.OnSystem(IServerObj, socket, proto, data)
-	print("OnSystem", socket, proto, data)
-	IServerObj:SendSystemData(socket, proto, data)
-
-	AgentGate.SendSystemData("svr_a", "111111111","2222222222222222")
+function event.OnRegister()
+	print("xxxxxxxxxxxxxxxxxxxx")
 end
 
-function event.OnRemoteRecv(socket, proto, data)
-	AgentGate.SendData("svr_a", "sssss", table.pack(socket, "sssssssssssssssssssssssssssss"))
+function event.OnRemoteRecvData(socket, proto, data)
+	
 end
 
-function event.OnRemoteConnect(socket)
+function event.OnRemoteConnect(socket, ip)
 client_list[socket] =socket
 count = count + 1
 end

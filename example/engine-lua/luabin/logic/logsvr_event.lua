@@ -33,13 +33,8 @@ end
 
 function event.framefunc()
 	timer.addtimer(local_modulename, "framefunc", 1000)
-	AgentService.SendSystemData("ddddddddddd", "rrrrrrrrrrrrrrrrrrr")
-	--local ret, data = AgentService:CallData("gate", "proto", "data", 1000)
-	--util.print(table.pack(ret, data))
-	--print("ddddddddddddddddddddsssssssssssssssssssssssssssss")
-	-------------AgentService.SendData("svr_b", "ssssss", "svr_a send ")
+	
 	local report = net_module.statReport((net_module.getOS() ~= "Linux") and (30 * 1000) or 0)
-	--util.print_table(ccorenet.IClientList)
 	if report then
 		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount = table.unpack(report)
 		print(os.date("%Y-%m-%d %H:%M:%S"), string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s timerCount=%s %s, %s pool=%s", 
