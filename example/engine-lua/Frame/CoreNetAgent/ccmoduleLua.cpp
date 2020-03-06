@@ -102,6 +102,7 @@ extern "C" int CoreNetNetPack(lua_State *L)
 {
 	int iLen;
 	size_t seplen;
+	char acBuff[256];
 	const char *pcBuf;
 	unsigned short usProto;
 	AgentServicePacket kPacket;
@@ -132,8 +133,8 @@ extern "C" int CoreNetNetPack(lua_State *L)
 		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), pcBuf);
 	}
 
-	iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
-	lua_pushlstring(L, ServiceAgent::m_acBuff, iLen);
+	iLen = NetPack(kPacket, (unsigned char*)acBuff, (int)sizeof(acBuff));
+	lua_pushlstring(L, acBuff, iLen);
 	return 1;
 }
 
