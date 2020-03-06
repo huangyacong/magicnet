@@ -24,11 +24,11 @@ local AgentServiceHotfixModuleName = nil
 local AgentServiceRemoteSvrObj = nil
 
 -----------------------------------------------------------------
-function AgentService.OnCRecvCall(IClientObj, targetName, proto, data)
+function AgentService.OnCRecvCall(IClientObj, proto, data)
 	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRecvCall](proto, data)
 end
 
-function AgentService.OnCRecvCommon(IClientObj, targetName, proto, data)
+function AgentService.OnCRecvCommon(IClientObj, proto, data)
 	package.loaded[AgentServiceEventMudleName][IAgentServiceNetFunc_OnRecvCommon](proto, data)
 end
 

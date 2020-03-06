@@ -170,7 +170,8 @@ function IClientClass:SendRemoteData(remote_socket, proto, data)
 end
 
 function IClientClass:CallData(targetName, proto, data, timeout_millsec)
-	local header, contents, PTYPE, session_id = net_module.netPack(self:GetName(), targetName, proto, net_module.PTYPE.PTYPE_CALL, CoreTool.SysSessionId(), msgpack.pack(data))
+	local session_id = CoreTool.SysSessionId()
+	local header, contents = net_module.netPack(self:GetName(), targetName, proto, net_module.PTYPE.PTYPE_CALL, session_id, msgpack.pack(data))
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
