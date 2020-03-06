@@ -207,6 +207,12 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 		return;
 	}
 
+	if (!IsReg(kHSocket) && kPacket.eType != PTYPE_REGISTER)
+	{
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForAgent::OnServerRecv IsReg error", kHSocket);
+		return;
+	}
+
 	switch (kPacket.eType)
 	{
 	case PTYPE_RESPONSE:			//回应协程消息
@@ -233,6 +239,14 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 	default:
 		break;
 	}
+}
+
+bool ServiceForAgent::IsReg(HSOCKET kHSocket)
+{
+	if (m_kServiceList.find(kHSocket) == m_kServiceList.end())
+		return false;
+	ServiceSocket& rkServiceSocket = m_kServiceList[kHSocket];
+	return rkServiceSocket.m_kRegName.length() > 0;
 }
 
 void ServiceForAgent::SendRemoteData(HSOCKET kHSocket, unsigned short usProto, const char *pcBuf, int iLen)

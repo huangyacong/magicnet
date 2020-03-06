@@ -91,6 +91,8 @@ class ServiceForAgent : public SeServer
 	void CloseRemote(HSOCKET kHSocket);
 	void OnServerUpdate() {};
 private:
+	bool IsReg(HSOCKET kHSocket);
+private:
 	std::map<HSOCKET, ServiceSocket> m_kServiceList;
 };
 
