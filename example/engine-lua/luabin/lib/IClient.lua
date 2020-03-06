@@ -170,6 +170,12 @@ function IClientClass:SendRemoteData(remote_socket, proto, data)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
+function IClientClass:CloseRemote(remote_socket)
+	assert(type(remote_socket) == type(0))
+	local header, contents = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_REMOTE_CLOSE, remote_socket, "")
+	return CoreNet.TCPSend(self.hsocket, header, contents)
+end
+
 function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 	local session_id = CoreTool.SysSessionId()
 	local header, contents = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_CALL, session_id, msgpack.pack(data))

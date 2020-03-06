@@ -62,6 +62,10 @@ function AgentService.SendRemote(remote_socket, proto, data)
 	return AgentServiceRemoteSvrObj:SendRemoteData(remote_socket, proto, data)
 end
 
+function AgentService:CloseRemote(remote_socket)
+	return AgentServiceRemoteSvrObj:CloseRemote(remote_socket)
+end
+
 function AgentService.SendData(targetName, proto, data)
 	return AgentServiceRemoteSvrObj:SendData(targetName, proto, data)
 end
