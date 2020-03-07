@@ -186,6 +186,7 @@ void ServiceForAgent::OnServerDisConnect(HSOCKET kHSocket)
 		if (ServiceAgent::m_kRegSvrList[rkServiceSocket.m_kRegName].second == kHSocket)
 		{
 			ServiceAgent::m_kRegSvrList.erase(rkServiceSocket.m_kRegName);
+			SendWatchdogDelRegService(rkServiceSocket.m_kRegName);
 			NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_INFO, "Service %s Unregister", rkServiceSocket.m_kRegName.c_str());
 		}
 	}
@@ -317,11 +318,11 @@ void ServiceForAgent::RegisterService(HSOCKET kHSocket, const std::string& rkNam
 	}
 	rkServiceSocket.m_kRegName = rkName;
 	ServiceAgent::m_kRegSvrList[rkName] = std::pair<ServiceForAgent*, HSOCKET>(this, kHSocket);
-	SendWatchdogRegService(rkServiceSocket.m_kRegName);
+	SendWatchdogAddRegService(rkServiceSocket.m_kRegName);
 	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_INFO, "Service %s register", rkName.c_str());
 }
 
-void ServiceForAgent::SendWatchdogRegService(std::string& rkRegName)
+void ServiceForAgent::SendWatchdogAddRegService(const std::string& rkRegName)
 {
 	if (ServiceAgent::m_kRegSvrList.find(ServiceAgent::m_kWatchDogName) == ServiceAgent::m_kRegSvrList.end())
 		return;
@@ -335,7 +336,7 @@ void ServiceForAgent::SendWatchdogRegService(std::string& rkRegName)
 			if (itr->first == ServiceAgent::m_kWatchDogName)
 				continue;
 			AgentServicePacket kPacket;
-			kPacket.eType = PTYPE_REG_SERVICE;
+			kPacket.eType = PTYPE_REG_ADD_SERVICE;
 			SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), itr->first.c_str());
 			int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 			SendData(kHSocket, ServiceAgent::m_acBuff, iLen);
@@ -344,7 +345,20 @@ void ServiceForAgent::SendWatchdogRegService(std::string& rkRegName)
 	}
 
 	AgentServicePacket kPacket;
-	kPacket.eType = PTYPE_REG_SERVICE;
+	kPacket.eType = PTYPE_REG_ADD_SERVICE;
+	SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), rkRegName.c_str());
+	int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
+	SendData(kHSocket, ServiceAgent::m_acBuff, iLen);
+}
+
+void ServiceForAgent::SendWatchdogDelRegService(const std::string& rkRegName)
+{
+	if (ServiceAgent::m_kRegSvrList.find(ServiceAgent::m_kWatchDogName) == ServiceAgent::m_kRegSvrList.end())
+		return;
+	HSOCKET kHSocket = ServiceAgent::m_kRegSvrList[ServiceAgent::m_kWatchDogName].second;
+
+	AgentServicePacket kPacket;
+	kPacket.eType = PTYPE_REG_DEL_SERVICE;
 	SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), rkRegName.c_str());
 	int iLen = NetPack(kPacket, (unsigned char*)ServiceAgent::m_acBuff, (int)sizeof(ServiceAgent::m_acBuff));
 	SendData(kHSocket, ServiceAgent::m_acBuff, iLen);

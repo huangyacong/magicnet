@@ -73,6 +73,8 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.reconnectTimerId = 0
 	self.bReConnect = bReConnect
 
+	self.regServiceList = {}
+
 	self.privateData = nil
 	IClientClassPoolCount = IClientClassPoolCount + 1
 	IClientClassPool[IClientClassPoolCount] = self
@@ -84,6 +86,14 @@ function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNo
 	self.iTimeOut = iTimeOut
 	self.iConnectTimeOut = iConnectTimeOut
 	self.bNoDelay = bNoDelay
+end
+
+function IClientClass:IsServiceReg(name)
+	return self.regServiceList[name] ~= nil
+end
+
+function IClientClass:GetRegServiceList()
+	return self.regServiceList
 end
 
 function IClientClass:SetPingTimeDelay(iPingTimeDelay)
@@ -251,6 +261,7 @@ function IClientClass:OnConnectFailed()
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
+	self.regServiceList = {}
 	self.hsocket = 0
 end
 
@@ -265,6 +276,7 @@ function IClientClass:OnDisConnect()
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
+	self.regServiceList = {}
 	self.hsocket = 0
 end
 
@@ -284,6 +296,12 @@ function IClientClass:OnRecv(data)
 			CoreNet.TCPSend(self.hsocket, header, sendData)
 			self:GetModule()[IClientNetFunc_Register](self)
 			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), srcName, md5str))
+		elseif CoreNetAgent.PTYPE_REG_ADD_SERVICE == PTYPE then
+			self.regServiceList[srcName] = srcName
+			print(string.format("IClientClass:OnRecv Name=%s recv add service [%s] ", self:GetName(), srcName))
+		elseif CoreNetAgent.PTYPE_REG_DEL_SERVICE == PTYPE then
+			self.regServiceList[srcName] = nil
+			print(string.format("IClientClass:OnRecv Name=%s recv del service [%s] ", self:GetName(), srcName))
 		elseif CoreNetAgent.PTYPE_CALL == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRecv_Call](self, proto, msgpack.unpack(contents))
 		elseif CoreNetAgent.PTYPE_COMMON == PTYPE then

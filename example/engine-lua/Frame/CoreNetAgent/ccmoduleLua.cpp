@@ -257,7 +257,13 @@ extern "C" int luaopen_CoreNetAgent(lua_State *L)
 
 	lua_pushinteger(L, PTYPE_REGISTER);
 	lua_setfield(L, -2, "PTYPE_REGISTER");
-	
+
+	lua_pushinteger(L, PTYPE_REG_ADD_SERVICE);
+	lua_setfield(L, -2, "PTYPE_REG_ADD_SERVICE");
+
+	lua_pushinteger(L, PTYPE_REG_DEL_SERVICE);
+	lua_setfield(L, -2, "PTYPE_REG_DEL_SERVICE");
+
 	lua_pushinteger(L, PTYPE_PING);
 	lua_setfield(L, -2, "PTYPE_PING");
 	

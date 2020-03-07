@@ -78,6 +78,14 @@ function AgentService.RetCallData(data)
 	return AgentServiceRemoteSvrObj:RetCallData(data)
 end
 
+function AgentService.IsServiceReg(name)
+	return AgentServiceRemoteSvrObj:IsServiceReg(name)
+end
+
+function AgentService.GetRegServiceList()
+	return util.copytable(AgentServiceRemoteSvrObj:GetRegServiceList())
+end
+
 function AgentService.GetName()
 	return AgentServiceClassName..""
 end

@@ -30,18 +30,19 @@ extern "C" {
 
 enum AGENTSERVICE_PTYPE
 {
-	PTYPE_RESPONSE = 0,			//回应协程消息
-	PTYPE_CALL = 1,				//协程消息
-	PTYPE_REMOTE = 2,			//发送给远程目标数据类型
-	PTYPE_COMMON = 3,			//普通类型
-	PTYPE_REGISTER_KEY = 4,		//注册Key类型
-	PTYPE_REGISTER = 5,			//注册类型
-	PTYPE_REG_SERVICE = 6,		//服务列表类型
-	PTYPE_PING = 7,				//Ping类型
-	PTYPE_REMOTE_CONNECT = 8,	//新的链接
-	PTYPE_REMOTE_DISCONNECT = 9,//链接断开
-	PTYPE_REMOTE_RECV_DATA = 10,//链接断开
-	PTYPE_REMOTE_CLOSE = 11,	//主动断开链接
+	PTYPE_RESPONSE = 0,				//回应协程消息
+	PTYPE_CALL = 1,					//协程消息
+	PTYPE_REMOTE = 2,				//发送给远程目标数据类型
+	PTYPE_COMMON = 3,				//普通类型
+	PTYPE_REGISTER_KEY = 4,			//注册Key类型
+	PTYPE_REGISTER = 5,				//注册类型
+	PTYPE_REG_ADD_SERVICE = 6,		//增加服务列表类型
+	PTYPE_REG_DEL_SERVICE = 7,		//删除服务列表类型
+	PTYPE_PING = 8,					//Ping类型
+	PTYPE_REMOTE_CONNECT = 9,		//新的链接
+	PTYPE_REMOTE_DISCONNECT = 10,	//链接断开
+	PTYPE_REMOTE_RECV_DATA = 11,	//链接断开
+	PTYPE_REMOTE_CLOSE = 12,		//主动断开链接
 };
 
 struct AgentServicePacket
@@ -93,7 +94,8 @@ class ServiceForAgent : public SeServer
 	void OnServerUpdate() {};
 private:
 	bool IsReg(HSOCKET kHSocket);
-	void SendWatchdogRegService(std::string& rkRegName);
+	void SendWatchdogAddRegService(const std::string& rkRegName);
+	void SendWatchdogDelRegService(const std::string& rkRegName);
 private:
 	std::map<HSOCKET, ServiceSocket> m_kServiceList;
 };
