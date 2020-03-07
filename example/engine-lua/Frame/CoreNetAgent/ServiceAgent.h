@@ -36,11 +36,12 @@ enum AGENTSERVICE_PTYPE
 	PTYPE_COMMON = 3,			//普通类型
 	PTYPE_REGISTER_KEY = 4,		//注册Key类型
 	PTYPE_REGISTER = 5,			//注册类型
-	PTYPE_PING = 6,				//Ping类型
-	PTYPE_REMOTE_CONNECT = 7,	//新的链接
-	PTYPE_REMOTE_DISCONNECT = 8,//链接断开
-	PTYPE_REMOTE_RECV_DATA = 9,	//链接断开
-	PTYPE_REMOTE_CLOSE = 10,	//主动断开链接
+	PTYPE_REG_SERVICE = 6,		//服务列表类型
+	PTYPE_PING = 7,				//Ping类型
+	PTYPE_REMOTE_CONNECT = 8,	//新的链接
+	PTYPE_REMOTE_DISCONNECT = 9,//链接断开
+	PTYPE_REMOTE_RECV_DATA = 10,//链接断开
+	PTYPE_REMOTE_CLOSE = 11,	//主动断开链接
 };
 
 struct AgentServicePacket
@@ -92,6 +93,7 @@ class ServiceForAgent : public SeServer
 	void OnServerUpdate() {};
 private:
 	bool IsReg(HSOCKET kHSocket);
+	void SendWatchdogRegService(std::string& rkRegName);
 private:
 	std::map<HSOCKET, ServiceSocket> m_kServiceList;
 };
