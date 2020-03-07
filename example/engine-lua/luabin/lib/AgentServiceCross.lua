@@ -24,27 +24,27 @@ local function GetAgentServiceCrossObj(serviceName)
 end
 
 -----------------------------------------------------------------
-function AgentServiceCross.OnCRecvCall(IClientObj, targetName, proto, data)
-	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnRecvCall](IClientObj:GetPrivateData(), proto, data)
+function AgentServiceCross.OnCRecvCall(IClientObj, proto, data)
+	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnCrossRecvCall](IClientObj:GetPrivateData(), proto, data)
 end
 
-function AgentServiceCross.OnCRecvCommon(IClientObj, targetName, proto, data)
-	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnRecvCommon](IClientObj:GetPrivateData(), proto, data)
+function AgentServiceCross.OnCRecvCommon(IClientObj, proto, data)
+	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnCrossRecvCommon](IClientObj:GetPrivateData(), proto, data)
 end
 
 function AgentServiceCross.OnCRegister(IClientObj)
 	package.loaded[AgentServiceCrossEventMudleName][IAgentServiceCrossNetFunc_OnCrossRegister](IClientObj:GetPrivateData())
 end
 
-function AgentServiceCross.OnCRemoteConnect(IClientObj)
+function AgentServiceCross.OnCRemoteConnect(IClientObj, socket, ip)
 	
 end
 
-function AgentServiceCross.OnCRemoteDisConnect(IClientObj)
+function AgentServiceCross.OnCRemoteDisConnect(IClientObj, socket)
 	
 end
 
-function AgentServiceCross.OnCRemoteRecvData(IClientObj, proto, data)
+function AgentServiceCross.OnCRemoteRecvData(IClientObj, socket, proto, data)
 	
 end
 
