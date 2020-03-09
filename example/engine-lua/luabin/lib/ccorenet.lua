@@ -175,7 +175,7 @@ end
 
 -- 系统print函数钩子
 local logLock = false
-function ccorenet.hookprint(modulename, funcNameStr)
+function ccorenet.hookprint(OnLogFunctionCallBack)
 
 	if not sys_print then
 		return
@@ -193,7 +193,7 @@ function ccorenet.hookprint(modulename, funcNameStr)
 			return
 		end
 		logLock = true
-		local result, errMsg = pcall(function() package.loaded[modulename][funcNameStr](cache) end)
+		local result, errMsg = pcall(function() OnLogFunctionCallBack(cache) end)
 		if not result then sys_print(debug.traceback(), "\n", string.format("GlobalLogCallBack %s", errMsg)) end
 		logLock = false
 	end
