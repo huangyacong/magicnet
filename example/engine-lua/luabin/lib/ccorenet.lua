@@ -174,6 +174,7 @@ function ccorenet.suspendTimeOut(timeout_millsec)
 end
 
 -- 系统print函数钩子
+local logLock = false
 function ccorenet.hookprint(modulename, funcNameStr)
 
 	if not sys_print then
@@ -181,12 +182,20 @@ function ccorenet.hookprint(modulename, funcNameStr)
 	end
 	
 	local hook_print = function(...)
+		
 		local cache = os.date("%Y-%m-%d %H:%M:%S")
 		for k,v in ipairs(table.pack(...)) do
 			cache = cache.." "..tostring(v)
 		end
+
+		if logLock then
+			sys_print(cache)
+			return
+		end
+		logLock = true
 		local result, errMsg = pcall(function() package.loaded[modulename][funcNameStr](cache) end)
 		if not result then sys_print(debug.traceback(), "\n", string.format("GlobalLogCallBack %s", errMsg)) end
+		logLock = false
 	end
 
 	print = hook_print
