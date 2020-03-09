@@ -175,7 +175,7 @@ end
 
 -- 系统print函数钩子
 local logLock = false
-function ccorenet.hookprint(OnLogFunctionCallBack)
+function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
 
 	if not sys_print then
 		return
@@ -183,7 +183,7 @@ function ccorenet.hookprint(OnLogFunctionCallBack)
 	
 	local hook_print = function(...)
 		
-		local cache = os.date("%Y-%m-%d %H:%M:%S")
+		local cache = "[" .. nameStr .. "]"
 		for k,v in ipairs(table.pack(...)) do
 			cache = cache.." "..tostring(v)
 		end
