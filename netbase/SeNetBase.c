@@ -91,6 +91,7 @@ double SeBigToLittleEndianDF(unsigned long long ullValue)
 	unsigned long long* p;
 	const unsigned long long Tempval = SWAP_LONGLONG(ullValue);
 	
+	Retval = 0.0;
 	p = (unsigned long long*)&Retval;
 	*p = Tempval;
 	return Retval;
@@ -120,6 +121,7 @@ float SeBigToLittleEndianF(unsigned int uiValue)
 	unsigned int* p;
 	const unsigned int Tempval = SWAP_LONG(uiValue);
 	
+	Retval = 0.0;
 	p = (unsigned int*)&Retval;
 	*p = Tempval;
 	return Retval;
