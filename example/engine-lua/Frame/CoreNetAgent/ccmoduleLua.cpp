@@ -47,6 +47,8 @@ extern "C" int CoreNetFinAgentGate(lua_State *L)
 	if (!g_pkServiceAgentGate)
 		return 0;
 	g_pkServiceAgentGate->StopServiceAgent();
+	delete g_pkServiceAgentGate;
+	g_pkServiceAgentGate = NULL;
 	lua_pushnil(L);
 	return 1;
 }
@@ -266,6 +268,9 @@ extern "C" int luaopen_CoreNetAgent(lua_State *L)
 
 	lua_pushinteger(L, PTYPE_PING);
 	lua_setfield(L, -2, "PTYPE_PING");
+
+	lua_pushinteger(L, PTYPE_EXIT);
+	lua_setfield(L, -2, "PTYPE_EXIT");
 	
 	lua_pushinteger(L, PTYPE_REMOTE_CONNECT);
 	lua_setfield(L, -2, "PTYPE_REMOTE_CONNECT");

@@ -39,10 +39,11 @@ enum AGENTSERVICE_PTYPE
 	PTYPE_REG_ADD_SERVICE = 6,		//增加服务列表类型
 	PTYPE_REG_DEL_SERVICE = 7,		//删除服务列表类型
 	PTYPE_PING = 8,					//Ping类型
-	PTYPE_REMOTE_CONNECT = 9,		//新的链接
-	PTYPE_REMOTE_DISCONNECT = 10,	//链接断开
-	PTYPE_REMOTE_RECV_DATA = 11,	//链接断开
-	PTYPE_REMOTE_CLOSE = 12,		//主动断开链接
+	PTYPE_EXIT = 9,					//退出
+	PTYPE_REMOTE_CONNECT = 10,		//新的链接
+	PTYPE_REMOTE_DISCONNECT = 11,	//链接断开
+	PTYPE_REMOTE_RECV_DATA = 12,	//链接断开
+	PTYPE_REMOTE_CLOSE = 13,		//主动断开链接
 };
 
 struct AgentServicePacket
@@ -117,7 +118,6 @@ public:
 	bool Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt);
 	bool Listen(const char* IPRemote, int PortRemote, const char* IPService, int PortService, const char* IPServiceUnix, int iTimeOut);
 public:
-	static char m_acBuff[256];
 	static std::string m_kWatchDogName;
 	static ServiceForRemote m_kServiceForRemote;
 	static ServiceForAgent m_kServiceForAgentIPSocket;
