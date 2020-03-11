@@ -237,7 +237,7 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 		SendPing(kHSocket);
 		break;
 	case PTYPE_EXIT:				//退出
-		ServiceAgent::m_kServiceAgenttEngine.StopEngine();
+		Exit(kHSocket);
 		break;
 	case PTYPE_REMOTE_CLOSE:		//主动断开链接类型
 		CloseRemote((HSOCKET)kPacket.ullSessionId);
@@ -245,6 +245,17 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 	default:
 		break;
 	}
+}
+
+void ServiceForAgent::Exit(HSOCKET kHSocket)
+{
+	if (m_kServiceList.find(kHSocket) == m_kServiceList.end())
+		return;
+	ServiceSocket& rkServiceSocket = m_kServiceList[kHSocket];
+	if (rkServiceSocket.m_kRegName != ServiceAgent::m_kWatchDogName)
+		return;
+	ServiceAgent::m_kServiceAgenttEngine.StopEngine();
+	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_INFO, "ServiceForAgent::Exit");
 }
 
 bool ServiceForAgent::IsReg(HSOCKET kHSocket)

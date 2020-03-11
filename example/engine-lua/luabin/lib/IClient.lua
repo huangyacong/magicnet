@@ -168,6 +168,11 @@ function IClientClass:TryReConnect()
 	return self:Connect()
 end
 
+function IClientClass:ExitAgent()
+	local header, contents = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_EXIT, 0, "")
+	return CoreNet.TCPSend(self.hsocket, header, contents)
+end
+
 function IClientClass:SendData(targetName, proto, data)
 	local header, contents = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_COMMON, 0, msgpack.pack(data))
 	return CoreNet.TCPSend(self.hsocket, header, contents)

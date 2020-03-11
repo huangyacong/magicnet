@@ -58,6 +58,10 @@ function AgentService.OnCConnectFailed(IClientObj)
 end
 -----------------------------------------------------------------
 
+function AgentService.ExitAgent()
+	AgentServiceRemoteSvrObj:ExitAgent()
+end
+
 function AgentService.SendRemote(remote_socket, proto, data)
 	return AgentServiceRemoteSvrObj:SendRemoteData(remote_socket, proto, data)
 end

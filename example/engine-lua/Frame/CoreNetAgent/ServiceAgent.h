@@ -92,6 +92,7 @@ class ServiceForAgent : public SeServer
 	void RegisterService(HSOCKET kHSocket, const std::string& rkName, const std::string& rkMD5);
 	void SendPing(HSOCKET kHSocket);
 	void CloseRemote(HSOCKET kHSocket);
+	void Exit(HSOCKET kHSocket);
 	void OnServerUpdate() {};
 private:
 	bool IsReg(HSOCKET kHSocket);
