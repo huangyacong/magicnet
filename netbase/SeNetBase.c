@@ -138,7 +138,7 @@ void SeCloseHandle(HANDLE kHandle)
 
 SOCKET SeSocket(int domain, int iType)
 {
-	return socket(domain, iType, domain == SE_DOMAIN_INET ? (iType == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP) : 0);
+	return socket(domain, iType, IPPROTO_TCP);//IPPROTO_UDP
 }
 
 SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr, SOCK_LEN *riLen)
