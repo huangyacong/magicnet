@@ -138,7 +138,7 @@ void SeCloseHandle(HANDLE kHandle)
 
 SOCKET SeSocket(int domain, int iType)
 {
-	return socket(domain, iType, IPPROTO_TCP);//IPPROTO_UDP
+	return socket(domain, iType, 0);
 }
 
 SOCKET SeAccept(SOCKET kSocket, struct sockaddr *pkAddr, SOCK_LEN *riLen)
@@ -288,38 +288,53 @@ int SeGetPeerName(SOCKET kSocket, struct sockaddr *pkAddr)
 	return getpeername(kSocket, pkAddr, &kLen);
 }
 
-void SeSetSockAddr(int iDoMain, void *pkAddr, const char *pcIP, unsigned short usPort)
+SOCK_LEN SeSetSockAddr(int iDoMain, struct sockaddr_storage *pkAddr, const char *pcIP, unsigned short usPort)
 {
 	struct sockaddr_in *pkAddrIn;
+	struct sockaddr_in6 *pkAddrIn6;
 
 #ifdef __linux
 	struct sockaddr_un *pkUn;
 
 	if (iDoMain == SE_DOMAIN_UNIX)
 	{
+		assert(sizeof(struct sockaddr_storage) >= sizeof(struct sockaddr_un));
 		pkUn = (struct sockaddr_un*)pkAddr;
 		pkUn->sun_family  = iDoMain;
-		SeStrNcpy(pkUn->sun_path, (int)sizeof(struct sockaddr_un), pcIP);
-		return;
+		SeStrNcpy(pkUn->sun_path, (int)sizeof(pkUn->sun_path), pcIP);
+		return (int)sizeof(struct sockaddr_un);
 	}
 
 #endif
 
 	if (iDoMain == SE_DOMAIN_INET)
 	{
+		assert(sizeof(struct sockaddr_storage) >= sizeof(struct sockaddr_in));
 		pkAddrIn = (struct sockaddr_in*)pkAddr;
 		pkAddrIn->sin_family = iDoMain;
 		pkAddrIn->sin_addr.s_addr = inet_addr(pcIP);
 		pkAddrIn->sin_port = htons(usPort);
-		return;
+		return (int)sizeof(struct sockaddr_storage);
+	}
+
+	if (iDoMain == SE_DOMAIN_INET6)
+	{
+		assert(sizeof(struct sockaddr_storage) >= sizeof(struct sockaddr_in6));
+		pkAddrIn6 = (struct sockaddr_in6*)pkAddr;
+		pkAddrIn6->sin6_family = iDoMain;
+		inet_pton(iDoMain, pcIP, &pkAddrIn6->sin6_addr);
+		pkAddrIn6->sin6_port = htons(usPort);
+		return (int)sizeof(struct sockaddr_storage);
 	}
 
 	assert(true);
+	return 0;
 }
 
-void SeSetAddrToBuf(int iDoMain, void *pkAddr, char* pcIpBuf, int iLen, int* piPort)
+void SeSetAddrToBuf(int iDoMain, struct sockaddr_storage *pkAddr, char* pcIpBuf, int iLen, int* piPort)
 {
 	struct sockaddr_in *pkAddrIn;
+	struct sockaddr_in6 *pkAddrIn6;
 
 #ifdef __linux
 	struct sockaddr_un *pkUn;
@@ -338,6 +353,14 @@ void SeSetAddrToBuf(int iDoMain, void *pkAddr, char* pcIpBuf, int iLen, int* piP
 		pkAddrIn = (struct sockaddr_in*)pkAddr;
 		SeStrNcpy(pcIpBuf, iLen, inet_ntoa(pkAddrIn->sin_addr));
 		*piPort = ntohs(pkAddrIn->sin_port);
+		return;
+	}
+
+	if (iDoMain == SE_DOMAIN_INET6)
+	{
+		pkAddrIn6 = (struct sockaddr_in6*)pkAddr;
+		inet_ntop(iDoMain, &pkAddrIn6->sin6_addr, pcIpBuf, iLen);
+		*piPort = ntohs(pkAddrIn6->sin6_port);
 		return;
 	}
 

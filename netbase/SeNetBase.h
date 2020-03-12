@@ -43,6 +43,7 @@ extern "C" {
 	#include <sys/un.h>
 
 	#define SE_DOMAIN_INET			AF_INET
+	#define SE_DOMAIN_INET6			AF_INET6
 	#define SE_DOMAIN_UNIX			AF_UNIX
 
 	#define SOCKET					int
@@ -69,6 +70,7 @@ extern "C" {
 	#endif
 
 	#define SE_DOMAIN_INET			AF_INET
+	#define SE_DOMAIN_INET6			AF_INET6
 	#define SE_DOMAIN_UNIX			AF_UNSPEC
 
 	#define SOCK_LEN				int
@@ -156,9 +158,9 @@ int SeGetSockName(SOCKET kSocket, struct sockaddr *pkAddr);
 
 int SeGetPeerName(SOCKET kSocket, struct sockaddr *pkAddr);
 
-void SeSetSockAddr(int iDoMain, void *pkAddr, const char *pcIP, unsigned short usPort);
+SOCK_LEN SeSetSockAddr(int iDoMain, struct sockaddr_storage *pkAddr, const char *pcIP, unsigned short usPort);
 
-void SeSetAddrToBuf(int iDoMain, void *pkAddr, char* pcIpBuf, int iLen, int* piPort);
+void SeSetAddrToBuf(int iDoMain, struct sockaddr_storage *pkAddr, char* pcIpBuf, int iLen, int* piPort);
 
 void SeErrStr(int iErrno, char *pcMsg, unsigned long ulSize);
 

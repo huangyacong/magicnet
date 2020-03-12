@@ -255,7 +255,7 @@ bool SeNetCoreAcceptEx(struct SENETCORE *pkNetCore, int iDomain, HSOCKET kListen
 
 	bRet = lpfnAcceptEx(kSocket, socket,
 			pkIOData->acData, 0,
-			sizeof(struct sockaddr_in) + 16, sizeof(struct sockaddr_in) + 16,
+			sizeof(struct sockaddr_storage) + 16, sizeof(struct sockaddr_storage) + 16,
 			&dwBytes, &pkIOData->overlapped);
 
 	if(bRet)
@@ -305,9 +305,9 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReuse
 	SOCKET socket;
 	SOCK_LEN iLen;
 	HSOCKET kHSocket;
-	struct sockaddr kAddr;
 	struct linger so_linger;
 	struct SESOCKET *pkNetSocket;
+	struct sockaddr_storage kAddr;
 	
 	domain = iDomain;
 	socket = SeSocket(domain, SOCK_STREAM);
@@ -365,9 +365,10 @@ HSOCKET SeNetCoreTCPListen(struct SENETCORE *pkNetCore, int iDomain, bool bReuse
 			return 0;
 		}
 	}
-	iLen = sizeof(struct sockaddr);
+	iLen = sizeof(kAddr);
+	memset(&kAddr, 0, sizeof(kAddr));
 	SeSetSockAddr(domain, &kAddr, pcIP, usPort);
-	if (SeBind(socket, &kAddr, iLen) != 0)
+	if (SeBind(socket, (struct sockaddr*)&kAddr, iLen) != 0)
 	{
 		iErrorno = SeErrno();
 		SeShutDown(socket);
@@ -415,11 +416,10 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, int iDomain, const char 
 	SOCK_LEN iLen;
 	HSOCKET kHSocket;
 	DWORD dwSend,dwBytes;
-	struct sockaddr kAddr;
-	struct sockaddr local;
 	struct linger so_linger;
 	struct IODATA *pkIOData;
 	struct SESOCKET *pkNetSocket;
+	struct sockaddr_storage kAddr;
 	
 	domain = iDomain;
 	socket = SeSocket(domain, SOCK_STREAM);
@@ -492,9 +492,10 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, int iDomain, const char 
 		return 0;
 	}
 
-	iLen = sizeof(struct sockaddr);
-	SeSetSockAddr(domain, &local, "0.0.0.0", 0);
-	if (SE_SOCKET_ERROR == SeBind(socket, &local, iLen))
+	iLen = sizeof(kAddr);
+	memset(&kAddr, 0, sizeof(kAddr));
+	SeSetSockAddr(domain, &kAddr, domain == SE_DOMAIN_INET ? "0.0.0.0" : "::", 0);
+	if (SE_SOCKET_ERROR == SeBind(socket, (struct sockaddr*)&kAddr, iLen))
 	{
 		iErrorno = SeErrno();
 		SeShutDown(socket);
@@ -526,9 +527,11 @@ HSOCKET SeNetCoreTCPClient(struct SENETCORE *pkNetCore, int iDomain, const char 
 	memset(&pkIOData->overlapped, 0, sizeof(OVERLAPPED));
 	pkIOData->kHScoket = kHSocket;
 	pkIOData->iOPType = OP_TYPE_CONNECT;
- 
+	
+	iLen = sizeof(kAddr);
+	memset(&kAddr, 0, sizeof(kAddr));
 	SeSetSockAddr(domain, &kAddr, pcIP, usPort);
-	if(!ConnectEx(socket, &kAddr, sizeof(struct sockaddr), NULL, 0, &dwSend, &pkIOData->overlapped))
+	if (!ConnectEx(socket, (struct sockaddr*)&kAddr, iLen, NULL, 0, &dwSend, &pkIOData->overlapped))
 	{
 		iErrorno = SeErrno();
 		if(ERROR_IO_PENDING != iErrorno)
@@ -847,10 +850,10 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	DWORD						dwBytes = 0;
 	int							tResult = 0;
 
-	struct	sockaddr_in			*local_addr = NULL;
-	struct  sockaddr_in			*remote_addr = NULL;
-	int							local_addr_len = sizeof(struct sockaddr_in);
-	int							remote_addr_len = sizeof(struct sockaddr_in);
+	struct	sockaddr_storage	*local_addr = NULL;
+	struct  sockaddr_storage	*remote_addr = NULL;
+	int							local_addr_len = sizeof(struct sockaddr_storage);
+	int							remote_addr_len = sizeof(struct sockaddr_storage);
 
 	pkListenSocket = SeGetListenSocketByHSocket(pkNetCore, pkNetSocketListen->kHSocket);
 	if(pkListenSocket)
@@ -874,7 +877,7 @@ void SeNetCoreListenSocket(struct SENETCORE *pkNetCore, struct SESOCKET *pkNetSo
 	if(tResult != SE_SOCKET_ERROR)
 	{
 		lpfnGetAcceptExSockaddrs(pkIOData->acData, 0, 
-							sizeof(struct sockaddr_in)+16, sizeof(struct sockaddr_in)+16,
+							sizeof(struct sockaddr_storage) + 16, sizeof(struct sockaddr_storage) + 16,
 							(struct sockaddr**)&local_addr, &local_addr_len,
 							(struct sockaddr**)&remote_addr, &remote_addr_len);
 	}

@@ -18,6 +18,7 @@ local globalHotfixModuleName = {}
 
 -- socket类型 
 ccorenet.IpV4 = CoreNet.DOMAIN_INET
+ccorenet.IpV6 = CoreNet.DOMAIN_INET6
 ccorenet.UnixLocal = CoreNet.DOMAIN_UNIX
 
 -- iServer列表

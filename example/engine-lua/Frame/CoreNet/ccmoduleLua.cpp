@@ -411,6 +411,9 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 	lua_pushinteger(L, SE_DOMAIN_INET);
 	lua_setfield(L, -2, "DOMAIN_INET");
 
+	lua_pushinteger(L, SE_DOMAIN_INET6);
+	lua_setfield(L, -2, "DOMAIN_INET6");
+
 	lua_pushinteger(L, SE_DOMAIN_UNIX);
 	lua_setfield(L, -2, "DOMAIN_UNIX");
 
