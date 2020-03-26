@@ -152,7 +152,15 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 	local mt = {
 		__index = t,
 		__len = function (a) return #t end,
-		__pairs = function (a) return pairs(t) end,
+		__pairs = function(a) -- 把关键字过滤掉
+			return function(a, k)
+					local v
+					repeat
+						k, v = next(a, k)
+					until k == nil or not keyWords[k]
+					return k, v
+			end, t, nil
+		end,
 		__ipairs = function (a) return ipairs(t) end,
 		__newindex = function (a, k, v)
 			t[k] = v
