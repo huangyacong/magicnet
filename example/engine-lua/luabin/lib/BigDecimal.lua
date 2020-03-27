@@ -1,3 +1,4 @@
+local util = require "util"
 require "class"
 
 local BigDecimal = {}
@@ -122,6 +123,16 @@ function BigDecimal.GT(BigDecimalClassObjLeft, BigDecimalClassObjRight)
 	return BigDecimalClassObjLeft:GetHugeValue() > BigDecimalClassObjRight:GetHugeValue()
 end
 
+-- 取模
+function BigDecimal.Mod(numerator, denominator)
+	local numeratorRet = string.find(tostring(numerator), "%.")
+	local denominatorRet = string.find(tostring(denominator), "%.")
+	assert(not (numeratorRet ~= nil or denominatorRet ~= nil), string.format("numerator=%s denominator=%s is float num.", numerator, denominator))
+	assert(numerator >= 0 and denominator > 0)
+	local _, remainder = GetQuotientAndRemainder(numerator, denominator)
+	return remainder
+end
+
 BigDecimal.BigDecimalClass = BigDecimalClass
 
-return BigDecimal
+return util.ReadOnlyTable(BigDecimal)
