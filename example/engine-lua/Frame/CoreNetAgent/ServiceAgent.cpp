@@ -154,6 +154,12 @@ bool ServiceForRemote::SendRemoteData(HSOCKET kHSocket, unsigned short usProto, 
 {
 	const int iHeaderLen = 2;
 	char acHeader[iHeaderLen] = {};
+
+	if (m_kRemoteList.find(kHSocket) == m_kRemoteList.end())
+	{
+		NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_ERROR, "socket=%llx ServiceForRemote::OnServerRecv kHSocket not remote socket error", kHSocket);
+		return false;
+	}
 	
 	if (!SeNetSreamSetHeader((unsigned char*)acHeader, iHeaderLen, usProto))
 	{
