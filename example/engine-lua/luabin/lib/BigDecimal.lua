@@ -17,6 +17,7 @@ function BigDecimalClass:ctor(bUnSigned, HInteger, LInteger)
 	self.bUnSigned = bUnSigned 	-- true 是正数否则负数
 	self.HInteger = HInteger 	-- 整数部分
 	self.LInteger = LInteger 	-- 小数部分
+	if self.HInteger == 0 and self.LInteger == 0 then self.bUnSigned = true end
 end
 
 function BigDecimalClass:ToString()
@@ -29,7 +30,11 @@ function BigDecimalClass:GetHugeValue()
 end
 
 function BigDecimalClass:Floor()
-	return self.HInteger
+	return self.HInteger * (self.bUnSigned and 1 or -1)
+end
+
+function BigDecimalClass:Ceil()
+	return (self.HInteger + ((self.LInteger > 0) and 1 or 0)) * (self.bUnSigned and 1 or -1)
 end
 
 -- 获取商数和余数
@@ -121,6 +126,16 @@ end
 -- 大于 gt (greater than)
 function BigDecimal.GT(BigDecimalClassObjLeft, BigDecimalClassObjRight)
 	return BigDecimalClassObjLeft:GetHugeValue() > BigDecimalClassObjRight:GetHugeValue()
+end
+
+-- 取最大值
+function BigDecimal.Max(BigDecimalClassObjLeft, BigDecimalClassObjRight)
+	return BigDecimal.GE(BigDecimalClassObjLeft, BigDecimalClassObjRight) and BigDecimalClassObjLeft or BigDecimalClassObjRight
+end
+
+-- 取最小值
+function BigDecimal.Min(BigDecimalClassObjLeft, BigDecimalClassObjRight)
+	return BigDecimal.LE(BigDecimalClassObjLeft, BigDecimalClassObjRight) and BigDecimalClassObjLeft or BigDecimalClassObjRight
 end
 
 -- 取模
