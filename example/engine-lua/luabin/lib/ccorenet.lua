@@ -184,15 +184,23 @@ function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
 	
 	local hook_print = function(...)
 		
-		local cache = "[" .. nameStr .. "]"
-		for k,v in ipairs(table.pack(...)) do
-			cache = cache.." "..tostring(v)
+		local cacheArray = {}
+		table.insert(cacheArray, "[" .. nameStr .. "]")
+		for k,v in ipairs(table.pack(...)) do 
+			table.insert(cacheArray, " ") 
+			if type(v) == type("") then
+				table.insert(cacheArray, v) 
+			else
+				table.insert(cacheArray, tostring(v)) 
+			end
 		end
+		local cache = table.concat(cacheArray)
 
 		if logLock then
 			sys_print(cache)
 			return
 		end
+
 		logLock = true
 		local result, errMsg = pcall(function() OnLogFunctionCallBack(cache) end)
 		if not result then sys_print(debug.traceback(), "\n", string.format("GlobalLogCallBack %s", errMsg)) end
