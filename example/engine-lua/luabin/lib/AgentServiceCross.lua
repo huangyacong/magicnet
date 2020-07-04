@@ -17,6 +17,7 @@ local AgentServiceCrossIsLocalService = false
 local AgentServiceCrossEventMudleName = nil
 local AgentServiceCrossClassName = ""
 local AgentServiceCrossHotfixModuleName = nil
+local AgentServiceCrossLocalLogServiceName = ""
 
 local AgentServiceCrossList = {}
 local function GetAgentServiceCrossObj(serviceName)
@@ -79,6 +80,10 @@ function AgentServiceCross.GetName()
 	return AgentServiceCrossClassName..""
 end
 
+function AgentServiceCross.GetLocalLogServiceName()
+	return AgentServiceCrossLocalLogServiceName
+end
+
 function AgentServiceCross.Hotfix()
 	if not AgentServiceCrossHotfixModuleName then
 		print(debug.traceback(), "\n", "AgentServiceCross.Hotfix modulename is nil")
@@ -120,6 +125,7 @@ function AgentServiceCross.AddService(serviceName, cRemoteIP, iRemotePort, cUnix
 
 	obj:SetPrivateData(serviceName)
 	AgentServiceCrossList[serviceName] = obj
+	AgentServiceCrossLocalLogServiceName = serviceName
 	return true
 end
 

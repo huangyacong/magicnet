@@ -141,7 +141,7 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 		assert(not keyWords[k], string.format("Class Has Key=%s, this can only use in system!", k))
 	end
 	for _, k in ipairs(keyWordsArray or {}) do
-		assert(keyWords[k] == nil, string.format("AddTableAutoUpdateMsg keyWords=%s more define!", k))
+		--assert(keyWords[k] == nil, string.format("AddTableAutoUpdateMsg keyWords=%s more define!", k))
 		keyWords[k] = true
 	end
 	

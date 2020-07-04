@@ -88,6 +88,11 @@ function ccoremysql.escapesql(args)
 	return CoreMySql.Escape(args)
 end
 
+-- 设置自动提交
+function ccoremysql.setautocommit(flag)
+	return CoreMySql.SetAutoCommit(flag)
+end 
+
 -- 写入事务
 function ccoremysql.commit()
 	return CoreMySql.Commit()

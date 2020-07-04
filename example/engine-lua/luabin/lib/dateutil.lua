@@ -106,4 +106,59 @@ function dateutil.get_time_stamp(sec, min, hour, day, month, year)
 	return os.time(time_struct)
 end
 
+-- 获取上一个星期几 几时几点几分的时间(星期日是1)
+function dateutil.get_last_weekday_time(weekday, hour, min, sec)
+	local cur_time = os.time()
+	local t = os.date("*t", cur_time)
+	local wdaydiff = 0
+	if t.wday >= 2 then
+		wdaydiff = t.wday - weekday
+	else
+		wdaydiff = t.wday + 7 - weekday
+	end 
+	t.day = t.day - wdaydiff
+	t.hour = hour
+	t.min = min
+	t.sec = sec
+	if os.time(t) >= cur_time then
+		t.day = t.day - 7
+	end 
+	return math.floor(os.time(t))
+end 
+
+-- 获取上一个几时几分几秒的时间
+function dateutil.get_last_time(hour, min, sec)
+	local cur_time = os.time()
+	local t = os.date("*t", cur_time)
+	t.hour = hour
+	t.min = min
+	t.sec = sec
+	if os.time(t) >= cur_time then
+		t.day = t.day - 1
+	end 
+	return math.floor(os.time(t))
+end 
+
+-- 获取下一个几时几分几秒的时间
+function dateutil.get_next_time(hour, min, sec)
+	local cur_time = os.time()
+	local t = os.date("*t", cur_time)
+	t.hour = hour
+	t.min = min
+	t.sec = sec
+	if os.time(t) <= cur_time then
+		t.day = t.day + 1
+	end 
+	return math.floor(os.time(t))
+end 
+
+-- 获取星期几(星期日是7)
+function dateutil.get_weekday(time)
+	local weekday = dateutil.format_time_table(time).wday - 1
+	if weekday == 0 then
+		weekday = 7
+	end 
+	return weekday
+end 
+
 return util.ReadOnlyTable(dateutil)
