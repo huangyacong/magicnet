@@ -1,4 +1,5 @@
 #include "ccmoduleLua.h"
+#include "SeCrashDump.h"
 #include "SeTimer.h"
 #include <math.h>
 #include <string>
@@ -48,6 +49,7 @@ extern "C" int CoreNetInit(lua_State *L)
 	ResetMsgIDStat();
 	
 	g_iCoreWaitTime = -1;
+	SeCrashDump(string(pcLogName) + string(".CrashDump"));
 	SeNetCoreInit(&g_kNetore, (char*)pcLogName, usMax, iTimerCnt, iLogLV);
 	SeNetCoreSetWaitTime(&g_kNetore, g_iCoreWaitTime);
 
