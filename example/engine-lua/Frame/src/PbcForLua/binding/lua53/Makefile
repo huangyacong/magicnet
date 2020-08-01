@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -fPIC -Wall
+CFLAGS = -g -O2 -fPIC -Wall
 LUADIR = /usr/local/include
 TARGET = protobuf.so
 
