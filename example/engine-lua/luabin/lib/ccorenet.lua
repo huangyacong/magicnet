@@ -96,39 +96,52 @@ local net_event_fliter_client = {
 								end,
 }
 
+local net_event_id = {
+	[CoreNet.SOCKET_CONNECT] = CoreNet.SOCKET_CONNECT,
+	[CoreNet.SOCKET_CONNECT_FAILED] = CoreNet.SOCKET_CONNECT_FAILED,
+	[CoreNet.SOCKET_DISCONNECT] = CoreNet.SOCKET_DISCONNECT,
+	[CoreNet.SOCKET_RECV_DATA] = CoreNet.SOCKET_RECV_DATA,
+	[CoreNet.SOCKET_TIMER] = CoreNet.SOCKET_TIMER,
+}
+
 local function worker()
 	local netevent, listenscoket, recvsocket, data = table.unpack(CoreNet.Read())
-	if svrObj[listenscoket] then
-		local tcpsocketobj = svrObj[listenscoket]
-		local fliter = net_event_fliter_svr[netevent]
-		if fliter then
-			fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
+	
+	if net_event_id[netevent] then
+		if svrObj[listenscoket] then
+			local tcpsocketobj = svrObj[listenscoket]
+			local fliter = net_event_fliter_svr[netevent]
+			if fliter then
+				fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
+			else
+				print(debug.traceback(), "\n", string.format("ccorenet.read svrObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
+			end
+		elseif clientObj[recvsocket] then
+			local tcpsocketobj = clientObj[recvsocket]
+			local fliter = net_event_fliter_client[netevent]
+			if fliter then
+				fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
+			else
+				print(debug.traceback(), "\n", string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
+			end
+		elseif CoreNet.SOCKET_TIMER == netevent then
+			timer.timeout()
 		else
-			pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read svrObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
+			print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not find listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 		end
-	elseif clientObj[recvsocket] then
-		local tcpsocketobj = clientObj[recvsocket]
-		local fliter = net_event_fliter_client[netevent]
-		if fliter then
-			fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
-		else
-			pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
-		end
-	elseif CoreNet.SOCKET_TIMER == netevent then
-		timer.timeout()
 	else
-		pcall(function ()  print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket)) end)
+		print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 	end
 end
 
 -- 运行
 function ccorenet.start()
-	local result, errMsg = pcall(function() 
-		while sys_run == true do
-			ccoroutine.resume(ccoroutine.co_create(worker))
-		end
-	end)
-	if not result then print(debug.traceback(), "\n", string.format("ccorenet.start %s", errMsg)) end
+	while sys_run == true do
+		local ret, co = pcall(function() return ccoroutine.co_create(worker) end)
+		if not ret then pcall(function() sys_print(debug.traceback(), "\n", string.format("ccoroutine.co_create %s", co)) end) end
+		if co then ccoroutine.resume(co) end
+	end
+	sys_print(string.format("exit.... %s", sys_run))
 end
 
 -- 停止
@@ -231,5 +244,8 @@ end
 function ccorenet.statReport(timeDelay)
 	return CoreNet.Report(timeDelay)
 end
+
+-- 系统打印
+ccorenet.sys_print = sys_print
 
 return util.ReadOnlyTable(ccorenet)

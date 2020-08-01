@@ -1,4 +1,5 @@
 local util = require "util"
+local table_insert = table.insert
 
 
 math.randomseed(os.time())

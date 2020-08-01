@@ -85,7 +85,7 @@ function ccoroutine.resume(co, ...)
 	local running = running_thread
 	local ret, err = coroutine_resume(co, ...)
 	running_thread = running
-	if not ret then print(debug.traceback(), "\n", string.format("ccoroutine.resume %s", err)) end
+	if not ret then pcall(function() print(debug.traceback(), "\n", string.format("ccoroutine.resume %s", err)) end) end
 	return ret, err
 end
 
@@ -98,7 +98,7 @@ function ccoroutine.session_id_coroutine_timeout(sessionId)
 end
 
 function ccoroutine.yield_call(sessionId, timeout_millsec)
-	timeout_millsec = timeout_millsec or 1000 * 20
+	timeout_millsec = timeout_millsec or (1000 * 20)
 	local retpcall, ret, data = pcall(function() 
 		assert(session_id_coroutine[sessionId] == nil)
 		local timerId = timer.addtimer(local_modulename, "session_id_coroutine_timeout", timeout_millsec, sessionId)
@@ -122,7 +122,7 @@ function ccoroutine.wait_time_sleep_timeout(sessionId)
 end
 
 function ccoroutine.wait_time_sleep(timeout_millsec)
-	timeout_millsec = timeout_millsec or 1000 * 20
+	timeout_millsec = timeout_millsec or (1000 * 20)
 	local retpcall, err = pcall(function() 
 		local sessionId = CoreTool.SysSessionId()
 		assert(wait_coroutine_time_sleep[sessionId] == nil)

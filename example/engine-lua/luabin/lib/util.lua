@@ -44,7 +44,7 @@ function util.print_table(root)
 	
 	print("--------------begin print table--------------")
 	print("            "..os.date("%Y-%m-%d %H:%M:%S"))
-	pcall(function () return print(_dump(root, "","")) end)
+	pcall(function () return print("\n" .. _dump(root, "","")) end)
 	print("--------------end print table-----------------")
 end
 

@@ -22,6 +22,7 @@ end
 
 -- 添加定时器
 function timer.addtimer(modulename, func_name_str, iMillSecTime, ...)
+	assert(iMillSecTime >= 0)
 	if not timer_register[modulename] then
 		print(debug.traceback(), "\n", string.format("timer.addtimer modulename=%s is not register timer id", modulename))
 		return nil
