@@ -1,5 +1,6 @@
 #include "ccmoduleLua.h"
 #include "ServiceAgent.h"
+#include "SeCrashDump.h"
 #include "SeTimer.h"
 #include <math.h>
 #include <string>
@@ -35,6 +36,7 @@ extern "C" int CoreNetInitAgentGate(lua_State *L)
 	if (g_pkServiceAgentGate)
 		return 0;
 
+	SeCrashDump(string(pcLogName) + string(".CrashDump"));
 	g_pkServiceAgentGate = new ServiceAgent();
 	g_pkServiceAgentGate->Init(pcLogName, iLogLV, usMax, iTimerCnt);
 
