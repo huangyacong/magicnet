@@ -189,16 +189,21 @@ end
 
 -- 系统print函数钩子
 local logLock = false
+local serviceName = ""
+local LogFunctionCallBack = nil
 function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
 
 	if not sys_print then
 		return
 	end
+
+	serviceName = nameStr
+	LogFunctionCallBack = OnLogFunctionCallBack
 	
 	local hook_print = function(...)
 		
 		local cacheArray = {}
-		table.insert(cacheArray, "[" .. nameStr .. "]")
+		table.insert(cacheArray, "[" .. serviceName .. "]")
 		for k,v in ipairs(table.pack(...)) do 
 			table.insert(cacheArray, " ") 
 			if type(v) == type("") then
@@ -215,7 +220,7 @@ function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
 		end
 
 		logLock = true
-		local result, errMsg = pcall(function() OnLogFunctionCallBack(cache) end)
+		local result, errMsg = pcall(function() LogFunctionCallBack(cache) end)
 		if not result then sys_print(debug.traceback(), "\n", string.format("GlobalLogCallBack %s", errMsg)) end
 		logLock = false
 	end
