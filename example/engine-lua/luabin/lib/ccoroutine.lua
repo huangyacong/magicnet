@@ -91,7 +91,7 @@ end
 
 function ccoroutine.session_id_coroutine_timeout(sessionId)
 	local co = session_id_coroutine[sessionId]
-	print(debug.traceback(), "\n", "CallData time out")
+	print(debug.traceback(), "\n", "CallData time out", sessionId)
 	if co then 
 		ccoroutine.resume(co, false, "time out") 
 	end
