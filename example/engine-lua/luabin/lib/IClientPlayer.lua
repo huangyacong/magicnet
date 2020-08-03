@@ -144,9 +144,6 @@ end
 
 function IClientPlayerClass:TryReConnect()
 	if self.hsocket ~= 0 then return false end
-	local timeCnt = CoreTool.GetTickCount()
-	if self.m_ullReConnectTime > timeCnt then return end
-	self.m_ullReConnectTime = timeCnt
 	return self:Connect()
 end
 
@@ -180,7 +177,9 @@ function IClientPlayerClass:AddReConnectTimer()
 	if not self.bReConnect then 
 		return
 	end
-	self.reconnectTimerId = timer.addtimer(local_modulename, "reconnectFunc_callback", self.m_ullReConnectTime - CoreTool.GetTickCount(), self)
+	local timeCount = self.m_ullReConnectTime - CoreTool.GetTickCount()
+	timeCount = timeCount <= 0 and 0 or timeCount
+	self.reconnectTimerId = timer.addtimer(local_modulename, "reconnectFunc_callback", timeCount, self)
 end
 
 function IClientPlayerClass:DelReConnectTimer()

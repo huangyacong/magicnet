@@ -251,6 +251,8 @@ function ccorenet.statReport(timeDelay)
 end
 
 -- 系统打印
-ccorenet.sys_print = sys_print
+function ccorenet.sys_print(...)
+	sys_print(...)
+end
 
 return util.ReadOnlyTable(ccorenet)
