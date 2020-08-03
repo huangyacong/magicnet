@@ -39,7 +39,6 @@ function IClientPlayer.pingFunc_callback(IClientPlayerClassObj)
 	IClientPlayerClassObj:TimeToPingPing()
 end
 function IClientPlayer.reconnectFunc_callback(IClientPlayerClassObj)
-	IClientPlayerClassObj:AddReConnectTimer()
 	IClientPlayerClassObj:TryReConnect()
 end
 
@@ -56,12 +55,10 @@ function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iC
 	self.iConnectTimeOut = iConnectTimeOut
 	self.bNoDelay = bNoDelay
 
-	self.m_iReConnectNum = 0
-	self.m_ullReConnectTime = CoreTool.GetTickCount()
-	self.m_ullPingTIme = CoreTool.GetTickCount()
-
 	self.pingTimerId = 0
 	self.iPingTimeDelay = 1000 * 2
+
+	self.m_iReConnectNum = 0
 	self.reconnectTimerId = 0
 	self.bReConnect = bReConnect
 
@@ -158,9 +155,6 @@ end
 
 function IClientPlayerClass:TimeToPingPing()
 	if self.hsocket == 0 then return end
-	local timeCnt = CoreTool.GetTickCount()
-	if self.iPingTimeDelay + self.m_ullPingTIme > timeCnt then return end
-	self.m_ullPingTIme = timeCnt
 	self:GetModule()[IClientNetFunc_OnPing](self)
 end
 
@@ -177,8 +171,7 @@ function IClientPlayerClass:AddReConnectTimer()
 	if not self.bReConnect then 
 		return
 	end
-	local timeCount = self.m_ullReConnectTime - CoreTool.GetTickCount()
-	timeCount = timeCount <= 0 and 0 or timeCount
+	local timeCount = self.m_iReConnectNum * iReConnectDelayTime
 	self.reconnectTimerId = timer.addtimer(local_modulename, "reconnectFunc_callback", timeCount, self)
 end
 
@@ -188,9 +181,7 @@ function IClientPlayerClass:DelReConnectTimer()
 end
 
 function IClientPlayerClass:OnConnect(ip)
-	self.m_ullPingTIme = CoreTool.GetTickCount()
 	self.m_iReConnectNum = 0
-	self.m_ullReConnectTime = CoreTool.GetTickCount()
 	self:AddPingTimer()
 	self:DelReConnectTimer()
 	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnSendPacketAttach](self) end)
@@ -201,7 +192,6 @@ end
 function IClientPlayerClass:OnConnectFailed()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
-	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
@@ -215,7 +205,6 @@ end
 function IClientPlayerClass:OnDisConnect()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
-	self.m_ullReConnectTime = CoreTool.GetTickCount() + self.m_iReConnectNum*iReConnectDelayTime
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
