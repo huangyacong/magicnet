@@ -191,6 +191,32 @@ end
 local logLock = false
 local serviceName = ""
 local LogFunctionCallBack = nil
+
+local function hook_print(...)
+	
+	local cacheArray = {}
+	table.insert(cacheArray, "[" .. serviceName .. "]")
+	for k,v in ipairs(table.pack(...)) do 
+		table.insert(cacheArray, " ") 
+		if type(v) == type("") then
+			table.insert(cacheArray, v) 
+		else
+			table.insert(cacheArray, tostring(v)) 
+		end
+	end
+	local cache = table.concat(cacheArray)
+
+	if logLock then
+		sys_print(cache)
+		return
+	end
+
+	logLock = true
+	local result, errMsg = pcall(function() LogFunctionCallBack(cache) end)
+	if not result then sys_print(debug.traceback(), "\n", string.format("GlobalLogCallBack %s", errMsg)) end
+	logLock = false
+end
+
 function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
 
 	if not sys_print then
@@ -200,31 +226,6 @@ function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
 	serviceName = nameStr
 	LogFunctionCallBack = OnLogFunctionCallBack
 	
-	local hook_print = function(...)
-		
-		local cacheArray = {}
-		table.insert(cacheArray, "[" .. serviceName .. "]")
-		for k,v in ipairs(table.pack(...)) do 
-			table.insert(cacheArray, " ") 
-			if type(v) == type("") then
-				table.insert(cacheArray, v) 
-			else
-				table.insert(cacheArray, tostring(v)) 
-			end
-		end
-		local cache = table.concat(cacheArray)
-
-		if logLock then
-			sys_print(cache)
-			return
-		end
-
-		logLock = true
-		local result, errMsg = pcall(function() LogFunctionCallBack(cache) end)
-		if not result then sys_print(debug.traceback(), "\n", string.format("GlobalLogCallBack %s", errMsg)) end
-		logLock = false
-	end
-
 	print = hook_print
 end
 
