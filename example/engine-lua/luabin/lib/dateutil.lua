@@ -2,6 +2,8 @@ local util = require "util"
 
 local dateutil = {}
 
+local math = math
+
 -- 获取当前时间,单位秒
 function dateutil.now_time()
 	return math.floor(os.time())

@@ -13,6 +13,7 @@ local local_modulename = ...
 
 local AgentServiceCross = {}
 
+local package = package
 local AgentServiceCrossIsLocalService = false
 local AgentServiceCrossEventMudleName = nil
 local AgentServiceCrossClassName = ""

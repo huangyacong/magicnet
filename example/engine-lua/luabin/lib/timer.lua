@@ -7,6 +7,8 @@ local timer = {}
 local timeoutObj = {}
 local timer_register = {}
 local max_run_timer_count = 1000
+local package = package
+local table = table
 
 -- 定时器注册事件,这个事件，最好添加在每个文件的开头
 --[[

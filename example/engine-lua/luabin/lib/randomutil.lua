@@ -1,7 +1,7 @@
 local util = require "util"
 local table_insert = table.insert
 
-
+local math = math
 math.randomseed(os.time())
 
 local randomutil = {}

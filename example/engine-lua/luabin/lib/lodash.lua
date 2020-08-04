@@ -8,6 +8,9 @@ local _ = {
     _VERSION = "0.02"
 }
 
+local math = math
+local table = table
+
 if type(table.pack) ~= "function" then
     function table.pack(...)
         return {n = select("#", ...), ...}

@@ -16,6 +16,7 @@ local local_modulename = ...
 
 local AgentService = {}
 
+local package = package
 local AgentWatchDogName = ".watchdog"
 local AgentServiceEventMudleName = nil
 local AgentServiceClassName = ""

@@ -3,6 +3,8 @@ local CoreTool = require "CoreTool"
 local util = {}
 
 local printTableConf = true
+local table = table
+local string = string
 
 function util.setPrintTable(bPrint)
 	printTableConf = bPrint

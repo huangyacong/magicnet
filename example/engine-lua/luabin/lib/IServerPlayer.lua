@@ -7,6 +7,9 @@ local IServerNetFunc_OnRecv = "OnSPlayerRecv"
 local IServerNetFunc_OnConnect = "OnSPlayerConnect"
 local IServerNetFunc_OnDisConnect = "OnSPlayerDisConnect"
 
+local package = package
+local string = string
+
 local IServerPlayerClass = class()
 
 function IServerPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, bReusePort, bNoDelay)

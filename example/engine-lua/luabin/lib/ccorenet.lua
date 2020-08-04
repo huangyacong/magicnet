@@ -6,6 +6,8 @@ local timer = require "timer"
 local util = require "util"
 require "class"
 
+local table = table
+
 local ccorenet = {}
 local sys_run = true
 local sys_print = nil

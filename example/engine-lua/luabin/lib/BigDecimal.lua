@@ -3,6 +3,7 @@ require "class"
 
 local BigDecimal = {}
 
+local math = math
 local BigDecimalScale = 1000000 -- 精度度 = 10^6 不用直接使用10^6会变成浮点数
 
 -- ctor(true, 3, 1) 表示正数 3.000001 
@@ -91,7 +92,7 @@ end
 function BigDecimal.Div(BigDecimalClassObj_numerator, BigDecimalClassObj_denominator)
 	local value_numerator = BigDecimalClassObj_numerator.HInteger * BigDecimalScale + BigDecimalClassObj_numerator.LInteger
 	local value_denominator = BigDecimalClassObj_denominator.HInteger * BigDecimalScale + BigDecimalClassObj_denominator.LInteger
-	assert((BigDecimalClassObj_denominator.HInteger + BigDecimalClassObj_denominator.LInteger) ~= 0, "denominator is zero")
+	assert((BigDecimalClassObj_denominator.HInteger + BigDecimalClassObj_denominator.LInteger) ~= 0, string.format("denominator is zero %s", debug.traceback()))
 	local HInteger, remainder = GetQuotientAndRemainder(value_numerator, value_denominator)
 	local LInteger = GetQuotientAndRemainder(remainder * BigDecimalScale, value_denominator)
 	local bUnSigned = (BigDecimalClassObj_numerator.bUnSigned == BigDecimalClassObj_denominator.bUnSigned) and true, false

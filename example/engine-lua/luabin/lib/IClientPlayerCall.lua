@@ -10,6 +10,8 @@ require "class"
 local local_modulename = ...
 timer.register(local_modulename)
 
+local table = table
+
 local IClientPlayerCall = {}
 
 function IClientPlayerCall.OnCPlayerConnect(IClientObj, ip) end

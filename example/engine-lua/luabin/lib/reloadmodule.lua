@@ -2,6 +2,8 @@ local util = require "util"
 
 local reloadmodule = {}
 
+local package = package
+
 function reloadmodule.reload(module_name)
 	local old_module = package.loaded[module_name]
 

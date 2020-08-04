@@ -7,6 +7,8 @@ timer.register(local_modulename)
 
 local ccoroutine = {}
 
+local table = table
+local coroutine = coroutine
 local running_thread = nil
 local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
