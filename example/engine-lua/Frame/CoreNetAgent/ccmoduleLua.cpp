@@ -133,12 +133,12 @@ extern "C" int CoreNetNetPack(lua_State *L)
 
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 1, &seplen);
-	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+	if (!pcBuf) { luaL_error(L, "CoreNetNetPack pcBuf is NULL!"); return 0; }
 	SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), pcBuf);
 
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 2, &seplen);
-	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+	if (!pcBuf) { luaL_error(L, "CoreNetNetPack pcBuf is NULL!"); return 0; }
 	SeStrNcpy(kPacket.acDstName, (int)sizeof(kPacket.acDstName), pcBuf);
 
 	kPacket.eType = (AGENTSERVICE_PTYPE)luaL_checkinteger(L, 3);
@@ -153,11 +153,12 @@ extern "C" int CoreNetNetPack(lua_State *L)
 	{
 		seplen = 0;
 		pcBuf = luaL_checklstring(L, 5, &seplen);
-		if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+		if (!pcBuf) { luaL_error(L, "CoreNetNetPack pcBuf is NULL!"); return 0; }
 		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), pcBuf);
 	}
 
 	iLen = NetPack(kPacket, (unsigned char*)acBuff, (int)sizeof(acBuff));
+	if (iLen <= 0){ luaL_error(L, "CoreNetNetPack iLen is %d!", iLen); return 0; }
 	lua_pushlstring(L, acBuff, iLen);
 	return 1;
 }
@@ -172,10 +173,11 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 1, &seplen);
-	if (!pcBuf) { luaL_error(L, "pcBuf is NULL!"); return 0; }
+	if (!pcBuf) { luaL_error(L, "CoreNetNetUnPack pcBuf is NULL!"); return 0; }
+	if ((int)seplen <= 0) { luaL_error(L, "CoreNetNetUnPack pcBuf is seplen=%d!", seplen); return 0; }
 
 	iLen = NetUnPack(kPacket, (const unsigned char*)pcBuf, (int)seplen);
-	if (iLen > (int)seplen) { luaL_error(L, "pcBuf is error!"); return 0; }
+	if (iLen > (int)seplen || iLen <= 0) { luaL_error(L, "CoreNetNetUnPack pcBuf is error! %d", iLen); return 0; }
 
 	pcBuf = pcBuf + iLen;
 	iLen = (int)seplen - iLen;
