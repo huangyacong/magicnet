@@ -25,7 +25,7 @@ local iReConnectCount = 10
 -- 缓存计数器
 local IClientPlayerPoolCount = 1
 -- 缓存
-local IClientPlayerPool = setmetatable({}, { __mode = "kv" })
+local IClientPlayerPool = {}--setmetatable({}, { __mode = "kv" })
 
 local IClientPlayer = {}
 
@@ -66,8 +66,8 @@ function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iC
 	self.bReConnect = bReConnect
 
 	self.privateData = nil
-	IClientPlayerPoolCount = IClientPlayerPoolCount + 1
-	IClientPlayerPool[IClientPlayerPoolCount] = self
+	--IClientPlayerPoolCount = IClientPlayerPoolCount + 1
+	--IClientPlayerPool[IClientPlayerPoolCount] = self
 end
 
 function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)

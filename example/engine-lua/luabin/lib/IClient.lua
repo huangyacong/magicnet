@@ -30,7 +30,7 @@ local iReConnectCount = 10
 -- 缓存计数器
 local IClientClassPoolCount = 1
 -- 缓存
-local IClientClassPool = setmetatable({}, { __mode = "kv" })
+local IClientClassPool = {}--setmetatable({}, { __mode = "kv" })
 
 local IClient = {}
 
@@ -75,8 +75,8 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.regServiceList = {}
 
 	self.privateData = nil
-	IClientClassPoolCount = IClientClassPoolCount + 1
-	IClientClassPool[IClientClassPoolCount] = self
+	--IClientClassPoolCount = IClientClassPoolCount + 1
+	--IClientClassPool[IClientClassPoolCount] = self
 end
 
 function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)

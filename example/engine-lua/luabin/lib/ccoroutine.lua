@@ -16,7 +16,7 @@ local wait_coroutine_doing_thread = {}
 local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
 local wait_coroutine_queue = {} -- 等待队列
 local wait_coroutine_time_sleep = {}
-local coroutine_pool = setmetatable({}, { __mode = "kv" })
+local coroutine_pool = {}--setmetatable({}, { __mode = "kv" })
 
 local function coroutine_resume(co, ...)
 	running_thread = co
