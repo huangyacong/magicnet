@@ -23,6 +23,8 @@ timer.register(local_modulename)
 
 local package = package
 
+-- 注册服务器间隔事件
+local iRegServiceDelayTime = 5 * 1000
 -- 重连间隔时间,没次无法连接，就加上这个时间，几次之后，立马重连
 local iReConnectDelayTime = 1000
 -- 重连循环次数
@@ -49,6 +51,11 @@ function IClient.pingFunc_callback(IClientClassObj)
 end
 function IClient.reconnectFunc_callback(IClientClassObj)
 	IClientClassObj:TryReConnect()
+	print(string.format("reconnectFunc_callback timer out", IClientClassObj:GetName()))
+end
+function IClient.regServiceFunc_callback(IClientClassObj)
+	IClientClassObj:DisConnect()
+	print(string.format("regServiceFunc_callback timer out", IClientClassObj:GetName()))
 end
 
 local IClientClass = class()
@@ -71,6 +78,8 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.m_iReConnectNum = 0
 	self.reconnectTimerId = 0
 	self.bReConnect = bReConnect
+
+	self.regServiceTimerId = 0
 
 	self.regServiceList = {}
 
@@ -218,6 +227,17 @@ function IClientClass:TimeToPingPing()
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
+function IClientClass:AddRegServiceTimer()
+	self.regServiceTimerId = timer.addtimer(local_modulename, "regServiceFunc_callback", iRegServiceDelayTime, self)
+	print(string.format("IClientClass:AddRegServiceTimer", self:GetName()))
+end
+
+function IClientClass:DelRegServiceTimer()
+	timer.deltimer(self.regServiceTimerId)
+	self.regServiceTimerId = 0
+	print(string.format("IClientClass:DelRegServiceTimer", self:GetName()))
+end
+
 function IClientClass:AddPingTimer()
 	self.pingTimerId = timer.addtimer(local_modulename, "pingFunc_callback", self.iPingTimeDelay, self)
 end
@@ -266,6 +286,7 @@ function IClientClass:OnDisConnect()
 	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
 	self:AddReConnectTimer()
 	self:DelPingTimer()
+	self:DelRegServiceTimer()
 
 	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnDisConnect](self) end)
 	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
@@ -289,8 +310,12 @@ function IClientClass:OnRecv(data)
 			local md5str = net_module.genToken(srcName, self:GetName())
 			local header, sendData = net_module.netPack(self:GetName(), md5str, "sendregname", CoreNetAgent.PTYPE_REGISTER, 0, "")
 			CoreNet.TCPSend(self.hsocket, header, sendData)
+			self:AddRegServiceTimer()
 			self:GetModule()[IClientNetFunc_Register](self)
 			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), srcName, md5str))
+		elseif CoreNetAgent.PTYPE_REGISTER_BACK == PTYPE then
+			self:DelRegServiceTimer()
+			print(string.format("IClientClass:OnRecv Name=%s recv register back", self:GetName()))
 		elseif CoreNetAgent.PTYPE_REG_ADD_SERVICE == PTYPE then
 			self.regServiceList[srcName] = srcName
 			print(string.format("IClientClass:OnRecv Name=%s recv add service [%s] ", self:GetName(), srcName))
