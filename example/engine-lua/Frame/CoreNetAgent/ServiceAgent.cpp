@@ -341,6 +341,13 @@ void ServiceForAgent::RegisterService(HSOCKET kHSocket, const std::string& rkNam
 	}
 	rkServiceSocket.m_kRegName = rkName;
 	ServiceAgent::m_kRegSvrList[rkName] = std::pair<ServiceForAgent*, HSOCKET>(this, kHSocket);
+
+	char acBuff[256] = {};
+	AgentServicePacket kPacket;
+	kPacket.eType = PTYPE_REGISTER_BACK;
+	int iLen = NetPack(kPacket, (unsigned char*)acBuff, (int)sizeof(acBuff));
+	SendData(kHSocket, acBuff, iLen);
+
 	SendWatchdogAddRegService(rkServiceSocket.m_kRegName);
 	NETENGINE_FLUSH_LOG(ServiceAgent::m_kServiceAgenttEngine, LT_INFO, "Service %s register", rkName.c_str());
 }

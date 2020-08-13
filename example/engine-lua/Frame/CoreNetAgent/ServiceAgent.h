@@ -44,6 +44,7 @@ enum AGENTSERVICE_PTYPE
 	PTYPE_REMOTE_DISCONNECT = 11,	//链接断开
 	PTYPE_REMOTE_RECV_DATA = 12,	//链接断开
 	PTYPE_REMOTE_CLOSE = 13,		//主动断开链接
+	PTYPE_REGISTER_BACK = 14,		//注册类型返回
 };
 
 struct AgentServicePacket
