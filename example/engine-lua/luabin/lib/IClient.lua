@@ -264,6 +264,7 @@ function IClientClass:OnConnect(ip)
 	self.m_iReConnectNum = 0
 	self:AddPingTimer()
 	self:DelReConnectTimer()
+	self:AddRegServiceTimer()
 	self:GetModule()[IClientNetFunc_OnConnect](self, ip)
 end
 
@@ -310,7 +311,6 @@ function IClientClass:OnRecv(data)
 			local md5str = net_module.genToken(srcName, self:GetName())
 			local header, sendData = net_module.netPack(self:GetName(), md5str, "sendregname", CoreNetAgent.PTYPE_REGISTER, 0, "")
 			CoreNet.TCPSend(self.hsocket, header, sendData)
-			self:AddRegServiceTimer()
 			self:GetModule()[IClientNetFunc_Register](self)
 			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), srcName, md5str))
 		elseif CoreNetAgent.PTYPE_REGISTER_BACK == PTYPE then
