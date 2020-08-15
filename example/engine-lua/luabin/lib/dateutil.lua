@@ -176,7 +176,7 @@ function dateutil.get_days_time(day, hour, min, sec)
 	t.hour = hour or 0
 	t.min = min or 0
 	t.sec = sec or 0
-	t.day = t.day + day
+	t.day = t.day + (day or 0)
 	return math.floor(os.time(t))
 end
 

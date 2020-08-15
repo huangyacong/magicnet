@@ -57,6 +57,7 @@ end
 local function copy_table(data, bReadOnly)
 	local tab = {}
 	for k, v in pairs(data or {}) do
+		assert(type(k) ~= "table")
 		if type(v) ~= "table" then
 			tab[k] = v
 		else
@@ -167,8 +168,14 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 		__newindex = function (a, k, v)
 			t[k] = v
 			if not keyWords[k] then
+				local iSessionId = t.__iSessionId
+
 				t.__bUpdate = true
 				t.__iSessionId = CoreTool.SysSessionId()
+				
+				if iSessionId >= t.__iSessionId then 
+					t.__iSessionId = iSessionId + 1 
+				end
 			end
 		end
 	}
@@ -198,6 +205,50 @@ end
 
 function util.TableHasAutoUpdateMsg(checkTable)
 	return tableHasAutoUpdateMsg(checkTable)
+end
+
+function util.SetAutoUpdateMsg(SetTable, flag)
+	SetTable.__bUpdate = flag
+	for k, v in pairs(SetTable) do
+		if type(k) == "table" then
+			util.SetAutoUpdateMsg(k, flag)
+		end
+
+		if type(v) == "table" then
+			util.SetAutoUpdateMsg(v, flag)
+		end
+	end
+end
+
+function util.GetSessionId(GetTable)
+	local __iSessionId = GetTable.__iSessionId
+	local function GetMaxSessionId(GetSubTable)
+		for k, v in pairs(GetSubTable) do
+			if type(k) == "table" then
+				if k.__iSessionId > __iSessionId then
+					__iSessionId = k.__iSessionId
+				end
+				GetMaxSessionId(k)
+			end
+
+			if type(v) == "table" then
+				if v.__iSessionId > __iSessionId then
+					__iSessionId = v.__iSessionId
+				end
+				GetMaxSessionId(v)				
+			end
+		end
+	end
+	GetMaxSessionId(GetTable)
+	return __iSessionId
+end
+
+function util.TableLength(Table)
+	local Count = 0
+	for k, v in pairs(Table) do
+		Count = Count + 1
+	end
+	return Count
 end
 
 return util.ReadOnlyTable(util)
