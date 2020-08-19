@@ -36,7 +36,7 @@ extern "C" int CoreNetInitAgentGate(lua_State *L)
 	if (g_pkServiceAgentGate)
 		return 0;
 
-	SeCrashDump(string(pcLogName) + string(".CrashDump"));
+	SeCrashDump(string(pcLogName) + string(".dmp"));
 	g_pkServiceAgentGate = new ServiceAgent();
 	g_pkServiceAgentGate->Init(pcLogName, iLogLV, usMax, iTimerCnt);
 

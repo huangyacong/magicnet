@@ -49,7 +49,7 @@ extern "C" int CoreNetInit(lua_State *L)
 	ResetMsgIDStat();
 	
 	g_iCoreWaitTime = -1;
-	SeCrashDump(string(pcLogName) + string(".CrashDump"));
+	SeCrashDump(string(pcLogName) + string(".dmp"));
 	SeNetCoreInit(&g_kNetore, (char*)pcLogName, usMax, iTimerCnt, iLogLV);
 	SeNetCoreSetWaitTime(&g_kNetore, g_iCoreWaitTime);
 
@@ -249,6 +249,11 @@ extern "C" int CoreNetRead(lua_State *L)
 	} while (!bResult);
 
 	iRecvSize = (iEvent != SENETCORE_EVENT_SOCKET_CONNECT && iEvent != SENETCORE_EVENT_SOCKET_RECV_DATA) ? 0 : iLen;
+
+	if (iRecvSize < 0 || iLen < 0 || iLen > (int)sizeof(g_acBuf)) {
+		luaL_error(L, "CoreNetRead error. iEvent=%d iRecvSize=%d iLen=%d", iEvent, iRecvSize, iLen);
+		return 0;
+	}
 
 	g_kMsgIDStat.iRecvNum++;
 	g_kMsgIDStat.ullRecvByteNum += iRecvSize;
