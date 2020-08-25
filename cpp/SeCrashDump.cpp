@@ -19,7 +19,7 @@ void SeCreateDumpFile(LPCSTR lpstrDumpFilePathName, EXCEPTION_POINTERS *pkExcept
 	dumpInfo.ThreadId = GetCurrentThreadId();
 	dumpInfo.ClientPointers = TRUE;
 
-	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDumpFile, MiniDumpWithFullMemory, &dumpInfo, NULL, NULL);
+	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDumpFile, MiniDumpNormal, &dumpInfo, NULL, NULL);
 
 	CloseHandle(hDumpFile);
 }
