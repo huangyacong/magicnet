@@ -67,10 +67,10 @@ MY_LIBS   = -I/usr/include/mysql -L/usr/lib64/mysql -L../../luabin
   
 # The pre-processor options used by the cpp (man cpp for more). 
 CPPFLAGS  = $(PUB)
-CPPFLAGS  += -Wall -DNDEBUG -DSECOLOR -fpic -shared -ldl -llua -lm -lrt 
+CPPFLAGS  += -Wall -DNDEBUG -DSECOLOR -fpic -shared 
   
 # The options used in linking as well as in any direct use of ld.  
-LDFLAGS   = -lpthread -lmysqlclient 
+LDFLAGS   = -Wl,-rpath=/usr/local/lib -ljemalloc -lpthread -lmysqlclient 
   
 # The executable file name.  
 # If not specified, current directory name or `a.out' will be used.  

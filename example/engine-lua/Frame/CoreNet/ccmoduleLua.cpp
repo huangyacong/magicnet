@@ -231,6 +231,7 @@ extern "C" int CoreNetRead(lua_State *L)
 	int iRSize = 0;
 	HSOCKET kHSocket = 0;
 	bool bResult = false;
+	bool bHasData = false;
 	HSOCKET kListenHSocket = 0;
 	int iLen = (int)sizeof(g_acBuf);
 	int iEvent = (int)SENETCORE_EVENT_SOCKET_IDLE;
@@ -248,7 +249,8 @@ extern "C" int CoreNetRead(lua_State *L)
 		}
 	} while (!bResult);
 
-	iRecvSize = (iEvent != SENETCORE_EVENT_SOCKET_CONNECT && iEvent != SENETCORE_EVENT_SOCKET_RECV_DATA) ? 0 : iLen;
+	bHasData = (iEvent != SENETCORE_EVENT_SOCKET_CONNECT && iEvent != SENETCORE_EVENT_SOCKET_RECV_DATA) ? false : true;
+	iRecvSize = !bHasData ? 0 : iLen;
 
 	if (iRecvSize < 0 || iLen < 0 || iLen > (int)sizeof(g_acBuf)) {
 		luaL_error(L, "CoreNetRead error. iEvent=%d iRecvSize=%d iLen=%d", iEvent, iRecvSize, iLen);
@@ -265,8 +267,11 @@ extern "C" int CoreNetRead(lua_State *L)
 	lua_rawseti(L, -2, 2);
 	lua_pushinteger(L, kHSocket);
 	lua_rawseti(L, -2, 3);
-	lua_pushlstring(L, g_acBuf, iRecvSize);
-	lua_rawseti(L, -2, 4);
+
+	if (bHasData){
+		lua_pushlstring(L, g_acBuf, iRecvSize);
+		lua_rawseti(L, -2, 4);
+	}
 
 	return 1;
 }

@@ -22,6 +22,9 @@
     <Filter Include="ccmodule">
       <UniqueIdentifier>{04fd61e1-9137-44a1-8a88-7ba46d79cdbc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\LuaSrc">
+      <UniqueIdentifier>{f21a85f9-6455-445f-8707-af16991acff6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\NetEngine\SeClient.cpp">
@@ -214,6 +217,84 @@
     </ClInclude>
     <ClInclude Include="ServiceAgent.h">
       <Filter>ccmodule</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lapi.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lauxlib.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lcode.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lctype.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\ldebug.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\ldo.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lfunc.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lgc.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\llex.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\llimits.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lmem.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lobject.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lopcodes.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lparser.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lprefix.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lstate.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lstring.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\ltable.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\ltm.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lua.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lua.hpp">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\luaconf.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lualib.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lundump.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lvm.h">
+      <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lua-src\src\lzio.h">
+      <Filter>src\LuaSrc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

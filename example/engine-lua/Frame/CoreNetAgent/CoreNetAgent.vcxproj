@@ -161,6 +161,32 @@
     <ClCompile Include="ServiceAgent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\lua-src\src\lapi.h" />
+    <ClInclude Include="..\..\lua-src\src\lauxlib.h" />
+    <ClInclude Include="..\..\lua-src\src\lcode.h" />
+    <ClInclude Include="..\..\lua-src\src\lctype.h" />
+    <ClInclude Include="..\..\lua-src\src\ldebug.h" />
+    <ClInclude Include="..\..\lua-src\src\ldo.h" />
+    <ClInclude Include="..\..\lua-src\src\lfunc.h" />
+    <ClInclude Include="..\..\lua-src\src\lgc.h" />
+    <ClInclude Include="..\..\lua-src\src\llex.h" />
+    <ClInclude Include="..\..\lua-src\src\llimits.h" />
+    <ClInclude Include="..\..\lua-src\src\lmem.h" />
+    <ClInclude Include="..\..\lua-src\src\lobject.h" />
+    <ClInclude Include="..\..\lua-src\src\lopcodes.h" />
+    <ClInclude Include="..\..\lua-src\src\lparser.h" />
+    <ClInclude Include="..\..\lua-src\src\lprefix.h" />
+    <ClInclude Include="..\..\lua-src\src\lstate.h" />
+    <ClInclude Include="..\..\lua-src\src\lstring.h" />
+    <ClInclude Include="..\..\lua-src\src\ltable.h" />
+    <ClInclude Include="..\..\lua-src\src\ltm.h" />
+    <ClInclude Include="..\..\lua-src\src\lua.h" />
+    <ClInclude Include="..\..\lua-src\src\lua.hpp" />
+    <ClInclude Include="..\..\lua-src\src\luaconf.h" />
+    <ClInclude Include="..\..\lua-src\src\lualib.h" />
+    <ClInclude Include="..\..\lua-src\src\lundump.h" />
+    <ClInclude Include="..\..\lua-src\src\lvm.h" />
+    <ClInclude Include="..\..\lua-src\src\lzio.h" />
     <ClInclude Include="..\src\CoreSrc\common\SeBase64.h" />
     <ClInclude Include="..\src\CoreSrc\common\SeBuffWR.h" />
     <ClInclude Include="..\src\CoreSrc\common\SeCrc32.h" />
