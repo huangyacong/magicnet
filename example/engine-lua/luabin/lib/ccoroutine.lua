@@ -1,6 +1,7 @@
 ﻿local CoreTool = require "CoreTool"
 local timer = require "timer"
 local util = require "util"
+require "class"
 
 local local_modulename = ...
 timer.register(local_modulename)
@@ -12,7 +13,6 @@ local coroutine = coroutine
 local running_thread = nil
 local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
-local wait_coroutine_doing_thread = {}
 local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
 local wait_coroutine_queue = {} -- 等待队列
 local wait_coroutine_time_sleep = {}
@@ -139,49 +139,55 @@ function ccoroutine.wait_time_sleep(timeout_millsec)
 	end
 end
 
+local IWaitCoroutineEvent = class()
+function IWaitCoroutineEvent:ctor(sessionId)
+	self.sessionId = sessionId
+	self.coroutineQueue = {}
+end
+
 function ccoroutine.wait_event_other_resume(event_id, sessionId, result)
-	while next(wait_coroutine_event[event_id][sessionId]) do
-		local co = wait_coroutine_event[event_id][sessionId][1]
+	local IWaitCoroutineEventObj = wait_coroutine_event[event_id]
+	assert(sessionId == IWaitCoroutineEventObj.sessionId)
+	while next(IWaitCoroutineEventObj.coroutineQueue) do
+		local co = IWaitCoroutineEventObj.coroutineQueue[1]
 		ccoroutine.resume(co, sessionId, result)
 	end
-	wait_coroutine_event[event_id][sessionId] = nil
+	if not next(IWaitCoroutineEventObj.coroutineQueue) then 
+		wait_coroutine_event[event_id] = nil 
+	end
 end
 
 function ccoroutine.wait_event(event_id, f, ...)
 	local param = table.pack(...)
-	assert(type(event_id) == type(""))
+	event_id = tostring(event_id)
+	local sessionId = CoreTool.SysSessionId()
+	
 	local retpcall, data = pcall(function() 
 		if not wait_coroutine_event[event_id] then
-			wait_coroutine_event[event_id] = {}
-		end
-		if not wait_coroutine_doing_thread[event_id] then
-			local sessionId = CoreTool.SysSessionId()
-			assert(not wait_coroutine_event[event_id][sessionId])
-			wait_coroutine_doing_thread[event_id] = {sessionId, running_thread}
-			wait_coroutine_event[event_id][sessionId] = {}
+			wait_coroutine_event[event_id] = IWaitCoroutineEvent.new(sessionId)
 			return table.pack(f(table.unpack(param)))
 		end
-		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread[event_id])
-		assert(running_thread ~= doing_thread, string.format("wait_event=%s is dead loop!", event_id))
-		table.insert(wait_coroutine_event[event_id][doing_sessionId], running_thread)
+		local IWaitCoroutineEventObj = wait_coroutine_event[event_id]
+		table.insert(IWaitCoroutineEventObj.coroutineQueue, running_thread)
 		local yield_sessionId, result = coroutine.yield("YIELD_CALL_WAIT_EVENT")
-		assert(yield_sessionId == doing_sessionId)
-		assert(wait_coroutine_event[event_id][yield_sessionId][1] == running_thread)
-		table.remove(wait_coroutine_event[event_id][yield_sessionId], 1)
+		assert(yield_sessionId == IWaitCoroutineEventObj.sessionId)
+		assert(IWaitCoroutineEventObj.coroutineQueue[1] == running_thread)
+		table.remove(IWaitCoroutineEventObj.coroutineQueue, 1)
 		return result
 		end)
 
-	if wait_coroutine_doing_thread[event_id] then
-		-- 谁带头做，谁唤醒其它等待的协程
-		local doing_sessionId, doing_thread = table.unpack(wait_coroutine_doing_thread[event_id])
-		if doing_thread == running_thread then
+	-- 谁带头做，谁唤醒其它等待的协程
+	local IWaitCoroutineEventObj = wait_coroutine_event[event_id]
+	if IWaitCoroutineEventObj.sessionId == sessionId then
+		if not next(IWaitCoroutineEventObj.coroutineQueue) then 
+			wait_coroutine_event[event_id] = nil 
+		else
 			local result = nil
 			if retpcall then result = data end
-			local timerId = timer.addtimer(local_modulename, "wait_event_other_resume", 1, event_id, doing_sessionId, result)
+			local timerId = timer.addtimer(local_modulename, "wait_event_other_resume", 1, event_id, sessionId, result)
 			if timerId == 0 then
 				print(debug.traceback(), "\n", string.format("ccoroutine.wait_event addtimer failed. event_id=%s", event_id))
 			end
-			wait_coroutine_doing_thread[event_id] = nil
 		end
 	end
 
@@ -189,6 +195,7 @@ function ccoroutine.wait_event(event_id, f, ...)
 		print(debug.traceback(), "\n", string.format("ccoroutine.wait_event event_id=%s", event_id), "\n", data)
 		return nil
 	end
+
 	return table.unpack(data)
 end
 
