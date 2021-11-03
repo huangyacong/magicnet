@@ -45,6 +45,10 @@ int SeAToInt(const char *pcString);
 
 double SeAToDouble(const char *pcString);
 
+unsigned long long CreateUniqueID(int iServerID, unsigned int uiCount);
+
+int GetServerIDByUniqueID(unsigned long long ullUniqueID);
+
 /*
 short [%d] unsigned short [%u] int [%d] unsigned int [%u] long [%ld] unsigned long [%lu] long long [%lld] unsigned long long [%llu] float [%f] double [%f]
 please see http://en.cppreference.com/w/cpp/io/c/vfprintf or man vsnprintf

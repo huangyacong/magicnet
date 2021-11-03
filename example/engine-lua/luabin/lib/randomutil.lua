@@ -11,12 +11,12 @@ function randomutil.random()
 end
 
 function randomutil.random_int(lower, upper)
-	return math.floor(lower + (upper - lower) * math.random())
+	return math.random(lower, upper)
 end
 
 function randomutil.random_array(table)
 	local index = math.random(1, #table)
-	return table[math.floor(index)]
+	return table[index]
 end
 
 return util.ReadOnlyTable(randomutil)

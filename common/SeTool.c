@@ -1,4 +1,5 @@
 #include "SeTool.h"
+#include "SeTime.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,6 +87,37 @@ int SeAToInt(const char *pcString)
 double SeAToDouble(const char *pcString)
 {
 	return atof(pcString);
+}
+
+unsigned long long CreateUniqueID(int iServerID, unsigned int uiCount)
+{
+	int iMaxSeverID;
+	unsigned int iMaxCount;
+	unsigned long long tNowTime, ullResult;
+
+	iMaxCount = 4096;// pow(2, 12);
+	iMaxSeverID = 262144; // pow(2, 18);
+	uiCount = (unsigned int)uiCount % (unsigned int)iMaxCount;
+
+	if (iServerID <= 0 || iServerID > iMaxSeverID)
+		return 0;
+
+	if (uiCount < 0 || uiCount > iMaxCount)
+		return 0;
+
+	tNowTime = time(NULL);
+	tNowTime = tNowTime << 30;
+
+	iServerID = iServerID << 12;
+
+	ullResult = tNowTime | iServerID | uiCount;
+	return (ullResult & 0x7FFFFFFFFFFFFFFF);
+}
+
+int GetServerIDByUniqueID(unsigned long long ullUniqueID)
+{
+	unsigned long long ullRet = ((ullUniqueID >> 12) << 46) >> 46;
+	return (int)ullRet;
 }
 
 bool SeSnprintf(char *pcStr, int iSize, const char *format, ...)

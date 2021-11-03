@@ -21,7 +21,7 @@ function IClientPlayerCall.OnCPlayerDisConnect(IClientObj) end
 function IClientPlayerCall.OnCPlayerPing(IClientObj) end
 
 function IClientPlayerCall.OnCPlayerConnectFailed(IClientObj) 
-	local privateProto, session_id = table.unpack(IClientObj:GetPrivateData())
+	local privateProto, recvProto, session_id = table.unpack(IClientObj:GetPrivateData())
 
 	if not session_id then
 		print(debug.traceback(), "\n", "IClientPlayerCall OnCPlayerConnectFailed session_id nil")
@@ -38,29 +38,30 @@ function IClientPlayerCall.OnCPlayerConnectFailed(IClientObj)
 end
 
 function IClientPlayerCall.OnCPlayerSendPacketAttach(IClientObj)
-	local privateProto, session_id, data = table.unpack(IClientObj:GetPrivateData())
-	IClientObj:SendData(privateProto, data)
+	local privateProto, recvProto, session_id, data = table.unpack(IClientObj:GetPrivateData())
+	IClientObj:SendData(privateProto, data or "")
 end
 
 function IClientPlayerCall.OnCPlayerRecv(IClientObj, proto, data)
-	local privateProto, session_id = table.unpack(IClientObj:GetPrivateData())
+	local privateDataTwo = IClientObj:GetPrivateDataTwo()
+	local privateProto, recvProto, session_id = table.unpack(IClientObj:GetPrivateData())
 
-	if not session_id then
-		print(debug.traceback(), "\n", "IClientPlayerCall OnCPlayerRecv session_id nil")
-		return
-	end
-	if privateProto ~= proto then
-		print(debug.traceback(), "\n", "IClientPlayerCall OnCPlayerRecv proto error", proto)
-		return
-	end
+	if recvProto == proto then
+		if not session_id then
+			print(debug.traceback(), "\n", "IClientPlayerCall OnCPlayerRecv session_id nil")
+			return
+		end
 
-	local co = ccoroutine.get_session_id_coroutine(session_id)
-	if not co then 
-		print(debug.traceback(), "\n", "IClientPlayerCall not find co", session_id)
-		return
-	end
+		local co = ccoroutine.get_session_id_coroutine(session_id)
+		if not co then 
+			print(debug.traceback(), "\n", "IClientPlayerCall not find co", session_id)
+			return
+		end
 
-	ccoroutine.resume(co, true, data)
+		ccoroutine.resume(co, true, data)
+	elseif privateDataTwo[proto] then
+		privateDataTwo[proto](proto, data)
+	end
 end
 
 local IClientPlayerCallClass = class()
@@ -69,7 +70,12 @@ function IClientPlayerCallClass:ctor(cIP, iPort)
 	self.IClientPlayerObj = IClientPlayer.IClientPlayerClass.new("IClientPlayerCall", local_modulename, cIP, iPort, 60000, 30000, false, true)
 end
 
-function IClientPlayerCallClass:CallData(proto, data)
+function IClientPlayerCallClass:SetRecvFunction(recvProto, callBackFuncName)
+	local privateDataTwo = self.IClientPlayerObj:GetPrivateDataTwo()
+	privateDataTwo[tonumber(recvProto)] = callBackFuncName
+end
+
+function IClientPlayerCallClass:CallData(proto, recvProto, data)
 	
 	if not self.IClientPlayerObj then
 		print(debug.traceback(), "\n", "IClientPlayerCallClass Obj Not New")
@@ -80,11 +86,12 @@ function IClientPlayerCallClass:CallData(proto, data)
 		return false, "IClientPlayerCallClass Connect Failed"
 	end
 
-	proto = tonumber(proto)
+	proto, recvProto = tonumber(proto), tonumber(recvProto)
 	local session_id = CoreTool.SysSessionId()
-	self.IClientPlayerObj:SetPrivateData(table.pack(proto, session_id, data))
+	self.IClientPlayerObj:SetPrivateData(table.pack(proto, recvProto, session_id, data))
 	local succ, msg = ccoroutine.yield_call(session_id)
 	self.IClientPlayerObj:SetPrivateData()
+	self.IClientPlayerObj:SetPrivateDataTwo()
 
 	self.IClientPlayerObj:DisConnect()
 	self.IClientPlayerObj = nil

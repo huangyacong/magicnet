@@ -174,14 +174,24 @@ function ccorenet.waitEvent(event_id, f, ...)
 	return ccoroutine.wait_event(event_id, f, ...)
 end
 
+-- 事件数量
+function ccorenet.countWaitEvent(event_id)
+	return ccoroutine.get_wait_event(event_id)
+end
+
 -- 唤醒队列
 function ccorenet.wakeUpQueue(queue_id, bPopHead, queueNum)
 	return ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
 end
 
 -- 加入队列
-function ccorenet.waitQueue(queue_id)
-	return ccoroutine.wait_queue(queue_id)
+function ccorenet.waitQueue(queue_id, timeout_millsec)
+	return ccoroutine.wait_queue(queue_id, timeout_millsec)
+end
+
+-- 队列数量
+function ccorenet.countQueue(queue_id)
+	return ccoroutine.get_queue_count(queue_id)
 end
 
 -- 挂起

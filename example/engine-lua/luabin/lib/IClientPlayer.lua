@@ -22,20 +22,8 @@ local string = string
 local iReConnectDelayTime = 1000
 -- 重连循环次数
 local iReConnectCount = 10
--- 缓存计数器
-local IClientPlayerPoolCount = 1
--- 缓存
-local IClientPlayerPool = {}--setmetatable({}, { __mode = "kv" })
 
 local IClientPlayer = {}
-
-function IClientPlayer.GetPoolCount()
-	local count = 0
-	for _, value in pairs(IClientPlayerPool) do
-		count = count + 1
-	end
-	return count
-end
 
 function IClientPlayer.pingFunc_callback(IClientPlayerClassObj)
 	IClientPlayerClassObj:AddPingTimer()
@@ -66,8 +54,7 @@ function IClientPlayerClass:ctor(className, modulename, cIP, iPort, iTimeOut, iC
 	self.bReConnect = bReConnect
 
 	self.privateData = nil
-	--IClientPlayerPoolCount = IClientPlayerPoolCount + 1
-	--IClientPlayerPool[IClientPlayerPoolCount] = self
+	self.privateDataTwo = {}
 end
 
 function IClientPlayerClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -88,6 +75,14 @@ end
 
 function IClientPlayerClass:GetPrivateData()
 	return self.privateData
+end
+
+function IClientPlayerClass:SetPrivateDataTwo(data)
+	self.privateDataTwo = data or {}
+end
+
+function IClientPlayerClass:GetPrivateDataTwo()
+	return self.privateDataTwo
 end
 
 function IClientPlayerClass:GetModule()

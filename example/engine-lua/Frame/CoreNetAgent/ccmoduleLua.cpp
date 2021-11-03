@@ -134,11 +134,13 @@ extern "C" int CoreNetNetPack(lua_State *L)
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 1, &seplen);
 	if (!pcBuf) { luaL_error(L, "CoreNetNetPack pcBuf is NULL!"); return 0; }
+	if (seplen >= (size_t)sizeof(kPacket.acSrcName)) { luaL_error(L, "CoreNetNetPack acSrcName len is more!"); return 0; }
 	SeStrNcpy(kPacket.acSrcName, (int)sizeof(kPacket.acSrcName), pcBuf);
 
 	seplen = 0;
 	pcBuf = luaL_checklstring(L, 2, &seplen);
 	if (!pcBuf) { luaL_error(L, "CoreNetNetPack pcBuf is NULL!"); return 0; }
+	if (seplen >= (size_t)sizeof(kPacket.acDstName)) { luaL_error(L, "CoreNetNetPack acDstName len is more!"); return 0; }
 	SeStrNcpy(kPacket.acDstName, (int)sizeof(kPacket.acDstName), pcBuf);
 
 	kPacket.eType = (AGENTSERVICE_PTYPE)luaL_checkinteger(L, 3);
@@ -153,6 +155,7 @@ extern "C" int CoreNetNetPack(lua_State *L)
 	{
 		seplen = 0;
 		pcBuf = luaL_checklstring(L, 5, &seplen);
+		if (seplen >= (size_t)sizeof(kPacket.acProto)) { luaL_error(L, "CoreNetNetPack acProto len is more!"); return 0; }
 		if (!pcBuf) { luaL_error(L, "CoreNetNetPack pcBuf is NULL!"); return 0; }
 		SeStrNcpy(kPacket.acProto, (int)sizeof(kPacket.acProto), pcBuf);
 	}

@@ -143,8 +143,8 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 	for k, v in pairs(t) do
 		assert(not keyWords[k], string.format("Class Has Key=%s, this can only use in system!", k))
 	end
+	
 	for _, k in ipairs(keyWordsArray or {}) do
-		--assert(keyWords[k] == nil, string.format("AddTableAutoUpdateMsg keyWords=%s more define!", k))
 		keyWords[k] = true
 	end
 	
@@ -183,64 +183,22 @@ function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
 	return proxy
 end
 
-local function tableHasAutoUpdateMsg(checkTable)
+function util.TableHasAutoUpdateMsg(checkTable)
 	assert(checkTable.__bUpdate ~= nil)
+
 	if checkTable.__bUpdate == true then
 		return true
 	end
+
 	for k, v in pairs(checkTable) do
-		if type(k) == type({}) then
-			if tableHasAutoUpdateMsg(k) then
-				return true
-			end
-		end
 		if type(v) == type({}) then
-			if tableHasAutoUpdateMsg(v) then
+			if util.TableHasAutoUpdateMsg(v) then
 				return true
 			end
 		end
 	end
+	
 	return false
-end
-
-function util.TableHasAutoUpdateMsg(checkTable)
-	return tableHasAutoUpdateMsg(checkTable)
-end
-
-function util.SetAutoUpdateMsg(SetTable, flag)
-	SetTable.__bUpdate = flag
-	for k, v in pairs(SetTable) do
-		if type(k) == "table" then
-			util.SetAutoUpdateMsg(k, flag)
-		end
-
-		if type(v) == "table" then
-			util.SetAutoUpdateMsg(v, flag)
-		end
-	end
-end
-
-function util.GetSessionId(GetTable)
-	local __iSessionId = GetTable.__iSessionId
-	local function GetMaxSessionId(GetSubTable)
-		for k, v in pairs(GetSubTable) do
-			if type(k) == "table" then
-				if k.__iSessionId > __iSessionId then
-					__iSessionId = k.__iSessionId
-				end
-				GetMaxSessionId(k)
-			end
-
-			if type(v) == "table" then
-				if v.__iSessionId > __iSessionId then
-					__iSessionId = v.__iSessionId
-				end
-				GetMaxSessionId(v)				
-			end
-		end
-	end
-	GetMaxSessionId(GetTable)
-	return __iSessionId
 end
 
 function util.TableLength(Table)

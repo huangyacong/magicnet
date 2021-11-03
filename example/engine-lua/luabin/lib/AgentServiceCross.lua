@@ -51,26 +51,29 @@ function AgentServiceCross.OnCRemoteRecvData(IClientObj, socket, proto, data)
 end
 
 function AgentServiceCross.OnCConnect(IClientObj, ip)
+	print("AgentService.OnCConnect", ip)
 end
 
 function AgentServiceCross.OnCDisConnect(IClientObj)
+	print(debug.traceback(), "\n", "AgentService.OnCDisConnect")
 end
 
 function AgentServiceCross.OnCConnectFailed(IClientObj)
+	print(debug.traceback(), "\n", "AgentService.OnCConnectFailed")
 end
 
 -----------------------------------------------------------------
 
 function AgentServiceCross.SendRemote(serviceName, remote_socket, proto, data)
-	return GetAgentServiceCrossObj(serviceName):SendRemoteData(remote_socket, proto, data)
+	return GetAgentServiceCrossObj(serviceName):SendRemoteData(remote_socket, proto, data or "")
 end
 
 function AgentServiceCross.SendData(serviceName, targetName, proto, data)
-	return GetAgentServiceCrossObj(serviceName):SendData(targetName, proto, data)
+	return GetAgentServiceCrossObj(serviceName):SendData(targetName, proto, data or "")
 end
 
 function AgentServiceCross.CallData(serviceName, targetName, proto, data, timeout_millsec)
-	return GetAgentServiceCrossObj(serviceName):CallData(targetName, proto, data, timeout_millsec)
+	return GetAgentServiceCrossObj(serviceName):CallData(targetName, proto, data or "", timeout_millsec)
 end
 
 function AgentServiceCross.RetCallData(serviceName, data)

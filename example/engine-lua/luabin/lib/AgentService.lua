@@ -50,12 +50,15 @@ function AgentService.OnCRemoteRecvData(IClientObj, socket, proto, data)
 end
 
 function AgentService.OnCConnect(IClientObj, ip)
+	print("AgentService.OnCConnect", ip)
 end
 
 function AgentService.OnCDisConnect(IClientObj)
+	print(debug.traceback(), "\n", "AgentService.OnCDisConnect")
 end
 
 function AgentService.OnCConnectFailed(IClientObj)
+	print(debug.traceback(), "\n", "AgentService.OnCConnectFailed")
 end
 -----------------------------------------------------------------
 
@@ -64,7 +67,7 @@ function AgentService.ExitAgent()
 end
 
 function AgentService.SendRemote(remote_socket, proto, data)
-	return AgentServiceRemoteSvrObj:SendRemoteData(remote_socket, proto, data)
+	return AgentServiceRemoteSvrObj:SendRemoteData(remote_socket, proto, data or "")
 end
 
 function AgentService.CloseRemote(remote_socket)
@@ -72,11 +75,11 @@ function AgentService.CloseRemote(remote_socket)
 end
 
 function AgentService.SendData(targetName, proto, data)
-	return AgentServiceRemoteSvrObj:SendData(targetName, proto, data)
+	return AgentServiceRemoteSvrObj:SendData(targetName, proto, data or "")
 end
 
 function AgentService.CallData(targetName, proto, data, timeout_millsec)
-	return AgentServiceRemoteSvrObj:CallData(targetName, proto, data, timeout_millsec)
+	return AgentServiceRemoteSvrObj:CallData(targetName, proto, data or "", timeout_millsec)
 end
 
 function AgentService.RetCallData(data)

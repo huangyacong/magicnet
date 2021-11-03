@@ -1,7 +1,7 @@
 #include "SeClient.h"
 
 // 重连间隔时间,没次无法连接，就加上这个时间，几次之后，立马重连
-const int iReConnectDelayTime = 1000;
+const int iReConnectDelayTime = 5000;
 // 重连循环次数
 const int iReConnectCount = 10;
 

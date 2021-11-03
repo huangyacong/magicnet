@@ -165,7 +165,8 @@ function ccoroutine.wait_event(event_id, f, ...)
 	local retpcall, data = pcall(function() 
 		if not wait_coroutine_event[event_id] then
 			wait_coroutine_event[event_id] = IWaitCoroutineEvent.new(sessionId)
-			return table.pack(f(table.unpack(param)))
+			local resultFunction = f(table.unpack(param))
+			return table.pack(resultFunction)
 		end
 		local IWaitCoroutineEventObj = wait_coroutine_event[event_id]
 		table.insert(IWaitCoroutineEventObj.coroutineQueue, running_thread)
@@ -199,6 +200,18 @@ function ccoroutine.wait_event(event_id, f, ...)
 	return table.unpack(data)
 end
 
+function ccoroutine.get_wait_event(event_id)
+	local queueTable = wait_coroutine_event[queue_id]
+	if not queueTable then return 0 end
+	return #queueTable
+end
+
+function ccoroutine.get_queue_count(queue_id)
+	local queueTable = wait_coroutine_queue[queue_id]
+	if not queueTable then return 0 end
+	return #queueTable
+end
+
 function ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
 	if not wait_coroutine_queue[queue_id] then
 		return
@@ -230,14 +243,16 @@ function ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
 	end
 end
 
-function ccoroutine.wait_queue(queue_id)
+function ccoroutine.wait_queue(queue_id, timeout_millsec)
 	if not wait_coroutine_queue[queue_id] then
 		wait_coroutine_queue[queue_id] = {}
 	end
+	local timerId = timer.addtimer(local_modulename, "wakeup_queue", timeout_millsec or 15 * 1000, queue_id)
 	table.insert(wait_coroutine_queue[queue_id], running_thread)
 	local bPopHead = coroutine.yield("YIELD_CALL_WAIT_QUEUE")
 	assert(wait_coroutine_queue[queue_id][bPopHead and 1 or #wait_coroutine_queue[queue_id]] == running_thread)
 	table.remove(wait_coroutine_queue[queue_id], bPopHead and 1 or nil)
+	timer.deltimer(timerId)
 end
 
 return util.ReadOnlyTable(ccoroutine)

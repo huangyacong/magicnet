@@ -188,6 +188,33 @@ static int CoreToolMacSHA1(lua_State *L)
 	return 1;
 }
 
+static int CoreToolCreateUniqueID(lua_State* L)
+{
+	int iServerID;
+	unsigned int uiCount;
+	unsigned long long ullResult;
+
+	iServerID = (int)luaL_checkinteger(L, 1);
+	uiCount = (unsigned int)luaL_checkinteger(L, 2);
+
+	ullResult = CreateUniqueID(iServerID, uiCount);
+
+	lua_pushinteger(L, ullResult);
+	return 1;
+}
+
+static int CoreToolGetServerIDByUniqueID(lua_State* L)
+{
+	int iServerID;
+	unsigned long long ullUniqueID;
+
+	ullUniqueID = luaL_checkinteger(L, 1);
+	iServerID = GetServerIDByUniqueID(ullUniqueID);
+
+	lua_pushinteger(L, iServerID);
+	return 1;
+}
+
 #if (defined(_WIN32) || defined(WIN32))
 __declspec(dllexport) int luaopen_CoreTool(lua_State *L)
 #elif defined(__linux)
@@ -213,6 +240,8 @@ int luaopen_CoreTool(lua_State *L)
 		{ "SHA1", CoreToolSHA1 },
 		{ "MacSHA1", CoreToolMacSHA1 },
 		{ "SysSessionId", CoreNetSysSessionId },
+		{ "CreateUniqueID", CoreToolCreateUniqueID },
+		{ "GetServerIDByUniqueID", CoreToolGetServerIDByUniqueID },
 		{ NULL, NULL },
 	};
 

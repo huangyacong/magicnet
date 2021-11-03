@@ -26,26 +26,15 @@ local package = package
 -- 注册服务器间隔事件
 local iRegServiceDelayTime = 5 * 1000
 -- 重连间隔时间,没次无法连接，就加上这个时间，几次之后，立马重连
-local iReConnectDelayTime = 1000
+local iReConnectDelayTime = 5000
 -- 重连循环次数
 local iReConnectCount = 10
--- 缓存计数器
-local IClientClassPoolCount = 1
--- 缓存
-local IClientClassPool = {}--setmetatable({}, { __mode = "kv" })
 
 local IClient = {}
 
-function IClient.GetPoolCount()
-	local count = 0
-	for _, value in pairs(IClientClassPool) do
-		count = count + 1
-	end
-	return count
-end
-
 -- 定时器回调
 function IClient.pingFunc_callback(IClientClassObj)
+	IClientClassObj:DelPingTimer()
 	IClientClassObj:AddPingTimer()
 	IClientClassObj:TimeToPingPing()
 end
@@ -75,17 +64,15 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 	self.pingTimerId = 0
 	self.iPingTimeDelay  = 1000 * 2
 
-	self.m_iReConnectNum = 0
+	self.m_iReConnectNum = 1
 	self.reconnectTimerId = 0
 	self.bReConnect = bReConnect
 
 	self.regServiceTimerId = 0
-
 	self.regServiceList = {}
 
 	self.privateData = nil
-	--IClientClassPoolCount = IClientClassPoolCount + 1
-	--IClientClassPool[IClientClassPoolCount] = self
+	self.privateDataTwo = {}
 end
 
 function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -114,6 +101,14 @@ end
 
 function IClientClass:GetPrivateData()
 	return self.privateData
+end
+
+function IClientClass:SetPrivateDataTwo(data)
+	self.privateDataTwo = data or {}
+end
+
+function IClientClass:GetPrivateDataTwo()
+	return self.privateDataTwo
 end
 
 function IClientClass:GetModule()
@@ -261,7 +256,7 @@ function IClientClass:DelReConnectTimer()
 end
 
 function IClientClass:OnConnect(ip)
-	self.m_iReConnectNum = 0
+	self.m_iReConnectNum = 1
 	self:AddPingTimer()
 	self:DelReConnectTimer()
 	self:AddRegServiceTimer()
@@ -270,7 +265,8 @@ end
 
 function IClientClass:OnConnectFailed()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
-	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
+	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 1 end
+	self:DelReConnectTimer()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
@@ -284,7 +280,8 @@ end
 
 function IClientClass:OnDisConnect()
 	self.m_iReConnectNum = self.m_iReConnectNum + 1
-	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 0 end
+	if self.m_iReConnectNum > iReConnectCount then self.m_iReConnectNum = 1 end
+	self:DelReConnectTimer()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 	self:DelRegServiceTimer()

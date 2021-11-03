@@ -36,6 +36,10 @@ static int CoreToolSHA1(lua_State *L);
 
 static int CoreToolMacSHA1(lua_State *L);
 
+static int CoreToolCreateUniqueID(lua_State* L);
+
+static int CoreToolGetServerIDByUniqueID(lua_State* L);
+
 #ifdef	__cplusplus
 }
 #endif
