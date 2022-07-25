@@ -123,6 +123,9 @@
     <ClCompile Include="ServiceAgent.cpp">
       <Filter>ccmodule</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeSort.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NetEngine\SeClient.h">
@@ -295,6 +298,9 @@
     </ClInclude>
     <ClInclude Include="..\..\lua-src\src\lzio.h">
       <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeSort.h">
+      <Filter>src\NetEngine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

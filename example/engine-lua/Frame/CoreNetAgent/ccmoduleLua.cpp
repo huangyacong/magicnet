@@ -182,9 +182,6 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 	iLen = NetUnPack(kPacket, (const unsigned char*)pcBuf, (int)seplen);
 	if (iLen > (int)seplen || iLen <= 0) { luaL_error(L, "CoreNetNetUnPack pcBuf is error! %d", iLen); return 0; }
 
-	pcBuf = pcBuf + iLen;
-	iLen = (int)seplen - iLen;
-
 	lua_pushlstring(L, kPacket.acSrcName, (int)strlen(kPacket.acSrcName));
 	lua_pushlstring(L, kPacket.acDstName, (int)strlen(kPacket.acDstName));
 	lua_pushinteger(L, kPacket.eType);
@@ -200,7 +197,7 @@ extern "C" int CoreNetNetUnPack(lua_State *L)
 		lua_pushlstring(L, kPacket.acProto, (int)strlen(kPacket.acProto));
 	}
 
-	lua_pushlstring(L, pcBuf, iLen);
+	lua_pushinteger(L, iLen + 1);
 	return 6;
 }
 

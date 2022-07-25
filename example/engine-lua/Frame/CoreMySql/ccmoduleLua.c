@@ -113,8 +113,33 @@ static int CoreMySqlStoreResult(lua_State *L)
 		for (i = 0; i < uiCount; i++)
 		{
 			lua_pushstring(L, SeMysqlResultGetFieldName(&kMySqlResult, i));
-			if (!SeMysqlResultGetFieldValue(&kMySqlResult, i)) { lua_pushnil(L); }
-			else { lua_pushlstring(L, SeMysqlResultGetFieldValue(&kMySqlResult, i), SeMysqlResultGetFieldLen(&kMySqlResult, i)); }
+			if (!SeMysqlResultGetFieldValue(&kMySqlResult, i)) 
+			{ 
+				lua_pushnil(L); 
+			}
+			else 
+			{ 
+				int iFieldType = SeMysqlResultFieldType(&kMySqlResult, i);
+				if (IS_NUM(iFieldType))
+				{
+					switch (iFieldType)
+					{
+						case MYSQL_TYPE_DECIMAL:
+						case MYSQL_TYPE_FLOAT:
+						case MYSQL_TYPE_DOUBLE:
+						case MYSQL_TYPE_NEWDECIMAL:
+							lua_pushnumber(L, SeAToDouble(SeMysqlResultGetFieldValue(&kMySqlResult, i)));
+							break;
+						default:
+							lua_pushinteger(L, SeAToLongLong(SeMysqlResultGetFieldValue(&kMySqlResult, i)));
+							break;
+					}
+				}
+				else
+				{
+					lua_pushlstring(L, SeMysqlResultGetFieldValue(&kMySqlResult, i), SeMysqlResultGetFieldLen(&kMySqlResult, i));
+				}
+			}
 			lua_settable(L, -3);
 		}
 

@@ -26,19 +26,19 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -110,7 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\src\CoreSrc\common;..\src\CoreSrc\mysql;..\src\CoreSrc\mysql\dev\64\include;..\src\CoreSrc\netbase;..\src\NetEngine;..\src\PbcForLua;..\src\PbcForLua\src;..\src\PbcForLua\binding\lua53;..\..\lua-src\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>LUA_BUILD_AS_DLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LUA_BUILD_AS_DLL;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4146;4273;4244;4018</DisableSpecificWarnings>
     </ClCompile>
@@ -158,6 +158,7 @@ XCOPY /Y ..\src\PbcForLua\binding\lua53\protobuf.lua ..\..\luabin\lib\</Command>
     <ClCompile Include="..\src\NetEngine\SeLogEngine.cpp" />
     <ClCompile Include="..\src\NetEngine\SeNetEngine.cpp" />
     <ClCompile Include="..\src\NetEngine\SeServer.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeSort.cpp" />
     <ClCompile Include="..\src\NetEngine\SeSql.cpp" />
     <ClCompile Include="..\src\NetEngine\SeTimer.cpp" />
     <ClCompile Include="..\src\PbcForLua\binding\lua53\pbc-lua53.c" />
@@ -229,6 +230,7 @@ XCOPY /Y ..\src\PbcForLua\binding\lua53\protobuf.lua ..\..\luabin\lib\</Command>
     <ClInclude Include="..\src\NetEngine\SeLogEngine.h" />
     <ClInclude Include="..\src\NetEngine\SeNetEngine.h" />
     <ClInclude Include="..\src\NetEngine\SeServer.h" />
+    <ClInclude Include="..\src\NetEngine\SeSort.h" />
     <ClInclude Include="..\src\NetEngine\SeSql.h" />
     <ClInclude Include="..\src\NetEngine\SeTimer.h" />
     <ClInclude Include="..\src\PbcForLua\pbc.h" />

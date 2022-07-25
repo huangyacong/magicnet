@@ -56,21 +56,21 @@
 ##==========================================================================  
   
 # The pre-processor and compiler options.  
-MY_CFLAGS = -I./ -I../../lua-src/src -I../src/CoreSrc/common -I../src/CoreSrc/magicnet -I../src/CoreSrc/netbase  
+MY_CFLAGS = -I./ -I../../lua-src/src -I../src/CoreSrc/common -I../src/CoreSrc/magicnet -I../src/CoreSrc/netbase -I../src/CoreSrc/mysql -I../src/NetEngine  
 
 # The directories in which source files reside.  
 # If not specified, only the current directory will be serached.  
-SRCDIRS   =  ./ ../src/CoreSrc/common ../src/CoreSrc/magicnet ../src/CoreSrc/netbase 
+SRCDIRS   =  ./ ../src/CoreSrc/common ../src/CoreSrc/magicnet ../src/CoreSrc/netbase ../src/CoreSrc/mysql ../src/NetEngine 
 
 # The linker options.  
-MY_LIBS   = -L../../luabin 
+MY_LIBS   = -I/usr/include/mysql -L/usr/lib64/mysql -L../../luabin 
   
 # The pre-processor options used by the cpp (man cpp for more). 
 CPPFLAGS  = $(PUB)
 CPPFLAGS  += -Wall -DNDEBUG -DSECOLOR -fpic -shared 
   
 # The options used in linking as well as in any direct use of ld.  
-LDFLAGS   = -Wl,-rpath=/usr/local/lib -ljemalloc -lpthread 
+LDFLAGS   = -Wl,-rpath=/usr/local/lib -ljemalloc -lpthread -lmysqlclient   
   
 # The executable file name.  
 # If not specified, current directory name or `a.out' will be used.  
@@ -95,7 +95,7 @@ CXXFLAGS= -g -O2 -m64
 CC     = gcc 
   
 # The C++ program compiler.  
-CXX    = gcc 
+CXX    = g++ 
   
 # Un-comment the following line to compile C programs as C++ ones.  
 #CC     = $(CXX) 

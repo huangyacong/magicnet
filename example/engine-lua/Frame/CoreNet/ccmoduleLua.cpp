@@ -5,13 +5,11 @@
 #include <string>
 #include <map>
 
-static SeTimer g_kSeTimer;
 static int g_iCoreWaitTime;
 static char g_acBuf[1024*1024*4];
 static struct SENETCORE g_kNetore;
 static struct MsgIDStat g_kMsgIDStat;
 static std::list<std::string> g_kLinkFile;
-
 
 static void ResetMsgIDStat()
 {
@@ -164,7 +162,7 @@ extern "C" int CoreNetTCPSend(lua_State *L)
 	bResult = SeNetCoreSendExtend(&g_kNetore, kHSocket, kBuf, (int)(sizeof(kBuf) / sizeof(struct SENETSTREAMBUF)));
 
 	g_kMsgIDStat.iSendNum++;
-	g_kMsgIDStat.ullSendByteNum += (int)seplen + (int)seplenHead;
+	g_kMsgIDStat.ullSendByteNum += (unsigned long long)seplen + (unsigned long long)seplenHead;
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -317,48 +315,13 @@ extern "C" int CoreNetReport(lua_State *L)
 		lua_rawseti(L, -2, 5);
 		lua_pushinteger(L, ullPrintByteNum);
 		lua_rawseti(L, -2, 6);
-		lua_pushinteger(L, g_kSeTimer.GetTimerCount());
+		lua_pushinteger(L, 0);
 		lua_rawseti(L, -2, 7);
 
 		return 1;
 	}
 
 	lua_pushnil(L);
-	return 1;
-}
-
-extern "C" int CoreNetAddTimer(lua_State *L)
-{
-	long long llTimerId;
-	int iDealyTimeMillSec;
-
-	iDealyTimeMillSec = (int)luaL_checkinteger(L, 1);
-
-	llTimerId = g_kSeTimer.SetTimer(iDealyTimeMillSec);
-
-	lua_pushinteger(L, llTimerId);
-	return 1;
-}
-
-extern "C" int CoreNetDelTimer(lua_State *L)
-{
-	long long llTimerId;
-
-	llTimerId = (long long)luaL_checkinteger(L, 1);
-
-	g_kSeTimer.DelTimer(llTimerId);
-
-	lua_pushnil(L);
-	return 1;
-}
-
-extern "C" int CoreNetGetTimeOutId(lua_State *L)
-{
-	long long llTimerId;
-
-	llTimerId = g_kSeTimer.GetTimeOutId(SeTimeGetTickCount());
-
-	lua_pushinteger(L, llTimerId);
 	return 1;
 }
 
@@ -396,9 +359,6 @@ extern "C" int luaopen_CoreNet(lua_State *L)
 		{ "TCPClose", CoreNetTCPClose },
 		{ "Read", CoreNetRead },
 		{ "Report", CoreNetReport }, 
-		{ "AddTimer", CoreNetAddTimer },
-		{ "DelTimer", CoreNetDelTimer },
-		{ "GetTimeOutId", CoreNetGetTimeOutId }, 
 		{ "GetOS", CoreNetGetOS }, 
 		{ NULL, NULL },
 	};

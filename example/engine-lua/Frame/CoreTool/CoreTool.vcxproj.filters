@@ -102,7 +102,7 @@
     <ClCompile Include="..\src\CoreSrc\netbase\SeNetStream.c">
       <Filter>src\CoreSrc\netbase</Filter>
     </ClCompile>
-    <ClCompile Include="ccmoduleLua.c">
+    <ClCompile Include="ccmoduleLua.cpp">
       <Filter>ccmodule</Filter>
     </ClCompile>
     <ClCompile Include="..\src\CoreSrc\common\SeBase64.c">
@@ -119,6 +119,9 @@
     </ClCompile>
     <ClCompile Include="..\src\CoreSrc\common\SeBuffWR.c">
       <Filter>src\CoreSrc\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeSort.cpp">
+      <Filter>src\NetEngine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -289,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="..\..\lua-src\src\lzio.h">
       <Filter>src\LuaSrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeSort.h">
+      <Filter>src\NetEngine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
