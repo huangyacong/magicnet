@@ -1,5 +1,6 @@
 ﻿local CoreNetAgent = require "CoreNetAgent"
 local ccoroutine = require "ccoroutine"
+local dateutil = require "dateutil"
 local CoreTool = require "CoreTool"
 local CoreNet = require "CoreNet"
 local timer = require "timer"
@@ -11,6 +12,8 @@ local table = table
 local ccorenet = {}
 local sys_run = true
 local sys_print = nil
+local sys_tips_cnt = 0
+local sys_tips_time = CoreTool.GetTickCount()
 
 local clientObj = {}
 local svrObj = {}
@@ -57,6 +60,17 @@ end
 -- 判断操作系统 Linux,Windows,Unknow
 function ccorenet.getOS()
 	return CoreNet.GetOS()
+end
+
+-- 获取TIPS的值 
+function ccorenet.getTips()
+	local timecount = CoreTool.GetTickCount()
+	if timecount >= (sys_tips_time + 5000) then
+		local ret = sys_tips_cnt / (timecount - sys_tips_time)
+		sys_tips_cnt, sys_tips_time = 0, timecount
+		return math.floor(ret * 1000)
+	end
+	return 0
 end
 
 -- 初始化
@@ -111,6 +125,7 @@ local function worker()
 	
 	if net_event_id[netevent] then
 		if svrObj[listenscoket] then
+			sys_tips_cnt = sys_tips_cnt + 1
 			local tcpsocketobj = svrObj[listenscoket]
 			local fliter = net_event_fliter_svr[netevent]
 			if fliter then
@@ -119,6 +134,7 @@ local function worker()
 				print(debug.traceback(), "\n", string.format("ccorenet.read svrObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 			end
 		elseif clientObj[recvsocket] then
+			sys_tips_cnt = sys_tips_cnt + 1
 			local tcpsocketobj = clientObj[recvsocket]
 			local fliter = net_event_fliter_client[netevent]
 			if fliter then
@@ -127,11 +143,14 @@ local function worker()
 				print(debug.traceback(), "\n", string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 			end
 		elseif CoreNet.SOCKET_TIMER == netevent then
-			timer.timeout()
+			local doNum = timer.timeout()
+			sys_tips_cnt = sys_tips_cnt + doNum
 		else
+			sys_tips_cnt = sys_tips_cnt + 1
 			print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not find listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 		end
 	else
+		sys_tips_cnt = sys_tips_cnt + 1
 		print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 	end
 end
@@ -139,8 +158,8 @@ end
 -- 运行
 function ccorenet.start()
 	while sys_run == true do
-		local ret, co = pcall(function() return ccoroutine.co_create(worker) end)
-		if not ret then pcall(function() sys_print(debug.traceback(), "\n", string.format("ccoroutine.co_create %s", co)) end) end
+		local ret, co = xpcall(function() return ccoroutine.co_create(worker) end, debug.traceback)
+		if not ret then pcall(function() sys_print(string.format("ccoroutine.co_create %s", co)) end) end
 		if co then ccoroutine.resume(co) end
 	end
 	sys_print(string.format("exit.... %s", sys_run))
@@ -157,16 +176,16 @@ function ccorenet.genToken(key, name)
 end
 
 -- 打包
-function ccorenet.netPack(srcName, targetName, proto, PTYPE, session_id, data)
+function ccorenet.netPack(srcName, targetName, proto, PTYPE, session_id)
 	session_id = session_id or 0
 	local header = CoreNetAgent.NetPack(srcName, targetName, PTYPE, session_id, proto)
-	return header, data
+	return header
 end
 
 -- 解包
 function ccorenet.netUnPack(data)
-	local srcName, targetName, PTYPE, session_id, proto, recvData = CoreNetAgent.NetUnPack(data)
-	return srcName, targetName, PTYPE, session_id, proto, recvData
+	local srcName, targetName, PTYPE, session_id, proto, iDataIndex = CoreNetAgent.NetUnPack(data)
+	return srcName, targetName, PTYPE, session_id, proto, string.sub(data, iDataIndex, -1)
 end
 
 -- 等待一个函数执行完毕
@@ -179,14 +198,19 @@ function ccorenet.countWaitEvent(event_id)
 	return ccoroutine.get_wait_event(event_id)
 end
 
+-- 存在事件
+function ccorenet.hasWaitEvent(event_id)
+	return ccoroutine.has_wait_event(event_id)
+end
+
 -- 唤醒队列
 function ccorenet.wakeUpQueue(queue_id, bPopHead, queueNum)
 	return ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
 end
 
 -- 加入队列
-function ccorenet.waitQueue(queue_id, timeout_millsec)
-	return ccoroutine.wait_queue(queue_id, timeout_millsec)
+function ccorenet.waitQueue(queue_id, bUseTimer, timeout_millsec)
+	return ccoroutine.wait_queue(queue_id, bUseTimer, timeout_millsec)
 end
 
 -- 队列数量
@@ -224,8 +248,8 @@ local function hook_print(...)
 	end
 
 	logLock = true
-	local result, errMsg = pcall(function() LogFunctionCallBack(cache) end)
-	if not result then sys_print(debug.traceback(), "\n", string.format("GlobalLogCallBack %s", errMsg)) end
+	local result, errMsg = xpcall(function() LogFunctionCallBack(cache) end, debug.traceback)
+	if not result then sys_print(string.format("GlobalLogCallBack %s", errMsg)) end
 	logLock = false
 end
 

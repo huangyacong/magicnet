@@ -182,8 +182,8 @@ function IClientPlayerClass:OnConnect(ip)
 	self.m_iReConnectNum = 0
 	self:AddPingTimer()
 	self:DelReConnectTimer()
-	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnSendPacketAttach](self) end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+	local isOK, ret = xpcall(function () self:GetModule()[IClientNetFunc_OnSendPacketAttach](self) end, debug.traceback)
+	if not isOK then pcall(function () print("traceback error", "\n", ret) end) end
 	self:GetModule()[IClientNetFunc_OnConnect](self, ip)
 end
 
@@ -193,8 +193,8 @@ function IClientPlayerClass:OnConnectFailed()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
-	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnConnectFailed](self) end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+	local isOK, ret = xpcall(function () self:GetModule()[IClientNetFunc_OnConnectFailed](self) end, debug.traceback)
+	if not isOK then pcall(function () print("traceback error", "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
 	self.hsocket = 0
@@ -206,8 +206,8 @@ function IClientPlayerClass:OnDisConnect()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
-	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnDisConnect](self) end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+	local isOK, ret = xpcall(function () self:GetModule()[IClientNetFunc_OnDisConnect](self) end, debug.traceback)
+	if not isOK then pcall(function () print("traceback error", "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
 	self.hsocket = 0

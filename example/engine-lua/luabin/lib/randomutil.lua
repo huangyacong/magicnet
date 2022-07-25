@@ -1,8 +1,9 @@
 local util = require "util"
+local dateutil = require "dateutil"
 local table_insert = table.insert
 
 local math = math
-math.randomseed(os.time())
+math.randomseed(dateutil.now_time())
 
 local randomutil = {}
 

@@ -45,7 +45,7 @@ function iniconf.read(filename)
 	until (not lines)
 
 	file:close()
-	return util.ReadOnlyTable(IniConfClass.new(result));
+	return util.ReadOnlyTable(IniConfClass.new(result))
 end
 
 return util.ReadOnlyTable(iniconf)

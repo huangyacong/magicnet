@@ -9,7 +9,7 @@ local function executesql(cSql)
 	local bRet = CoreMySql.ExecuteSql(cSql)
 
 	if not bRet then
-		print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s.", ccoremysql.errorstr()))
+		print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s code=%s.", ccoremysql.errorstr(), ccoremysql.errorno()))
 		print(string.format("[SQL] ExecuteSql Failed. sql=%s", cSql))
 	end
 
@@ -22,7 +22,7 @@ local function executesql(cSql)
 		print("[SQL] dbsvr is disconnect, now reconnect it.")
 
 		if not ccoremysql.tryconect() then
-			print(debug.traceback(), "\n", string.format("[SQL] dbsvr reconnect error. errormsg=%s", ccoremysql.errorstr()))
+			print(debug.traceback(), "\n", string.format("[SQL] dbsvr reconnect error. errormsg=%s code=%s", ccoremysql.errorstr(), ccoremysql.errorno()))
 			print(string.format("[SQL] dbsvr connect error. sql=%s", cSql))
 			return false
 		end
@@ -30,7 +30,7 @@ local function executesql(cSql)
 		print("[SQL] dbsvr is disconnect, reconnect ok.")
 
 		if not CoreMySql.ExecuteSql(cSql) then
-			print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s", ccoremysql.errorstr()))
+			print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s code=%s", ccoremysql.errorstr(), ccoremysql.errorno()))
 			print(string.format("[SQL] ExecuteSql Failed. sql=%s", cSql))
 			return false
 		end

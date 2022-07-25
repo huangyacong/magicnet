@@ -169,37 +169,39 @@ function IClientClass:TryReConnect()
 end
 
 function IClientClass:ExitAgent()
-	local header, contents = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_EXIT, 0, "")
-	return CoreNet.TCPSend(self.hsocket, header, contents)
+	local header = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_EXIT, 0)
+	return CoreNet.TCPSend(self.hsocket, header, "")
 end
 
 function IClientClass:SendData(targetName, proto, data)
-	local header, contents = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_COMMON, 0, msgpack.pack(data))
+	local contents = msgpack.pack(data)
+	local header = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_COMMON, 0)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
 function IClientClass:SendRemoteData(remote_socket, proto, data)
-	assert(type(proto) == type(0))
-	assert(type(remote_socket) == type(0))
-	local header, contents = net_module.netPack(self:GetName(), "", proto, CoreNetAgent.PTYPE_REMOTE, remote_socket, data)
-	return CoreNet.TCPSend(self.hsocket, header, contents)
+	--assert(type(proto) == type(0))
+	--assert(type(remote_socket) == type(0))
+	local header = net_module.netPack(self:GetName(), "", proto, CoreNetAgent.PTYPE_REMOTE, remote_socket)
+	return CoreNet.TCPSend(self.hsocket, header, data)
 end
 
 function IClientClass:CloseRemote(remote_socket)
-	assert(type(remote_socket) == type(0))
-	local header, contents = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_REMOTE_CLOSE, remote_socket, "")
-	return CoreNet.TCPSend(self.hsocket, header, contents)
+	--assert(type(remote_socket) == type(0))
+	local header = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_REMOTE_CLOSE, remote_socket)
+	return CoreNet.TCPSend(self.hsocket, header, "")
 end
 
 function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 	local session_id = CoreTool.SysSessionId()
-	local header, contents = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_CALL, session_id, msgpack.pack(data))
+	local contents = msgpack.pack(data)
+	local header = net_module.netPack(self:GetName(), targetName, proto, CoreNetAgent.PTYPE_CALL, session_id)
 	local ret = CoreNet.TCPSend(self.hsocket, header, contents)
 	if not ret then
 		print(debug.traceback(), "\n", "CallData failed")
 		return false, "send failed"
 	end
-	local succ, msg = ccoroutine.yield_call(session_id, timeout_millsec)
+	local succ, msg = ccoroutine.yield_call(session_id, timeout_millsec, proto)
 	if succ then
 		msg = msgpack.unpack(msg)
 	end
@@ -208,7 +210,8 @@ end
 
 function IClientClass:RetCallData(data)
 	local sessionId, srcName, proto = ccoroutine.get_session_coroutine_id()
-	local header, contents = net_module.netPack(self:GetName(), srcName, proto, CoreNetAgent.PTYPE_RESPONSE, sessionId, msgpack.pack(data))
+	local contents = msgpack.pack(data)
+	local header = net_module.netPack(self:GetName(), srcName, proto, CoreNetAgent.PTYPE_RESPONSE, sessionId)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -218,8 +221,8 @@ end
 
 function IClientClass:TimeToPingPing()
 	if self.hsocket == 0 then return end
-	local header, contents = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_PING, 0, "")
-	return CoreNet.TCPSend(self.hsocket, header, contents)
+	local header = net_module.netPack(self:GetName(), "", "", CoreNetAgent.PTYPE_PING, 0)
+	return CoreNet.TCPSend(self.hsocket, header, "")
 end
 
 function IClientClass:AddRegServiceTimer()
@@ -270,8 +273,8 @@ function IClientClass:OnConnectFailed()
 	self:AddReConnectTimer()
 	self:DelPingTimer()
 
-	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnConnectFailed](self) end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+	local isOK, ret = xpcall(function () self:GetModule()[IClientNetFunc_OnConnectFailed](self) end, debug.traceback)
+	if not isOK then pcall(function () print("traceback error", "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
 	self.regServiceList = {}
@@ -286,8 +289,8 @@ function IClientClass:OnDisConnect()
 	self:DelPingTimer()
 	self:DelRegServiceTimer()
 
-	local isOK, ret = pcall(function () self:GetModule()[IClientNetFunc_OnDisConnect](self) end)
-	if not isOK then pcall(function () print(debug.traceback(), "\n", ret) end) end
+	local isOK, ret = xpcall(function () self:GetModule()[IClientNetFunc_OnDisConnect](self) end, debug.traceback)
+	if not isOK then pcall(function () print("traceback error", "\n", ret) end) end
 
 	net_module.IClientList[self.hsocket] = nil
 	self.regServiceList = {}
@@ -299,15 +302,15 @@ function IClientClass:OnRecv(data)
 
 	ccoroutine.add_session_coroutine_id(session_id, srcName, proto)
 
-	local funcRet, funcErr = pcall(function() 
+	local funcRet, funcErr = xpcall(function() 
 		if CoreNetAgent.PTYPE_RESPONSE == PTYPE then
 			local co = ccoroutine.get_session_id_coroutine(session_id)
 			if co then ccoroutine.resume(co, true, contents) end
 			if not co then print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id) end
 		elseif CoreNetAgent.PTYPE_REGISTER_KEY == PTYPE then
 			local md5str = net_module.genToken(srcName, self:GetName())
-			local header, sendData = net_module.netPack(self:GetName(), md5str, "sendregname", CoreNetAgent.PTYPE_REGISTER, 0, "")
-			CoreNet.TCPSend(self.hsocket, header, sendData)
+			local header = net_module.netPack(self:GetName(), md5str, "sendregname", CoreNetAgent.PTYPE_REGISTER, 0)
+			CoreNet.TCPSend(self.hsocket, header, "")
 			self:GetModule()[IClientNetFunc_Register](self)
 			print(string.format("IClientClass:OnRecv Name=%s recv register key=%s md5str=%s", self:GetName(), srcName, md5str))
 		elseif CoreNetAgent.PTYPE_REGISTER_BACK == PTYPE then
@@ -330,10 +333,10 @@ function IClientClass:OnRecv(data)
 		elseif CoreNetAgent.PTYPE_REMOTE_RECV_DATA == PTYPE then
 			self:GetModule()[IClientNetFunc_OnRemoteRecvData](self, session_id, proto, contents)
 		end
-	end)
+	end, debug.traceback)
 
 	if not funcRet then
-		print(debug.traceback(), "\n", "IClientClass:OnRecv", funcErr)
+		print("traceback error", "\n", "IClientClass:OnRecv", funcErr)
 	end
 
 	ccoroutine.del_session_coroutine_id()

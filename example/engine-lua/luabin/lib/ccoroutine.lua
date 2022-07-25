@@ -6,15 +6,13 @@ require "class"
 local local_modulename = ...
 timer.register(local_modulename)
 
-local ccoroutine = {}
-
 local table = table
 local coroutine = coroutine
 local running_thread = nil
 local session_coroutine_id = {}
 local session_id_coroutine = {} -- 需要做超时处理，协程回调就靠这个触发了
 local wait_coroutine_event = {} -- 需要做超时处理，协程回调就靠这个触发了
-local wait_coroutine_queue = {} -- 等待队列
+local wait_coroutine_queue, wait_coroutine_queue_timerid = {}, {} -- 等待队列
 local wait_coroutine_time_sleep = {}
 local coroutine_pool = {}--setmetatable({}, { __mode = "kv" })
 
@@ -44,13 +42,15 @@ local function co_create(f)
 	return co
 end
 
+local ccoroutine = {}
+
 function ccoroutine.add_session_coroutine_id(sessionId, srcName, proto)
 	session_coroutine_id[running_thread] = {sessionId, tostring(srcName), tostring(proto)}
 end
 
 function ccoroutine.get_session_coroutine_id()
 	local sessionData = session_coroutine_id[running_thread]
-	assert(sessionData, "get_session_coroutine_id failed")
+	--assert(sessionData, "get_session_coroutine_id failed")
 	local sessionId, srcName, proto = table.unpack(sessionData)
 	return sessionId, srcName, proto
 end
@@ -87,32 +87,32 @@ function ccoroutine.resume(co, ...)
 	local running = running_thread
 	local ret, err = coroutine_resume(co, ...)
 	running_thread = running
-	if not ret then pcall(function() print(debug.traceback(), "\n", string.format("ccoroutine.resume %s", err)) end) end
+	if not ret then xpcall(function() print("traceback error", "\n", string.format("ccoroutine.resume %s", err)) end, debug.traceback) end
 	return ret, err
 end
 
-function ccoroutine.session_id_coroutine_timeout(sessionId)
+function ccoroutine.session_id_coroutine_timeout(sessionId, proto)
 	local co = session_id_coroutine[sessionId]
-	print(debug.traceback(), "\n", "CallData time out", sessionId)
+	print(debug.traceback(), "\n", "CallData time out", sessionId, proto)
 	if co then 
 		ccoroutine.resume(co, false, "time out") 
 	end
 end
 
-function ccoroutine.yield_call(sessionId, timeout_millsec)
+function ccoroutine.yield_call(sessionId, timeout_millsec, proto)
 	timeout_millsec = timeout_millsec or (1000 * 20)
-	local retpcall, ret, data = pcall(function() 
+	local retpcall, ret, data = xpcall(function() 
 		assert(session_id_coroutine[sessionId] == nil)
-		local timerId = timer.addtimer(local_modulename, "session_id_coroutine_timeout", timeout_millsec, sessionId)
+		local timerId = timer.addtimer(local_modulename, "session_id_coroutine_timeout", timeout_millsec, sessionId, proto)
 		session_id_coroutine[sessionId] = running_thread
 		local succ, msg = coroutine.yield("YIELD_CALL")
 		session_id_coroutine[sessionId] = nil
 		timer.deltimer(timerId)
 		return succ, msg
-		end)
+		end, debug.traceback)
 	session_id_coroutine[sessionId] = nil
 	if not retpcall then 
-		print(debug.traceback(), "\n", ret)
+		print("traceback error", "\n", ret)
 		return false, "traceback"
 	end
 	return ret, data
@@ -125,7 +125,7 @@ end
 
 function ccoroutine.wait_time_sleep(timeout_millsec)
 	timeout_millsec = timeout_millsec or (1000 * 20)
-	local retpcall, err = pcall(function() 
+	local retpcall, err = xpcall(function() 
 		local sessionId = CoreTool.SysSessionId()
 		assert(wait_coroutine_time_sleep[sessionId] == nil)
 		local timerId = timer.addtimer(local_modulename, "wait_time_sleep_timeout", timeout_millsec, sessionId)
@@ -133,9 +133,9 @@ function ccoroutine.wait_time_sleep(timeout_millsec)
 		local yield_sessionId = coroutine.yield("YIELD_CALL_TIME_SLEEP")
 		assert(yield_sessionId == sessionId)
 		wait_coroutine_time_sleep[sessionId] = nil
-		end)
+		end, debug.traceback)
 	if not retpcall then 
-		print(debug.traceback(), "\n", err)
+		print("traceback error", "\n", err)
 	end
 end
 
@@ -162,7 +162,7 @@ function ccoroutine.wait_event(event_id, f, ...)
 	event_id = tostring(event_id)
 	local sessionId = CoreTool.SysSessionId()
 	
-	local retpcall, data = pcall(function() 
+	local retpcall, data = xpcall(function() 
 		if not wait_coroutine_event[event_id] then
 			wait_coroutine_event[event_id] = IWaitCoroutineEvent.new(sessionId)
 			local resultFunction = f(table.unpack(param))
@@ -175,7 +175,7 @@ function ccoroutine.wait_event(event_id, f, ...)
 		assert(IWaitCoroutineEventObj.coroutineQueue[1] == running_thread)
 		table.remove(IWaitCoroutineEventObj.coroutineQueue, 1)
 		return result
-		end)
+		end, debug.traceback)
 
 	-- 谁带头做，谁唤醒其它等待的协程
 	local IWaitCoroutineEventObj = wait_coroutine_event[event_id]
@@ -187,13 +187,13 @@ function ccoroutine.wait_event(event_id, f, ...)
 			if retpcall then result = data end
 			local timerId = timer.addtimer(local_modulename, "wait_event_other_resume", 1, event_id, sessionId, result)
 			if timerId == 0 then
-				print(debug.traceback(), "\n", string.format("ccoroutine.wait_event addtimer failed. event_id=%s", event_id))
+				print("traceback error", "\n", string.format("ccoroutine.wait_event addtimer failed. event_id=%s", event_id))
 			end
 		end
 	end
 
 	if not retpcall then 
-		print(debug.traceback(), "\n", string.format("ccoroutine.wait_event event_id=%s", event_id), "\n", data)
+		print("traceback error", "\n", string.format("ccoroutine.wait_event event_id=%s", event_id), "\n", data)
 		return nil
 	end
 
@@ -204,6 +204,12 @@ function ccoroutine.get_wait_event(event_id)
 	local queueTable = wait_coroutine_event[queue_id]
 	if not queueTable then return 0 end
 	return #queueTable
+end
+
+function ccoroutine.has_wait_event(event_id)
+	local queueTable = wait_coroutine_event[queue_id]
+	if not queueTable then return false end
+	return true
 end
 
 function ccoroutine.get_queue_count(queue_id)
@@ -240,19 +246,22 @@ function ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
 
 	if not next(wait_coroutine_queue[queue_id]) then
 		wait_coroutine_queue[queue_id] = nil
+		timer.deltimer(wait_coroutine_queue_timerid[queue_id] or 0)
+		wait_coroutine_queue_timerid[queue_id] = nil
 	end
 end
 
-function ccoroutine.wait_queue(queue_id, timeout_millsec)
+function ccoroutine.wait_queue(queue_id, bUseTimer, timeout_millsec)
 	if not wait_coroutine_queue[queue_id] then
 		wait_coroutine_queue[queue_id] = {}
+		if bUseTimer then
+			wait_coroutine_queue_timerid[queue_id] = timer.addtimer(local_modulename, "wakeup_queue", timeout_millsec or 15 * 1000, queue_id, true)
+		end
 	end
-	local timerId = timer.addtimer(local_modulename, "wakeup_queue", timeout_millsec or 15 * 1000, queue_id)
 	table.insert(wait_coroutine_queue[queue_id], running_thread)
 	local bPopHead = coroutine.yield("YIELD_CALL_WAIT_QUEUE")
 	assert(wait_coroutine_queue[queue_id][bPopHead and 1 or #wait_coroutine_queue[queue_id]] == running_thread)
 	table.remove(wait_coroutine_queue[queue_id], bPopHead and 1 or nil)
-	timer.deltimer(timerId)
 end
 
 return util.ReadOnlyTable(ccoroutine)

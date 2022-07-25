@@ -1,5 +1,4 @@
 local c = require "protobuf.c"
-local util = require "util"
 
 local setmetatable = setmetatable
 local type = type
@@ -529,4 +528,4 @@ end
 
 M.default=set_default
 
-return util.ReadOnlyTable(M)
+return M

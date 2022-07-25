@@ -12,8 +12,7 @@ function AgentGate.Listen(IPRemote, PortRemote, IPService, PortService, IPServic
 end
 
 function AgentGate.Start()
-	local result, errMsg = pcall(function() CoreNetAgent.StartAgentGate() end)
-	if not result then print(debug.traceback(), "\n", string.format("AgentGate.Start %s", errMsg)) end
+	CoreNetAgent.StartAgentGate()
 end
 
 function AgentGate.Fin()

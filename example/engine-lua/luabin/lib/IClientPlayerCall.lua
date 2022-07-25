@@ -89,7 +89,7 @@ function IClientPlayerCallClass:CallData(proto, recvProto, data)
 	proto, recvProto = tonumber(proto), tonumber(recvProto)
 	local session_id = CoreTool.SysSessionId()
 	self.IClientPlayerObj:SetPrivateData(table.pack(proto, recvProto, session_id, data))
-	local succ, msg = ccoroutine.yield_call(session_id)
+	local succ, msg = ccoroutine.yield_call(session_id, nil, proto)
 	self.IClientPlayerObj:SetPrivateData()
 	self.IClientPlayerObj:SetPrivateDataTwo()
 

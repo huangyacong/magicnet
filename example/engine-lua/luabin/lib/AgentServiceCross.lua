@@ -21,8 +21,8 @@ local AgentServiceCrossHotfixModuleName = nil
 local AgentServiceCrossLocalLogServiceName = ""
 
 local AgentServiceCrossList = {}
-local function GetAgentServiceCrossObj(serviceName)
-	return AgentServiceCrossList[serviceName]
+local function GetAgentServiceCrossObj(serviceid)
+	return AgentServiceCrossList[serviceid]
 end
 
 -----------------------------------------------------------------
@@ -64,20 +64,20 @@ end
 
 -----------------------------------------------------------------
 
-function AgentServiceCross.SendRemote(serviceName, remote_socket, proto, data)
-	return GetAgentServiceCrossObj(serviceName):SendRemoteData(remote_socket, proto, data or "")
+function AgentServiceCross.SendRemote(serviceid, remote_socket, proto, data)
+	return GetAgentServiceCrossObj(serviceid):SendRemoteData(remote_socket, proto, data or "")
 end
 
-function AgentServiceCross.SendData(serviceName, targetName, proto, data)
-	return GetAgentServiceCrossObj(serviceName):SendData(targetName, proto, data or "")
+function AgentServiceCross.SendData(serviceid, targetName, proto, data)
+	return GetAgentServiceCrossObj(serviceid):SendData(targetName, proto, data or "")
 end
 
-function AgentServiceCross.CallData(serviceName, targetName, proto, data, timeout_millsec)
-	return GetAgentServiceCrossObj(serviceName):CallData(targetName, proto, data or "", timeout_millsec)
+function AgentServiceCross.CallData(serviceid, targetName, proto, data, timeout_millsec)
+	return GetAgentServiceCrossObj(serviceid):CallData(targetName, proto, data or "", timeout_millsec)
 end
 
-function AgentServiceCross.RetCallData(serviceName, data)
-	return GetAgentServiceCrossObj(serviceName):RetCallData(data)
+function AgentServiceCross.RetCallData(serviceid, data)
+	return GetAgentServiceCrossObj(serviceid):RetCallData(data)
 end
 
 function AgentServiceCross.GetName()
@@ -100,13 +100,13 @@ function AgentServiceCross.IsLocalService()
 	return AgentServiceCrossIsLocalService
 end
 
-function AgentServiceCross.AddService(serviceName, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
+function AgentServiceCross.AddService(serviceid, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay)
 	if not AgentServiceCrossEventMudleName then
-		print(debug.traceback(), "\n", string.format("AgentServiceCross.AddService service=%s not run AgentServiceCross.Init", serviceName))
+		print(debug.traceback(), "\n", string.format("AgentServiceCross.AddService service=%s not run AgentServiceCross.Init", serviceid))
 		return false
 	end
-	if AgentServiceCrossList[serviceName] then
-		print(debug.traceback(), "\n", string.format("AgentServiceCross.AddService service=%s is reg", serviceName))
+	if AgentServiceCrossList[serviceid] then
+		print(debug.traceback(), "\n", string.format("AgentServiceCross.AddService service=%s is reg", serviceid))
 		return false
 	end
 
@@ -123,25 +123,26 @@ function AgentServiceCross.AddService(serviceName, cRemoteIP, iRemotePort, cUnix
 	end
 
 	if not obj:Connect() then
-		print(debug.traceback(), "\n", string.format("AgentServiceCross.AddService %s Failed. cLocalIP=%s iLocalPort=%s", serviceName, cRemoteIP, iRemotePort))
+		print(debug.traceback(), "\n", string.format("AgentServiceCross.AddService %s Failed. cLocalIP=%s iLocalPort=%s", serviceid, cRemoteIP, iRemotePort))
 		return false
 	end
 
-	obj:SetPrivateData(serviceName)
-	AgentServiceCrossList[serviceName] = obj
-	AgentServiceCrossLocalLogServiceName = serviceName
+	obj:SetPrivateData(serviceid)
+	AgentServiceCrossList[serviceid] = obj
+	AgentServiceCrossLocalLogServiceName = serviceid
 	return true
 end
 
-function AgentServiceCross.DelService(serviceName)
-	if not AgentServiceCrossList[serviceName] then
+function AgentServiceCross.DelService(serviceid)
+	if not AgentServiceCrossList[serviceid] then
 		return
 	end
-	AgentServiceCrossList[serviceName]:DisConnect()
-	AgentServiceCrossList[serviceName]:SetPrivateData()
-	AgentServiceCrossList[serviceName] = nil
+	AgentServiceCrossList[serviceid]:DisConnect()
+	AgentServiceCrossList[serviceid]:SetPrivateData()
+	AgentServiceCrossList[serviceid] = nil
 end
 
+-- serviceConfArray = {{serviceid, cRemoteIP, iRemotePort, cUnixSocketName}, ......}
 function AgentServiceCross.Init(className, modulename, hotfixModuleName, bLocalService, serviceConfArray, iTimeOut, iConnectTimeOut, bNoDelay)
 	-- 模块modulename中必须是table，同时必须有下面的key
 	local packageName = package.loaded[modulename]
@@ -184,8 +185,8 @@ function AgentServiceCross.Init(className, modulename, hotfixModuleName, bLocalS
 	AgentServiceCrossHotfixModuleName = tostring(hotfixModuleName)
 
 	for _, value in ipairs(serviceConfArray) do
-		local serviceName, cRemoteIP, iRemotePort, cUnixSocketName = table.unpack(value)
-		if not AgentServiceCross.AddService(serviceName, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay) then
+		local serviceid, cRemoteIP, iRemotePort, cUnixSocketName = table.unpack(value)
+		if not AgentServiceCross.AddService(serviceid, cRemoteIP, iRemotePort, cUnixSocketName, iTimeOut, iConnectTimeOut, bNoDelay) then
 			return false
 		end
 	end

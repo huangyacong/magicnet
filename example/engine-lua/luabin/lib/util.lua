@@ -5,6 +5,7 @@ local util = {}
 local printTableConf = true
 local table = table
 local string = string
+local Next = next
 
 function util.setPrintTable(bPrint)
 	printTableConf = bPrint
@@ -124,9 +125,27 @@ function util.get_arg(num)
 	return arg[num]
 end
 
+local __metatableName = "automsg"
+
+local function __next(tb, ...)
+	local metatable = getmetatable(tb)
+
+	if not metatable or metatable ~= __metatableName then
+		return Next(tb, ...)
+	end
+
+	for key, value in pairs(tb) do
+		return value
+	end
+
+	return nil
+end
+next = __next
+
 function util.ReadOnlyTable(t)
 	local proxy = {}
 	local mt = {
+		__metatable = __metatableName,
 		__index = t,
 		__len = function (a) return #t end,
 		__pairs = function (a) return pairs(t) end,
@@ -137,61 +156,108 @@ function util.ReadOnlyTable(t)
 	return proxy
 end
 
-local keyWords = {["__bUpdate"] = true, ["__iSessionId"] = true}
+local oAutoClass = setmetatable({}, { __mode = "k" })
+local oGlobalIgnoreKeys = {["oInstance"] = true, ["oModuleInterface"] = true}
+local keyWords = {["__bUpdate"] = true, ["__iSessionId"] = true, ["__oIgnoreKeys"] = true, ["__fModifyCallBack"] = true}
 
-function util.AddTableAutoUpdateMsg(t, bchange, keyWordsArray)
-	for k, v in pairs(t) do
+local __meta = {__metatable = __metatableName}
+
+function __meta:__index(key)
+	local tbl = oAutoClass[self]
+	return tbl[key]
+end
+
+function __meta:__len()
+	local tbl = oAutoClass[self]
+	return #tbl
+end
+
+function __meta:__pairs()
+	return function(tbl, key)
+		local value
+		repeat
+			key, value = Next(tbl, key)
+		until key == nil or not keyWords[key]
+		return key, value
+	end, oAutoClass[self], nil
+end
+
+function __meta:__ipairs() 
+	local tbl = oAutoClass[self]
+	return ipairs(tbl) 
+end
+
+function __meta:__newindex(key, value)
+	local tbl = oAutoClass[self]
+	tbl[key] = value
+	if not keyWords[key] and not tbl.__oIgnoreKeys[key] then
+		local iSessionId = tbl.__iSessionId
+
+		tbl.__bUpdate = true
+		tbl.__iSessionId = CoreTool.SysSessionId()
+		
+		if iSessionId >= tbl.__iSessionId then 
+			tbl.__iSessionId = iSessionId + 1 
+		end
+
+		if tbl.__fModifyCallBack then
+			local fModifyCallBack, argv = table.unpack(tbl.__fModifyCallBack)
+			fModifyCallBack(table.unpack(argv))
+		end
+	end
+end
+
+function util.GetAutoClass()
+	return oAutoClass
+end
+
+function util.AddTableAutoUpdateMsg(tbl, bchange, IgnoreKeys, fModifyCallBack, ...)
+
+	for k, v in pairs(tbl) do
 		assert(not keyWords[k], string.format("Class Has Key=%s, this can only use in system!", k))
 	end
 	
-	for _, k in ipairs(keyWordsArray or {}) do
-		keyWords[k] = true
+	tbl.__bUpdate = bchange and true or false
+	tbl.__iSessionId = CoreTool.SysSessionId()
+	tbl.__oIgnoreKeys = {}
+
+	local argvs = {}
+	for _,argv in ipairs(table.pack(...)) do 
+		table.insert(argvs, argv)
 	end
-	
-	t.__bUpdate = bchange and true or false
-	t.__iSessionId = CoreTool.SysSessionId()
+	tbl.__fModifyCallBack = fModifyCallBack and {fModifyCallBack, argvs} or nil
+
+	for _, k in ipairs(IgnoreKeys or {}) do
+		tbl.__oIgnoreKeys[tostring(k)] = true
+	end
 
 	local proxy = {}
-	local mt = {
-		__index = t,
-		__len = function (a) return #t end,
-		__pairs = function(a) -- 把关键字过滤掉
-			return function(a, k)
-					local v
-					repeat
-						k, v = next(a, k)
-					until k == nil or not keyWords[k]
-					return k, v
-			end, t, nil
-		end,
-		__ipairs = function (a) return ipairs(t) end,
-		__newindex = function (a, k, v)
-			t[k] = v
-			if not keyWords[k] then
-				local iSessionId = t.__iSessionId
-
-				t.__bUpdate = true
-				t.__iSessionId = CoreTool.SysSessionId()
-				
-				if iSessionId >= t.__iSessionId then 
-					t.__iSessionId = iSessionId + 1 
-				end
-			end
-		end
-	}
-	setmetatable(proxy,mt)
+	oAutoClass[proxy] = tbl
+	setmetatable(proxy, __meta)
 	return proxy
 end
 
-function util.TableHasAutoUpdateMsg(checkTable)
-	assert(checkTable.__bUpdate ~= nil)
+local function __NeedCheckAutoUpdateMsg(checkTable, key, value)
 
-	if checkTable.__bUpdate == true then
+	if oGlobalIgnoreKeys[key] or type(value) ~= type({}) then
+		return false
+	end
+
+	if checkTable.__oIgnoreKeys ~= nil and checkTable.__oIgnoreKeys[key] ~= nil then
+		return false
+	end
+
+	return true
+end
+
+function util.TableHasAutoUpdateMsg(checkTable)
+
+	if checkTable.__bUpdate ~= nil and checkTable.__bUpdate == true then
 		return true
 	end
 
 	for k, v in pairs(checkTable) do
-		if type(v) == type({}) then
+		if __NeedCheckAutoUpdateMsg(checkTable, k, v) then
 			if util.TableHasAutoUpdateMsg(v) then
 				return true
 			end
@@ -201,12 +267,81 @@ function util.TableHasAutoUpdateMsg(checkTable)
 	return false
 end
 
+function util.SetTableAutoUpdateMsg(SetTable, flag)
+
+	if SetTable.__bUpdate ~= nil and type(flag) == type(true) then
+		SetTable.__bUpdate = flag
+	end
+
+	for k, v in pairs(SetTable) do
+		if __NeedCheckAutoUpdateMsg(SetTable, k, v) then
+			util.SetTableAutoUpdateMsg(v, flag)
+		end
+	end
+	
+end
+
+function util.GetTableSessionId(GetTable)
+
+	local __iSessionId = 0
+
+	if GetTable.__iSessionId ~= nil then
+		__iSessionId = GetTable.__iSessionId
+	end
+
+	local function GetMaxSessionId(GetSubTable)
+		for k, v in pairs(GetSubTable) do
+			if __NeedCheckAutoUpdateMsg(GetSubTable, k, v) then
+				if v.__iSessionId ~= nil and v.__iSessionId > __iSessionId then
+					__iSessionId = v.__iSessionId
+				end
+				GetMaxSessionId(v)				
+			end
+		end
+	end
+
+	GetMaxSessionId(GetTable)
+
+	assert(__iSessionId ~= nil)
+	return __iSessionId
+end
+
+-- 慎用，可能有性能问题
 function util.TableLength(Table)
 	local Count = 0
 	for k, v in pairs(Table) do
 		Count = Count + 1
 	end
 	return Count
+end
+
+-- 数组是否包含元素
+function util.Contains(array, val)
+	for index, value in ipairs(array) do
+		if value == val then
+			return true
+		end
+	end
+	return false
+end
+
+-- 打印错误
+function util.error(msg, ...)
+	print(string.format(msg, ...), "\n", debug.traceback())
+end
+
+-- 字符串是否为nil或者空
+function util.isempty(s)
+	return s == nil or s == ''
+end
+
+-- 倒叙
+function util.reverseTable(tab)
+	local tmp = {}
+	for i = #tab, 1, -1 do
+		table.insert(tmp, tab[i])
+ 	end
+	return tmp
 end
 
 return util.ReadOnlyTable(util)
