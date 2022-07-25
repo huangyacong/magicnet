@@ -4,7 +4,7 @@
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
 
 # Your platform. See PLATS for possible values.
-PLAT= none
+PLAT= guess
 
 # Where to install. The installation starts in the src and doc directories,
 # so take care if INSTALL_TOP is not an absolute path. See the local target.
@@ -14,9 +14,9 @@ INSTALL_TOP= ../../luabin
 INSTALL_BIN= $(INSTALL_TOP)/
 INSTALL_INC= $(INSTALL_TOP)/include
 INSTALL_LIB= $(INSTALL_TOP)/
-INSTALL_MAN= $(INSTALL_TOP)/man/man1
-INSTALL_LMOD= $(INSTALL_TOP)/share/lua/$V
-INSTALL_CMOD= $(INSTALL_TOP)/lib/lua/$V
+INSTALL_MAN= $(INSTALL_TOP)/include/man/man1
+INSTALL_LMOD= $(INSTALL_TOP)/include/share/lua/$V
+INSTALL_CMOD= $(INSTALL_TOP)/include/lib/lua/$V
 
 # How to install. If your install program does not support "-p", then
 # you may have to run ranlib on the installed liblua.a.
@@ -36,7 +36,7 @@ RM= rm -f
 # == END OF USER SETTINGS -- NO NEED TO CHANGE ANYTHING BELOW THIS LINE =======
 
 # Convenience platforms targets.
-PLATS= aix bsd c89 freebsd generic linux macosx mingw posix solaris
+PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix solaris
 
 # What to install.
 TO_BIN= lua luac
@@ -45,39 +45,33 @@ TO_LIB= liblua.a
 TO_MAN= lua.1 luac.1
 
 # Lua version and release.
-V= 5.3
+V= 5.4
 R= $V.4
 
 # Targets start here.
 all:	$(PLAT)
 
-$(PLATS) clean:
-	cd src && $(MAKE) $@
-
-test:	dummy
-	src/lua -v
+$(PLATS) help test clean:
+	@cd src && $(MAKE) $@
 
 install: dummy
-	cd src && $(MKDIR) $(INSTALL_BIN) $(INSTALL_LIB)
-	cd src && $(INSTALL_EXEC) $(TO_BIN) $(INSTALL_BIN)  
-	cd src && $(INSTALL_DATA) $(TO_LIB) $(INSTALL_LIB) 
+	cd src && $(MKDIR) $(INSTALL_BIN) $(INSTALL_INC) $(INSTALL_LIB) $(INSTALL_MAN) $(INSTALL_LMOD) $(INSTALL_CMOD)
+	cd src && $(INSTALL_EXEC) $(TO_BIN) $(INSTALL_BIN)
+	cd src && $(INSTALL_DATA) $(TO_INC) $(INSTALL_INC)
+	cd src && $(INSTALL_DATA) $(TO_LIB) $(INSTALL_LIB)
 
 uninstall:
 	cd src && cd $(INSTALL_BIN) && $(RM) $(TO_BIN)
+	cd src && cd $(INSTALL_INC) && $(RM) $(TO_INC)
 	cd src && cd $(INSTALL_LIB) && $(RM) $(TO_LIB)
 
 local:
 	$(MAKE) install INSTALL_TOP=../install
 
-none:
-	@echo "Please do 'make PLATFORM' where PLATFORM is one of these:"
-	@echo "   $(PLATS)"
-	@echo "See doc/readme.html for complete instructions."
-
-# make may get confused with test/ and install/
+# make may get confused with install/ if it does not support .PHONY.
 dummy:
 
-# echo config parameters
+# Echo config parameters.
 echo:
 	@cd src && $(MAKE) -s echo
 	@echo "PLAT= $(PLAT)"
@@ -97,14 +91,14 @@ echo:
 	@echo "INSTALL_EXEC= $(INSTALL_EXEC)"
 	@echo "INSTALL_DATA= $(INSTALL_DATA)"
 
-# echo pkg-config data
+# Echo pkg-config data.
 pc:
 	@echo "version=$R"
 	@echo "prefix=$(INSTALL_TOP)"
 	@echo "libdir=$(INSTALL_LIB)"
 	@echo "includedir=$(INSTALL_INC)"
 
-# list targets that do not create files (but not all makes understand .PHONY)
-.PHONY: all $(PLATS) clean test install local none dummy echo pecho lecho
+# Targets that do not create files (not all makes understand .PHONY).
+.PHONY: all $(PLATS) help test clean install uninstall local dummy echo pc
 
 # (end of Makefile)

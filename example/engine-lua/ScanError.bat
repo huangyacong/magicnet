@@ -1,0 +1,2 @@
+python ScanErrLog.py
+pause
