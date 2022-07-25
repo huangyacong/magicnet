@@ -112,6 +112,8 @@ const char* SeMysqlResultGetFieldName(struct SEMYSQLRESULT *pkMysqlResult, unsig
 
 bool SeMysqlResultIsFieldValueNumType(struct SEMYSQLRESULT *pkMysqlResult, unsigned int iIndex);
 
+int SeMysqlResultFieldType(struct SEMYSQLRESULT* pkMysqlResult, unsigned int iIndex);
+
 unsigned long SeMysqlResultGetFieldLen(struct SEMYSQLRESULT *pkMysqlResult, unsigned int iIndex);//for binary data
 
 const char* SeMysqlResultGetFieldValue(struct SEMYSQLRESULT *pkMysqlResult, unsigned int iIndex);

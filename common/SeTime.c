@@ -26,7 +26,7 @@ int SeGetTimeZone()
 	assert(TestTimeValid() == true);
 
 	// Get the UTC time
-	time(&time_utc);
+	time_utc = SeTimeTime();
 
 	// Get the local time
 	tm_local = *localtime(&time_utc);
@@ -163,7 +163,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	uiLen = (unsigned int)strlen(pcTimeChar);
 
 	if(uiLen != 19) {
-		return time(NULL);
+		return SeTimeTime();
 	}
 	
 	for(uiBegin = 0; uiBegin < uiLen; uiBegin++)
@@ -173,7 +173,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 		{
 			if((char)pcTimeChar[uiBegin] != 45)
 			{
-				return time(NULL);
+				return SeTimeTime();
 			}
 		}
 		// space
@@ -181,7 +181,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 		{
 			if((char)pcTimeChar[uiBegin] != 32)
 			{
-				return time(NULL);
+				return SeTimeTime();
 			}
 		}
 		// :
@@ -189,7 +189,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 		{
 			if((char)pcTimeChar[uiBegin] != 58)
 			{
-				return time(NULL);
+				return SeTimeTime();
 			}
 		}
 		// number(0-9)
@@ -197,7 +197,7 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 		{
 			if((char)pcTimeChar[uiBegin] < 48 || (char)pcTimeChar[uiBegin] > 57)
 			{
-				return time(NULL);
+				return SeTimeTime();
 			}
 		}
 	}
@@ -211,27 +211,27 @@ time_t SeTimeStringToTime(const char* pcTimeChar)
 	
 	if(iYear < 1971 || iYear > 9999)
 	{
-		return time(NULL);
+		return SeTimeTime();
 	}
 	if(iMon < 1 || iMon > 12)
 	{
-		return time(NULL);
+		return SeTimeTime();
 	}
 	if(iDay < 1 || iDay > 31)
 	{
-		return time(NULL);
+		return SeTimeTime();
 	}
 	if(iHour < 0 || iHour > 24)
 	{
-		return time(NULL);
+		return SeTimeTime();
 	}
 	if(iMin < 0 || iMin > 60)
 	{
-		return time(NULL);
+		return SeTimeTime();
 	}
 	if(iSec < 0 || iSec > 60)
 	{
-		return time(NULL);
+		return SeTimeTime();
 	}
 
 	tb.tm_year = iYear - 1900;

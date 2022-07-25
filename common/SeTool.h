@@ -45,6 +45,8 @@ int SeAToInt(const char *pcString);
 
 double SeAToDouble(const char *pcString);
 
+unsigned long long CreateMailID(unsigned short usID, unsigned int uiCount);
+
 unsigned long long CreateUniqueID(int iServerID, unsigned int uiCount);
 
 int GetServerIDByUniqueID(unsigned long long ullUniqueID);

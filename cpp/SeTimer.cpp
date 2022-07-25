@@ -46,12 +46,12 @@ long long SeTimer::GetTimeOutId(unsigned long long llNowTime)
 	return llTimerId;
 }
 
-long long SeTimer::SetTimer(int iDelayTtimeMillSec)
+long long SeTimer::SetTimer(unsigned long long ullDelayTtimeMillSec, long long ullTImeOffset)
 {
 	m_llIdCount++;
 	long long llTimerId = m_llIdCount == 0 ? (m_llIdCount + 1) : m_llIdCount;
 	
-	unsigned long long ullTime = SeTimeGetTickCount() + iDelayTtimeMillSec;
+	unsigned long long ullTime = SeTimeGetTickCount() + ullDelayTtimeMillSec + ullTImeOffset;
 	if (m_kTimerMgr.find(ullTime) == m_kTimerMgr.end())
 	{
 		m_kTimerMgr[ullTime] = std::list<long long>();

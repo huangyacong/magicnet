@@ -12,7 +12,7 @@ public:
 public:
 	int GetTimerCount();
 	long long GetTimeOutId(unsigned long long llNowTime);
-	long long SetTimer(int iDelayTtimeMillSec);
+	long long SetTimer(unsigned long long ullDelayTtimeMillSec, long long ullTImeOffset);
 	void DelTimer(long long llTimerId);
 private:
 	long long m_llIdCount;

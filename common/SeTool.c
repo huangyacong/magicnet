@@ -89,6 +89,33 @@ double SeAToDouble(const char *pcString)
 	return atof(pcString);
 }
 
+unsigned long long CreateMailID(unsigned short usID, unsigned int uiCount)
+{
+	unsigned int uiTmpID;
+	unsigned short uiMaxID;
+	unsigned int iMaxCount;
+	unsigned long long tNowTime, ullResult;
+
+	iMaxCount = 1048576;// pow(2, 22);
+	uiMaxID = 256; // pow(2, 8);
+	uiCount = (unsigned int)uiCount % (unsigned int)iMaxCount;
+
+	if (usID < 0 || usID >= uiMaxID)
+		return 0;
+
+	if (uiCount < 0 || uiCount >= iMaxCount)
+		return 0;
+
+	tNowTime = SeTimeTime();
+	tNowTime = tNowTime << 30;
+
+	uiTmpID = usID;
+	uiTmpID = uiTmpID << 22;
+
+	ullResult = tNowTime | uiTmpID | uiCount;
+	return (ullResult & 0x7FFFFFFFFFFFFFFF);
+}
+
 unsigned long long CreateUniqueID(int iServerID, unsigned int uiCount)
 {
 	int iMaxSeverID;
@@ -99,13 +126,13 @@ unsigned long long CreateUniqueID(int iServerID, unsigned int uiCount)
 	iMaxSeverID = 262144; // pow(2, 18);
 	uiCount = (unsigned int)uiCount % (unsigned int)iMaxCount;
 
-	if (iServerID <= 0 || iServerID > iMaxSeverID)
+	if (iServerID <= 0 || iServerID >= iMaxSeverID)
 		return 0;
 
-	if (uiCount < 0 || uiCount > iMaxCount)
+	if (uiCount < 0 || uiCount >= iMaxCount)
 		return 0;
 
-	tNowTime = time(NULL);
+	tNowTime = SeTimeTime();
 	tNowTime = tNowTime << 30;
 
 	iServerID = iServerID << 12;
