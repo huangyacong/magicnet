@@ -203,15 +203,24 @@ function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 	end
 	local succ, msg = ccoroutine.yield_call(session_id, timeout_millsec, proto)
 	if succ then
-		msg = msgpack.unpack(msg)
+		local msgData, msgExtendedValue = table.unpack(msg)
+		local msgRet, msgExtended = msgpack.unpack(msgData), {}
+		for _,value in ipairs(msgExtendedValue or {}) do
+			table.insert(msgExtended, msgpack.unpack(value))
+		end
+		if not next(msgExtended) then
+			msgExtended = nil
+		end
+		return succ, msgRet, msgExtended
 	end
 	return succ, msg
 end
 
-function IClientClass:RetCallData(data)
+function IClientClass:RetCallData(data, bExtended)
 	local sessionId, srcName, proto = ccoroutine.get_session_coroutine_id()
 	local contents = msgpack.pack(data)
-	local header = net_module.netPack(self:GetName(), srcName, proto, CoreNetAgent.PTYPE_RESPONSE, sessionId)
+	local pType = bExtended and CoreNetAgent.PTYPE_RESPONSE_EXTENDED or CoreNetAgent.PTYPE_RESPONSE
+	local header = net_module.netPack(self:GetName(), srcName, proto, pType, sessionId)
 	return CoreNet.TCPSend(self.hsocket, header, contents)
 end
 
@@ -303,9 +312,13 @@ function IClientClass:OnRecv(data)
 	ccoroutine.add_session_coroutine_id(session_id, srcName, proto)
 
 	local funcRet, funcErr = xpcall(function() 
-		if CoreNetAgent.PTYPE_RESPONSE == PTYPE then
-			local co = ccoroutine.get_session_id_coroutine(session_id)
-			if co then ccoroutine.resume(co, true, contents) end
+		if CoreNetAgent.PTYPE_RESPONSE_EXTENDED == PTYPE then
+			local co, msgExtended = ccoroutine.get_session_id_coroutine(session_id)
+			if co then table.insert(msgExtended, contents) end
+			if not co then print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE_EXTENDED", session_id) end
+		elseif CoreNetAgent.PTYPE_RESPONSE == PTYPE then
+			local co, msgExtended = ccoroutine.get_session_id_coroutine(session_id)
+			if co then ccoroutine.resume(co, true, {contents, msgExtended}) end
 			if not co then print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id) end
 		elseif CoreNetAgent.PTYPE_REGISTER_KEY == PTYPE then
 			local md5str = net_module.genToken(srcName, self:GetName())

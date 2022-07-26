@@ -76,8 +76,8 @@ function AgentServiceCross.CallData(serviceid, targetName, proto, data, timeout_
 	return GetAgentServiceCrossObj(serviceid):CallData(targetName, proto, data or "", timeout_millsec)
 end
 
-function AgentServiceCross.RetCallData(serviceid, data)
-	return GetAgentServiceCrossObj(serviceid):RetCallData(data)
+function AgentServiceCross.RetCallData(serviceid, data, bExtended)
+	return GetAgentServiceCrossObj(serviceid):RetCallData(data, bExtended)
 end
 
 function AgentServiceCross.GetName()

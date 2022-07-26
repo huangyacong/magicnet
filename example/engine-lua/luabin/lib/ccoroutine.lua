@@ -66,7 +66,8 @@ function ccoroutine.count_session_coroutine_id()
 end
 
 function ccoroutine.get_session_id_coroutine(sessionId)
-	return session_id_coroutine[sessionId]
+	local co, msgExtended = table.unpack(session_id_coroutine[sessionId])
+	return co, msgExtended
 end
 
 function ccoroutine.count_session_id_coroutine()
@@ -92,7 +93,7 @@ function ccoroutine.resume(co, ...)
 end
 
 function ccoroutine.session_id_coroutine_timeout(sessionId, proto)
-	local co = session_id_coroutine[sessionId]
+	local co, msgExtended = table.unpack(session_id_coroutine[sessionId])
 	print(debug.traceback(), "\n", "CallData time out", sessionId, proto)
 	if co then 
 		ccoroutine.resume(co, false, "time out") 
@@ -104,7 +105,7 @@ function ccoroutine.yield_call(sessionId, timeout_millsec, proto)
 	local retpcall, ret, data = xpcall(function() 
 		assert(session_id_coroutine[sessionId] == nil)
 		local timerId = timer.addtimer(local_modulename, "session_id_coroutine_timeout", timeout_millsec, sessionId, proto)
-		session_id_coroutine[sessionId] = running_thread
+		session_id_coroutine[sessionId] = {running_thread, {}}
 		local succ, msg = coroutine.yield("YIELD_CALL")
 		session_id_coroutine[sessionId] = nil
 		timer.deltimer(timerId)

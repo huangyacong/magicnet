@@ -82,8 +82,8 @@ function AgentService.CallData(targetName, proto, data, timeout_millsec)
 	return AgentServiceRemoteSvrObj:CallData(targetName, proto, data or "", timeout_millsec)
 end
 
-function AgentService.RetCallData(data)
-	return AgentServiceRemoteSvrObj:RetCallData(data)
+function AgentService.RetCallData(data, bExtended)
+	return AgentServiceRemoteSvrObj:RetCallData(data, bExtended)
 end
 
 function AgentService.IsServiceReg(name)
