@@ -14,6 +14,8 @@ function event.OnRecvCall(proto, data)
 	--AgentService.RetCallData("back....")
 	--local socket = table.unpack(data)
 	--AgentService.SendRemote(socket, 456, "sssss")
+	AgentService.RetCallData({1,2,3,4,5,6}, true)
+	AgentService.RetCallData({1,2,3,4,5,6, 999}, true)
 	AgentService.RetCallData(data)
 end
 
@@ -31,23 +33,9 @@ end
 function event.framefunc()
 	timer.addtimer(local_modulename, "framefunc", 10000)
 
-	local a, b = AgentService.CallData(".watchdog", "eeeeeeeeeee", {1,2,3})
-	util.print(table.pack(a, b))
-
-	AgentService.SendData(".watchdog", "eeeeeeeeeeeee", {1,2,3})
-
-	local a, b = AgentService.CallData("svr_a", "me call", {1,2,3})
-	util.print(table.pack(a, b))
-
-	AgentService.SendData("svr_a", "me copmmon", {1,2,3})
-	
-	local report = net_module.statReport((net_module.getOS() ~= "Linux") and (30 * 1000) or 0)
-	if report then
-		local sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount = table.unpack(report)
-		print(os.date("%Y-%m-%d %H:%M:%S"), string.format("statreport sendNumSpeed=%s sendByteSpeed=%s recvNumSpeed=%s recvByteSpeed=%s timerCount=%s %s, %s pool=%s", 
-				sendNumSpeed, sendByteSpeed, recvNumSpeed, recvByteSpeed, timerCount, ccoroutine.count_session_coroutine_id(), ccoroutine.count_session_id_coroutine(), ccoroutine.count_coroutine_pool()))
-		collectgarbage()
-	end
+	local a, b,c = AgentService.CallData(".watchdog", "ssss", {1,2,3, "22222"})
+	print("sssssssssssssssssssssss")
+	util.print(table.pack(a, b,c))
 end
 
 return event
