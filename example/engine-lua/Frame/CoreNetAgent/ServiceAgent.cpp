@@ -224,6 +224,9 @@ void ServiceForAgent::OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen
 
 	switch (kPacket.eType)
 	{
+	case PTYPE_RESPONSE_EXTENDED:	//回应协程消息
+		SendCommonData(kPacket.acDstName, pcBuf, iLen);
+		break;
 	case PTYPE_RESPONSE:			//回应协程消息
 		SendCommonData(kPacket.acDstName, pcBuf, iLen);
 		break;

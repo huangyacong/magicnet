@@ -30,21 +30,22 @@ extern "C" {
 
 enum AGENTSERVICE_PTYPE
 {
-	PTYPE_RESPONSE = 0,				//回应协程消息
-	PTYPE_CALL = 1,					//协程消息
-	PTYPE_REMOTE = 2,				//发送给远程目标数据类型
-	PTYPE_COMMON = 3,				//普通类型
-	PTYPE_REGISTER_KEY = 4,			//注册Key类型
-	PTYPE_REGISTER = 5,				//注册类型
-	PTYPE_REG_ADD_SERVICE = 6,		//增加服务列表类型
-	PTYPE_REG_DEL_SERVICE = 7,		//删除服务列表类型
-	PTYPE_PING = 8,					//Ping类型
-	PTYPE_EXIT = 9,					//退出
-	PTYPE_REMOTE_CONNECT = 10,		//新的链接
-	PTYPE_REMOTE_DISCONNECT = 11,	//链接断开
-	PTYPE_REMOTE_RECV_DATA = 12,	//链接断开
-	PTYPE_REMOTE_CLOSE = 13,		//主动断开链接
-	PTYPE_REGISTER_BACK = 14,		//注册类型返回
+	PTYPE_RESPONSE_EXTENDED = 0,	//回应协程扩展消息
+	PTYPE_RESPONSE = 1,				//回应协程消息
+	PTYPE_CALL = 2,					//协程消息
+	PTYPE_REMOTE = 3,				//发送给远程目标数据类型
+	PTYPE_COMMON = 4,				//普通类型
+	PTYPE_REGISTER_KEY = 5,			//注册Key类型
+	PTYPE_REGISTER = 6,				//注册类型
+	PTYPE_REG_ADD_SERVICE = 7,		//增加服务列表类型
+	PTYPE_REG_DEL_SERVICE = 8,		//删除服务列表类型
+	PTYPE_PING = 9,					//Ping类型
+	PTYPE_EXIT = 10,					//退出
+	PTYPE_REMOTE_CONNECT = 11,		//新的链接
+	PTYPE_REMOTE_DISCONNECT = 12,	//链接断开
+	PTYPE_REMOTE_RECV_DATA = 13,	//链接断开
+	PTYPE_REMOTE_CLOSE = 14,		//主动断开链接
+	PTYPE_REGISTER_BACK = 15,		//注册类型返回
 };
 
 struct AgentServicePacket

@@ -246,6 +246,9 @@ extern "C" int luaopen_CoreNetAgent(lua_State *L)
 
 	luaL_newlib(L, reg);
 
+	lua_pushinteger(L, PTYPE_RESPONSE_EXTENDED);
+	lua_setfield(L, -2, "PTYPE_RESPONSE_EXTENDED");
+
 	lua_pushinteger(L, PTYPE_RESPONSE);
 	lua_setfield(L, -2, "PTYPE_RESPONSE");
 
