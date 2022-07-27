@@ -7,6 +7,13 @@
 
 using namespace std;
 
+enum SeHeaderType
+{
+	HEADER_TYPE_ZERO = 0,
+	HEADER_TYPE_SMALL = 2,
+	HEADER_TYPE_BIG = 4,
+};
+
 class SeNetEngine;
 class IClient
 {
@@ -52,8 +59,8 @@ public:
 	virtual ~SeNetEngine();
 public:
 	virtual bool Init(const char *pcLogName, int iLogLV, unsigned short usMax, int iTimerCnt);
-	virtual bool AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader);
-	virtual HSOCKET AddTCPClient(IClient* pkIClient, int iDomain, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader);
+	virtual bool AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, SeHeaderType eHeaderType);
+	virtual HSOCKET AddTCPClient(IClient* pkIClient, int iDomain, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, SeHeaderType eHeaderType);
 public:
 	virtual char *GetSendBuf(int &riLen);
 	virtual struct SELOG* GetEngineLogInstance();

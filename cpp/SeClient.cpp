@@ -69,7 +69,7 @@ void SeClient::Connect()
 	}
 
 	m_ullReConnectTime = ullNowTime;
-	m_kHSocket = m_pkSeNetEngine->AddTCPClient(this, m_iDomain, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bNoDelay, m_bBigHeader);
+	m_kHSocket = m_pkSeNetEngine->AddTCPClient(this, m_iDomain, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_iConnectTimeOut, m_bNoDelay, m_bBigHeader ? HEADER_TYPE_BIG : HEADER_TYPE_SMALL);
 
 	if(m_kHSocket == 0) 
 	{ 

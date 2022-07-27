@@ -48,7 +48,7 @@ bool SeServer::Listen()
 		return false;
 	}
 
-	return m_pkSeNetEngine->AddTCPListen(this, m_iDomain, m_bReusePort, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_bNoDelay, m_bBigHeader);
+	return m_pkSeNetEngine->AddTCPListen(this, m_iDomain, m_bReusePort, m_acSvrIP.c_str(), m_iSvrPort, m_iTimeOut, m_bNoDelay, m_bBigHeader ? HEADER_TYPE_BIG : HEADER_TYPE_SMALL);
 }
 
 void SeServer::DisConnect(HSOCKET kHSocket)

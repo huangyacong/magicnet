@@ -40,7 +40,7 @@ enum AGENTSERVICE_PTYPE
 	PTYPE_REG_ADD_SERVICE = 7,		//增加服务列表类型
 	PTYPE_REG_DEL_SERVICE = 8,		//删除服务列表类型
 	PTYPE_PING = 9,					//Ping类型
-	PTYPE_EXIT = 10,					//退出
+	PTYPE_EXIT = 10,				//退出
 	PTYPE_REMOTE_CONNECT = 11,		//新的链接
 	PTYPE_REMOTE_DISCONNECT = 12,	//链接断开
 	PTYPE_REMOTE_RECV_DATA = 13,	//链接断开

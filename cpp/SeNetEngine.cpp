@@ -45,7 +45,7 @@ bool SeNetEngine::Init(const char *pcLogName, int iLogLV, unsigned short usMax, 
 	return true;
 }
 
-bool SeNetEngine::AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, bool bBigHeader)
+bool SeNetEngine::AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort, const char *pcIP, unsigned short usPort, int iTimeOut, bool bNoDelay, SeHeaderType eHeaderType)
 {
 	if(!m_bInit) 
 	{ 
@@ -57,7 +57,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort,
 		return false; 
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, iDomain, bReusePort, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPListen(&m_kNetEngine, iDomain, bReusePort, pcIP, usPort, eHeaderType, bNoDelay, iTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
 	if (kHSocket > 0) 
 	{ 
 		m_kListen[kHSocket] = pkIServer; 
@@ -68,7 +68,7 @@ bool SeNetEngine::AddTCPListen(IServer* pkIServer, int iDomain, bool bReusePort,
 	return kHSocket > 0 ? true : false;
 }
 
-HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, int iDomain, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, bool bBigHeader)
+HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, int iDomain, const char *pcIP, unsigned short usPort, int iTimeOut, int iConnectTimeOut, bool bNoDelay, SeHeaderType eHeaderType)
 {
 	if(!m_bInit) 
 	{ 
@@ -80,7 +80,7 @@ HSOCKET SeNetEngine::AddTCPClient(IClient* pkIClient, int iDomain, const char *p
 		return 0;
 	}
 
-	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, iDomain, pcIP, usPort, bBigHeader ? 4 : 2, bNoDelay, iTimeOut, iConnectTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
+	HSOCKET kHSocket = SeNetCoreTCPClient(&m_kNetEngine, iDomain, pcIP, usPort, eHeaderType, bNoDelay, iTimeOut, iConnectTimeOut, SeNetSreamGetHeader, SeNetSreamSetHeader);
 	if(kHSocket <= 0) 
 	{ 
 		return 0; 
