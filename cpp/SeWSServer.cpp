@@ -82,21 +82,21 @@ bool SeWSServer::SendData(HSOCKET kHSocket, const char* pcBufF, int iSizeF, cons
 
 void SeWSServer::OnConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 {
-	OnWSServerConnect(kHSocket, pcIP, iLen);
+	OnServerConnect(kHSocket, pcIP, iLen);
 }
 
 void SeWSServer::OnDisConnect(HSOCKET kHSocket)
 {
-	OnWSServerDisConnect(kHSocket);
+	OnServerDisConnect(kHSocket);
 }
 
 void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
 {
-	OnWSServerRecv(kHSocket, pcBuf, iLen, iSendSize, iRecvSize);
+	OnServerRecv(kHSocket, pcBuf, iLen, iSendSize, iRecvSize);
 }
 
 void SeWSServer::OnUpdate()
 {
-	OnWSServerUpdate();
+	OnServerUpdate();
 }
 

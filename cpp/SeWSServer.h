@@ -19,10 +19,10 @@ public:
 	virtual bool SendData(HSOCKET kHSocket, const char* pcBuf, int iSize);
 	virtual bool SendData(HSOCKET kHSocket, const char* pcBufF, int iSizeF, const char* pcBufS, int iSizeS);
 public:
-	virtual void OnWSServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen) = 0;
-	virtual void OnWSServerDisConnect(HSOCKET kHSocket) = 0;
-	virtual void OnWSServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize) = 0;
-	virtual void OnWSServerUpdate() = 0;
+	virtual void OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen) = 0;
+	virtual void OnServerDisConnect(HSOCKET kHSocket) = 0;
+	virtual void OnServerRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize) = 0;
+	virtual void OnServerUpdate() = 0;
 private:
 	void OnConnect(HSOCKET kHSocket, const char *pcIP, int iLen);
 	void OnDisConnect(HSOCKET kHSocket);
