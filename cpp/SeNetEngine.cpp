@@ -190,6 +190,11 @@ void SeNetEngine::RunStat()
 	memset(&m_kMsgIDStat, 0, (int)sizeof(m_kMsgIDStat));
 }
 
+SENETCORE& SeNetEngine::GetNetScore()
+{
+	return m_kNetEngine;
+}
+
 void SeNetEngine::StartEngine()
 {
 	while(m_bInit && !m_bStop) 

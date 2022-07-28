@@ -68,6 +68,7 @@ public:
 	virtual bool SendEngineData(HSOCKET kHSocket, const char* pcBufF, int iSizeF, const char* pcBufS, int iSizeS);
 	virtual void DiscEngineSocket(HSOCKET kHSocket);
 public:
+	virtual SENETCORE& GetNetScore();
 	virtual void StartEngine();
 	virtual void StopEngine();
 	virtual void SetWaitTime(int iWaitTime);
