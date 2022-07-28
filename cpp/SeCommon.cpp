@@ -52,3 +52,35 @@ string SeTimeToString(time_t kTime)
 	return string(acNowStr);
 }
 
+void SeStrSplit(const string& src, const string& separator, vector<string>& dest)
+{
+	string substring;
+	int iSrcStrLen = src.length();
+	string::size_type start = 0, index = 0;
+
+	if (iSrcStrLen <= 0)
+		return;
+
+	if (separator.length() <= 0){
+		dest.push_back(src);
+		return;
+	}
+
+	do {
+		index = src.find(separator, start);
+		if (index == string::npos)
+			break;
+		substring = src.substr(start, index - start);
+		if (substring.size() > 0)
+			dest.push_back(substring);
+		start = index + separator.length();
+	} while (start < iSrcStrLen);
+
+	if (start >= iSrcStrLen)
+		return;
+
+	//the last token
+	substring = src.substr(start);
+	if (substring.size() > 0)
+		dest.push_back(substring);
+}
