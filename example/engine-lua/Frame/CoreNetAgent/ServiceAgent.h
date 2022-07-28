@@ -26,6 +26,7 @@ extern "C" {
 #include "SeServer.h"
 #include "SeCommon.h"
 #include "SeThread.h"
+#include "SeWSServer.h"
 #include "SeNetEngine.h"
 
 enum AGENTSERVICE_PTYPE
@@ -70,7 +71,11 @@ int NetUnPack(AgentServicePacket& kPacket, const unsigned char* pcBuff, int iSiz
 
 std::string GenRegToken(const std::string kKey, const std::string kName);
 
+#if defined(__WS_SERVICE__)
+class ServiceForRemote : public SeWSServer
+#else
 class ServiceForRemote : public SeServer
+#endif
 {
 	void OnServerConnect(HSOCKET kHSocket, const char *pcIP, int iLen);
 	void OnServerDisConnect(HSOCKET kHSocket);
