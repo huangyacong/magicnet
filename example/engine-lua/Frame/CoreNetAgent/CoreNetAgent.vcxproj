@@ -158,6 +158,7 @@
     <ClCompile Include="..\src\NetEngine\SeSort.cpp" />
     <ClCompile Include="..\src\NetEngine\SeSql.cpp" />
     <ClCompile Include="..\src\NetEngine\SeTimer.cpp" />
+    <ClCompile Include="..\src\NetEngine\SeWSServer.cpp" />
     <ClCompile Include="ccmoduleLua.cpp" />
     <ClCompile Include="ServiceAgent.cpp" />
   </ItemGroup>
@@ -218,6 +219,7 @@
     <ClInclude Include="..\src\NetEngine\SeSort.h" />
     <ClInclude Include="..\src\NetEngine\SeSql.h" />
     <ClInclude Include="..\src\NetEngine\SeTimer.h" />
+    <ClInclude Include="..\src\NetEngine\SeWSServer.h" />
     <ClInclude Include="ccmoduleLua.h" />
     <ClInclude Include="ServiceAgent.h" />
   </ItemGroup>

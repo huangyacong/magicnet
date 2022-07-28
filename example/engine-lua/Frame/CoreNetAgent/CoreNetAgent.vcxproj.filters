@@ -126,6 +126,9 @@
     <ClCompile Include="..\src\NetEngine\SeSort.cpp">
       <Filter>src\NetEngine</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeWSServer.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NetEngine\SeClient.h">
@@ -300,6 +303,9 @@
       <Filter>src\LuaSrc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\NetEngine\SeSort.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeWSServer.h">
       <Filter>src\NetEngine</Filter>
     </ClInclude>
   </ItemGroup>

@@ -55,7 +55,7 @@ string SeTimeToString(time_t kTime)
 void SeStrSplit(const string& src, const string& separator, vector<string>& dest)
 {
 	string substring;
-	int iSrcStrLen = src.length();
+	int iSrcStrLen = (int)src.length();
 	string::size_type start = 0, index = 0;
 
 	if (iSrcStrLen <= 0)
