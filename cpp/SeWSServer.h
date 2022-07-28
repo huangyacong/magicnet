@@ -13,7 +13,7 @@ public:
 public:
 	virtual void SetReusePort();
 	virtual void SetNoDelay(bool bNoDelay);
-	virtual void Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, int Port, int iTimeOut);
+	virtual void Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, int Port, int iTimeOut, bool bBigHeader);
 	virtual bool Listen();
 	virtual void DisConnect(HSOCKET kHSocket);
 	virtual bool SendData(HSOCKET kHSocket, const char* pcBuf, int iSize);
@@ -33,6 +33,7 @@ private:
 	int m_iDomain;
 	bool m_bReusePort;
 	bool m_bNoDelay;
+	bool m_bBigHeader;
 	int m_iSvrPort;
 	int m_iTimeOut;
 	string m_acSvrIP;

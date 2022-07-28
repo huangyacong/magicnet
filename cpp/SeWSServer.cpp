@@ -25,7 +25,7 @@ void SeWSServer::SetNoDelay(bool bNoDelay)
 	m_bNoDelay = bNoDelay;
 }
 
-void SeWSServer::Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, int Port, int iTimeOut)
+void SeWSServer::Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, int Port, int iTimeOut, bool bBigHeader)
 {
 	if(m_bInit) 
 	{ 
@@ -38,6 +38,7 @@ void SeWSServer::Init(SeNetEngine* pkSeNetEngine, int iDomain, const char* IP, i
 	m_acSvrIP = string(IP);
 	m_pkSeNetEngine = pkSeNetEngine;
 	m_iTimeOut = iTimeOut;
+	m_bBigHeader = bBigHeader;
 }
 
 bool SeWSServer::Listen()
