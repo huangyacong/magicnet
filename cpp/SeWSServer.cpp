@@ -86,9 +86,7 @@ void SeWSServer::OnConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 	if (m_kClients.find(kHSocket) != m_kClients.end())
 		return;
 
-	m_kClients[kHSocket] = new SeWSBase(m_pkSeNetEngine, kHSocket);
-
-	OnServerConnect(kHSocket, pcIP, iLen);
+	m_kClients[kHSocket] = new SeWSBase(m_pkSeNetEngine, kHSocket, string(pcIP, iLen));
 }
 
 void SeWSServer::OnDisConnect(HSOCKET kHSocket)
@@ -101,7 +99,8 @@ void SeWSServer::OnDisConnect(HSOCKET kHSocket)
 	delete pkSeWSBase;
 	pkSeWSBase = NULL;
 
-	OnServerDisConnect(kHSocket);
+	if (pkSeWSBase->IsHandShake())
+		OnServerDisConnect(kHSocket);
 }
 
 void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
@@ -113,6 +112,18 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 	if (!pkSeWSBase->PushRecvData(pcBuf, iLen))
 	{
 		DisConnect(kHSocket);
+		return;
+	}
+
+	if (!pkSeWSBase->IsHandShake())
+	{
+		if (!pkSeWSBase->ServerHandShake())
+		{
+			DisConnect(kHSocket);
+			return;
+		}
+		pkSeWSBase->SetHandShake();
+		OnServerConnect(kHSocket, pkSeWSBase->GetIP().c_str(), pkSeWSBase->GetIP().length());
 		return;
 	}
 	

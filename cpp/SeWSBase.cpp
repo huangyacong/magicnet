@@ -1,12 +1,13 @@
 #include "SeWSBase.h"
 #include "SeCommon.h"
 
-SeWSBase::SeWSBase(SeNetEngine* pkSeNetEngine, HSOCKET kHSocket)
+SeWSBase::SeWSBase(SeNetEngine* pkSeNetEngine, HSOCKET kHSocket, const string& strIP)
 {
 	m_kHSocket = kHSocket;
 	m_bHandShake = false;
 	m_pkSeNetEngine = pkSeNetEngine;
 	SeNetSreamInit(&m_kRecvNetStream);
+	m_strIP = strIP;
 }
 
 SeWSBase::~SeWSBase()
@@ -19,6 +20,31 @@ SeWSBase::~SeWSBase()
 		SeNetSreamHeadAdd(&(pkNetSocketMgr->kNetStreamIdle), pkNetStreamNode);
 		pkNetStreamNode = SeNetSreamHeadPop(&m_kRecvNetStream);
 	}
+}
+
+const string& SeWSBase::GetIP()
+{
+	return m_strIP;
+}
+
+HSOCKET SeWSBase::GetHSocket()
+{
+	return m_kHSocket;
+}
+
+bool SeWSBase::IsHandShake()
+{
+	return m_bHandShake;
+}
+
+void SeWSBase::SetHandShake()
+{
+	m_bHandShake = true;
+}
+
+bool SeWSBase::ServerHandShake()
+{
+	return false;
 }
 
 bool SeWSBase::PushRecvData(const char *pcBuf, int iLen)
