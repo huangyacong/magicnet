@@ -9,7 +9,7 @@ public:
 	SeWSBase(SeNetEngine* pkSeNetEngine, HSOCKET kHSocket);
 	~SeWSBase();
 public:
-	void PushRecvData(const char *pcBuf, int iLen);
+	bool PushRecvData(const char *pcBuf, int iLen);
 private:
 	HSOCKET m_kHSocket;
 	bool m_bHandShake;

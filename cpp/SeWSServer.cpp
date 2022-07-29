@@ -110,7 +110,11 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 		return;
 
 	SeWSBase *pkSeWSBase = m_kClients[kHSocket];
-	pkSeWSBase->PushRecvData(pcBuf, iLen);
+	if (!pkSeWSBase->PushRecvData(pcBuf, iLen))
+	{
+		DisConnect(kHSocket);
+		return;
+	}
 	
 	OnServerRecv(kHSocket, pcBuf, iLen, iSendSize, iRecvSize);
 }
