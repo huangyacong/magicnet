@@ -37,6 +37,11 @@ int SeListNodeInRoot(struct SELIST *root, struct SENODE *node)
 	return 0;
 }
 
+struct SENODE *SeListGetHead(struct SELIST *root)
+{
+	return root->head;
+}
+
 void SeListHeadAdd(struct SELIST *root, struct SENODE *node)
 {
 	assert(root && node);

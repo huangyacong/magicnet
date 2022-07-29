@@ -159,6 +159,20 @@ bool SeNetSreamGetHeader(const unsigned char* pcHeader, const int iheaderlen, in
 	return false;
 }
 
+struct SENETSTREAMNODE *SeNetSreamGetHead(struct SENETSTREAM *pkNetStream)
+{
+	struct SENODE *pkNode;
+	struct SENETSTREAMNODE *pkNetStreamNode;
+
+	pkNode = SeListGetHead(&pkNetStream->kList);
+	if (!pkNode)
+	{
+		return 0;
+	}
+	pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
+	return pkNetStreamNode;
+}
+
 struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream)
 {
 	int iLeaveLen;

@@ -61,6 +61,8 @@ bool SeNetSreamSetHeader(unsigned char* pcHeader, const int iheaderlen, const in
 bool SeNetSreamGetHeader(const unsigned char* pcHeader, const int iheaderlen, int *ilen);
 
 
+struct SENETSTREAMNODE *SeNetSreamGetHead(struct SENETSTREAM *pkNetStream);
+
 
 struct SENETSTREAMNODE *SeNetSreamHeadPop(struct SENETSTREAM *pkNetStream);
 

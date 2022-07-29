@@ -40,6 +40,8 @@ void SeListInit(struct SELIST *root);
 
 void SeListInitNode(struct SENODE *node);
 
+struct SENODE *SeListGetHead(struct SELIST *root);
+
 void SeListHeadAdd(struct SELIST *root, struct SENODE *node);
 
 void SeListTailAdd(struct SELIST *root, struct SENODE *node);

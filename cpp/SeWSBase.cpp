@@ -56,7 +56,7 @@ bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 	if(iCount <= 0)
 		return true;
 
-	SENETSTREAMNODE *pkNetStreamNode = SeNetSreamTailPop(&m_kRecvNetStream);
+	SENETSTREAMNODE *pkNetStreamNode = SeNetSreamGetHead(&m_kRecvNetStream);
 	if(!pkNetStreamNode)
 	{
 		SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "[ServerHandShake] get data in failed.socket=0x%llx", m_kHSocket);
@@ -144,6 +144,9 @@ bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 	m_pkSeNetEngine->SendEngineData(m_kHSocket, response.str().c_str(), (int)response.str().size());
 
 	bHandShakeOK = true;
+	pkNetStreamNode = SeNetSreamHeadPop(&m_kRecvNetStream);
+	SeNetSreamNodeZero(pkNetStreamNode);
+	SeNetSreamTailAdd(&(m_pkSeNetEngine->GetNetScore().kSocketMgr.kNetStreamIdle), pkNetStreamNode);
 	return true;
 }
 
