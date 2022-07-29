@@ -9,6 +9,7 @@ SeWSBase::SeWSBase(SeNetEngine* pkSeNetEngine, HSOCKET kHSocket, const string& s
 	m_bHandShake = false;
 	m_pkSeNetEngine = pkSeNetEngine;
 	SeNetSreamInit(&m_kRecvNetStream);
+	SeNetSreamInit(&m_kPacketNetStream);
 	m_strIP = strIP;
 }
 
@@ -21,6 +22,14 @@ SeWSBase::~SeWSBase()
 		SeNetSreamNodeZero(pkNetStreamNode);
 		SeNetSreamHeadAdd(&(pkNetSocketMgr->kNetStreamIdle), pkNetStreamNode);
 		pkNetStreamNode = SeNetSreamHeadPop(&m_kRecvNetStream);
+	}
+
+	pkNetStreamNode = SeNetSreamHeadPop(&m_kPacketNetStream);
+	while(pkNetStreamNode)
+	{
+		SeNetSreamNodeZero(pkNetStreamNode);
+		SeNetSreamHeadAdd(&(pkNetSocketMgr->kNetStreamIdle), pkNetStreamNode);
+		pkNetStreamNode = SeNetSreamHeadPop(&m_kPacketNetStream);
 	}
 }
 
@@ -201,4 +210,9 @@ bool SeWSBase::PushRecvData(const char *pcBuf, int iLen)
 	}
 
 	return true;
+}
+
+char* SeWSBase::RecvPack(int& iLen)
+{
+	return NULL;
 }

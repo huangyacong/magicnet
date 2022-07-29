@@ -15,13 +15,14 @@ public:
 	const string& GetIP();
 public:
 	bool ServerHandShake(bool& bHandShakeOK);
-public:
 	bool PushRecvData(const char *pcBuf, int iLen);
+	char* RecvPack(int& iLen);
 private:
 	string m_strIP;
 	HSOCKET m_kHSocket;
 	bool m_bHandShake;
 	SENETSTREAM m_kRecvNetStream;
+	SENETSTREAM m_kPacketNetStream;
 	SeNetEngine* m_pkSeNetEngine;
 	map<string, string> m_mapHeadrs;
 };

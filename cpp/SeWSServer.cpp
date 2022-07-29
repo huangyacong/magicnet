@@ -132,8 +132,13 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 		}
 		return;
 	}
+
+	int iPacketSize = 0;
+	char *pcPacket = pkSeWSBase->RecvPack(iPacketSize);
+	if (!pcPacket || iPacketSize < 0)
+		return;
 	
-	OnServerRecv(kHSocket, pcBuf, iLen, iSendSize, iRecvSize);
+	OnServerRecv(kHSocket, pcPacket, iPacketSize, iSendSize, iRecvSize);
 }
 
 void SeWSServer::OnUpdate()
