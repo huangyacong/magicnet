@@ -83,16 +83,35 @@ bool SeWSServer::SendData(HSOCKET kHSocket, const char* pcBufF, int iSizeF, cons
 
 void SeWSServer::OnConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 {
+	if (m_kClients.find(kHSocket) != m_kClients.end())
+		return;
+
+	m_kClients[kHSocket] = new SeWSBase(m_pkSeNetEngine, kHSocket);
+
 	OnServerConnect(kHSocket, pcIP, iLen);
 }
 
 void SeWSServer::OnDisConnect(HSOCKET kHSocket)
 {
+	if (m_kClients.find(kHSocket) == m_kClients.end())
+		return;
+
+	SeWSBase *pkSeWSBase = m_kClients[kHSocket];
+	m_kClients.erase(kHSocket);
+	delete pkSeWSBase;
+	pkSeWSBase = NULL;
+
 	OnServerDisConnect(kHSocket);
 }
 
 void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
 {
+	if (m_kClients.find(kHSocket) == m_kClients.end())
+		return;
+
+	SeWSBase *pkSeWSBase = m_kClients[kHSocket];
+	pkSeWSBase->PushRecvData(pcBuf, iLen);
+	
 	OnServerRecv(kHSocket, pcBuf, iLen, iSendSize, iRecvSize);
 }
 

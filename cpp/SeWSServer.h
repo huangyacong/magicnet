@@ -3,6 +3,7 @@
 
 #include <string>
 #include "SeTime.h"
+#include "SeWSBase.h"
 #include "SeNetEngine.h"
 
 class SeWSServer : private IServer
@@ -37,6 +38,8 @@ private:
 	int m_iSvrPort;
 	int m_iTimeOut;
 	string m_acSvrIP;
+private:
+	map<HSOCKET, SeWSBase*> m_kClients;
 protected:
 	SeNetEngine* m_pkSeNetEngine;
 };
