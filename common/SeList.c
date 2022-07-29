@@ -42,6 +42,13 @@ struct SENODE *SeListGetHead(struct SELIST *root)
 	return root->head;
 }
 
+struct SENODE *SeListNextNode(struct SENODE *node)
+{
+	if (!node)
+		return 0;
+	return node->next;
+}
+
 void SeListHeadAdd(struct SELIST *root, struct SENODE *node)
 {
 	assert(root && node);
