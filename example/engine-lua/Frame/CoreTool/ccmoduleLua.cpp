@@ -171,12 +171,15 @@ extern "C" int CoreToolSHA1(lua_State *L)
 	size_t seplen;
 	const char *pcText;
 	char buffer[41];
+	bool bHex;
 
 	seplen = 0;
 	pcText = luaL_checklstring(L, 1, &seplen);
 	if (!pcText) { luaL_error(L, "pcText is NULL!"); return 0; }
 
-	SeSHA1((const char *)pcText, (int)seplen, buffer);
+	bHex = lua_toboolean(L, 2) == 1 ? true : false;
+
+	SeSHA1((const char *)pcText, (int)seplen, buffer, bHex);
 
 	lua_pushlstring(L, (const char*)buffer, sizeof(buffer));
 	return 1;
@@ -187,6 +190,7 @@ extern "C" int CoreToolMacSHA1(lua_State *L)
 	size_t seplen, keylen;
 	const char *pcText, *pcKey;
 	char buffer[41];
+	bool bHex;
 
 	seplen = 0;
 	pcText = luaL_checklstring(L, 1, &seplen);
@@ -196,7 +200,9 @@ extern "C" int CoreToolMacSHA1(lua_State *L)
 	pcKey = luaL_checklstring(L, 2, &keylen);
 	if (!pcKey) { luaL_error(L, "pcKey is NULL!"); return 0; }
 
-	SeMacSHA1((const char *)pcKey, keylen, (const char *)pcText, seplen, buffer);
+	bHex = lua_toboolean(L, 3) == 1 ? true : false;
+
+	SeMacSHA1((const char *)pcKey, keylen, (const char *)pcText, seplen, buffer, bHex);
 
 	lua_pushlstring(L, (const char*)buffer, sizeof(buffer));
 	return 1;

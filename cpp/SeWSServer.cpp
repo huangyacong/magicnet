@@ -96,11 +96,12 @@ void SeWSServer::OnDisConnect(HSOCKET kHSocket)
 
 	SeWSBase *pkSeWSBase = m_kClients[kHSocket];
 	m_kClients.erase(kHSocket);
-	delete pkSeWSBase;
-	pkSeWSBase = NULL;
-
+	
 	if (pkSeWSBase->IsHandShake())
 		OnServerDisConnect(kHSocket);
+
+	delete pkSeWSBase;
+	pkSeWSBase = NULL;
 }
 
 void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize)
@@ -117,13 +118,18 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 
 	if (!pkSeWSBase->IsHandShake())
 	{
-		if (!pkSeWSBase->ServerHandShake())
+		bool bHandShakeOK = false;
+		if (!pkSeWSBase->ServerHandShake(bHandShakeOK))
 		{
 			DisConnect(kHSocket);
 			return;
 		}
-		pkSeWSBase->SetHandShake();
-		OnServerConnect(kHSocket, pkSeWSBase->GetIP().c_str(), pkSeWSBase->GetIP().length());
+		if (bHandShakeOK)
+		{
+			pkSeWSBase->SetHandShake();
+			OnServerConnect(kHSocket, pkSeWSBase->GetIP().c_str(), (int)pkSeWSBase->GetIP().length());
+			return;
+		}
 		return;
 	}
 	

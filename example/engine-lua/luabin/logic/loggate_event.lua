@@ -35,7 +35,7 @@ function event.OnRemoteConnect(socket, ip)
 client_list[socket] =socket
 count = count + 1
 print("OnRemoteConnect",socket, ip)
-AgentService.CloseRemote(socket)
+
 end
 
 function event.OnRemoteDisConnect(socket)

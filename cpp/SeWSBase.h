@@ -14,7 +14,7 @@ public:
 	void SetHandShake();
 	const string& GetIP();
 public:
-	bool ServerHandShake();
+	bool ServerHandShake(bool& bHandShakeOK);
 public:
 	bool PushRecvData(const char *pcBuf, int iLen);
 private:
@@ -23,6 +23,7 @@ private:
 	bool m_bHandShake;
 	SENETSTREAM m_kRecvNetStream;
 	SeNetEngine* m_pkSeNetEngine;
+	map<string, string> m_mapHeadrs;
 };
 
 #endif

@@ -143,7 +143,7 @@ void sat_SHA1_Final(SHA1_CTX* context, uint8_t digest[SHA1_DIGEST_SIZE])
 	memset(finalcount, 0, 8);	/* SWR */
 }
 
-void SeSHA1(const char* pcText, size_t sz, char* pcOut)
+void SeSHA1(const char* pcText, size_t sz, char* pcOut, bool bHex)
 {
 	int p, i;
 	uint8_t digest[SHA1_DIGEST_SIZE];
@@ -153,12 +153,20 @@ void SeSHA1(const char* pcText, size_t sz, char* pcOut)
 	sat_SHA1_Update(&ctx, (const uint8_t *)pcText, sz);
 	sat_SHA1_Final(&ctx, digest);
 	
-	p = 0;
-	for(i=0; i<SHA1_DIGEST_SIZE; i++){
-		sprintf((char*)&pcOut[p], "%02x", digest[i]);
-		p += 2;
+	if (bHex)
+	{
+		p = 0;
+		for(i=0; i<SHA1_DIGEST_SIZE; i++){
+			sprintf((char*)&pcOut[p], "%02x", digest[i]);
+			p += 2;
+		}
+		pcOut[SHA1_DIGEST_SIZE*2] = '\0';
 	}
-	pcOut[SHA1_DIGEST_SIZE*2] = '\0';
+	else
+	{
+		memcpy(pcOut, digest, SHA1_DIGEST_SIZE);
+		pcOut[SHA1_DIGEST_SIZE + 1] = '\0';
+	}
 }
 
 #define BLOCKSIZE 64
@@ -171,7 +179,7 @@ void xor_key(uint8_t key[BLOCKSIZE], uint32_t xor)
 	}
 }
 
-void SeMacSHA1(const char* pcKey, size_t key_sz, const char* pcText, size_t text_sz, char* pcOut) 
+void SeMacSHA1(const char* pcKey, size_t key_sz, const char* pcText, size_t text_sz, char* pcOut, bool bHex) 
 {
 	int p, i;
 	const uint8_t * key = (const uint8_t *)pcKey;
@@ -205,11 +213,19 @@ void SeMacSHA1(const char* pcKey, size_t key_sz, const char* pcText, size_t text
 	sat_SHA1_Update(&ctx1, digest2, SHA1_DIGEST_SIZE);
 	sat_SHA1_Final(&ctx1, digest1);
 
-	p = 0;
-	for(i=0; i<SHA1_DIGEST_SIZE; i++){
-		sprintf((char*)&pcOut[p], "%02x", digest1[i]);
-		p += 2;
+	if (bHex)
+	{
+		p = 0;
+		for(i=0; i<SHA1_DIGEST_SIZE; i++){
+			sprintf((char*)&pcOut[p], "%02x", digest1[i]);
+			p += 2;
+		}
+		pcOut[SHA1_DIGEST_SIZE*2] = '\0';
 	}
-	pcOut[SHA1_DIGEST_SIZE*2] = '\0';
+	else
+	{
+		memcpy(pcOut, digest1, SHA1_DIGEST_SIZE);
+		pcOut[SHA1_DIGEST_SIZE + 1] = '\0';
+	}
 }
 
