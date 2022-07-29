@@ -358,6 +358,16 @@ char *SeNetEngine::GetSendBuf(int &riLen)
 	return m_pkSendBuf;
 }
 
+char *SeNetEngine::GetRecvBuf(int &riLen)
+{
+	if (!m_bInit) 
+	{ 
+		return 0; 
+	}
+	riLen = NET_ENGINE_MAX_LEN;
+	return m_pkRecvBuf;
+}
+
 struct SELOG* SeNetEngine::GetEngineLogInstance()
 {
 	if (!m_bInit) 
