@@ -392,8 +392,7 @@ bool SeNetSreamCopyData(struct SENETSTREAM *pkNetStream, int iLen, char* pcOut)
 	do {
 		pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
 
-		iSize = pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos + 1;
-		iCopyLen = SeCopyData(pcOut + iStart, iLeaveLen, pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, iSize);
+		iCopyLen = SeCopyData(pcOut + iStart, iLeaveLen, pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos);
 		if (iCopyLen <= 0)
 			return false;
 
