@@ -369,7 +369,6 @@ bool SeNetSreamReadLen(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNe
 
 bool SeNetSreamCopyData(struct SENETSTREAM *pkNetStream, int iLen, char* pcOut)
 {
-	int iSize;
 	int iStart;
 	int iCopyLen;
 	int iLeaveLen;

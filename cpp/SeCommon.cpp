@@ -74,9 +74,9 @@ void SeStrSplit(const string& src, const string& separator, vector<string>& dest
 		if (substring.size() > 0)
 			dest.push_back(substring);
 		start = index + separator.length();
-	} while (start < iSrcStrLen);
+	} while ((int)start < iSrcStrLen);
 
-	if (start >= iSrcStrLen)
+	if ((int)start >= iSrcStrLen)
 		return;
 
 	//the last token
