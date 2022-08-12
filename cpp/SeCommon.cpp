@@ -98,16 +98,16 @@ bool isSpace(char cChar)
 	return cChar == 0x20 || (cChar <= 0x0d && cChar >= 0x09);
 }
 
-void SeStringTrim(string& str)
+string SeStringTrim(const string& str)
 {
 	if (str.empty())
-		return;
-	string::iterator begin = str.begin();
-	string::iterator end = str.end();
+		return string("");
+	string::const_iterator begin = str.begin();
+	string::const_iterator end = str.end();
 	while ((begin < end) && isSpace(end[-1]))
 		--end;
 	while ((begin < end) && isSpace(*begin))
 		begin++;
-	str = string(begin, end);
+	return string(begin, end);
 }
 

@@ -95,10 +95,10 @@ bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 	for(int i = 0; i < (int)strDestHead.size(); i++)
 	{
 		vector<string> strDest;
-		SeStrSplit(strDestHead[i], ": ", strDest);
+		SeStrSplit(strDestHead[i], ":", strDest);
 		if (strDest.size() < 2)
 			continue;
-		m_mapHeadrs[strDest[0]] = strDest[1];
+		m_mapHeadrs[SeStringTrim(strDest[0])] = SeStringTrim(strDest[1]);
 	}
 
 	map<string, string>::iterator itr = m_mapHeadrs.find("Upgrade");
