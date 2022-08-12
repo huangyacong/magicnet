@@ -27,4 +27,6 @@ string SeTimeToString(time_t kTime);
 
 void SeStrSplit(const string& src, const string& separator, vector<string>& dest);
 
+void SeStringTrim(string& str);
+
 #endif

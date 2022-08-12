@@ -84,3 +84,30 @@ void SeStrSplit(const string& src, const string& separator, vector<string>& dest
 	if (substring.size() > 0)
 		dest.push_back(substring);
 }
+
+bool isSpace(char cChar)
+{
+	/*
+	0x20 空格
+	0x09 水平制表符
+	0x0A 换行符
+	0x0B 垂直制表符
+	0x0C 换页键
+	0x0D 回车
+	*/
+	return cChar == 0x20 || (cChar <= 0x0d && cChar >= 0x09);
+}
+
+void SeStringTrim(string& str)
+{
+	if (str.empty())
+		return;
+	string::iterator begin = str.begin();
+	string::iterator end = str.end();
+	while ((begin < end) && isSpace(end[-1]))
+		--end;
+	while ((begin < end) && isSpace(*begin))
+		begin++;
+	str = string(begin, end);
+}
+
