@@ -161,54 +161,9 @@ bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 
 bool SeWSBase::PushRecvData(const char *pcBuf, int iLen)
 {
-	if(!SeNetSocketMgrUpdateNetStreamIdle(&m_pkSeNetEngine->GetNetScore().kSocketMgr, 0, iLen))
-	{
-		SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "[PushRecvData] new idle memcahce.socket=0x%llx", m_kHSocket);
+	struct SENETSTREAM *pkNetStreamIdle = &m_pkSeNetEngine->GetNetScore().kSocketMgr.kNetStreamIdle;
+	if (!SeNetSreamWrite(&m_kRecvNetStream, pkNetStreamIdle, NULL, 0, pcBuf, iLen))
 		return false;
-	}
-
-	int iWritePos = 0;
-
-	while(iWritePos < iLen)
-	{
-		SENETSTREAMNODE *pkNetStreamNode = SeNetSreamTailPop(&m_kRecvNetStream);
-		if(pkNetStreamNode)
-		{
-			if(pkNetStreamNode->usMaxLen <= pkNetStreamNode->usWritePos)
-			{
-				SeNetSreamTailAdd(&m_kRecvNetStream, pkNetStreamNode);
-				pkNetStreamNode = 0;
-			}
-		}
-
-		if(!pkNetStreamNode)
-		{
-			pkNetStreamNode = SeNetSreamHeadPop(&(m_pkSeNetEngine->GetNetScore().kSocketMgr.kNetStreamIdle));
-			if(pkNetStreamNode)
-			{
-				SeNetSreamNodeZero(pkNetStreamNode);
-			}
-		}
-
-		if(!pkNetStreamNode)
-		{
-			SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "[PushRecvData] no more ilde memcahce.socket=0x%llx", m_kHSocket);
-			return false;
-		}
-
-		int iCopyLen = SeCopyData(pkNetStreamNode->pkBuf + pkNetStreamNode->usWritePos, pkNetStreamNode->usMaxLen - pkNetStreamNode->usWritePos, pcBuf + iWritePos, iLen - iWritePos);
-		pkNetStreamNode->usWritePos += iCopyLen;
-		iWritePos += iCopyLen;
-
-		SeNetSreamTailAdd(&m_kRecvNetStream, pkNetStreamNode);
-
-		if (iCopyLen <= 0)
-		{
-			SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "[PushRecvData] copy data error.socket=0x%llx", m_kHSocket);
-			return false;
-		}
-	}
-
 	return true;
 }
 
