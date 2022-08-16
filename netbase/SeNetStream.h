@@ -73,11 +73,6 @@ struct SENETSTREAMNODE *SeNetSreamTailPop(struct SENETSTREAM *pkNetStream);
 void SeNetSreamTailAdd(struct SENETSTREAM *pkNetStream, struct SENETSTREAMNODE *pkNetStreamNode);
 
 
-
-bool SeNetSreamCopyData(struct SENETSTREAM *pkNetStream, int iLen, char* pcOut);
-
-
-
 bool SeNetSreamCanRead(struct SENETSTREAM *pkNetStream, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize);
 
 bool SeNetSreamCanWrite(struct SENETSTREAM *pkNetStream, SESETHEADERLENFUN pkSetHeaderLenFun, int iHeaderSize, int iWriteLen);

@@ -367,43 +367,6 @@ bool SeNetSreamReadLen(struct SENETSTREAM *pkNetStream, struct SENETSTREAM *pkNe
 	return (iBufLen == iCopyPos);
 }
 
-bool SeNetSreamCopyData(struct SENETSTREAM *pkNetStream, int iLen, char* pcOut)
-{
-	int iStart;
-	int iCopyLen;
-	int iLeaveLen;
-	struct SENODE *pkNode;
-	struct SENETSTREAMNODE *pkNetStreamNode;
-
-	if (iLen <= 0)
-		return false;
-
-	if ((long long)iLen > pkNetStream->llSize)
-		return false;
-
-	pkNode = SeListGetHead(&pkNetStream->kList);
-	if (!pkNode)
-		return false;
-
-	iStart = 0;
-	iLeaveLen = iLen;
-
-	do {
-		pkNetStreamNode = SE_CONTAINING_RECORD(pkNode, struct SENETSTREAMNODE, kNode);
-
-		iCopyLen = SeCopyData(pcOut + iStart, iLeaveLen, pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos);
-		if (iCopyLen <= 0)
-			return false;
-
-		iStart += iCopyLen;
-		iLeaveLen -= iCopyLen;
-
-		pkNode = SeListNextNode(pkNode);
-	}while (iLeaveLen > 0 && pkNode);
-
-	return iLeaveLen <= 0;
-}
-
 bool SeNetSreamCanRead(struct SENETSTREAM *pkNetStream, SEGETHEADERLENFUN pkGetHeaderLenFun, int iHeaderSize)
 {
 	int iLen;
