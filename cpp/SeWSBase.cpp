@@ -16,6 +16,7 @@ SeWSBase::SeWSBase(SeNetEngine* pkSeNetEngine, HSOCKET kHSocket, const string& s
 SeWSBase::~SeWSBase()
 {
 	SESOCKETMGR *pkNetSocketMgr = &m_pkSeNetEngine->GetNetScore().kSocketMgr;
+	
 	SENETSTREAMNODE *pkNetStreamNode = SeNetSreamHeadPop(&m_kRecvNetStream);
 	while(pkNetStreamNode)
 	{
@@ -162,8 +163,22 @@ bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 bool SeWSBase::PushRecvData(const char *pcBuf, int iLen)
 {
 	struct SENETSTREAM *pkNetStreamIdle = &m_pkSeNetEngine->GetNetScore().kSocketMgr.kNetStreamIdle;
-	if (!SeNetSreamWrite(&m_kRecvNetStream, pkNetStreamIdle, NULL, 0, pcBuf, iLen))
+
+	if (!pkNetStreamIdle)
 		return false;
+
+	if (!SeNetSocketMgrUpdateNetStreamIdle(&m_pkSeNetEngine->GetNetScore().kSocketMgr, 0, iLen))
+	{
+		SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "PushRecvData failed no more memcahce.socket=0x%llx", m_kHSocket);
+		return false;
+	}
+
+	if (!SeNetSreamWrite(&m_kRecvNetStream, pkNetStreamIdle, NULL, 0, pcBuf, iLen))
+	{
+		SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "PushRecvData SeNetSreamWrite failed.socket=0x%llx", m_kHSocket);
+		return false;
+	}
+
 	return true;
 }
 
