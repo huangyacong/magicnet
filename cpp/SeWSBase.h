@@ -15,8 +15,8 @@ public:
 	const string& GetIP();
 public:
 	bool ServerHandShake(bool& bHandShakeOK);
+public:
 	bool PushRecvData(const char *pcBuf, int iLen);
-	char* RecvPack(int& iLen);
 private:
 	string m_strIP;
 	HSOCKET m_kHSocket;

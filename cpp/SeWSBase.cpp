@@ -177,7 +177,3 @@ bool SeWSBase::PushRecvData(const char *pcBuf, int iLen)
 	return true;
 }
 
-char* SeWSBase::RecvPack(int& iLen)
-{
-	return NULL;
-}
