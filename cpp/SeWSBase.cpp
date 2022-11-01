@@ -112,7 +112,7 @@ bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 	}
 
 	itr = m_mapHeadrs.find("Sec-WebSocket-Version");
-	if (itr == m_mapHeadrs.end() || itr->second != SeIntToA(13))
+	if (itr == m_mapHeadrs.end() || itr->second != SeIntToA(WEB_SOCKET_VERSION))
 	{
 		SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "[ServerHandShake] websocket protocol Version error failed.socket=0x%llx", m_kHSocket);
 		return false;

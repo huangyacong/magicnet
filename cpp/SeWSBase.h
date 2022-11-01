@@ -18,6 +18,12 @@ public:
 public:
 	bool PushRecvData(const char *pcBuf, int iLen);
 private:
+
+	enum 
+	{
+		WEB_SOCKET_VERSION = 13,
+	};
+
 	string m_strIP;
 	HSOCKET m_kHSocket;
 	bool m_bHandShake;
