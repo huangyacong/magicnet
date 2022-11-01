@@ -73,6 +73,17 @@ bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 		return false;
 	}
 
+	char acHeader[16] = {0};
+	string strHeadr("\r\n\r\n");
+	assert(sizeof(acHeader) > strHeadr.length());
+
+	// 检查头部是否完整
+	int iCopyLen = SeCopyData(acHeader, (int)strHeadr.length(), pkNetStreamNode->pkBuf + pkNetStreamNode->usWritePos - (int)strHeadr.length(), (int)strHeadr.length());
+	if (string(acHeader) != strHeadr || iCopyLen != (int)strHeadr.length())
+	{
+		return true;
+	}
+
 	vector<string> strDestHead;
 	string strCheckBuf(pkNetStreamNode->pkBuf + pkNetStreamNode->usReadPos, pkNetStreamNode->usWritePos - pkNetStreamNode->usReadPos);
 	SeStrSplit(strCheckBuf, "\r\n", strDestHead);
