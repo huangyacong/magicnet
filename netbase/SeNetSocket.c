@@ -11,7 +11,7 @@
 
 void SeNetSocketReset(struct SESOCKET *pkNetSocket)
 {
-	pkNetSocket->iReadLenForZeroLen = 0;
+	pkNetSocket->iReadLenForZeroHeaderLen = 0;
 	pkNetSocket->iDomain = 0;
 	pkNetSocket->iNoDelay = 0;
 	pkNetSocket->kSocketFd.kSocket = 0;

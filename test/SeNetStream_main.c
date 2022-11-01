@@ -82,7 +82,7 @@ void test1()
 	int test = 0;
 	memset(recvbuf, 0, sizeof(recvbuf));
 	irecvlen = sizeof(recvbuf) - 1;
-	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 	printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 	printf("data=%s %d\n", recvbuf, ret ? irecvlen:0);
 	while (ret)
@@ -94,14 +94,14 @@ void test1()
 			printf("SeNetSreamWrite ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 		}
 
-		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen))
+		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen, 0))
 		{
 			break;
 		}
 
 		memset(recvbuf, 0, sizeof(recvbuf));
 		irecvlen = sizeof(recvbuf) - 1;
-		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 		printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 		printf("data=[%s] %d\n", recvbuf, ret ? irecvlen : 0);
 		
@@ -112,19 +112,19 @@ void test1()
 
 	memset(recvbuf, 0, sizeof(recvbuf));
 	irecvlen = sizeof(recvbuf) - 1;
-	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 	printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 	printf("data=%s %d\n", recvbuf, ret ? irecvlen : 0);
 	while (ret)
 	{
-		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen))
+		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen, 0))
 		{
 			break;
 		}
 		
 		memset(recvbuf, 0, sizeof(recvbuf));
 		irecvlen = sizeof(recvbuf) - 1;
-		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 		printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 		printf("dataaaaaaaaaaa=[%s] %d\n", recvbuf, ret ? irecvlen : -1);
 	}
@@ -200,19 +200,19 @@ void test2()
 
 	memset(recvbuf, 0, sizeof(recvbuf));
 	irecvlen = sizeof(recvbuf) - 1;
-	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 	printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 	printf("data=%s %d\n", recvbuf, ret ? irecvlen : 0);
 	while (ret)
 	{
-		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen))
+		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen, 0))
 		{
 			break;
 		}
 
 		memset(recvbuf, 0, sizeof(recvbuf));
 		irecvlen = sizeof(recvbuf) - 1;
-		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 		printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 		printf("data=%s %d\n", recvbuf, ret ? irecvlen : 0);
 	}
@@ -233,19 +233,19 @@ void test2()
 
 	memset(recvbuf, 0, sizeof(recvbuf));
 	irecvlen = sizeof(recvbuf) - 1;
-	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+	ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 	printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 	printf("data=%s %d\n", recvbuf, ret ? irecvlen : 0);
 	while (ret)
 	{
-		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen))
+		if (!SeNetSreamCanRead(&kNetStream, &kGetHeaderLenFun, iheaderlen, 0))
 		{
 			break;
 		}
 
 		memset(recvbuf, 0, sizeof(recvbuf));
 		irecvlen = sizeof(recvbuf) - 1;
-		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen);
+		ret = SeNetSreamRead(&kNetStream, &kNetStreamIdle, &kGetHeaderLenFun, iheaderlen, recvbuf, &irecvlen, 0);
 		printf("SeNetSreamRead ret=%d use_size=%d use_count=%d --> idle_size=%d idle_count=%d \n", ret, kNetStream.iSize, kNetStream.iCount, kNetStreamIdle.iSize, kNetStreamIdle.iCount);
 		printf("data=%s %d\n", recvbuf, ret ? irecvlen : 0);
 	}
@@ -348,10 +348,10 @@ void test3()
 
 	printf("--------- %d %d \n", kNetStreamIdle.iCount, kNetStreamIdle.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("test recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
@@ -362,10 +362,10 @@ void test3()
 	SeNetSreamWrite(&kSendNetStream, &kNetStreamIdle, SetHeader, 2, acbuf, 31);
 	printf("goAAAA %d %d \n", kSendNetStream.iCount, kSendNetStream.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
@@ -378,10 +378,10 @@ void test3()
 	SeNetSreamWrite(&kSendNetStream, &kNetStreamIdle, SetHeader, 2, acbuf, 32);
 	printf("goBBBB %d %d \n", kSendNetStream.iCount, kSendNetStream.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
@@ -395,10 +395,10 @@ void test3()
 	SeNetSreamWrite(&kSendNetStream, &kNetStreamIdle, SetHeader, 2, acbuf, 30);
 	printf("goCCCCC %d %d \n", kSendNetStream.iCount, kSendNetStream.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
@@ -413,10 +413,10 @@ void test3()
 	SeNetSreamWrite(&kSendNetStream, &kNetStreamIdle, SetHeader, 2, acbuf, 31);
 	printf("goDDDD %d %d \n", kSendNetStream.iCount, kSendNetStream.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
@@ -440,10 +440,10 @@ void test3()
 	SeNetSreamWrite(&kSendNetStream, &kNetStreamIdle, SetHeader, 2, acbuf, 64 * 2 + 1);
 	printf("goEEEEEE %d %d \n", kSendNetStream.iCount, kSendNetStream.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
@@ -456,10 +456,10 @@ void test3()
 	SeNetSreamWrite(&kSendNetStream, &kNetStreamIdle, SetHeader, 2, acbuf, 14);
 	printf("goFFFFFF %d %d \n", kSendNetStream.iCount, kSendNetStream.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
@@ -472,10 +472,10 @@ void test3()
 	SeNetSreamWrite(&kSendNetStream, &kNetStreamIdle, SetHeader, 2, acbuf, 14);
 	printf("goGGGGG %d %d \n", kSendNetStream.iCount, kSendNetStream.iSize);
 
-	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2))
+	while (SeNetSreamCanRead(&kSendNetStream, GetHeader, 2, 0))
 	{
 		int iBufLen = 65535;
-		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen);
+		bool ret = SeNetSreamRead(&kSendNetStream, &kNetStreamIdle, GetHeader, 2, acbuf, &iBufLen, 0);
 		printf("recv %s %d\n", ret == true ? "true" : "false", iBufLen);
 	}
 
