@@ -97,10 +97,10 @@ void SeWSServer::OnConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 	if (m_kClients.find(kHSocket) != m_kClients.end())
 		return;
 
-	if (!SetSocketReadLen(kHSocket, 0))
-		return;
-
 	m_kClients[kHSocket] = new SeWSBase(m_pkSeNetEngine, kHSocket, string(pcIP, iLen));
+
+	if (!SetSocketReadLen(kHSocket, m_kClients[kHSocket]->GetReadLen()))
+		DisConnect(kHSocket);
 }
 
 void SeWSServer::OnDisConnect(HSOCKET kHSocket)
@@ -147,9 +147,15 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 		{
 			pkSeWSBase->SetHandShake();
 			OnServerConnect(kHSocket, pkSeWSBase->GetIP().c_str(), (int)pkSeWSBase->GetIP().length());
-		}
 
-		return;
+			if (!SetSocketReadLen(kHSocket, pkSeWSBase->GetReadLen()))
+				DisConnect(kHSocket);
+		}
+	}
+	else
+	{
+		if (!SetSocketReadLen(kHSocket, pkSeWSBase->GetReadLen()))
+			DisConnect(kHSocket);
 	}
 }
 

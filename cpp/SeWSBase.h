@@ -21,8 +21,9 @@ public:
 	bool ServerHandShake(bool& bHandShakeOK);
 public:
 	bool PushRecvData(const char *pcBuf, int iLen);
+	int GetReadLen();
 public:
-	enum { WEB_SOCKET_VERSION = 13, MIN_FRAME_LEN = 2, };
+	enum { WEB_SOCKET_VERSION = 13, };
 private:
 	string m_strIP;
 	bool m_bHandShake;

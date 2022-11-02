@@ -10,7 +10,7 @@ SeWSBase::SeWSBase(SeNetEngine* pkSeNetEngine, HSOCKET kHSocket, const string& s
 	m_pkSeNetEngine = pkSeNetEngine;
 	SeNetSreamInit(&m_kRecvNetStream);
 	m_strIP = strIP;
-	m_pkWSFrame = NULL;
+	m_pkWSFrame = new SeWSFrame(m_pkSeNetEngine);
 }
 
 SeWSBase::~SeWSBase()
@@ -165,14 +165,23 @@ bool SeWSBase::PushRecvData(const char *pcBuf, int iLen)
 	}
 
 	if (!m_pkWSFrame)
-		m_pkWSFrame = new SeWSFrame(m_pkSeNetEngine);
-
-	if (!m_pkWSFrame)
 	{
 		SeLogWrite(&m_pkSeNetEngine->GetNetScore().kLog, LT_SOCKET, true, "PushRecvData m_pkWSFrame failed.socket=0x%llx", m_kHSocket);
 		return false;
 	}
 
 	m_pkWSFrame->PushData(pcBuf, iLen);
+
+	if (m_pkWSFrame->IsFrameCompelet())
+	{
+		m_vecFrameData.push_back(m_pkWSFrame);
+		m_pkWSFrame = new SeWSFrame(m_pkSeNetEngine);
+	}
+
 	return true;
+}
+
+int SeWSBase::GetReadLen()
+{
+	return m_pkWSFrame->GetLeaveLen2Read();
 }
