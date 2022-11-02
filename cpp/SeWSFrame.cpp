@@ -28,6 +28,8 @@ SeWSFrame::~SeWSFrame()
 		SeNetSreamHeadAdd(&(pkNetSocketMgr->kNetStreamIdle), pkNetStreamNode);
 		pkNetStreamNode = SeNetSreamHeadPop(&m_kRecvNetStream);
 	}
+
+	m_pkSeNetEngine = NULL;
 }
 
 bool SeWSFrame::PushData(const char *pcBuf, int iLen)
