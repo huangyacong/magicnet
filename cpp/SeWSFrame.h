@@ -37,7 +37,9 @@ class SeWSFrame
 		PAYLOAD_LEN = 0x7F,				// 负载长度
 	};
 
-	enum OP_CODE
+public:
+
+	enum
 	{
 		OP_CONTINUATION = 0x0,			// 继续帧，表示消息分片模式
 		OP_TEXT = 0x1,					// 文本帧，表示文本格式传输
