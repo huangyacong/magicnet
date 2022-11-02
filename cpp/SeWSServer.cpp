@@ -81,9 +81,23 @@ bool SeWSServer::SendData(HSOCKET kHSocket, const char* pcBufF, int iSizeF, cons
 	return m_pkSeNetEngine->SendEngineData(kHSocket, pcBufF, iSizeF, pcBufS, iSizeS);
 }
 
+bool SeWSServer::SetSocketReadLen(HSOCKET kHSocket, int iReadLen)
+{
+	struct SESOCKET *pkNetSocket = SeNetCoreGetSocket(&m_pkSeNetEngine->GetNetScore(), kHSocket);
+	if (!pkNetSocket)
+		return false;
+	if (iReadLen < 0)
+		return false;
+	pkNetSocket->iReadLenForZeroHeaderLen = iReadLen;
+	return true;
+}
+
 void SeWSServer::OnConnect(HSOCKET kHSocket, const char *pcIP, int iLen)
 {
 	if (m_kClients.find(kHSocket) != m_kClients.end())
+		return;
+
+	if (!SetSocketReadLen(kHSocket, 0))
 		return;
 
 	m_kClients[kHSocket] = new SeWSBase(m_pkSeNetEngine, kHSocket, string(pcIP, iLen));
@@ -110,9 +124,6 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 		return;
 
 	SeWSBase *pkSeWSBase = m_kClients[kHSocket];
-	struct SESOCKET *pkNetSocket = SeNetCoreGetSocket(&m_pkSeNetEngine->GetNetScore(), kHSocket);
-	if (!pkNetSocket)
-		return;
 
 	// 还没握手,先pushdata到本地
 	if (!pkSeWSBase->PushRecvData(pcBuf, iLen))
@@ -136,7 +147,6 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 		{
 			pkSeWSBase->SetHandShake();
 			OnServerConnect(kHSocket, pkSeWSBase->GetIP().c_str(), (int)pkSeWSBase->GetIP().length());
-			pkNetSocket->iReadLenForZeroHeaderLen = SeWSBase::MIN_FRAME_LEN;
 		}
 
 		return;

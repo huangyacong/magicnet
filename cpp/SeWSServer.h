@@ -30,6 +30,8 @@ private:
 	void OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSendSize, int iRecvSize);
 	void OnUpdate();
 private:
+	bool SetSocketReadLen(HSOCKET kHSocket, int iReadLen);
+private:
 	bool m_bInit;
 	int m_iDomain;
 	bool m_bReusePort;
