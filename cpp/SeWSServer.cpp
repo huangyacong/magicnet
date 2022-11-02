@@ -110,17 +110,20 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 		return;
 
 	SeWSBase *pkSeWSBase = m_kClients[kHSocket];
+	struct SESOCKET *pkNetSocket = SeNetCoreGetSocket(&m_pkSeNetEngine->GetNetScore(), kHSocket);
+	if (!pkNetSocket)
+		return;
 
 	if (!pkSeWSBase->IsHandShake())
 	{
-		// 还没握手，先pushdata到本地
+		// 还没握手,先pushdata到本地
 		if (!pkSeWSBase->PushRecvData(pcBuf, iLen))
 		{
 			DisConnect(kHSocket);
 			return;
 		}
 
-		// 如果失败，那么数据有错误
+		// 如果失败,那么数据有错误
 		bool bHandShakeOK = false;
 		if (!pkSeWSBase->ServerHandShake(bHandShakeOK))
 		{
@@ -128,16 +131,22 @@ void SeWSServer::OnRecv(HSOCKET kHSocket, const char *pcBuf, int iLen, int iSend
 			return;
 		}
 
-		// 握手成功，那么设置握手状态
+		// 握手成功,那么设置握手状态
 		if (bHandShakeOK)
 		{
 			pkSeWSBase->SetHandShake();
 			OnServerConnect(kHSocket, pkSeWSBase->GetIP().c_str(), (int)pkSeWSBase->GetIP().length());
+			pkNetSocket->iReadLenForZeroHeaderLen = SeWSBase::MIN_FRAME_LEN;
 		}
-	}
-	else
-	{
 
+		return;
+	}
+
+	// 处理帧
+	if (!pkSeWSBase->PushRecvData(pcBuf, iLen))
+	{
+		DisConnect(kHSocket);
+		return;
 	}
 }
 
