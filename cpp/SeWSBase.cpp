@@ -34,26 +34,6 @@ SeWSBase::~SeWSBase()
 	}
 }
 
-const string& SeWSBase::GetIP()
-{
-	return m_strIP;
-}
-
-HSOCKET SeWSBase::GetHSocket()
-{
-	return m_kHSocket;
-}
-
-bool SeWSBase::IsHandShake()
-{
-	return m_bHandShake;
-}
-
-void SeWSBase::SetHandShake()
-{
-	m_bHandShake = true;
-}
-
 bool SeWSBase::ServerHandShake(bool& bHandShakeOK)
 {
 	int iCount = SeNetSreamCount(&m_kRecvNetStream);
@@ -177,3 +157,98 @@ bool SeWSBase::PushRecvData(const char *pcBuf, int iLen)
 	return true;
 }
 
+void SeWSBase::PushFrameHeader(const char *pcBuf, int iLen)
+{
+	for(int i = 0; i < iLen; i++)
+	{
+		m_vecFrame.push_back((unsigned char)pcBuf[i]);
+	}
+}
+
+bool SeWSBase::IsFrameHeaderCompelet(WSFrame &rkWsFrame, int& riNeedLen)
+{
+	if ((int)m_vecFrame.size() < MIN_FRAME_LEN)
+		return false;
+
+	// 头部
+	unsigned char ucFirst = m_vecFrame[0];
+	rkWsFrame.iFin = __GetFin(ucFirst);
+	rkWsFrame.iRSV1 = __GetRsv1(ucFirst);
+	rkWsFrame.iRSV2 = __GetRsv2(ucFirst);
+	rkWsFrame.iRSV3 = __GetRsv3(ucFirst);
+	rkWsFrame.iOpcode = __GetOpcode(ucFirst);
+
+	// 负载以及掩码
+	unsigned char ucSecond = m_vecFrame[1];
+	rkWsFrame.iMask = __GetMask(ucSecond);
+	rkWsFrame.iPayloadLen = __GetPayloadLen(ucSecond);
+
+	// 扩展长度
+	int iExtendLen = 0;
+	if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_16_LIMIT)
+		iExtendLen += MIN_FRAME_ENGTH_16_LEN;
+	else if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_64_LIMIT)
+		iExtendLen += MIN_FRAME_ENGTH_64_LEN;
+	if (rkWsFrame.iMask == 1)
+		iExtendLen += MIN_FRAME_MASK_LEN;
+
+	// 包长度不够
+	if ((int)m_vecFrame.size() < (iExtendLen + MIN_FRAME_LEN))
+	{
+		riNeedLen = iExtendLen + MIN_FRAME_LEN - (int)m_vecFrame.size();
+		return false;
+	}
+	if ((int)m_vecFrame.size() != (iExtendLen + MIN_FRAME_LEN))
+		return false;
+
+	// 真实的负载长度
+	rkWsFrame.iRealPayloadLen = rkWsFrame.iPayloadLen;
+
+	if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_16_LIMIT)
+	{
+		union UHEADER_EXTEND_16
+		{
+			unsigned char cBuf[MIN_FRAME_ENGTH_16_LEN];
+			unsigned short usLen;
+		};
+		UHEADER_EXTEND_16 *pHeaderExtend = (UHEADER_EXTEND_16*)&m_vecFrame[MIN_FRAME_LEN];
+		rkWsFrame.iRealPayloadLen = ntohs(pHeaderExtend->usLen);
+	}
+	else if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_64_LIMIT)
+	{
+		union UHEADER_EXTEND_64
+		{
+			unsigned char cBuf[MIN_FRAME_ENGTH_64_LEN];
+			unsigned long long llLen;
+		};
+		UHEADER_EXTEND_64 *pHeaderExtend = (UHEADER_EXTEND_64*)&m_vecFrame[MIN_FRAME_LEN];
+		unsigned long long llLen = ntohll(pHeaderExtend->llLen);
+		if (llLen >= 1024 * 1024 * 3)
+			return false;
+		rkWsFrame.iRealPayloadLen = (int)llLen;
+	}
+
+	// 掩码key
+	rkWsFrame.uiMaskingKey = 0;
+
+	if (rkWsFrame.iMask == 1)
+	{
+		union UHEADER_EXTEND_MASK
+		{
+			unsigned char cBuf[MIN_FRAME_MASK_LEN];
+			unsigned int uiLen;
+		};
+
+		UHEADER_EXTEND_MASK *pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_vecFrame[MIN_FRAME_LEN];
+		if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_16_LIMIT)
+			pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_vecFrame[MIN_FRAME_LEN + MIN_FRAME_ENGTH_16_LEN];
+		else if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_64_LIMIT)
+			pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_vecFrame[MIN_FRAME_LEN + MIN_FRAME_ENGTH_64_LEN];
+		rkWsFrame.uiMaskingKey = pHeaderExtend->uiLen;
+	}
+
+	printf(" iFin=%d iRSV1=%d iRSV2=%d  iRSV3=%d iOpcode=%d iMask=%d iPayloadLen=%d iRealPayloadLen=%d vector=%d uiMaskingKey=%lld \n", rkWsFrame.iFin, rkWsFrame.iRSV1, rkWsFrame.iRSV2, rkWsFrame.iRSV3, \
+			rkWsFrame.iOpcode, rkWsFrame.iMask, rkWsFrame.iPayloadLen, rkWsFrame.iRealPayloadLen,(int)m_vecFrame.size(), rkWsFrame.uiMaskingKey);
+
+	return true;
+}
