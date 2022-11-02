@@ -54,6 +54,9 @@ bool SeWSFrame::PushData(const char *pcBuf, int iLen)
 		if (!SeNetSreamWrite(&m_kRecvNetStream, pkNetStreamIdle, NULL, 0, pcBuf, iLen))
 			return false;
 
+		if (SeGetNetSreamLen(&m_kRecvNetStream) == (long long)m_iRealPayloadLen)
+			m_eState == FRAME_STATE::STATE_FRAME_COMPELET;
+
 		return true;
 	}
 
