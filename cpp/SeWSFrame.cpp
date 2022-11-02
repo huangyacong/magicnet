@@ -91,7 +91,7 @@ bool SeWSFrame::IsFrameCompelet()
 	return m_eState == FRAME_STATE::STATE_FRAME_COMPELET;
 }
 
-OP_CODE SeWSFrame::GetOpCode()
+int SeWSFrame::GetOpCode()
 {
 	return m_iOpcode;
 }

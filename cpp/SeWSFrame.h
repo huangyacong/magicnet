@@ -56,7 +56,7 @@ public:
 	bool PushData(const char *pcBuf, int iLen);
 	int GetLeaveLen2Read();
 	bool IsFrameCompelet();
-	OP_CODE GetOpCode();
+	int GetOpCode();
 private:
 	bool __GetFin(unsigned char ucHeader);
 	bool __GetRsv1(unsigned char ucHeader);
