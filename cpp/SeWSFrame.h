@@ -54,7 +54,9 @@ public:
 	virtual ~SeWSFrame();
 public:
 	bool PushData(const char *pcBuf, int iLen);
+	int GetLeaveLen2Read();
 	bool IsFrameCompelet();
+	OP_CODE GetOpCode();
 private:
 	bool __GetFin(unsigned char ucHeader);
 	bool __GetRsv1(unsigned char ucHeader);
@@ -64,7 +66,7 @@ private:
 	bool __GetMask(unsigned char ucHeader);
 	unsigned char __GetPayloadLen(unsigned char ucHeader);
 private:
-	void SetFrameBaseHeader();
+	bool SetFrameBaseHeader();
 	bool GetExtendPayloadLen(int& riLen);
 	string GetMaskKey();
 private:
@@ -77,9 +79,9 @@ private:
 	int m_iPayloadLen;
 	int m_iRealPayloadLen;
 	string m_strMaskingKey;
-	FRAME_STATE m_eState;
 private:
 	string m_strFrame;
+	FRAME_STATE m_eState;
 	SENETSTREAM m_kRecvNetStream;
 	SeNetEngine* m_pkSeNetEngine;
 };

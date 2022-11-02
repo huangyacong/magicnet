@@ -45,7 +45,10 @@ bool SeWSFrame::PushData(const char *pcBuf, int iLen)
 	if (m_eState < FRAME_STATE::STATE_HEADER_COMPELET)
 	{
 		m_strFrame.append(pcBuf, iLen);
-		SetFrameBaseHeader();
+
+		if (!SetFrameBaseHeader())
+			return false;
+
 		return true;
 	}
 	else
@@ -56,8 +59,19 @@ bool SeWSFrame::PushData(const char *pcBuf, int iLen)
 		if (!SeNetSreamWrite(&m_kRecvNetStream, pkNetStreamIdle, NULL, 0, pcBuf, iLen))
 			return false;
 
-		if (SeGetNetSreamLen(&m_kRecvNetStream) == (long long)m_iRealPayloadLen)
-			m_eState == FRAME_STATE::STATE_FRAME_COMPELET;
+		long long llSize = SeGetNetSreamLen(&m_kRecvNetStream);
+
+		if (llSize > m_iRealPayloadLen)
+			return false;
+
+		if (llSize == (long long)m_iRealPayloadLen)
+		{
+			if (m_iFin == 1)
+				m_eState = FRAME_STATE::STATE_FRAME_COMPELET;
+			else
+				m_eState = FRAME_STATE::STATE_BASE_HEADER_ING;
+			m_strFrame.clear();
+		}
 
 		return true;
 	}
@@ -65,15 +79,27 @@ bool SeWSFrame::PushData(const char *pcBuf, int iLen)
 	return true;
 }
 
+int SeWSFrame::GetLeaveLen2Read()
+{
+	if (m_eState < FRAME_STATE::STATE_HEADER_COMPELET)
+		return MIN_FRAME_LEN;
+	return m_iRealPayloadLen - (int)SeGetNetSreamLen(&m_kRecvNetStream);
+}
+
 bool SeWSFrame::IsFrameCompelet()
 {
 	return m_eState == FRAME_STATE::STATE_FRAME_COMPELET;
 }
 
-void SeWSFrame::SetFrameBaseHeader()
+OP_CODE SeWSFrame::GetOpCode()
+{
+	return m_iOpcode;
+}
+
+bool SeWSFrame::SetFrameBaseHeader()
 {
 	if ((int)m_strFrame.length() < MIN_FRAME_LEN)
-		return;
+		return true;
 
 	// 头部
 	unsigned char ucFirst = m_strFrame.at(0);
@@ -101,24 +127,29 @@ void SeWSFrame::SetFrameBaseHeader()
 	if ((int)m_strFrame.length() < (iExtendLen + MIN_FRAME_LEN))
 	{
 		m_eState = FRAME_STATE::STATE_OTHER_HEADER_ING;
-		return;
+		return true;
 	}
 
 	// 出错
 	if ((int)m_strFrame.length() != (iExtendLen + MIN_FRAME_LEN))
-		return;
+		return false;
 
 	// 真实的负载长度
 	if (!GetExtendPayloadLen(m_iRealPayloadLen))
-		return;
+		return false;
 	
 	// 掩码key
 	m_strMaskingKey = GetMaskKey();
+
+	// 这种操作码不应该有长度
+	if ((m_iOpcode == OP_CODE::OP_CLOSE || m_iOpcode == OP_CODE::OP_PING || m_iOpcode == OP_CODE::OP_PONG) && m_iRealPayloadLen > 0)
+		return false;
 
 	printf(" iFin=%d iRSV1=%d iRSV2=%d  iRSV3=%d iOpcode=%d iMask=%d iPayloadLen=%d iRealPayloadLen=%d vector=%d uiMaskingKey=%s \n", \
 		m_iFin, m_iRSV1, m_iRSV2, m_iRSV3, m_iOpcode, m_iMask, m_iPayloadLen, m_iRealPayloadLen,(int)m_strFrame.length(), m_strMaskingKey.c_str());
 
 	m_eState = FRAME_STATE::STATE_HEADER_COMPELET;
+	return true;
 }
 
 bool SeWSFrame::GetExtendPayloadLen(int& riLen)
