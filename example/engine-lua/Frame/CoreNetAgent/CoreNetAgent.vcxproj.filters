@@ -132,6 +132,9 @@
     <ClCompile Include="..\src\NetEngine\SeWSBase.cpp">
       <Filter>src\NetEngine</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NetEngine\SeWSFrame.cpp">
+      <Filter>src\NetEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NetEngine\SeClient.h">
@@ -312,6 +315,9 @@
       <Filter>src\NetEngine</Filter>
     </ClInclude>
     <ClInclude Include="..\src\NetEngine\SeWSBase.h">
+      <Filter>src\NetEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NetEngine\SeWSFrame.h">
       <Filter>src\NetEngine</Filter>
     </ClInclude>
   </ItemGroup>

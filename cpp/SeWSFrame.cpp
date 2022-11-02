@@ -1,4 +1,4 @@
-#include "SeWSBase.h"
+#include "SeWSFrame.h"
 #include "SeCommon.h"
 #include "SeBase64.h"
 #include "SeSha1.h"
@@ -109,7 +109,7 @@ void SeWSFrame::SetFrameBaseHeader()
 		return;
 	
 	// 掩码key
-	rkWsFrame.uiMaskingKey = GetMaskKey();
+	m_uiMaskingKey = GetMaskKey();
 
 	printf(" iFin=%d iRSV1=%d iRSV2=%d  iRSV3=%d iOpcode=%d iMask=%d iPayloadLen=%d iRealPayloadLen=%d vector=%d uiMaskingKey=%lld \n", \
 		m_iFin, m_iRSV1, m_iRSV2, m_iRSV3, m_iOpcode, m_iMask, m_iPayloadLen, m_iRealPayloadLen,(int)m_strFrame.length(), m_uiMaskingKey);
@@ -164,9 +164,9 @@ unsigned int SeWSFrame::GetMaskKey()
 	};
 
 	UHEADER_EXTEND_MASK *pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_strFrame.data()[MIN_FRAME_LEN];
-	if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_16_LIMIT)
+	if (m_iPayloadLen == PAYLOAD_LENGTH_16_LIMIT)
 		pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_strFrame.data()[MIN_FRAME_LEN + MIN_FRAME_ENGTH_16_LEN];
-	else if (rkWsFrame.iPayloadLen == PAYLOAD_LENGTH_64_LIMIT)
+	else if (m_iPayloadLen == PAYLOAD_LENGTH_64_LIMIT)
 		pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_strFrame.data()[MIN_FRAME_LEN + MIN_FRAME_ENGTH_64_LEN];
 	return pHeaderExtend->uiLen;
 }

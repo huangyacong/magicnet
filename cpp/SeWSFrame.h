@@ -74,7 +74,7 @@ private:
 	int m_iMask;
 	int m_iPayloadLen;
 	int m_iRealPayloadLen;
-	unsigned int uiMaskingKey;
+	unsigned int m_uiMaskingKey;
 	FRAME_STATE m_eState;
 private:
 	string m_strFrame;
