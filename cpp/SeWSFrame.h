@@ -64,7 +64,7 @@ private:
 private:
 	void SetFrameBaseHeader();
 	bool GetExtendPayloadLen(int& riLen);
-	unsigned int GetMaskKey();
+	string GetMaskKey();
 private:
 	int m_iFin;
 	int m_iRSV1;
@@ -74,7 +74,7 @@ private:
 	int m_iMask;
 	int m_iPayloadLen;
 	int m_iRealPayloadLen;
-	unsigned int m_uiMaskingKey;
+	string m_strMaskingKey;
 	FRAME_STATE m_eState;
 private:
 	string m_strFrame;

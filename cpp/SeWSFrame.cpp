@@ -13,7 +13,6 @@ SeWSFrame::SeWSFrame(SeNetEngine* pkSeNetEngine)
 	m_iMask = 0;
 	m_iPayloadLen = 0;
 	m_iRealPayloadLen = 0;
-	m_uiMaskingKey = 0;
 	m_eState = FRAME_STATE::STATE_BASE_HEADER_ING;
 	m_pkSeNetEngine = pkSeNetEngine;
 	SeNetSreamInit(&m_kRecvNetStream);
@@ -109,10 +108,10 @@ void SeWSFrame::SetFrameBaseHeader()
 		return;
 	
 	// 掩码key
-	m_uiMaskingKey = GetMaskKey();
+	m_strMaskingKey = GetMaskKey();
 
-	printf(" iFin=%d iRSV1=%d iRSV2=%d  iRSV3=%d iOpcode=%d iMask=%d iPayloadLen=%d iRealPayloadLen=%d vector=%d uiMaskingKey=%lld \n", \
-		m_iFin, m_iRSV1, m_iRSV2, m_iRSV3, m_iOpcode, m_iMask, m_iPayloadLen, m_iRealPayloadLen,(int)m_strFrame.length(), m_uiMaskingKey);
+	printf(" iFin=%d iRSV1=%d iRSV2=%d  iRSV3=%d iOpcode=%d iMask=%d iPayloadLen=%d iRealPayloadLen=%d vector=%d uiMaskingKey=%s \n", \
+		m_iFin, m_iRSV1, m_iRSV2, m_iRSV3, m_iOpcode, m_iMask, m_iPayloadLen, m_iRealPayloadLen,(int)m_strFrame.length(), m_strMaskingKey.c_str());
 
 	m_eState = FRAME_STATE::STATE_HEADER_COMPELET;
 }
@@ -152,15 +151,14 @@ bool SeWSFrame::GetExtendPayloadLen(int& riLen)
 	return true;
 }
 
-unsigned int SeWSFrame::GetMaskKey()
+string SeWSFrame::GetMaskKey()
 {
 	if (m_iMask == 0)
-		return 0;
+		return string("");
 
 	union UHEADER_EXTEND_MASK
 	{
-		unsigned char cBuf[MIN_FRAME_MASK_LEN];
-		unsigned int uiLen;
+		char cBuf[MIN_FRAME_MASK_LEN];
 	};
 
 	UHEADER_EXTEND_MASK *pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_strFrame.data()[MIN_FRAME_LEN];
@@ -168,7 +166,7 @@ unsigned int SeWSFrame::GetMaskKey()
 		pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_strFrame.data()[MIN_FRAME_LEN + MIN_FRAME_ENGTH_16_LEN];
 	else if (m_iPayloadLen == PAYLOAD_LENGTH_64_LIMIT)
 		pHeaderExtend = (UHEADER_EXTEND_MASK*)&m_strFrame.data()[MIN_FRAME_LEN + MIN_FRAME_ENGTH_64_LEN];
-	return pHeaderExtend->uiLen;
+	return string(pHeaderExtend->cBuf, MIN_FRAME_MASK_LEN);
 }
 
 bool SeWSFrame::__GetFin(unsigned char ucHeader) 
