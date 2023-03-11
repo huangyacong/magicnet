@@ -1,10 +1,10 @@
-﻿local CoreNetAgent = require "CoreNetAgent"
-local ccoroutine = require "ccoroutine"
-local net_module = require "ccorenet"
+﻿local coroutine_nodule = require "CCoroutine"
+local CoreNetAgent = require "CoreNetAgent"
+local timer_module = require "CCoreTimer"
+local net_module = require "CCoreNet"
 local msgpack = require "msgpack53"
 local CoreTool = require "CoreTool"
 local CoreNet = require "CoreNet"
-local timer = require "timer"
 local util = require "util"
 require "class"
 
@@ -19,7 +19,7 @@ local IClientNetFunc_OnRemoteDisConnect = "OnCRemoteDisConnect"
 local IClientNetFunc_OnRemoteRecvData = "OnCRemoteRecvData"
 
 local local_modulename = ...
-timer.register(local_modulename)
+timer_module.register(local_modulename)
 
 local package = package
 
@@ -73,6 +73,10 @@ function IClientClass:ctor(className, modulename, cIP, iPort, iTimeOut, iConnect
 
 	self.privateData = nil
 	self.privateDataTwo = {}
+end
+
+function IClientClass:SetNotReconnect()
+	self.bReConnect = false
 end
 
 function IClientClass:ResetSocketData(cIP, iPort, iTimeOut, iConnectTimeOut, bNoDelay)
@@ -201,7 +205,7 @@ function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 		print(debug.traceback(), "\n", "CallData failed")
 		return false, "send failed"
 	end
-	local succ, msg = ccoroutine.yield_call(session_id, timeout_millsec, proto)
+	local succ, msg = coroutine_nodule.yield_call(session_id, timeout_millsec, proto)
 	if succ then
 		local msgData, msgExtendedValue = table.unpack(msg)
 		local msgRet, msgExtended = msgpack.unpack(msgData), {}
@@ -217,7 +221,7 @@ function IClientClass:CallData(targetName, proto, data, timeout_millsec)
 end
 
 function IClientClass:RetCallData(data, bExtended)
-	local sessionId, srcName, proto = ccoroutine.get_session_coroutine_id()
+	local sessionId, srcName, proto = coroutine_nodule.get_session_coroutine_id()
 	local contents = msgpack.pack(data)
 	local pType = bExtended and CoreNetAgent.PTYPE_RESPONSE_EXTENDED or CoreNetAgent.PTYPE_RESPONSE
 	local header = net_module.netPack(self:GetName(), srcName, proto, pType, sessionId)
@@ -235,22 +239,22 @@ function IClientClass:TimeToPingPing()
 end
 
 function IClientClass:AddRegServiceTimer()
-	self.regServiceTimerId = timer.addtimer(local_modulename, "regServiceFunc_callback", iRegServiceDelayTime, self)
+	self.regServiceTimerId = timer_module.addtimer(local_modulename, "regServiceFunc_callback", iRegServiceDelayTime, self)
 	print(string.format("IClientClass:AddRegServiceTimer", self:GetName()))
 end
 
 function IClientClass:DelRegServiceTimer()
-	timer.deltimer(self.regServiceTimerId)
+	timer_module.deltimer(self.regServiceTimerId)
 	self.regServiceTimerId = 0
 	print(string.format("IClientClass:DelRegServiceTimer", self:GetName()))
 end
 
 function IClientClass:AddPingTimer()
-	self.pingTimerId = timer.addtimer(local_modulename, "pingFunc_callback", self.iPingTimeDelay, self)
+	self.pingTimerId = timer_module.addtimer(local_modulename, "pingFunc_callback", self.iPingTimeDelay, self)
 end
 
 function IClientClass:DelPingTimer()
-	timer.deltimer(self.pingTimerId)
+	timer_module.deltimer(self.pingTimerId)
 	self.pingTimerId = 0
 end
 
@@ -259,11 +263,11 @@ function IClientClass:AddReConnectTimer()
 		return
 	end
 	local timeCount = self.m_iReConnectNum * iReConnectDelayTime
-	self.reconnectTimerId = timer.addtimer(local_modulename, "reconnectFunc_callback", timeCount, self)
+	self.reconnectTimerId = timer_module.addtimer(local_modulename, "reconnectFunc_callback", timeCount, self)
 end
 
 function IClientClass:DelReConnectTimer()
-	timer.deltimer(self.reconnectTimerId)
+	timer_module.deltimer(self.reconnectTimerId)
 	self.reconnectTimerId = 0
 end
 
@@ -309,16 +313,16 @@ end
 function IClientClass:OnRecv(data)
 	local srcName, targetName, PTYPE, session_id, proto, contents = net_module.netUnPack(data)
 
-	ccoroutine.add_session_coroutine_id(session_id, srcName, proto)
+	coroutine_nodule.add_session_coroutine_id(session_id, srcName, proto)
 
 	local funcRet, funcErr = xpcall(function() 
 		if CoreNetAgent.PTYPE_RESPONSE_EXTENDED == PTYPE then
-			local co, msgExtended = ccoroutine.get_session_id_coroutine(session_id)
+			local co, msgExtended = coroutine_nodule.get_session_id_coroutine(session_id)
 			if co then table.insert(msgExtended, contents) end
 			if not co then print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE_EXTENDED", session_id) end
 		elseif CoreNetAgent.PTYPE_RESPONSE == PTYPE then
-			local co, msgExtended = ccoroutine.get_session_id_coroutine(session_id)
-			if co then ccoroutine.resume(co, true, {contents, msgExtended}) end
+			local co, msgExtended = coroutine_nodule.get_session_id_coroutine(session_id)
+			if co then coroutine_nodule.resume(co, true, {contents, msgExtended}) end
 			if not co then print(debug.traceback(), "\n", "not find co PTYPE_RESPONSE", session_id) end
 		elseif CoreNetAgent.PTYPE_REGISTER_KEY == PTYPE then
 			local md5str = net_module.genToken(srcName, self:GetName())
@@ -352,7 +356,7 @@ function IClientClass:OnRecv(data)
 		print("traceback error", "\n", "IClientClass:OnRecv", funcErr)
 	end
 
-	ccoroutine.del_session_coroutine_id()
+	coroutine_nodule.del_session_coroutine_id()
 end
 
 IClient.IClientClass = IClientClass

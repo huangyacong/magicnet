@@ -1,15 +1,15 @@
-﻿local CoreNetAgent = require "CoreNetAgent"
-local ccoroutine = require "ccoroutine"
+﻿local coroutine_nodule = require "CCoroutine"
+local CoreNetAgent = require "CoreNetAgent"
+local timer_module = require "CCoreTimer"
 local dateutil = require "dateutil"
 local CoreTool = require "CoreTool"
 local CoreNet = require "CoreNet"
-local timer = require "timer"
 local util = require "util"
 require "class"
 
 local table = table
 
-local ccorenet = {}
+local CCoreNet = {}
 local sys_run = true
 local sys_print = nil
 local sys_tips_cnt = 0
@@ -22,48 +22,48 @@ local globalSingleObj = {}
 local globalHotfixModuleName = {}
 
 -- socket类型 
-ccorenet.IpV4 = CoreNet.DOMAIN_INET
-ccorenet.IpV6 = CoreNet.DOMAIN_INET6
-ccorenet.UnixLocal = CoreNet.DOMAIN_UNIX
+CCoreNet.IpV4 = CoreNet.DOMAIN_INET
+CCoreNet.IpV6 = CoreNet.DOMAIN_INET6
+CCoreNet.UnixLocal = CoreNet.DOMAIN_UNIX
 
 -- iServer列表
-ccorenet.IServerList = svrObj
+CCoreNet.IServerList = svrObj
 
 -- IClient列表
-ccorenet.IClientList = clientObj
+CCoreNet.IClientList = clientObj
 
 -- 热更新的模块列表
-ccorenet.HotfixModuleName = globalHotfixModuleName
+CCoreNet.HotfixModuleName = globalHotfixModuleName
 
 -- 添加需要热更新的模块
-function ccorenet.addHotfixModuleName(modulename)
+function CCoreNet.addHotfixModuleName(modulename)
 	globalHotfixModuleName[tostring(modulename)] = true
 end
 
 -- 加入一个全局实例
-function ccorenet.addGlobalObj(object, name)
+function CCoreNet.addGlobalObj(object, name)
 	if globalSingleObj[name] then return globalSingleObj[name] end
 	globalSingleObj[name] = object
 	return globalSingleObj[name]
 end
 
 -- 获取一个全局实例
-function ccorenet.getGlobalObj(name)
+function CCoreNet.getGlobalObj(name)
 	return globalSingleObj[name]
 end
 
 -- 删除一个全局实例
-function ccorenet.delGlobalObj(name)
+function CCoreNet.delGlobalObj(name)
 	globalSingleObj[name] = nil
 end
 
 -- 判断操作系统 Linux,Windows,Unknow
-function ccorenet.getOS()
+function CCoreNet.getOS()
 	return CoreNet.GetOS()
 end
 
 -- 获取TIPS的值 
-function ccorenet.getTips()
+function CCoreNet.getTips()
 	local timecount = CoreTool.GetTickCount()
 	if timecount >= (sys_tips_time + 5000) then
 		local ret = sys_tips_cnt / (timecount - sys_tips_time)
@@ -74,13 +74,13 @@ function ccorenet.getTips()
 end
 
 -- 初始化
-function ccorenet.init(cLogName, iMaxClientNum, bPrintLog2Screen)
+function CCoreNet.init(cLogName, iMaxClientNum, bPrintLog2Screen)
 	sys_print = print
 	return CoreNet.Init(cLogName, iMaxClientNum, 16, bPrintLog2Screen)
 end
 
 -- 结束
-function ccorenet.fin()
+function CCoreNet.fin()
 	clientObj, svrObj = {}, {}
 	return CoreNet.Fin()
 end
@@ -131,7 +131,7 @@ local function worker()
 			if fliter then
 				fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
 			else
-				print(debug.traceback(), "\n", string.format("ccorenet.read svrObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
+				print(debug.traceback(), "\n", string.format("CCoreNet.read svrObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 			end
 		elseif clientObj[recvsocket] then
 			sys_tips_cnt = sys_tips_cnt + 1
@@ -140,87 +140,87 @@ local function worker()
 			if fliter then
 				fliter(tcpsocketobj, netevent, listenscoket, recvsocket, data)
 			else
-				print(debug.traceback(), "\n", string.format("ccorenet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
+				print(debug.traceback(), "\n", string.format("CCoreNet.read clientObj not netevent=%s listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 			end
 		elseif CoreNet.SOCKET_TIMER == netevent then
-			local doNum = timer.timeout()
+			local doNum = timer_module.timeout()
 			sys_tips_cnt = sys_tips_cnt + doNum
 		else
 			sys_tips_cnt = sys_tips_cnt + 1
-			print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not find listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
+			print(debug.traceback(), "\n", string.format("CCoreNet.read event=%s not find listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 		end
 	else
 		sys_tips_cnt = sys_tips_cnt + 1
-		print(debug.traceback(), "\n", string.format("ccorenet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
+		print(debug.traceback(), "\n", string.format("CCoreNet.read event=%s not do listenscoket=%s recvsocket=%s", netevent, listenscoket, recvsocket))
 	end
 end
 
 -- 运行
-function ccorenet.start()
+function CCoreNet.start()
 	while sys_run == true do
-		local ret, co = xpcall(function() return ccoroutine.co_create(worker) end, debug.traceback)
-		if not ret then pcall(function() sys_print(string.format("ccoroutine.co_create %s", co)) end) end
-		if co then ccoroutine.resume(co) end
+		local ret, co = xpcall(function() return coroutine_nodule.co_create(worker) end, debug.traceback)
+		if not ret then pcall(function() sys_print(string.format("coroutine_nodule.co_create %s", co)) end) end
+		if co then coroutine_nodule.resume(co) end
 	end
 	sys_print(string.format("exit.... %s", sys_run))
 end
 
 -- 停止
-function ccorenet.exit()
+function CCoreNet.exit()
 	sys_run = false
 end
 
 -- 生成token
-function ccorenet.genToken(key, name)
+function CCoreNet.genToken(key, name)
 	return CoreNetAgent.GenRegToken(key, name)
 end
 
 -- 打包
-function ccorenet.netPack(srcName, targetName, proto, PTYPE, session_id)
+function CCoreNet.netPack(srcName, targetName, proto, PTYPE, session_id)
 	session_id = session_id or 0
 	local header = CoreNetAgent.NetPack(srcName, targetName, PTYPE, session_id, proto)
 	return header
 end
 
 -- 解包
-function ccorenet.netUnPack(data)
+function CCoreNet.netUnPack(data)
 	local srcName, targetName, PTYPE, session_id, proto, iDataIndex = CoreNetAgent.NetUnPack(data)
 	return srcName, targetName, PTYPE, session_id, proto, string.sub(data, iDataIndex, -1)
 end
 
 -- 等待一个函数执行完毕
-function ccorenet.waitEvent(event_id, f, ...)
-	return ccoroutine.wait_event(event_id, f, ...)
+function CCoreNet.waitEvent(event_id, f, ...)
+	return coroutine_nodule.wait_event(event_id, f, ...)
 end
 
 -- 事件数量
-function ccorenet.countWaitEvent(event_id)
-	return ccoroutine.get_wait_event(event_id)
+function CCoreNet.countWaitEvent(event_id)
+	return coroutine_nodule.get_wait_event(event_id)
 end
 
 -- 存在事件
-function ccorenet.hasWaitEvent(event_id)
-	return ccoroutine.has_wait_event(event_id)
+function CCoreNet.hasWaitEvent(event_id)
+	return coroutine_nodule.has_wait_event(event_id)
 end
 
 -- 唤醒队列
-function ccorenet.wakeUpQueue(queue_id, bPopHead, queueNum)
-	return ccoroutine.wakeup_queue(queue_id, bPopHead, queueNum)
+function CCoreNet.wakeUpQueue(queue_id, bPopHead, queueNum)
+	return coroutine_nodule.wakeup_queue(queue_id, bPopHead, queueNum)
 end
 
 -- 加入队列
-function ccorenet.waitQueue(queue_id, bUseTimer, timeout_millsec)
-	return ccoroutine.wait_queue(queue_id, bUseTimer, timeout_millsec)
+function CCoreNet.waitQueue(queue_id, bUseTimer, timeout_millsec)
+	return coroutine_nodule.wait_queue(queue_id, bUseTimer, timeout_millsec)
 end
 
 -- 队列数量
-function ccorenet.countQueue(queue_id)
-	return ccoroutine.get_queue_count(queue_id)
+function CCoreNet.countQueue(queue_id)
+	return coroutine_nodule.get_queue_count(queue_id)
 end
 
 -- 挂起
-function ccorenet.suspendTimeOut(timeout_millsec)
-	return ccoroutine.wait_time_sleep(timeout_millsec)
+function CCoreNet.suspendTimeOut(timeout_millsec)
+	return coroutine_nodule.wait_time_sleep(timeout_millsec)
 end
 
 -- 系统print函数钩子
@@ -253,7 +253,7 @@ local function hook_print(...)
 	logLock = false
 end
 
-function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
+function CCoreNet.hookprint(nameStr, OnLogFunctionCallBack)
 
 	if not sys_print then
 		return
@@ -266,7 +266,7 @@ function ccorenet.hookprint(nameStr, OnLogFunctionCallBack)
 end
 
 -- 恢复系统print函数
-function ccorenet.undolprint()
+function CCoreNet.undolprint()
 	if not sys_print then
 		return
 	end
@@ -274,7 +274,7 @@ function ccorenet.undolprint()
 end
 
 -- 取消系统print函数
-function ccorenet.cancelprint()
+function CCoreNet.cancelprint()
 	if not sys_print then
 		return
 	end
@@ -283,13 +283,13 @@ function ccorenet.cancelprint()
 end
 
 -- 获取统计数据
-function ccorenet.statReport(timeDelay)
+function CCoreNet.statReport(timeDelay)
 	return CoreNet.Report(timeDelay)
 end
 
 -- 系统打印
-function ccorenet.sys_print(...)
+function CCoreNet.sys_print(...)
 	sys_print(...)
 end
 
-return util.ReadOnlyTable(ccorenet)
+return util.ReadOnlyTable(CCoreNet)

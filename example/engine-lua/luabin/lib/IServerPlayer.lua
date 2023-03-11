@@ -1,4 +1,4 @@
-﻿local net_module = require "ccorenet"
+﻿local net_module = require "CCoreNet"
 local CoreNet = require "CoreNet"
 local util = require "util"
 require "class"

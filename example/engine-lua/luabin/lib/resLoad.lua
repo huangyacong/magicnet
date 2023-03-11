@@ -1,4 +1,4 @@
-﻿local net_module = require "ccorenet"
+﻿local net_module = require "CCoreNet"
 local msgpack = require "msgpack53"
 local util = require "util"
 

@@ -1,14 +1,14 @@
 ﻿local IClientPlayer = require "IClientPlayer"
-local ccoroutine = require "ccoroutine"
-local net_module = require "ccorenet"
+local coroutine_nodule = require "CCoroutine"
+local timer_module = require "CCoreTimer"
+local net_module = require "CCoreNet"
 local CoreTool = require "CoreTool"
 local CoreNet = require "CoreNet"
-local timer = require "timer"
 local util = require "util"
 require "class"
 
 local local_modulename = ...
-timer.register(local_modulename)
+timer_module.register(local_modulename)
 
 local table = table
 
@@ -28,13 +28,13 @@ function IClientPlayerCall.OnCPlayerConnectFailed(IClientObj)
 		return
 	end
 
-	local co = ccoroutine.get_session_id_coroutine(session_id)
+	local co = coroutine_nodule.get_session_id_coroutine(session_id)
 	if not co then 
 		print(debug.traceback(), "\n", "IClientPlayerCall OnCPlayerConnectFailed not find co", session_id)
 		return
 	end
 
-	ccoroutine.resume(co, false, "OnCPlayerConnectFailed")
+	coroutine_nodule.resume(co, false, "OnCPlayerConnectFailed")
 end
 
 function IClientPlayerCall.OnCPlayerSendPacketAttach(IClientObj)
@@ -52,13 +52,13 @@ function IClientPlayerCall.OnCPlayerRecv(IClientObj, proto, data)
 			return
 		end
 
-		local co = ccoroutine.get_session_id_coroutine(session_id)
+		local co = coroutine_nodule.get_session_id_coroutine(session_id)
 		if not co then 
 			print(debug.traceback(), "\n", "IClientPlayerCall not find co", session_id)
 			return
 		end
 
-		ccoroutine.resume(co, true, data)
+		coroutine_nodule.resume(co, true, data)
 	elseif privateDataTwo[proto] then
 		privateDataTwo[proto](proto, data)
 	end
@@ -89,7 +89,7 @@ function IClientPlayerCallClass:CallData(proto, recvProto, data)
 	proto, recvProto = tonumber(proto), tonumber(recvProto)
 	local session_id = CoreTool.SysSessionId()
 	self.IClientPlayerObj:SetPrivateData(table.pack(proto, recvProto, session_id, data))
-	local succ, msg = ccoroutine.yield_call(session_id, nil, proto)
+	local succ, msg = coroutine_nodule.yield_call(session_id, nil, proto)
 	self.IClientPlayerObj:SetPrivateData()
 	self.IClientPlayerObj:SetPrivateDataTwo()
 

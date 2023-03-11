@@ -1,5 +1,5 @@
 ﻿local reloadmodule = require "reloadmodule"
-local net_module = require "ccorenet"
+local net_module = require "CCoreNet"
 local CoreTool = require "CoreTool"
 local IClient = require "IClient"
 local util = require "util"

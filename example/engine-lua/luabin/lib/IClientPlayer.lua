@@ -1,7 +1,7 @@
-﻿local net_module = require "ccorenet"
+﻿local timer_module = require "CCoreTimer"
+local net_module = require "CCoreNet"
 local CoreTool = require "CoreTool"
 local CoreNet = require "CoreNet"
-local timer = require "timer"
 local util = require "util"
 require "class"
 
@@ -13,7 +13,7 @@ local IClientNetFunc_OnConnectFailed = "OnCPlayerConnectFailed"
 local IClientNetFunc_OnSendPacketAttach = "OnCPlayerSendPacketAttach"
 
 local local_modulename = ...
-timer.register(local_modulename)
+timer_module.register(local_modulename)
 
 local package = package
 local string = string
@@ -157,11 +157,11 @@ function IClientPlayerClass:TimeToPingPing()
 end
 
 function IClientPlayerClass:AddPingTimer()
-	self.pingTimerId = timer.addtimer(local_modulename, "pingFunc_callback", self.iPingTimeDelay, self)
+	self.pingTimerId = timer_module.addtimer(local_modulename, "pingFunc_callback", self.iPingTimeDelay, self)
 end
 
 function IClientPlayerClass:DelPingTimer()
-	timer.deltimer(self.pingTimerId)
+	timer_module.deltimer(self.pingTimerId)
 	self.pingTimerId = 0
 end
 
@@ -170,11 +170,11 @@ function IClientPlayerClass:AddReConnectTimer()
 		return
 	end
 	local timeCount = self.m_iReConnectNum * iReConnectDelayTime
-	self.reconnectTimerId = timer.addtimer(local_modulename, "reconnectFunc_callback", timeCount, self)
+	self.reconnectTimerId = timer_module.addtimer(local_modulename, "reconnectFunc_callback", timeCount, self)
 end
 
 function IClientPlayerClass:DelReConnectTimer()
-	timer.deltimer(self.reconnectTimerId)
+	timer_module.deltimer(self.reconnectTimerId)
 	self.reconnectTimerId = 0
 end
 

@@ -1,15 +1,15 @@
 ﻿local CoreMySql = require "CoreMySql"
 local util = require "util"
 
-local ccoremysql = {}
+local CCoreMysql = {}
 
 -- 执行
-local function executesql(cSql)
+local function executesql(iSqlId, cSql)
 	-- 执行
-	local bRet = CoreMySql.ExecuteSql(cSql)
+	local bRet = CoreMySql.ExecuteSql(iSqlId, cSql)
 
 	if not bRet then
-		print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s code=%s.", ccoremysql.errorstr(), ccoremysql.errorno()))
+		print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s code=%s.", CCoreMysql.errorstr(iSqlId), CCoreMysql.errorno(iSqlId)))
 		print(string.format("[SQL] ExecuteSql Failed. sql=%s", cSql))
 	end
 
@@ -17,20 +17,20 @@ local function executesql(cSql)
 		return bRet
 	end
 
-	if not ccoremysql.isconnect() then
-		ccoremysql.disconnect()
+	if not CCoreMysql.isconnect(iSqlId) then
+		CCoreMysql.disconnect(iSqlId)
 		print("[SQL] dbsvr is disconnect, now reconnect it.")
 
-		if not ccoremysql.tryconect() then
-			print(debug.traceback(), "\n", string.format("[SQL] dbsvr reconnect error. errormsg=%s code=%s", ccoremysql.errorstr(), ccoremysql.errorno()))
+		if not CCoreMysql.tryconect(iSqlId) then
+			print(debug.traceback(), "\n", string.format("[SQL] dbsvr reconnect error. errormsg=%s code=%s", CCoreMysql.errorstr(iSqlId), CCoreMysql.errorno(iSqlId)))
 			print(string.format("[SQL] dbsvr connect error. sql=%s", cSql))
 			return false
 		end
 
 		print("[SQL] dbsvr is disconnect, reconnect ok.")
 
-		if not CoreMySql.ExecuteSql(cSql) then
-			print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s code=%s", ccoremysql.errorstr(), ccoremysql.errorno()))
+		if not CoreMySql.ExecuteSql(iSqlId, cSql) then
+			print(debug.traceback(), "\n", string.format("[SQL] ExecuteSql Failed. errormsg=%s code=%s", CCoreMysql.errorstr(iSqlId), CCoreMysql.errorno(iSqlId)))
 			print(string.format("[SQL] ExecuteSql Failed. sql=%s", cSql))
 			return false
 		end
@@ -42,75 +42,75 @@ local function executesql(cSql)
 end
 
 -- 加载
-function ccoremysql.loadmysqldll()
+function CCoreMysql.loadmysqldll()
 	return CoreMySql.LibraryInit()
 end
 
 -- 进程退出
-function ccoremysql.downmysqldll()
+function CCoreMysql.downmysqldll()
 	return CoreMySql.LibraryEnd()
 end
 
 -- 初始化
-function ccoremysql.init(cHost, iPort, cDBName, cUser, cPwd, cCharacter)
-	return CoreMySql.Init(cHost, iPort, cDBName, cUser, cPwd, cCharacter)
+function CCoreMysql.create(iSqlId, cHost, iPort, cDBName, cUser, cPwd, cCharacter)
+	return CoreMySql.CreateSqlInstance(iSqlId, cHost, iPort, cDBName, cUser, cPwd, cCharacter)
 end
 
 -- 链接
-function ccoremysql.tryconect()
-	return CoreMySql.TryConnect()
+function CCoreMysql.tryconect(iSqlId)
+	return CoreMySql.TryConnect(iSqlId)
 end
 
 -- 是否链接中
-function ccoremysql.isconnect()
-	return CoreMySql.IsConnect()
+function CCoreMysql.isconnect(iSqlId)
+	return CoreMySql.IsConnect(iSqlId)
 end
 
 -- 断线
-function ccoremysql.disconnect()
-	return CoreMySql.DisConnect()
+function CCoreMysql.disconnect(iSqlId)
+	return CoreMySql.DisConnect(iSqlId)
 end
 
 -- 修改
-function ccoremysql.modifysql(cSql)
-	if not executesql(cSql) then return false, 0, 0 end
-	return true, CoreMySql.GetLastInsertId(), CoreMySql.GetAffectedRows()
+function CCoreMysql.modifysql(iSqlId, cSql)
+	if not executesql(iSqlId, cSql) then return false, 0, 0 end
+	return true, CoreMySql.GetLastInsertId(iSqlId), CoreMySql.GetAffectedRows(iSqlId)
 end
 
 -- 获取
-function ccoremysql.selectsql(cSql)
-	if not executesql(cSql) then return nil end
-	return CoreMySql.StoreResult()
+function CCoreMysql.selectsql(iSqlId, cSql)
+	if not executesql(iSqlId, cSql) then return nil end
+	return CoreMySql.StoreResult(iSqlId)
 end
 
 -- 过滤
-function ccoremysql.escapesql(args)
-	return CoreMySql.Escape(args)
+function CCoreMysql.escapesql(iSqlId, args)
+	return CoreMySql.Escape(iSqlId, args)
 end
 
 -- 设置自动提交
-function ccoremysql.setautocommit(flag)
-	return CoreMySql.SetAutoCommit(flag)
+function CCoreMysql.setautocommit(iSqlId, flag)
+	return CoreMySql.SetAutoCommit(iSqlId, flag)
 end 
 
 -- 写入事务
-function ccoremysql.commit()
-	return CoreMySql.Commit()
+function CCoreMysql.commit(iSqlId)
+	return CoreMySql.Commit(iSqlId)
 end
 
 -- 回滚事务
-function ccoremysql.rollback()
-	return CoreMySql.Rollback()
+function CCoreMysql.rollback(iSqlId)
+	return CoreMySql.Rollback(iSqlId)
 end
 
 -- 获取错误代码
-function ccoremysql.errorno()
-	return CoreMySql.GetErrorCode()
+function CCoreMysql.errorno(iSqlId)
+	return CoreMySql.GetErrorCode(iSqlId)
 end
 
 -- 获取错误字符串
-function ccoremysql.errorstr()
-	return CoreMySql.GetErrorStr()
+function CCoreMysql.errorstr(iSqlId)
+	return CoreMySql.GetErrorStr(iSqlId)
 end
 
-return util.ReadOnlyTable(ccoremysql)
+return util.ReadOnlyTable(CCoreMysql)

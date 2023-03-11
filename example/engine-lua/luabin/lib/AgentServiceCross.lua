@@ -1,5 +1,5 @@
 ﻿local reloadmodule = require "reloadmodule"
-local net_module = require "ccorenet"
+local net_module = require "CCoreNet"
 local CoreTool = require "CoreTool"
 local IClient = require "IClient"
 local util = require "util"
@@ -122,14 +122,15 @@ function AgentServiceCross.AddService(serviceid, cRemoteIP, iRemotePort, cUnixSo
 		obj = IClient.IClientClass.new(AgentServiceCrossClassName, local_modulename, cUnixSocketName, 0, iTimeOut, iConnectTimeOut, net_module.UnixLocal, true, bNoDelay)
 	end
 
+	obj:SetPrivateData(serviceid)
+	AgentServiceCrossList[serviceid] = obj
+	AgentServiceCrossLocalLogServiceName = serviceid
+
 	if not obj:Connect() then
 		print(debug.traceback(), "\n", string.format("AgentServiceCross.AddService %s Failed. cLocalIP=%s iLocalPort=%s", serviceid, cRemoteIP, iRemotePort))
 		return false
 	end
 
-	obj:SetPrivateData(serviceid)
-	AgentServiceCrossList[serviceid] = obj
-	AgentServiceCrossLocalLogServiceName = serviceid
 	return true
 end
 
@@ -137,9 +138,25 @@ function AgentServiceCross.DelService(serviceid)
 	if not AgentServiceCrossList[serviceid] then
 		return
 	end
+	AgentServiceCrossList[serviceid]:SetNotReconnect()
 	AgentServiceCrossList[serviceid]:DisConnect()
+	AgentServiceCrossList[serviceid]:DelRegServiceTimer()
+	AgentServiceCrossList[serviceid]:DelPingTimer()
+	AgentServiceCrossList[serviceid]:DelReConnectTimer()
 	AgentServiceCrossList[serviceid]:SetPrivateData()
 	AgentServiceCrossList[serviceid] = nil
+end
+
+function AgentServiceCross.IsExistService(serviceid)
+	return AgentServiceCrossList[serviceid] ~= nil
+end
+
+function AgentServiceCross.GetAllServiceID()
+	local result = {}
+	for serviceid,_ in pairs(AgentServiceCrossList) do
+		table.insert(result, serviceid)
+	end
+	return result
 end
 
 -- serviceConfArray = {{serviceid, cRemoteIP, iRemotePort, cUnixSocketName}, ......}
@@ -171,11 +188,6 @@ function AgentServiceCross.Init(className, modulename, hotfixModuleName, bLocalS
 		if not reloadmodule.reloadtest(hotfixModuleName) then
 			return false
 		end
-	end
-
-	if bLocalService and #serviceConfArray ~= 1 then
-		print(debug.traceback(), "\n", string.format("AgentServiceCross.Init local service serviceConfArray len == 1"))
-		return false
 	end
 
 	-- 赋值
